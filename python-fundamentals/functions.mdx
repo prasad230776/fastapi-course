@@ -1,0 +1,235 @@
+---
+title: Functions & Scope
+description: Create reusable blocks of code, pass arguments, manage scope, and get results
+icon: "brackets-curly"
+---
+
+## 1. Defining and Calling Functions
+
+A function is a named block of code that performs a specific task. You define it once, then call it whenever you need that task done.
+
+```python
+def greet():
+    print("Hello, world!")
+    print("Welcome to Python!")
+
+# Call the function
+greet()
+```
+
+### Function Syntax
+Every function follows this pattern:
+
+```python
+def function_name():
+    # Code goes here
+    # Must be indented
+    pass
+```
+
+Key parts:
+- `def`: keyword that creates a function.
+- **Function name** followed by parentheses `()`.
+- **Colon** `:` to start the function body.
+- **Indented code block** (the function body).
+
+### Naming Functions
+Follow these rules for function names (Snake Case):
+- Use lowercase letters.
+- Separate words with underscores.
+- Be descriptive about what the function does.
+
+```python
+# Good names
+def calculate_total():
+    pass
+
+# Bad names
+def func1():  # Not descriptive
+    pass
+
+def Calculate():  # Should be lowercase
+    pass
+```
+
+---
+
+## 2. Parameters & Arguments
+
+Parameters let you pass data into functions. Instead of hardcoding values, you make functions flexible to work with different inputs.
+
+```python
+def greet(name):
+    print(f"Hello, {name}!")
+
+greet("Alice")
+greet("Bob")
+```
+
+> [!NOTE]
+> The variables in the function definition are **parameters**. The actual values you pass when calling the function are **arguments**.
+
+### Positional Arguments
+By default, Python matches the arguments you pass to the parameters in the definition by their **position** (order).
+
+```python
+def describe_pet(animal_type, pet_name):
+    print(f"I have a {animal_type} named {pet_name}.")
+
+# "hamster" maps to animal_type, "Harry" to pet_name
+describe_pet("hamster", "Harry")  # I have a hamster named Harry.
+```
+
+### Default Values
+You can give parameters default values to make them optional:
+
+```python
+def greet(name, greeting="Hello"):
+    print(f"{greeting}, {name}!")
+
+greet("Alice")           # Hello, Alice!
+greet("Bob", "Hi")       # Hi, Bob!
+```
+
+> [!TIP]
+> Always put parameters with default values at the end of the parameter list.
+
+### Keyword Arguments
+You can call functions using parameter names for clarity, which allows you to pass them in any order:
+
+```python
+def create_profile(name, age, city):
+    print(f"{name}, {age}, from {city}")
+
+create_profile(city="New York", name="Alice", age=25)
+```
+
+---
+
+## 3. Return Values
+
+Use the `return` statement to send a value back from a function to the caller.
+
+```python
+def add(a, b):
+    return a + b
+
+result = add(5, 3)
+print(result)  # 8
+```
+
+> [!IMPORTANT]
+> When Python encounters a `return` statement, it immediately exits the function. Any code after the `return` statement will not execute.
+
+### Returning Multiple Values
+You can return multiple values from a function by separating them with commas. Python wraps them in a tuple automatically:
+
+```python
+def get_min_max(numbers):
+    return min(numbers), max(numbers)
+
+minimum, maximum = get_min_max([5, 2, 8, 1, 9])
+print(f"Min: {minimum}, Max: {maximum}")  # Min: 1, Max: 9
+```
+
+---
+
+## 4. Flexible & Enforced Arguments
+
+Python provides advanced options for handling dynamic numbers of arguments and enforcing calling styles.
+
+### Variable-Length Arguments (`*args`)
+Prefix a parameter name with a single asterisk `*` to accept any number of positional arguments. Inside the function, `args` is a **tuple**.
+
+```python
+def sum_all(*numbers):
+    total = 0
+    for num in numbers:
+        total += num
+    return total
+
+print(sum_all(1, 2, 3))  # 6
+```
+
+### Variable Keyword Arguments (`**kwargs`)
+Prefix a parameter name with a double asterisk `**` to accept any number of keyword arguments. Inside the function, `kwargs` is a **dictionary**.
+
+```python
+def show_profile(**info):
+    for key, value in info.items():
+        print(f"{key}: {value}")
+
+show_profile(name="Alice", age=25, city="NYC")
+```
+
+### Argument Ordering Rules
+When mixing argument types, you must define them in this exact order:
+1. Standard positional arguments
+2. `*args`
+3. Keyword-only arguments
+4. `**kwargs`
+
+### Positional-Only (`/`) and Keyword-Only (`*`) Parameters
+- **Positional-Only** (`/`): Parameters before `/` must be passed positionally.
+- **Keyword-Only** (`*`): Parameters after `*` must be passed as keyword arguments.
+
+```python
+# 'first' and 'second' are positional-only, 'third' is keyword-only
+def mix_example(first, second, /, *, third):
+    print(first, second, third)
+
+mix_example(1, 2, third=3)  # Correct
+```
+
+---
+
+## 5. Variable Scope & LEGB Rule
+
+The **scope** of a variable refers to the region of a program where that variable is accessible.
+
+### LEGB Lookup Order
+When you reference a variable name, Python searches for it in this strict order:
+1. **L**ocal: Inside the current function.
+2. **E**nclosing: Inside any enclosing (outer) functions.
+3. **G**lobal: Top-level variables defined in the module/file.
+4. **B**uilt-in: Python's pre-loaded functions (like `len`, `print`).
+
+If not found, Python raises a `NameError`.
+
+```python
+# Global variable
+x = "global"
+
+def outer():
+    # Enclosing variable
+    x = "enclosing"
+    
+    def inner():
+        # Local variable
+        x = "local"
+        print(x) # Prints "local"
+        
+    inner()
+
+outer()
+```
+
+### The `global` and `nonlocal` Keywords
+- **`global`**: Declares that a variable inside a function refers to the global scope, allowing you to modify it.
+- **`nonlocal`**: Declares that a variable inside a nested function refers to the enclosing (outer) scope, allowing you to modify it.
+
+```python
+counter = 0
+
+def increment_global():
+    global counter
+    counter += 1
+
+def outer_func():
+    message = "Hello"
+    def inner_func():
+        nonlocal message
+        message = "Hello from Inner!"
+    inner_func()
+    print(message)  # Prints: Hello from Inner!
+```

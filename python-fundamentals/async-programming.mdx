@@ -1,0 +1,89 @@
+---
+title: Asynchronous Programming
+description: Learn async/await, concurrency, and how Python handles high-performance I/O operations
+icon: "bolt"
+---
+
+## 1. Concurrency vs. Parallelism
+
+To understand asynchronous programming, we must distinguish between concurrency and parallelism:
+
+- **Parallelism (CPU-Bound)**: Doing multiple things at the exact same time on multiple CPU cores (e.g., rendering video, matrix multiplication). Python handles this using the `multiprocessing` module.
+- **Concurrency (I/O-Bound)**: Having the *appearance* of doing multiple things at once by context-switching during idle waiting times (e.g., waiting for database queries, disk reads, or API requests). Python handles this using `asyncio` and `async/await`.
+
+FastAPI leverages concurrency to handle thousands of requests simultaneously on a single CPU core, as web requests are mostly waiting on database and network I/O.
+
+---
+
+## 2. Async & Await Declarations
+
+Python's `asyncio` framework uses the keywords `async def` and `await` to write asynchronous code.
+
+### Coroutines
+Declaring a function with `async def` creates a **coroutine**. Calling a coroutine does not run it; it returns a coroutine object. To execute it, you must `await` it.
+
+```python
+import asyncio
+
+async def fetch_data():
+    print("Start fetching data...")
+    # Simulate a network delay (non-blocking sleep)
+    await asyncio.sleep(2)
+    print("Data fetched!")
+    return {"data": 123}
+
+async def main():
+    # We must await the coroutine to run it
+    result = await fetch_data()
+    print(result)
+
+# Runs the event loop and executes the main coroutine
+asyncio.run(main())
+```
+
+---
+
+## 3. The Event Loop & Task Scheduling
+
+The **Event Loop** is the engine that runs asynchronous applications. It manages the execution of different tasks:
+1. It runs a task until the task hits an `await` expression (blocking I/O).
+2. While that task waits for I/O (e.g., waiting for database results), the loop pauses it and switches to run another ready task.
+3. Once the I/O operation finishes, the event loop resumes the original task.
+
+### Running Tasks Concurrently
+To run multiple operations concurrently instead of sequentially, you can group them into `asyncio.create_task()` or use `asyncio.gather()`.
+
+```python
+import asyncio
+import time
+
+async def call_api(service_name: str, delay: int):
+    print(f"Calling {service_name}...")
+    await asyncio.sleep(delay)
+    print(f"{service_name} done!")
+    return f"{service_name} response"
+
+async def main():
+    start_time = time.time()
+    
+    # Run three API calls concurrently
+    results = await asyncio.gather(
+        call_api("Auth Service", 2),
+        call_api("Product Catalog", 1),
+        call_api("Payment Gateway", 3)
+    )
+    
+    end_time = time.time()
+    print(f"Results: {results}")
+    print(f"Total elapsed time: {end_time - start_time:.2f} seconds")  # Should be ~3 seconds instead of 6
+
+asyncio.run(main())
+```
+
+---
+
+## 4. Why FastAPI Uses Async
+
+FastAPI is built on **ASGI** (Asynchronous Server Gateway Interface) and supports native `async def` route handlers.
+
+When a client sends a request to an `async def` endpoint that performs a database query or external API fetch, FastAPI yields control back to the event loop. The event loop can process other incoming requests in the meantime, resulting in massive throughput gains.

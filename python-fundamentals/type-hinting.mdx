@@ -1,0 +1,85 @@
+---
+title: Type Hinting
+description: Annotate variables, function parameters, collection types, and return values in Python
+icon: "brackets-square"
+---
+
+## 1. Why Use Type Hints?
+
+Python is a dynamically typed language, meaning variables can dynamically change types. While convenient, this can lead to unexpected runtime errors. 
+
+**Type Hints** (introduced in Python 3.5) allow you to explicitly declare what data types variables, function arguments, and return values should be.
+
+- **No Runtime Enforcement**: Python does not raise errors at runtime if types mismatch.
+- **Improved Tooling**: Type hints enable code editors (like VS Code) to provide autocompletion, inline documentation, and error highlighting.
+- **Static Analysis**: Tools like `mypy` can analyze your codebase to catch type bugs before you run the code.
+
+---
+
+## 2. Basic Type Annotations
+
+To annotate a variable or parameter, add a colon `:` followed by the type name. To annotate a function's return type, use `->`.
+
+```python
+# Variables
+age: int = 25
+name: str = "Alice"
+is_active: bool = True
+price: float = 99.99
+
+# Function parameters and return values
+def calculate_total(price: float, quantity: int) -> float:
+    return price * quantity
+```
+
+---
+
+## 3. Generic Collections
+
+For collections like lists, dictionaries, tuples, and sets, Python 3.9+ allows you to use the built-in collection classes as types directly:
+
+```python
+# List of floats
+prices: list[float] = [10.99, 5.50, 20.00]
+
+# Dictionary mapping strings to integers
+user_ages: dict[str, int] = {"Alice": 25, "Bob": 30}
+
+# Set of strings
+unique_names: set[str] = {"Alice", "Bob"}
+
+# Tuple with fixed elements
+coordinates: tuple[float, float] = (12.34, 56.78)
+```
+
+---
+
+## 4. Modern Union & Optional Syntax
+
+Often, a variable or parameter might accept multiple types or be optional (nullable).
+
+### Union Types (`|`)
+Starting in Python 3.10, you can use the pipe operator `|` to represent a union of multiple types.
+
+```python
+# Accepts either an integer OR a float
+result: int | float = 10.5
+```
+
+### Optional Types (`str | None`)
+To represent a value that could be a specific type or `None`, union that type with `None`:
+
+```python
+# Accepts a string OR None
+middle_name: str | None = None
+```
+
+> [!NOTE]
+> In older Python versions, you had to import `Union` and `Optional` from the `typing` module:
+> ```python
+> # Old way (pre-3.10)
+> from typing import Optional, Union
+> middle_name: Optional[str] = None
+> result: Union[int, float] = 10.5
+> ```
+> In modern Python development, the `|` syntax is the clean, industry-standard approach.

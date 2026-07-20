@@ -1,0 +1,93 @@
+---
+title: Environment Management
+description: Set up isolated virtual environments, install packages with pip or uv, and manage dependencies with pyproject.toml
+icon: "box"
+---
+
+## 1. Virtual Environments (venv)
+
+A **virtual environment** is a self-contained directory tree that contains a Python installation for a particular version of Python, plus a number of additional packages.
+
+### Why Isolate Environments?
+By default, standard python installations share global libraries. If Project A needs `fastapi 0.95` and Project B needs `fastapi 0.110`, a global environment will crash. Virtual environments solve this by isolating packages per project directory.
+
+### Creating and Activating an Environment
+
+```bash
+# 1. Create the environment (creates a folder named .venv)
+python -m venv .venv
+
+# 2. Activate the environment
+# macOS / Linux:
+source .venv/bin/activate
+
+# Windows (PowerShell):
+.venv\Scripts\Activate.ps1
+```
+
+Once activated, your terminal prompt will display `(.venv)`, indicating that any python or pip commands will run inside the isolated environment.
+
+---
+
+## 2. Package Installation with Pip
+
+`pip` is the default package installer for Python. 
+
+```bash
+# Install a package
+pip install fastapi
+
+# Save installed dependencies
+pip freeze > requirements.txt
+
+# Install dependencies from a file
+pip install -r requirements.txt
+```
+
+---
+
+## 3. High-Performance Package Management with `uv`
+
+`uv` is an ultra-fast Python package installer and resolver written in Rust by Astral. It serves as a drop-in replacement for standard pip and virtualenv tools, running 10x to 100x faster.
+
+```bash
+# Install uv globally (if not installed)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Create a virtual environment with uv (instant!)
+uv venv
+
+# Install packages with uv
+uv pip install fastapi uvicorn
+```
+
+---
+
+## 4. Declarative Dependency Management: `pyproject.toml`
+
+Modern Python projects use a single configuration file named `pyproject.toml` to define dependencies, project metadata, and tool configuration, replacing legacy files like `requirements.txt` and `setup.py`.
+
+### Example `pyproject.toml`
+```toml
+[project]
+name = "my-fastapi-app"
+version = "0.1.0"
+description = "A production-ready FastAPI backend"
+dependencies = [
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.28.0",
+    "pydantic[email]>=2.6.0",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.0.0",
+    "black>=24.0.0",
+]
+```
+
+Using `uv`, you can install these dependencies instantly:
+```bash
+# Sync environment with dependencies defined in pyproject.toml
+uv sync
+```

@@ -1,0 +1,106 @@
+---
+title: Exception Handling
+description: Catch errors using try-except blocks, raise exceptions, and define custom exception classes
+icon: "shield-check"
+---
+
+## 1. Try, Except, Else, and Finally
+
+Python handles runtime errors using exception blocks. This prevents the application from crashing when an error occurs.
+
+### The Basic Try-Except
+The `try` block contains the code that might fail, while the `except` block catches specific error types and runs recovery logic.
+
+```python
+try:
+    number = int("not-a-number")
+except ValueError:
+    print("Please enter a valid integer")
+```
+
+### Multiple Error Types
+You can catch different errors and handle them differently:
+
+```python
+try:
+    with open('number.txt', 'r') as f:
+        text = f.read()
+    number = int(text)
+    result = 100 / number
+except FileNotFoundError:
+    print("Could not find the file")
+except ValueError:
+    print("File does not contain a valid number")
+except ZeroDivisionError:
+    print("Cannot divide by zero")
+```
+
+### Else and Finally
+- **`else`**: Runs only if no exceptions were raised in the `try` block.
+- **`finally`**: Always runs, regardless of whether an exception occurred or was handled. This block is typically used for clean-up tasks (like closing files or database connections).
+
+```python
+try:
+    file = open('data.txt', 'r')
+    data = file.read()
+except FileNotFoundError:
+    print("File not found")
+else:
+    print("File loaded successfully")
+finally:
+    if 'file' in locals() and not file.closed:
+        file.close()
+    print("Cleanup complete")
+```
+
+---
+
+## 2. Raising Exceptions
+
+Use the `raise` keyword to manually trigger a built-in or custom exception when a business logic rule is violated.
+
+```python
+def check_age(age: int):
+    if age < 0:
+        raise ValueError("Age cannot be negative!")
+    if age < 18:
+        raise ValueError("Must be at least 18 years old")
+```
+
+---
+
+## 3. Custom Exception Classes
+
+For larger applications, Python's built-in exceptions might not be descriptive enough. You can define domain-specific exceptions by inheriting from Python's base `Exception` class.
+
+### Defining and Using Custom Exceptions
+By convention, name your custom exceptions with the `Error` suffix.
+
+```python
+# 1. Inherit from the base Exception class
+class InsufficientBalanceError(Exception):
+    """Raised when a withdrawal amount exceeds the account balance."""
+    def __init__(self, balance: float, amount: float):
+        self.balance = balance
+        self.amount = amount
+        super().__init__(f"Attempted to withdraw ${amount} but only have ${balance}")
+
+# 2. Raise the custom exception in business logic
+class BankAccount:
+    def __init__(self, balance: float):
+        self.balance = balance
+
+    def withdraw(self, amount: float):
+        if amount > self.balance:
+            raise InsufficientBalanceError(self.balance, amount)
+        self.balance -= amount
+        print(f"Successfully withdrew ${amount}")
+
+# 3. Catch the custom exception
+account = BankAccount(100)
+try:
+    account.withdraw(150)
+except InsufficientBalanceError as error:
+    print(f"Transaction Failed: {error}")
+    print(f"Shortage Amount: ${error.amount - error.balance}")
+```

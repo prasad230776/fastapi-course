@@ -1,0 +1,246 @@
+---
+title: Classes & OOP
+description: Blueprint class definitions, inheritance, encapsulation, class/static methods, and properties in Python
+icon: "cube"
+---
+
+## 1. Classes and Instances
+
+Object-Oriented Programming (OOP) is a paradigm that groups related data (attributes) and behaviors (methods) into reusable blueprints called **classes**. An individual object built from a class is an **instance**.
+
+```python
+# Blueprint class definition
+class Dog:
+    # Initializer constructor
+    def __init__(self, name: str, breed: str):
+        self.name = name    # Instance attribute
+        self.breed = breed  # Instance attribute
+
+# Creating dynamic instances
+dog1 = Dog(name="Buddy", breed="Golden Retriever")
+dog2 = Dog(name="Max", breed="Poodle")
+
+print(dog1.name)   # Buddy
+print(dog2.breed)  # Poodle
+```
+
+---
+
+## 2. Attributes and Methods
+
+Classes can hold both data and code. These are categorized into instance-level and class-level members.
+
+### Instance Methods
+Functions inside a class that operate on a specific instance of that class. They must accept `self` as the first argument.
+
+```python
+class Account:
+    def __init__(self, owner: str, balance: float):
+        self.owner = owner
+        self.balance = balance
+
+    def deposit(self, amount: float):
+        self.balance += amount
+        return self.balance
+```
+
+### Class Attributes & Methods (`@classmethod`)
+- **Class Attributes**: Variables shared by all instances of a class.
+- **Class Methods**: Decorated with `@classmethod`, they accept `cls` (the class itself) instead of `self`. They are used for factory methods or modifying class-level state.
+
+```python
+class Account:
+    bank_name = "State Bank of India"  # Class attribute
+
+    def __init__(self, owner: str, balance: float):
+        self.owner = owner
+        self.balance = balance
+
+    @classmethod
+    def update_bank(cls, new_name: str):
+        cls.bank_name = new_name  # Modifies class-level attribute
+```
+
+### Static Methods (`@staticmethod`)
+Decorated with `@staticmethod`, these do not accept `self` or `cls`. They act like normal helper functions grouped inside the class namespace.
+
+```python
+class Account:
+    @staticmethod
+    def is_valid_amount(amount: float) -> bool:
+        return amount > 0
+```
+
+---
+
+## 3. Class Inheritance
+
+Inheritance allows a new class (child/subclass) to inherit attributes and methods from an existing class (parent/superclass).
+
+```python
+class Animal:
+    def __init__(self, name: str):
+        self.name = name
+
+    def eat(self):
+        return f"{self.name} is eating"
+
+# Dog inherits from Animal
+class Dog(Animal):
+    def __init__(self, name: str, breed: str):
+        super().__init__(name)  # Initialize parent attributes
+        self.breed = breed
+
+    def bark(self):
+        return "Woof!"
+
+buddy = Dog("Buddy", "Golden Retriever")
+print(buddy.eat())  # Buddy is eating (inherited method)
+print(buddy.bark()) # Woof!
+```
+
+---
+
+## 4. Encapsulation & Properties
+
+Encapsulation restricts direct access to an object's internal state to prevent accidental modifications.
+
+### Private & Protected Fields
+- **Protected** (`_name`): A convention suggesting the field is for internal/subclass use. Python does not enforce this.
+- **Private** (`__pin`): Triggers Name Mangling (`_ClassName__pin`), causing Python to raise an `AttributeError` if accessed directly.
+
+```python
+class User:
+    def __init__(self, username: str, pin: str):
+        self.username = username    # Public
+        self._status = "active"     # Protected
+        self.__pin = pin            # Private
+```
+
+### Property Getters & Setters (`@property`)
+Properties allow you to define methods that behave like attributes, which is useful for validating data when reading or writing a field.
+
+```python
+class Product:
+    def __init__(self, name: str, price: float):
+        self.name = name
+        self._price = price
+
+    @property
+    def price(self) -> float:
+        """Getter method"""
+        return self._price
+
+    @price.setter
+    def price(self, value: float):
+        """Setter method with validation"""
+        if value < 0:
+            raise ValueError("Price cannot be negative")
+        self._price = value
+
+# Usage
+item = Product("Laptop", 999.0)
+print(item.price)  # Accesses property getter -> 999.0
+item.price = 1050.0  # Accesses property setter
+
+---
+
+## 5. Introspection, Abstract Classes, & Inheritance Arguments
+
+Python provides built-in mechanisms to inspect objects at runtime, define interfaces/abstract classes, and customize how arguments are passed during class inheritance.
+
+### Abstract Base Classes (ABCs)
+The `abc` module allows you to define abstract classes that cannot be instantiated and force subclasses to implement specific methods.
+
+```python
+from abc import ABC, abstractmethod
+
+class BaseRepository(ABC):
+    @abstractmethod
+    def save(self, data: dict) -> None:
+        """Subclasses must implement this method"""
+        pass
+
+# repo = BaseRepository()  # TypeError: Can't instantiate abstract class BaseRepository
+
+class SQLRepository(BaseRepository):
+    def save(self, data: dict) -> None:
+        print(f"Saving {data} to Database")
+```
+
+### Type Checking (`type` vs `isinstance`)
+- `type(obj)` returns the exact class/type of an object.
+- `isinstance(obj, ClassName)` checks if an object is an instance of a class or any subclass (preferred for polymorphism).
+
+```python
+class Animal: pass
+class Dog(Animal): pass
+
+buddy = Dog()
+
+print(type(buddy) is Dog)       # True
+print(type(buddy) is Animal)    # False (checks exact class)
+print(isinstance(buddy, Animal)) # True (checks inheritance hierarchy)
+```
+
+### Introspection: `__dict__` and `__annotations__`
+- **`__dict__`**: A dictionary containing the namespaces of an object (its attributes and values).
+- **`__annotations__`**: A dictionary containing type annotations defined on the class or function.
+
+```python
+class User:
+    username: str
+    email: str
+
+    def __init__(self, username: str, email: str):
+        self.username = username
+        self.email = email
+
+# Inspecting class annotations
+print(User.__annotations__) 
+# Output: {'username': <class 'str'>, 'email': <class 'str'>}
+
+# Inspecting instance attributes
+u = User(username="alice", email="alice@example.com")
+print(u.__dict__) 
+# Output: {'username': 'alice', 'email': 'alice@example.com'}
+```
+
+### Passing Arguments Along with Class Name in Inheritance
+You can pass custom configuration arguments directly inside the class declaration parentheses next to the parent class name. This is done by implementing the special class method `__init_subclass__` in the parent class.
+
+```python
+class DatabaseModel:
+    table_name: str
+
+    # Hook called when a subclass is defined
+    def __init_subclass__(cls, table: str, **kwargs):
+        super().__init_subclass__(**kwargs)
+        cls.table_name = table
+
+# Passing the 'table' argument directly with the class name
+class UserProfile(DatabaseModel, table="users"):
+    pass
+
+print(UserProfile.table_name)  # Output: users
+```
+
+#### What happens when this code is run?
+1. **Class-level Interception**: When Python compiles and executes the class definition of `UserProfile`, it notices that `DatabaseModel` defines a `__init_subclass__` method.
+2. **Hook Execution**: Instead of just creating the `UserProfile` class normally, Python automatically calls `DatabaseModel.__init_subclass__(UserProfile, table="users")`.
+3. **Property Assignment**: The method receives the newly created subclass as `cls` and the keyword argument `table`. It then sets `cls.table_name = "users"`. This operates at **class-definition time** (import time), long before any instances of `UserProfile` are created.
+
+#### Why do we need this pattern?
+- **Declarative Configuration**: In ORM libraries (like SQLAlchemy or SQLModel) or API frameworks, it is common to define database tables or routes declaratively. This pattern allows subclasses to configure themselves during creation.
+- **Factory Registration**: You can use this hook to automatically register all child classes (e.g., adding them to a global registry dictionary for routing or database tables) without requiring manual setup:
+  ```python
+  # Autoregistration example
+  API_ROUTERS = {}
+
+  class BaseRouter:
+      def __init_subclass__(cls, route_path: str, **kwargs):
+          super().__init_subclass__(**kwargs)
+          API_ROUTERS[route_path] = cls
+  ```
+- **Alternative to Metaclasses**: Historically, doing this required complex custom metaclasses. `__init_subclass__` provides a simpler, cleaner way to customize subclass creation.
+

@@ -1,0 +1,263 @@
+---
+title: "Route Map"
+description: "Interactive backend development course structure, modules, and topics layout"
+icon: "map"
+---
+
+Welcome to the **FastAPI Backend Development Course Route Map**. Use this interactive syllabus to navigate the course modules. Each topic lists the core concepts covered in the learning materials and interactive notebooks.
+
+---
+
+## 🗺️ Course Syllabus Overview
+
+```mermaid
+graph TD
+    A["1. Python Fundamentals"] --> B["2. FastAPI Foundations"]
+    B --> C["3. Database Integration"]
+    C --> D["4. Backend Architecture"]
+    D --> E["5. Security & Auth"]
+    E --> F["6. Advanced Development"]
+    F --> G["7. Testing & Deployment"]
+```
+
+---
+
+## Module 1: Python Fundamentals for Backend Development
+Core Python concepts essential for building robust backend services.
+
+### 1.1 Functions & Scope
+* Functions definition & parameter syntax
+* Return values & functional interfaces
+* Positional vs. Keyword arguments
+* Variable scope boundaries (Local, Enclosing, Global, Built-in)
+
+### 1.2 Modules, Packages & Built-in Modules
+* Creating custom module files & namespaces
+* Directory package structures and `__init__.py` initializations
+* Package imports & import management configurations
+* Standard Library essentials: `pathlib`, `os` file systems, `datetime`, `uuid` unique identifiers, and `json` operations
+
+### 1.3 Classes & Object-Oriented Programming
+* Blueprint class definitions and dynamic instances
+* Initializer constructors (`__init__`)
+* Class inheritance contracts
+* Encapsulation, protected fields, and property getters/setters
+* Class methods (`@classmethod`) vs. Static methods (`@staticmethod`)
+
+### 1.4 Exception Handling
+* Try-except-finally validation scopes
+* Raising exceptions manually
+* Creating custom exception classes inheriting `Exception`
+
+### 1.5 Asynchronous Programming
+* Async & Await declarations
+* Event Loop concept & task scheduling
+* Concurrency vs. Parallelism and network I/O optimization
+
+### 1.6 Type Hinting
+* Basic type annotations (`str`, `int`, `float`, `bool`)
+* Generic collection annotations (`list`, `dict`, `set`, `tuple`)
+* Modern Union syntax (`str | None` instead of `Optional[str]`)
+
+### 1.7 Data Validation with Pydantic
+* BaseModel schema definitions
+* Field constraints & metadata (`Field`)
+* `@field_validator` hooks for custom validations
+* Schema serialization & deserialization (`.model_dump()`, `.model_dump_json()`)
+
+### 1.8 Environment Management
+* Creating isolated virtual environments
+* Package installation using `pip`
+* High-performance package management with the `uv` tool
+* Declarative dependency management with `pyproject.toml`
+
+### 1.9 Organizing Project Structure
+* Modular backend project layouts
+* Layered package groupings
+* Handling relative vs. absolute import errors
+
+### 1.10 Environment Variables
+* Storing configurations in `.env` files
+* Settings management with `pydantic-settings`
+* Keeping API credentials and database secrets secure
+
+---
+
+## Module 2: FastAPI Foundations
+Building RESTful APIs with clean request routing, parameters, and auto-generated documentation.
+
+### 2.1 How the Web Works
+* HTTP request and response structures
+* Common HTTP status codes (2xx, 3xx, 4xx, 5xx)
+* Semantic HTTP verbs (GET, POST, PUT, DELETE)
+
+### 2.2 Introduction to FastAPI
+* Declaring API applications
+* Running hot-reloading development servers with `uvicorn`
+* Basic project setups and startup scripts
+
+### 2.3 Request Handling
+* Extracting variables from URL paths (Path Parameters)
+* Parsing query arguments (Query Parameters)
+* Validating incoming request bodies with Pydantic
+* Reading header metadata parameters
+
+### 2.4 Response Handling
+* Controlling JSON outputs with Response Models
+* Setting semantic HTTP status codes
+* Returning custom replies (plain text, file streams, redirects)
+
+### 2.5 APIRouter & Route Versioning
+* Splitting routes into modular sub-modules
+* Organizing endpoints using APIRouter namespaces
+* API versioning protocols (e.g. `/v1/`, `/v2/`)
+
+### 2.6 Dependency Injection
+* Reusable dependencies with `Depends()`
+* Scoping dependency execution lifecycles
+* Structuring database session dependencies
+
+### 2.7 Basic CRUD Operations
+* In-memory CRUD manipulations
+* Handling mock datasets inside Lists and Dictionaries
+
+### 2.8 API Documentation
+* Interactive Swagger UI documentation
+* ReDoc alternative interactive views
+* Exporting standard OpenAPI specifications
+
+---
+
+## Module 3: Database Integration
+Connecting APIs to persistent database storages safely and efficiently using Object-Relational Mappers (ORMs).
+
+### 3.1 Relational Databases
+* SQLite for local testing
+* PostgreSQL for production databases
+* SQL raw statements vs. Object-Relational Mapping (ORM)
+
+### 3.2 SQLAlchemy ORM
+* Declaring database tables using ORM mapping classes
+* Managing operations using sessions and context managers
+* Defining database relationships (One-to-Many, Many-to-Many)
+
+### 3.3 Database Migrations
+* Bootstrapping migration scripts with Alembic
+* Tracking schema upgrades and downgrades programmatically
+
+### 3.4 CRUD Operations
+* Database inserts, selections, updates, and deletes
+* Implementing query pagination, sorting, and filter bounds
+
+---
+
+## Module 4: Backend Architecture & Clean Code
+Organizing professional FastAPI applications for long-term maintainability.
+
+### 4.1 Project Architecture
+* Layered Architecture patterns (Routing -> Service -> Repository)
+* Standard workspace folder layouts
+* Clean Code principles for backend architectures
+
+### 4.2 Models
+* Defining declarative SQLAlchemy mapping classes
+* Mapping schemas to active database schemas
+
+### 4.3 Schemas
+* Input validation schemas vs. Output serialization schemas
+* Structuring model serialization parameters
+
+### 4.4 Repository Pattern
+* Decoupling database queries from route layers
+* Creating concrete CRUD repositories
+* Designing reusable generic database repository structures
+
+### 4.5 Service Layer
+* Decoupling business rules from router and repository logics
+* Service composition patterns
+
+### 4.6 Dependency Injection Scoping
+* Injecting service dependencies into routers
+* Injecting repository dependencies into services
+
+### 4.7 Utility & Core Modules
+* App configurations and global settings
+* Global constants and helper libraries
+
+### 4.8 Logging & Error Handling
+* Standard output logging formatters
+* Custom global exception handlers and middleware interceptors
+
+---
+
+## Module 5: Security & Authentication
+Securing endpoints, verifying user identity, and managing scopes.
+
+### 5.1 Password Security
+* Secure password hashing with salt parameters
+* Hashing passwords with `bcrypt`
+
+### 5.2 JWT Authentication
+* Access Token generation
+* Setting token expiration limits
+* Access refresh token configurations
+
+### 5.3 Authorization
+* Integrating OAuth2 password flows
+* Implementing Role-Based Access Control (RBAC) validations
+
+---
+
+## Module 6: Advanced Backend Development
+Building responsive systems with background processing, caching, and custom middleware.
+
+### 6.1 Middleware
+* Cross-Origin Resource Sharing (CORS) configurations
+* Request logging and performance monitoring middleware
+* Writing custom request-response middleware
+
+### 6.2 Background Tasks
+* Running light tasks in-process with FastAPI's `BackgroundTasks`
+* Scalable background processing with Celery
+* Message brokers setup using Redis
+
+### 6.3 File Uploads
+* Handling incoming multi-part file uploads (`UploadFile`)
+* Serving static files securely
+
+### 6.4 Caching
+* Cache setups with Redis
+* Caching route outputs to optimize latency
+
+### 6.5 WebSockets
+* Establishing persistent real-time connections
+* Designing broadcast channels for push notifications
+
+### 6.6 Rate Limiting
+* Setting request volume caps using `slowapi`
+
+---
+
+## Module 7: Testing & Deployment
+Writing automated tests, configuring production environments, and container deployment.
+
+### 7.1 Manual Testing
+* Mocking requests using Postman
+* Configuring environment variables & request variables in Postman
+* Setting up automated Postman test collections
+
+### 7.2 Automated Testing
+* Setting up `pytest` workspaces
+* Writing mock client tests with `TestClient`
+* Writing end-to-end integration tests
+
+### 7.3 Docker
+* Creating multi-stage Dockerfiles for python services
+* Managing app containers using Docker Compose
+* Docker network structures
+
+### 7.4 Production Deployment
+* Environment-specific configuration files
+* Nginx reverse proxies
+* Running Uvicorn behind Gunicorn supervisors
+* Deploying to Render & DigitalOcean VPS hosts

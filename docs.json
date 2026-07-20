@@ -1,0 +1,195 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Backend Development with FastAPI",
+  "colors": {
+    "primary": "#0ea5e9",
+    "light": "#38bdf8",
+    "dark": "#0284c7"
+  },
+  "background": {
+    "color": {
+      "dark": "#0b0f19"
+    }
+  },
+  "favicon": "/favicon.svg",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Introduction",
+        "groups": [
+          {
+            "group": "Start here",
+            "pages": [
+              "index",
+              "route-map"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Python Fundamentals",
+        "groups": [
+          {
+            "group": "Python Foundations",
+            "pages": [
+              "python-fundamentals/functions",
+              "python-fundamentals/modules-packages",
+              "python-fundamentals/oop-classes",
+              "python-fundamentals/exception-handling",
+              "python-fundamentals/async-programming",
+              "python-fundamentals/type-hinting",
+              "python-fundamentals/pydantic",
+              "python-fundamentals/env-management",
+              "python-fundamentals/project-structure",
+              "python-fundamentals/environment-variables"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "FastAPI Foundations",
+        "groups": [
+          {
+            "group": "Web & Routing",
+            "pages": [
+              "fastapi-foundations/how-web-works",
+              "fastapi-foundations/intro-to-fastapi",
+              "fastapi-foundations/request-handling",
+              "fastapi-foundations/response-handling",
+              "fastapi-foundations/apirouter",
+              "fastapi-foundations/dependency-injection",
+              "fastapi-foundations/local-crud",
+              "fastapi-foundations/api-documentation"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Database Integration",
+        "groups": [
+          {
+            "group": "Data Persistence",
+            "pages": [
+              "database-integration/relational-databases",
+              "database-integration/sqlalchemy",
+              "database-integration/migrations",
+              "database-integration/crud-operations"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Backend Architecture",
+        "groups": [
+          {
+            "group": "Clean Code",
+            "pages": [
+              "clean-architecture/layered-architecture",
+              "clean-architecture/models",
+              "clean-architecture/schemas",
+              "clean-architecture/repository-pattern",
+              "clean-architecture/service-layer",
+              "clean-architecture/di-scoping",
+              "clean-architecture/utilities",
+              "clean-architecture/logging-errors"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Security & Auth",
+        "groups": [
+          {
+            "group": "Authentication",
+            "pages": [
+              "security-auth/password-security",
+              "security-auth/jwt-auth",
+              "security-auth/authorization"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Advanced Development",
+        "groups": [
+          {
+            "group": "Advanced Concepts",
+            "pages": [
+              "advanced-backend/middleware",
+              "advanced-backend/background-tasks",
+              "advanced-backend/file-uploads",
+              "advanced-backend/caching",
+              "advanced-backend/websockets",
+              "advanced-backend/rate-limiting"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Testing & Deployment",
+        "groups": [
+          {
+            "group": "QA & DevOps",
+            "pages": [
+              "testing-deployment/manual-testing",
+              "testing-deployment/automated-testing",
+              "testing-deployment/docker",
+              "testing-deployment/production-deployment"
+            ]
+          }
+        ]
+      }
+    ],
+    "global": {
+      "anchors": []
+    }
+  },
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Route Map",
+        "href": "/route-map"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Academy",
+      "href": "https://sgrinfo.tech"
+    }
+  },
+  "footer": {
+    "copyright": "Free to Use!"
+  },
+  "appearance": {
+    "defaultMode": "light",
+    "toggleButton": true
+  },
+  "feedback": {
+    "thumbsRating": true,
+    "suggestEdit": true
+  },
+  "modeToggle": {
+    "default": "light",
+    "isHidden": false
+  },
+  "typography": {
+    "fontSize": 16,
+    "lineHeight": 1.6,
+    "headings": {
+      "weight": 600
+    }
+  },
+  "layout": {
+    "maxWidth": "1200px"
+  },
+  "seo": {
+    "site": "https://sgrinfo.tech",
+    "title": "Backend Development with FastAPI Course",
+    "description": "Learn professional backend development with Python & FastAPI. This comprehensive course covers REST APIs, relational databases, repository architectures, security, and cloud deployment."
+  }
+}

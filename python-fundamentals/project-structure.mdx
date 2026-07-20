@@ -1,0 +1,80 @@
+---
+title: Project Structure & Imports
+description: Organize your backend applications, structure packages, and handle imports correctly
+icon: "folder-tree"
+---
+
+## 1. Modular Backend Project Layouts
+
+As your backend grows, keeping all routes, database models, and logic in one file becomes impossible to maintain. A standard, modular layout is necessary.
+
+Here is a typical production-grade FastAPI project layout:
+
+```text
+my_project/
+├── .env                  # Local secret environment variables (ignored by git)
+├── .gitignore            # Git ignore file
+├── pyproject.toml        # Project dependencies and configs
+├── README.md             # Documentation
+└── app/                  # Main application package
+    ├── __init__.py
+    ├── main.py           # Application entrypoint
+    ├── config.py         # Configuration settings (Pydantic)
+    ├── database.py       # Database connection setup
+    ├── api/              # API router group
+    │   ├── __init__.py
+    │   ├── router.py     # Main API router routing endpoints
+    │   └── v1/           # Version 1 endpoints
+    │       ├── auth.py
+    │       └── users.py
+    ├── models/           # SQLAlchemy DB models
+    │   ├── __init__.py
+    │   └── user.py
+    ├── schemas/          # Pydantic schemas
+    │   ├── __init__.py
+    │   └── user.py
+    └── services/         # Business logic layer
+        ├── __init__.py
+        └── auth.py
+```
+
+---
+
+## 2. Layered Package Groupings
+
+FastAPI applications typically divide code into three distinct layers to promote the Separation of Concerns (SoC) principle:
+
+1. **API Layer (`app/api/`)**: Defines path operations, requests handling, and responses. No database queries or heavy calculations should live here.
+2. **Business Logic Layer (`app/services/`)**: Orchestrates actions, checks permissions, calculates data, and connects different services.
+3. **Database Layer (`app/models/` & `app/schemas/`)**: Represents data structure in the database (SQLAlchemy models) and data structure transferred over the network (Pydantic schemas).
+
+---
+
+## 3. Managing Imports
+
+Python supports two import styles: absolute imports and relative imports.
+
+### Absolute Imports (Recommended)
+Absolute imports specify the full path to a module starting from the project's root directory.
+
+```python
+# app/api/v1/users.py
+from app.schemas.user import UserCreate
+from app.services.auth import get_current_user
+```
+
+**Why prefer absolute imports?**
+- Highly readable and clear.
+- Prevents errors when running files from different working directories.
+- Refactoring files is much easier.
+
+### Relative Imports
+Relative imports specify paths relative to the current module file using dots (`.`).
+
+```python
+# app/api/v1/users.py
+from ...schemas.user import UserCreate
+```
+
+> [!WARNING]
+> Avoid relative imports in backend development. They can easily break with `ImportError` or `ValueError: attempted relative import beyond top-level package` if you execute a script directly rather than running the application from the root directory.

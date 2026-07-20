@@ -1,0 +1,121 @@
+---
+title: Data Validation with Pydantic
+description: Learn to parse, validate, and serialize complex data structures using Pydantic models
+icon: "shield"
+---
+
+## 1. Why Pydantic?
+
+While Python's standard type hints and dataclasses help document and organize code, they **do not enforce types at runtime**. 
+
+If you pass a string `"100"` to a dataclass attribute annotated as an integer, Python will allow it without raising any errors. To guarantee that data actually conforms to your types at runtime (e.g., when receiving request payloads from a client), we use **Pydantic** — the industry standard data validation library.
+
+### Dataclasses vs. Pydantic
+
+| Feature | Standard Dataclasses | Pydantic Models |
+| :--- | :--- | :--- |
+| **Runtime Enforcement** | No | Yes (Raises `ValidationError` on bad data) |
+| **Data Parsing (Coercion)** | No | Yes (Automatically casts `"123"` to `123`) |
+| **Custom Validators** | Complex | Simple (Supports powerful `@field_validator`) |
+| **JSON Serialization** | Requires custom helpers | Built-in via `.model_dump()` & `.model_dump_json()` |
+
+---
+
+## 2. Defining a BaseModel
+
+To define a schema, create a class that inherits from `pydantic.BaseModel`.
+
+```python
+from pydantic import BaseModel, ValidationError
+
+class User(BaseModel):
+    id: int
+    username: str
+    email: str
+    is_active: bool = True  # Default value
+
+# 1. Successful Instantiation with Type Coercion
+# The string "123" is automatically cast to the integer 123
+user = User(id="123", username="alice", email="alice@example.com")
+print(user.id)        # 123 (int)
+
+# 2. Validation Failure
+try:
+    bad_user = User(id="not-an-int", username="bob", email="bob@example.com")
+except ValidationError as e:
+    print(e)  # Precise description of the parsing error
+```
+
+---
+
+## 3. Field Constraints (`Field`)
+
+Use `Field` to add validation constraints like numeric limits, string length limits, or metadata:
+
+```python
+from pydantic import BaseModel, Field
+
+class Product(BaseModel):
+    name: str = Field(min_length=2, max_length=50)
+    price: float = Field(gt=0, description="Price must be greater than zero")
+    stock: int = Field(default=0, ge=0)
+```
+
+---
+
+## 4. Custom Validators (`@field_validator`)
+
+For complex validation rules, use the `@field_validator` decorator:
+
+```python
+from pydantic import BaseModel, field_validator
+
+class SignUp(BaseModel):
+    username: str
+    password: str
+
+    @field_validator("password")
+    @classmethod
+    def password_must_be_strong(cls, v: str) -> str:
+        if len(v) < 8:
+            raise ValueError("Password must be at least 8 characters long")
+        if not any(char.isdigit() for char in v):
+            raise ValueError("Password must contain at least one digit")
+        return v
+```
+
+---
+
+## 5. Nested Models & Collections
+
+Pydantic handles nested schemas, collections (`list`, `dict`, `set`), and unions (`|`) seamlessly.
+
+```python
+from pydantic import BaseModel
+
+class Item(BaseModel):
+    name: str
+    price: float
+
+class Order(BaseModel):
+    order_id: str
+    items: list[Item]  # List of nested BaseModel instances
+    tax_rate: float = 0.08
+    customer_notes: str | None = None
+```
+
+---
+
+## 6. Serialization & Deserialization
+
+Pydantic provides easy built-in methods to convert your models back into dictionaries or JSON strings:
+
+```python
+# Convert model instance to a Python dictionary
+data_dict = user.model_dump()
+print(data_dict)  # {'id': 123, 'username': 'alice', ...}
+
+# Convert model instance to a JSON string
+json_string = user.model_dump_json()
+print(json_string)  # '{"id":123,"username":"alice",...}'
+```

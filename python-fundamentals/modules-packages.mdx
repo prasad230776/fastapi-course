@@ -1,0 +1,138 @@
+---
+title: Modules & Packages
+description: Organize your Python code into reusable files and directories, and leverage the built-in Standard Library
+icon: "cubes"
+---
+
+## 1. What is a Module?
+
+A **module** is simply a Python file (with a `.py` extension) containing variables, functions, or classes that you want to reuse in other parts of your program.
+
+### Creating and Importing a Module
+Suppose we create a file named `calculator.py`:
+
+```python
+# calculator.py
+def add(a, b):
+    return a + b
+
+def subtract(a, b):
+    return a - b
+
+PI = 3.14159
+```
+
+Now, we can use these functions in another file (e.g., `main.py`) in the same folder by importing it:
+
+```python
+# main.py
+import calculator
+
+result = calculator.add(5, 3)
+print(result)           # 8
+print(calculator.PI)    # 3.14159
+```
+
+---
+
+## 2. What is a Package?
+
+A **package** is a directory (folder) that contains multiple modules. It allows you to organize related modules hierarchically.
+
+### The Role of `__init__.py`
+To turn a standard folder into a Python package, it must contain a file named `__init__.py`. This file does several things:
+1. **Marks Directories**: It tells Python that this directory is an importable package.
+2. **Initialization Code**: Python executes `__init__.py` first when the package or any sub-module is imported.
+3. **Creates Public APIs**: You can import sub-modules inside `__init__.py` to make them accessible directly from the package root:
+   ```python
+   # mypackage/__init__.py
+   from .utils import format_text
+   ```
+   Now consumers can write:
+   ```python
+   from mypackage import format_text
+   ```
+4. **Controls Wildcard Imports**: Define a list called `__all__` to restrict what gets imported when someone uses `from package import *`:
+   ```python
+   __all__ = ['utils']
+   ```
+
+---
+
+## 3. Python's Standard Library Essentials
+
+Python follows a "batteries included" philosophy, providing powerful built-in modules that are ready to use immediately.
+
+### A. The `pathlib` Module
+Modern Python uses `pathlib` for object-oriented filesystem paths:
+
+```python
+from pathlib import Path
+
+# Get home directory or current directory
+current_dir = Path.cwd()
+file_path = current_dir / "data" / "users.json"
+
+# Check if path exists
+print(file_path.exists())
+
+# Read and write text easily
+if file_path.exists():
+    content = file_path.read_text()
+```
+
+### B. The `os` Module
+Used for interacting with the operating system:
+
+```python
+import os
+
+# Get current working directory
+print(os.getcwd())
+
+# Get environment variables
+database_url = os.environ.get("DATABASE_URL", "sqlite:///local.db")
+```
+
+### C. The `datetime` Module
+Provides classes for manipulating dates and times:
+
+```python
+import datetime
+
+# Current date and time
+now = datetime.datetime.now()
+print(now)
+
+# Formatting to string (strftime)
+formatted = now.strftime("%Y-%m-%d %H:%M:%S")
+
+# Parsing string to datetime (strptime)
+parsed = datetime.datetime.strptime("2026-07-20", "%Y-%m-%d")
+```
+
+### D. The `uuid` Module
+Generates RFC 4122 compliant universally unique identifiers (UUIDs):
+
+```python
+import uuid
+
+# Generate a random UUID (UUID4)
+unique_id = uuid.uuid4()
+print(unique_id)  # e.g., "d3b07384-d113-4956-a5cc-484d2d476100"
+```
+
+### E. The `json` Module
+JSON is the standard data format for web APIs. Python's `json` module parses and serializes JSON:
+
+```python
+import json
+
+data = {"name": "Alice", "role": "admin"}
+
+# Serialization (Dict -> JSON String)
+json_str = json.dumps(data)
+
+# Deserialization (JSON String -> Dict)
+parsed_data = json.loads(json_str)
+```
