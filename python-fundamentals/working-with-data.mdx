@@ -1,0 +1,186 @@
+---
+title: Working with Data
+description: Learn to read, write, and process text, JSON, and CSV data using Python's built-in tools
+icon: "database"
+---
+
+Programs exist to process data. In Python, you can easily read, manipulate, and save different data formats. We will look at how to handle three of the most common data formats: raw Text, JSON, and CSV, using only Python's built-in capabilities.
+
+---
+
+## 1. Handling Text Data
+
+The simplest format is plain text (`.txt`). Python provides a built-in `open()` function to read and write files.
+
+### Reading Text Files
+Always use the `with` statement when opening files. It automatically closes the file for you, even if an error occurs.
+
+```python
+# Reading the entire file content at once
+with open("sample.txt", "r") as file:
+    content = file.read()
+    print(content)
+
+# Reading file line-by-line (efficient for large files)
+with open("sample.txt", "r") as file:
+    for line in file:
+        print(line.strip())  # .strip() removes trailing newlines
+```
+
+### Writing Text Files
+Use `"w"` to write (overwrites the file) or `"a"` to append (adds to the end).
+
+```python
+# Writing to a file (creates it if it doesn't exist)
+with open("output.txt", "w") as file:
+    file.write("Hello, World!\n")
+    file.write("Writing data is easy in Python.")
+```
+
+---
+
+## 2. Handling JSON Data
+
+**JSON** (JavaScript Object Notation) is the standard data format for web APIs and configuration files. Python has a built-in `json` module to parse and generate JSON.
+
+**JSON (JavaScript Object Notation)** is a lightweight, text-based format used to exchange data between applications. It is widely used in **REST APIs**, configuration files, and data storage because it is easy for both humans and machines to read.
+
+Python provides the built-in `json` module to work with JSON data.
+
+### JSON Data Types
+
+JSON supports the following data types:
+
+| JSON | Python |
+|------|--------|
+| Object | `dict` |
+| Array | `list` |
+| String | `str` |
+| Number | `int`, `float` |
+| Boolean | `True`, `False` |
+| Null | `None` |
+
+### Common JSON Functions
+
+| Function | Purpose |
+|----------|---------|
+| `json.loads()` | Convert a JSON string to a Python object |
+| `json.dumps()` | Convert a Python object to a JSON string |
+| `json.load()` | Read JSON data from a file |
+| `json.dump()` | Write JSON data to a file |
+
+
+### JSON Example
+
+```python
+import json
+
+# Python Dictionary
+user_profile = {
+    "name": "Alice",
+    "age": 25,
+    "skills": ["Python", "Machine Learning"],
+    "is_active": True
+}
+
+# 1. Convert Python Dict to JSON String (Serialization)
+json_string = json.dumps(user_profile, indent=4)
+print(json_string)
+
+# 2. Convert JSON String back to Python Dict (Deserialization)
+data_dict = json.loads(json_string)
+print(data_dict["name"])  # Alice
+
+# 3. Writing JSON to a file
+with open("profile.json", "w") as file:
+    json.dump(user_profile, file, indent=4)
+
+# 4. Reading JSON from a file
+with open("profile.json", "r") as file:
+    loaded_data = json.load(file)
+    print(loaded_data["skills"])  # ['Python', 'Machine Learning']
+```
+
+---
+
+## 3. Handling CSV Data
+
+**CSV** (Comma-Separated Values) is the standard format for spreadsheets and tabular data. Python's built-in `csv` module makes it easy to read and write CSV files.
+
+### Reading CSV Files
+You can read rows as lists, or use `DictReader` to read rows as dictionaries where the keys are the column headers (highly recommended!).
+
+```python
+import csv
+
+# Reading CSV as lists
+with open("employees.csv", "r") as file:
+    reader = csv.reader(file)
+    for row in reader:
+        print(row)  # row is a list of strings: ['Name', 'Age', 'Role']
+
+# Reading CSV as dictionaries (easier access)
+with open("employees.csv", "r") as file:
+    dict_reader = csv.DictReader(file)
+    for row in dict_reader:
+        print(f"Name: {row['Name']}, Role: {row['Role']}")
+```
+
+### Writing CSV Files
+Similarly, you can write rows using lists, or write them using dictionaries with `DictWriter`.
+
+```python
+import csv
+
+fieldnames = ["Product", "Price", "Stock"]
+products = [
+    {"Product": "Laptop", "Price": 999.99, "Stock": 10},
+    {"Product": "Mouse", "Price": 29.99, "Stock": 50}
+]
+
+with open("inventory.csv", "w", newline="") as file:
+    writer = csv.DictWriter(file, fieldnames=fieldnames)
+    
+    # Write the header row (Product, Price, Stock)
+    writer.writeheader()
+    
+    # Write the data rows
+    writer.writerows(products)
+```
+
+---
+
+## Practice & Exercises
+
+To reinforce what you've learned in this section (reading and writing text files, JSON serialization/deserialization, and CSV list/dictionary readers and writers), practice with these interactive notebooks:
+
+<CardGroup cols={2}>
+  <Card
+    title="Follow-Along Practice"
+    icon="laptop-code"
+  >
+    Practice writing files, reading entire files, looping line-by-line, formatting JSON strings, writing JSON properties to local files, reading CSV rows as lists/dictionaries, and constructing CSV databases using DictWriter.
+
+    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/python%20material/python4ai/public/notebooks/basics_exercises/Working_With_Data_Practice.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/python4ai/blob/master/public/notebooks/basics_exercises/Working_With_Data_Practice.ipynb) | <a href="/public/notebooks/basics_exercises/Working_With_Data_Practice.ipynb" download>📥 Download</a>
+  </Card>
+  <Card
+    title="Practice Exercises"
+    icon="pen-to-square"
+  >
+    Test your knowledge with hands-on exercises on writing uppercase text filters, serializing application user settings, dumping store inventory products, and calculating marks averages from student records.
+
+    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/python%20material/python4ai/public/notebooks/basics_exercises/Working_With_Data_Exercises.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/python4ai/blob/master/public/notebooks/basics_exercises/Working_With_Data_Exercises.ipynb) | <a href="/public/notebooks/basics_exercises/Working_With_Data_Exercises.ipynb" download>📥 Download</a>
+  </Card>
+</CardGroup>
+
+## What's next?
+
+Now that you know how to work with built-in modules and data formats, let's learn how to download, install, and manage third-party external libraries using PyPI, pip, and uv!
+
+<Card
+  title="Working with External Modules"
+  icon="arrow-right"
+  href="/libraries-apis/external-modules"
+>
+  Learn to use pip, PyPI, and uv
+</Card>

@@ -1,5 +1,5 @@
 ---
-title: Functions & Scope
+title: Functions
 description: Create reusable blocks of code, pass arguments, manage scope, and get results
 icon: "brackets-curly"
 ---
@@ -233,3 +233,380 @@ def outer_func():
     inner_func()
     print(message)  # Prints: Hello from Inner!
 ```
+Python treats **functions as first-class objects**, meaning they can be assigned to variables, passed as arguments, returned from other functions, and stored in collections.
+
+---
+
+## Functions as First-Class Objects
+
+Functions can be:
+
+- Assigned to variables.
+- Passed as arguments.
+- Returned from functions.
+- Accessed using attributes like `__name__`.
+
+```python
+def greet(name):
+    return f"Hello, {name}!"
+
+# Assign to a variable
+say_hello = greet
+print(say_hello("Alice"))
+
+# Pass as an argument
+def execute(func, name):
+    return func(name)
+
+print(execute(greet, "Bob"))
+
+print(greet.__name__)
+```
+
+---
+
+## Lambda Functions
+
+A **lambda** is a small anonymous function consisting of a single expression.
+
+```python
+# Normal function
+def add(x, y):
+    return x + y
+
+# Lambda function
+add_lambda = lambda x, y: x + y
+
+print(add_lambda(3, 7))
+```
+
+Lambdas are commonly used with functions like `map()`, `filter()`, and `sorted()`.
+
+```python
+numbers = [1, 2, 3, 4]
+
+squares = list(map(lambda x: x**2, numbers))
+print(squares)
+```
+
+```python
+points = [(1, 2), (3, 1), (5, 0)]
+
+sorted_points = sorted(points, key=lambda p: p[1])
+print(sorted_points)
+```
+
+<Warning>
+Use lambda functions only for simple expressions. For complex logic, use a normal function.
+</Warning>
+
+---
+
+## Variable-Length Arguments (`*args` and `**kwargs`)
+
+- `*args` collects extra positional arguments into a **tuple**.
+- `**kwargs` collects extra keyword arguments into a **dictionary**.
+
+```python
+def display(*args, **kwargs):
+    print(args)
+    print(kwargs)
+
+display(1, 2, 3, name="Alice", age=20)
+```
+
+---
+
+## Closures
+
+A **closure** is a nested function that remembers variables from its enclosing scope.
+
+```python
+def make_multiplier(factor):
+
+    def multiply(number):
+        return number * factor
+
+    return multiply
+
+
+double = make_multiplier(2)
+
+print(double(10))
+```
+
+---
+
+## Decorators
+
+A **decorator** extends the behavior of a function without modifying its source code.
+
+```python
+def my_decorator(func):
+
+    def wrapper():
+        print("Before")
+        func()
+        print("After")
+
+    return wrapper
+
+
+@my_decorator
+def greet():
+    print("Hello")
+
+
+greet()
+```
+
+### Decorators with Arguments
+
+Use `*args` and `**kwargs` to support functions with any number of arguments.
+
+```python
+def logger(func):
+
+    def wrapper(*args, **kwargs):
+        print(f"Calling {func.__name__}")
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+@logger
+def add(a, b):
+    return a + b
+
+
+print(add(10, 20))
+```
+
+Python supports **Functional Programming (FP)**, where functions are treated as first-class objects. In this paradigm, functions can be passed as arguments, returned from other functions, and used to build reusable and declarative code.
+
+Functional programming in Python is mainly based on:
+
+- **Declarative Programming**
+- **Higher-Order Functions**
+
+---
+
+## Declarative Programming
+
+Declarative programming focuses on **what** you want to achieve, while imperative programming focuses on **how** to achieve it.
+
+### Imperative vs Declarative
+
+**Imperative (How):**
+
+```python
+numbers = [1, 2, 3, 4]
+
+doubled = []
+
+for num in numbers:
+    doubled.append(num * 2)
+
+print(doubled)
+```
+
+**Declarative (What):**
+
+```python
+numbers = [1, 2, 3, 4]
+
+doubled = list(map(lambda x: x * 2, numbers))
+
+print(doubled)
+```
+
+---
+
+## Higher-Order Functions
+
+A **Higher-Order Function** is a function that:
+
+- Accepts one or more functions as arguments.
+- Returns a function as its result.
+
+### Passing Functions as Arguments
+
+```python
+def process_numbers(numbers, operation):
+    return [operation(num) for num in numbers]
+
+
+def square(x):
+    return x * x
+
+
+def cube(x):
+    return x ** 3
+
+
+nums = [1, 2, 3, 4]
+
+print(process_numbers(nums, square))
+print(process_numbers(nums, cube))
+print(process_numbers(nums, lambda x: x + 10))
+```
+
+### Returning Functions
+
+```python
+def multiplier(factor):
+
+    def multiply(number):
+        return number * factor
+
+    return multiply
+
+
+double = multiplier(2)
+triple = multiplier(3)
+
+print(double(10))
+print(triple(10))
+```
+
+### Real-World Example
+
+```python
+def process_salary(salary, policy):
+    return policy(salary)
+
+
+def tax(salary):
+    return salary * 0.9
+
+
+def bonus(salary):
+    return salary * 1.2
+
+
+salary = 50000
+
+print(process_salary(salary, tax))
+print(process_salary(salary, bonus))
+```
+
+---
+
+## Built-in Higher-Order Functions
+
+### `map()`
+
+Applies a function to every element of an iterable.
+
+```python
+numbers = [1, 2, 3, 4]
+
+squared = list(map(lambda x: x**2, numbers))
+
+print(squared)
+```
+
+You can also pass a normal function when the logic is more complex.
+
+```python
+def get_grade(marks):
+    if marks >= 90:
+        return "A"
+    elif marks >= 75:
+        return "B"
+    elif marks >= 50:
+        return "C"
+    return "F"
+
+
+student_marks = [88, 45, 92, 67]
+
+grades = list(map(get_grade, student_marks))
+
+print(grades)
+```
+
+---
+
+### `filter()`
+
+Returns only the elements that satisfy a condition.
+
+```python
+numbers = [1, 2, 3, 4, 5, 6]
+
+even_numbers = list(filter(lambda x: x % 2 == 0, numbers))
+
+print(even_numbers)
+```
+
+---
+
+### `reduce()`
+
+The `reduce()` function (from the `functools` module) combines all elements into a single value.
+
+```python
+from functools import reduce
+
+numbers = [1, 2, 3, 4]
+
+product = reduce(lambda x, y: x * y, numbers)
+
+print(product)
+```
+
+---
+
+## Functional Pipeline Example
+
+The following example combines `filter()`, `map()`, and `reduce()` to compute the **sum of squares of even numbers**.
+
+```python
+from functools import reduce
+
+numbers = [1, 2, 3, 4, 5, 6]
+
+evens = filter(lambda x: x % 2 == 0, numbers)
+squares = map(lambda x: x**2, evens)
+
+total = reduce(lambda x, y: x + y, squares)
+
+print(total)
+```
+
+The same pipeline can also be written in a single statement.
+
+```python
+from functools import reduce
+
+numbers = [1, 2, 3, 4, 5, 6]
+
+total = reduce(
+    lambda x, y: x + y,
+    map(lambda x: x**2,
+        filter(lambda x: x % 2 == 0, numbers))
+)
+
+print(total)
+```
+
+---
+
+## Pythonic Alternative
+
+Although `map()`, `filter()`, and `reduce()` are useful, Python often provides a simpler and more readable solution using comprehensions and built-in functions.
+
+```python
+numbers = [1, 2, 3, 4, 5, 6]
+
+total = sum(x**2 for x in numbers if x % 2 == 0)
+
+print(total)
+```
+
+<Tip>
+
+Use **list comprehensions** and built-in functions like `sum()` for better readability. Use `map()`, `filter()`, and `reduce()` when working with functional pipelines or callback-based APIs.
+
+</Tip>

@@ -4,20 +4,23 @@ description: "Interactive backend development course structure, modules, and top
 icon: "map"
 ---
 
-Welcome to the **FastAPI Backend Development Course Route Map**. Use this interactive syllabus to navigate the course modules. Each topic lists the core concepts covered in the learning materials and interactive notebooks.
+Welcome to the **FastAPI Backend Development Course Route Map**. This course is designed using a **Project-Based Learning (PBL)** approach. 
+
+Throughout the course, you will build a single, comprehensive **Employee Management System (EMS)**. As you progress from module to module, you will continuously build upon this project, increasing its complexity and architectural robustness until it is a production-grade, secure, real-time application.
 
 ---
 
-## 🗺️ Course Syllabus Overview
+## 🗺️ Project Evolution Path
 
 ```mermaid
 graph TD
-    A["1. Python Fundamentals"] --> B["2. FastAPI Foundations"]
-    B --> C["3. Database Integration"]
-    C --> D["4. Backend Architecture"]
-    D --> E["5. Security & Auth"]
-    E --> F["6. Advanced Development"]
-    F --> G["7. Testing & Deployment"]
+    M1["1. Python Fundamentals<br/>(Core Concepts & Pyproject Setup)"] 
+    --> M2["2. FastAPI Foundations<br/>(In-Memory Employee CRUD & Schemas)"]
+    --> M3["3. Database Integration<br/>(SQLite/PostgreSQL persistence & Alembic)"]
+    --> M4["4. Backend Architecture<br/>(Router -> Service -> Repository layered refactor)"]
+    --> M5["5. Security & Auth<br/>(Role-Based Auth, JWT, Admin/Manager/Employee scopes)"]
+    --> M6["6. Advanced Backend<br/>(Real-time chat with WebSockets, background notifications)"]
+    --> M7["7. Testing & Deployment<br/>(Pytest coverage, Dockerization, Production cloud hosting)"]
 ```
 
 ---
@@ -84,7 +87,9 @@ Core Python concepts essential for building robust backend services.
 ---
 
 ## Module 2: FastAPI Foundations
-Building RESTful APIs with clean request routing, parameters, and auto-generated documentation.
+*Project Stage: In-Memory Employee CRUD API*
+
+Build the foundational REST API endpoints for our Employee Management System using a local dictionary/list for state.
 
 ### 2.1 How the Web Works
 * HTTP request and response structures
@@ -97,18 +102,18 @@ Building RESTful APIs with clean request routing, parameters, and auto-generated
 * Basic project setups and startup scripts
 
 ### 2.3 Request Handling
-* Extracting variables from URL paths (Path Parameters)
-* Parsing query arguments (Query Parameters)
-* Validating incoming request bodies with Pydantic
+* Extracting variables from URL paths (Path Parameters like `/employees/{employee_id}`)
+* Parsing query arguments (Query Parameters like search, department filter)
+* Validating incoming request bodies with Pydantic (`EmployeeCreate` schema)
 * Reading header metadata parameters
 
 ### 2.4 Response Handling
-* Controlling JSON outputs with Response Models
+* Controlling JSON outputs with Response Models (`EmployeeOut` schema)
 * Setting semantic HTTP status codes
 * Returning custom replies (plain text, file streams, redirects)
 
 ### 2.5 APIRouter & Route Versioning
-* Splitting routes into modular sub-modules
+* Splitting routes into modular sub-modules (`/employees`, `/departments`)
 * Organizing endpoints using APIRouter namespaces
 * API versioning protocols (e.g. `/v1/`, `/v2/`)
 
@@ -129,7 +134,9 @@ Building RESTful APIs with clean request routing, parameters, and auto-generated
 ---
 
 ## Module 3: Database Integration
-Connecting APIs to persistent database storages safely and efficiently using Object-Relational Mappers (ORMs).
+*Project Stage: Persistent SQLite/PostgreSQL Database*
+
+Transition the Employee Management System from volatile in-memory dicts to a persistent SQL database using Object-Relational Mappers.
 
 ### 3.1 Relational Databases
 * SQLite for local testing
@@ -137,9 +144,9 @@ Connecting APIs to persistent database storages safely and efficiently using Obj
 * SQL raw statements vs. Object-Relational Mapping (ORM)
 
 ### 3.2 SQLAlchemy ORM
-* Declaring database tables using ORM mapping classes
+* Declaring database tables using ORM mapping classes (e.g., `Employee`, `Department` tables)
 * Managing operations using sessions and context managers
-* Defining database relationships (One-to-Many, Many-to-Many)
+* Defining database relationships (One-to-Many: Department to Employees)
 
 ### 3.3 Database Migrations
 * Bootstrapping migration scripts with Alembic
@@ -152,7 +159,9 @@ Connecting APIs to persistent database storages safely and efficiently using Obj
 ---
 
 ## Module 4: Backend Architecture & Clean Code
-Organizing professional FastAPI applications for long-term maintainability.
+*Project Stage: Restructuring into Layered (Clean) Architecture*
+
+Organize the codebase of the Employee Management System for enterprise production standards.
 
 ### 4.1 Project Architecture
 * Layered Architecture patterns (Routing -> Service -> Repository)
@@ -168,12 +177,12 @@ Organizing professional FastAPI applications for long-term maintainability.
 * Structuring model serialization parameters
 
 ### 4.4 Repository Pattern
-* Decoupling database queries from route layers
+* Decoupling database queries from route layers (e.g., `EmployeeRepository`)
 * Creating concrete CRUD repositories
 * Designing reusable generic database repository structures
 
 ### 4.5 Service Layer
-* Decoupling business rules from router and repository logics
+* Decoupling business rules from router and repository logics (e.g., `EmployeeService` containing logic for salary validation, onboarding workflows)
 * Service composition patterns
 
 ### 4.6 Dependency Injection Scoping
@@ -191,7 +200,9 @@ Organizing professional FastAPI applications for long-term maintainability.
 ---
 
 ## Module 5: Security & Authentication
-Securing endpoints, verifying user identity, and managing scopes.
+*Project Stage: JWT Auth & Role-Based Access Controls (RBAC)*
+
+Secure the EMS endpoints, defining access scopes based on roles (Admin, Manager, Employee).
 
 ### 5.1 Password Security
 * Secure password hashing with salt parameters
@@ -204,12 +215,14 @@ Securing endpoints, verifying user identity, and managing scopes.
 
 ### 5.3 Authorization
 * Integrating OAuth2 password flows
-* Implementing Role-Based Access Control (RBAC) validations
+* Implementing Role-Based Access Control (RBAC) validations (e.g., only Admin/Manager can add or update employees; employees can only view profiles)
 
 ---
 
 ## Module 6: Advanced Backend Development
-Building responsive systems with background processing, caching, and custom middleware.
+*Project Stage: Real-Time Chat Channels, Caching, and Background Processes*
+
+Supercharge the EMS with real-time communications (chats/messages between employees) and asynchronous workflows.
 
 ### 6.1 Middleware
 * Cross-Origin Resource Sharing (CORS) configurations
@@ -217,21 +230,21 @@ Building responsive systems with background processing, caching, and custom midd
 * Writing custom request-response middleware
 
 ### 6.2 Background Tasks
-* Running light tasks in-process with FastAPI's `BackgroundTasks`
+* Running light tasks in-process with FastAPI's `BackgroundTasks` (e.g., sending welcome emails to onboarded employees)
 * Scalable background processing with Celery
 * Message brokers setup using Redis
 
 ### 6.3 File Uploads
-* Handling incoming multi-part file uploads (`UploadFile`)
+* Handling incoming multi-part file uploads (`UploadFile` for employee profile pictures)
 * Serving static files securely
 
 ### 6.4 Caching
 * Cache setups with Redis
-* Caching route outputs to optimize latency
+* Caching route outputs (e.g., department list, company directories) to optimize latency
 
 ### 6.5 WebSockets
 * Establishing persistent real-time connections
-* Designing broadcast channels for push notifications
+* Designing direct messaging and group chat channels for employees using WebSockets
 
 ### 6.6 Rate Limiting
 * Setting request volume caps using `slowapi`
@@ -239,7 +252,9 @@ Building responsive systems with background processing, caching, and custom midd
 ---
 
 ## Module 7: Testing & Deployment
-Writing automated tests, configuring production environments, and container deployment.
+*Project Stage: Quality Assurance, Dockerization & Production Release*
+
+Ensure the codebase is fully tested and ready to deploy to the cloud.
 
 ### 7.1 Manual Testing
 * Mocking requests using Postman
@@ -248,12 +263,12 @@ Writing automated tests, configuring production environments, and container depl
 
 ### 7.2 Automated Testing
 * Setting up `pytest` workspaces
-* Writing mock client tests with `TestClient`
+* Writing mock client tests with `TestClient` (testing routes, auth, and database operations)
 * Writing end-to-end integration tests
 
 ### 7.3 Docker
 * Creating multi-stage Dockerfiles for python services
-* Managing app containers using Docker Compose
+* Managing app containers using Docker Compose (FastAPI app, PostgreSQL, Redis)
 * Docker network structures
 
 ### 7.4 Production Deployment

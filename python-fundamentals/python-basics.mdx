@@ -1,0 +1,580 @@
+---
+title: Python Basics
+description: Learn Python syntax, variables, data types, operators, and control flow
+icon: "python"
+---
+
+Python is a **high-level, interpreted, object-oriented** programming language known for its simple syntax and readability.
+
+## Python Fundamentals
+
+Some important characteristics of Python:
+
+- Everything in Python is an **object**.
+- Python is **dynamically typed** (no need to declare variable types).
+- Python uses **indentation** instead of braces (`{}`) to define blocks.
+- Variables store references to objects.
+- Python follows the **PEP 8** style guide.
+
+## Everything is an Object
+
+In Python, every value is an object, including numbers, strings, lists, dictionaries, functions, and classes.
+
+```python
+x = 10
+
+print(type(x))
+print(id(x))
+```
+
+## Variables
+
+Variables store references to objects.
+
+```python
+name = "Alice"
+age = 20
+price = 99.99
+is_active = True
+```
+
+### Multiple Assignment
+
+```python
+x, y, z = 10, 20, 30
+```
+
+### Variable Swapping
+
+```python
+a, b = 10, 20
+
+a, b = b, a
+```
+
+### Object Identity
+
+Two variables may reference the same object.
+
+```python
+a = [1, 2]
+b = a
+
+print(a == b)   # True
+print(a is b)   # True
+```
+
+Use `==` to compare values and `is` to compare object identity.
+
+### Small Integer Caching
+
+Python caches small integers (typically **-5 to 256**) to improve performance.
+
+```python
+a = 100
+b = 100
+
+print(a is b)      # True
+
+x = 1000
+y = 1000
+
+print(x is y)      # May vary
+```
+
+> Never use `is` to compare numbers or strings. Use `==` instead.
+
+### Floating-Point Precision
+
+Floating-point numbers are stored in binary, so some decimal values cannot be represented exactly.
+
+```python
+print(0.1 + 0.2)
+print(0.1 + 0.2 == 0.3)
+```
+
+Output:
+
+```text
+0.30000000000000004
+False
+```
+
+Use `round()` or `math.isclose()` when comparing floating-point numbers.
+
+## Data Types
+
+### Numeric
+
+- `int`
+- `float`
+- `complex`
+
+### Boolean
+
+- `bool`
+
+### Text
+
+- `str`
+
+### Sequence
+
+- `list`
+- `tuple`
+- `range`
+
+### Mapping
+
+- `dict`
+
+### Set
+
+- `set`
+- `frozenset`
+
+### Binary
+
+- `bytes`
+- `bytearray`
+
+### Special
+
+- `None`
+
+```python
+print(type(10))
+print(type(3.14))
+print(type("Hello"))
+print(type([1, 2, 3]))
+print(type({"name": "Alice"}))
+```
+
+## Type Conversion
+
+```python
+int("10")
+float("3.14")
+str(100)
+list("Python")
+```
+
+## Operators
+
+### Arithmetic Operators
+
+### Arithmetic Operators
+
+| Operator | Description | Example |
+|----------|-------------|---------|
+| `+` | Addition | `10 + 3` → `13` |
+| `-` | Subtraction | `10 - 3` → `7` |
+| `*` | Multiplication | `10 * 3` → `30` |
+| `/` | Division | `10 / 3` → `3.3333` |
+| `//` | Floor Division | `10 // 3` → `3` |
+| `%` | Modulus (Remainder) | `10 % 3` → `1` |
+| `**` | Exponent (Power) | `2 ** 3` → `8` |
+
+Example:
+
+```python
+a = 10
+b = 3
+
+print(a + b)   # 13
+print(a - b)   # 7
+print(a * b)   # 30
+print(a / b)   # 3.3333333333333335
+print(a // b)  # 3
+print(a % b)   # 1
+print(a ** b)  # 1000
+```
+
+Example:
+
+```python
+a = 10
+b = 3
+
+print(a + b)
+print(a ** b)
+print(a // b)
+```
+
+### Comparison Operators
+
+### Comparison Operators
+
+Comparison operators compare two values and return either `True` or `False`.
+
+| Operator | Description | Example |
+|----------|-------------|---------|
+| `==` | Equal to | `10 == 3` → `False` |
+| `!=` | Not equal to | `10 != 3` → `True` |
+| `>` | Greater than | `10 > 3` → `True` |
+| `<` | Less than | `10 < 3` → `False` |
+| `>=` | Greater than or equal to | `10 >= 10` → `True` |
+| `<=` | Less than or equal to | `3 <= 10` → `True` |
+
+Example:
+
+```python
+a = 10
+b = 3
+
+print(a == b)   # False
+print(a != b)   # True
+print(a > b)    # True
+print(a < b)    # False
+print(a >= b)   # True
+print(a <= b)   # False
+```
+
+Example:
+
+```python
+print(10 > 5)
+print(10 == 20)
+```
+
+### Logical Operators
+
+Logical operators are used to combine or negate conditions. They return either `True` or `False` based on the operands.
+
+| Operator | Description | Example |
+|----------|-------------|---------|
+| `and` | Returns `True` if **both** conditions are true | `5 > 2 and 10 > 3` → `True` |
+| `or` | Returns `True` if **at least one** condition is true | `5 > 10 or 8 > 3` → `True` |
+| `not` | Reverses the result of a condition | `not (5 > 2)` → `False` |
+
+Example:
+
+```python
+age = 20
+has_id = True
+
+print(age >= 18 and has_id)   # True
+print(age < 18 or has_id)     # True
+print(not has_id)             # False
+```
+
+Logical operators work with **truthy** and **falsy** values.
+
+#### Truthy and Falsy Values
+
+In Python, every object has a truth value.
+
+**Falsy values** include:
+
+- `False`
+- `None`
+- `0`, `0.0`
+- `""` (empty string)
+- `[]`
+- `()`
+- `{}`
+- `set()`
+
+Everything else is **truthy**, such as:
+
+- Non-zero numbers
+- Non-empty strings
+- Non-empty lists, tuples, dictionaries, and sets
+
+```python
+print(bool(0))
+print(bool(""))
+print(bool([]))
+
+print(bool(10))
+print(bool("Python"))
+print(bool([1, 2]))
+```
+
+Unlike many programming languages, `and` and `or` return one of their operands instead of only `True` or `False`.
+
+```python
+print(3 and 4)          # 4
+print(0 and 10)         # 0
+
+print(0 or "Hi")        # Hi
+print("" or "Python")   # Python
+
+print("Hello" and 100)  # 100
+print([] or [1, 2, 3])  # [1, 2, 3]
+```
+
+- `and` returns the **first falsy value**, otherwise the **last value**.
+- `or` returns the **first truthy value**, otherwise the **last value**.
+
+A common use is providing default values.
+
+```python
+name = "" or "Guest"
+
+print(name)
+```
+
+### Assignment Operators
+
+Assignment operators are used to assign values to variables. Some operators also perform an operation before assigning the result back to the variable.
+
+| Operator | Description | Example |
+|----------|-------------|---------|
+| `=` | Assign value | `x = 10` |
+| `+=` | Add and assign | `x += 5` |
+| `-=` | Subtract and assign | `x -= 5` |
+| `*=` | Multiply and assign | `x *= 2` |
+| `/=` | Divide and assign | `x /= 2` |
+| `%=` | Modulus and assign | `x %= 3` |
+| `**=` | Exponent and assign | `x **= 2` |
+
+Example:
+
+```python
+x = 10
+
+x += 5
+print(x)      # 15
+
+x -= 3
+print(x)      # 12
+
+x *= 2
+print(x)      # 24
+
+x /= 4
+print(x)      # 6.0
+
+x %= 4
+print(x)      # 2.0
+
+x **= 3
+print(x)      # 8.0
+```
+
+### Identity Operators
+
+```python
+is
+is not
+```
+
+```python
+a = []
+b = []
+
+print(a == b)
+print(a is b)
+```
+
+### Membership Operators
+
+```python
+in
+not in
+```
+
+```python
+print("a" in "apple")
+print(3 in [1, 2, 3])
+```
+
+### Bitwise Operators
+
+### Bitwise Operators
+
+Bitwise operators perform operations on the **binary representation** of integers. They are commonly used in systems programming, networking, embedded programming, and optimization.
+
+| Operator | Description | Example |
+|----------|-------------|---------|
+| `&` | Bitwise AND | `5 & 3` → `1` |
+| `\|` | Bitwise OR | `5 \| 3` → `7` |
+| `^` | Bitwise XOR | `5 ^ 3` → `6` |
+| `~` | Bitwise NOT | `~5` → `-6` |
+| `<<` | Left Shift | `5 << 1` → `10` |
+| `>>` | Right Shift | `5 >> 1` → `2` |
+
+Example:
+
+```python
+a = 5      # Binary: 0101
+b = 3      # Binary: 0011
+
+print(a & b)    # 1
+print(a | b)    # 7
+print(a ^ b)    # 6
+print(~a)       # -6
+print(a << 1)   # 10
+print(a >> 1)   # 2
+```
+
+**Shift Operators**
+
+- `<<` shifts bits to the **left**, effectively multiplying by `2` for each shift.
+- `>>` shifts bits to the **right**, effectively dividing by `2` (for positive integers) for each shift.
+
+```python
+print(5 << 2)    # 20
+print(20 >> 2)   # 5
+```
+
+> **Note:** Bitwise operators work only with integer values and are less commonly used in everyday Python programming compared to arithmetic and logical operators.
+
+### Operator Precedence
+
+Use parentheses to improve readability.
+
+```python
+result = (10 + 5) * 2
+```
+
+## Control Flow
+
+### if
+
+```python
+age = 18
+
+if age >= 18:
+    print("Adult")
+```
+
+### if...else
+
+```python
+if age >= 18:
+    print("Adult")
+else:
+    print("Minor")
+```
+
+### if...elif...else
+
+```python
+marks = 82
+
+if marks >= 90:
+    print("A")
+elif marks >= 75:
+    print("B")
+else:
+    print("C")
+```
+
+### match...case (Python 3.10+)
+
+Python supports **Structural Pattern Matching** using `match`.
+
+```python
+day = 2
+
+match day:
+    case 1:
+        print("Monday")
+    case 2:
+        print("Tuesday")
+    case _:
+        print("Invalid Day")
+```
+
+### for Loop
+
+```python
+for i in range(5):
+    print(i)
+```
+
+Looping through a collection:
+
+```python
+for name in ["Alice", "Bob"]:
+    print(name)
+```
+
+### while Loop
+
+```python
+count = 1
+
+while count <= 5:
+    print(count)
+    count += 1
+```
+
+### break
+
+Terminates the loop immediately.
+
+```python
+for i in range(10):
+
+    if i == 5:
+        break
+
+    print(i)
+```
+
+### continue
+
+Skips the current iteration.
+
+```python
+for i in range(5):
+
+    if i == 2:
+        continue
+
+    print(i)
+```
+
+### pass
+
+Acts as a placeholder when no code is required.
+
+```python
+if True:
+    pass
+```
+
+### for...else
+
+The `else` block executes only if the loop completes without encountering a `break`.
+
+```python
+for i in range(5):
+    print(i)
+else:
+    print("Loop completed")
+```
+
+### while...else
+
+Works the same way as `for...else`.
+
+```python
+count = 1
+
+while count <= 3:
+    print(count)
+    count += 1
+else:
+    print("Finished")
+```
+
+## Python Nuances
+
+Some Python-specific behaviors every beginner should know:
+
+- Everything in Python is an object.
+- Variables store references to objects, not values.
+- Use `==` for value comparison and `is` for identity comparison.
+- Small integers (`-5` to `256`) are cached.
+- Floating-point arithmetic is not always exact.
+- Indentation defines code blocks.
+- Lists are mutable; tuples are immutable.
+- Functions are first-class objects.
+- `and` and `or` return values, not just `True` or `False`.
+- Truthy and falsy values simplify conditional expressions.
+- Multiple assignment and unpacking are built into the language.
+- Python emphasizes readability and simplicity (PEP 8).

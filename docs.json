@@ -33,14 +33,17 @@
           {
             "group": "Python Foundations",
             "pages": [
+              "python-fundamentals/python-basics",
+              "python-fundamentals/data-structures",
               "python-fundamentals/functions",
               "python-fundamentals/modules-packages",
               "python-fundamentals/oop-classes",
               "python-fundamentals/exception-handling",
-              "python-fundamentals/async-programming",
+              "python-fundamentals/working-with-data",
               "python-fundamentals/type-hinting",
               "python-fundamentals/pydantic",
-              "python-fundamentals/env-management",
+              "python-fundamentals/dependency-management",
+              "python-fundamentals/async-programming",
               "python-fundamentals/project-structure",
               "python-fundamentals/environment-variables"
             ]

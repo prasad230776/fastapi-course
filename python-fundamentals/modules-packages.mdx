@@ -136,3 +136,42 @@ json_str = json.dumps(data)
 # Deserialization (JSON String -> Dict)
 parsed_data = json.loads(json_str)
 ```
+
+---
+
+## 4. Third-Party Packages (e.g., `requests`)
+
+While the Standard Library provides `urllib` for handling HTTP requests, the community standard is the third-party **`requests`** library due to its clean, human-readable API.
+
+To use it, you must first install it within your virtual environment:
+```bash
+pip install requests
+```
+
+### Making HTTP Requests
+Here is how you can perform typical GET and POST operations using `requests`:
+
+```python
+import requests
+
+# 1. GET Request
+response = requests.get("https://jsonplaceholder.typicode.com/posts/1")
+if response.status_code == 200:
+    post_data = response.json()
+    print("Title:", post_data["title"])
+
+# 2. POST Request (sending JSON data)
+payload = {
+    "title": "Hello FastAPI",
+    "body": "Learning about modules and packages",
+    "userId": 1
+}
+headers = {"Content-Type": "application/json"}
+post_response = requests.post(
+    "https://jsonplaceholder.typicode.com/posts",
+    json=payload,
+    headers=headers
+)
+print("Status Code:", post_response.status_code) # 201 Created
+print("Response JSON:", post_response.json())
+```

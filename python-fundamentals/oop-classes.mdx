@@ -8,21 +8,64 @@ icon: "cube"
 
 Object-Oriented Programming (OOP) is a paradigm that groups related data (attributes) and behaviors (methods) into reusable blueprints called **classes**. An individual object built from a class is an **instance**.
 
+A class is a blueprint for creating objects. In this example, we create a simple `Student` class with two attributes (`name` and `age`) and two methods (`introduce()` and `study()`).
+
 ```python
 # Blueprint class definition
-class Dog:
-    # Initializer constructor
-    def __init__(self, name: str, breed: str):
-        self.name = name    # Instance attribute
-        self.breed = breed  # Instance attribute
 
-# Creating dynamic instances
-dog1 = Dog(name="Buddy", breed="Golden Retriever")
-dog2 = Dog(name="Max", breed="Poodle")
+class Student:
+    # Constructor
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
 
-print(dog1.name)   # Buddy
-print(dog2.breed)  # Poodle
+    # Method
+    def study(self):
+        print(f"{self.name} is studying.")
+
+    # Method
+    def introduce(self):
+        print(f"My name is {self.name}.")
+        print(f"I am {self.age} years old.")
+
+
+# Create an object
+student1 = Student("Alice", 20)
+
+# Access attributes
+print(student1.name)
+print(student1.age)
+
+# Call methods
+student1.introduce()
+student1.study()
 ```
+
+### Output
+
+```text
+Alice
+20
+My name is Alice.
+I am 20 years old.
+Alice is studying.
+```
+
+## Key Concepts
+
+- **Class**: `Student`
+- **Object**: `student1`
+- **Attributes**: `name`, `age`
+- **Methods**: `introduce()`, `study()`
+- **Constructor**: `__init__()` initializes the object's attributes.
+
+This example demonstrates:
+- Defining a class using `class`
+- Initializing attributes using `__init__()`
+- Creating methods inside a class
+- Creating an object
+- Accessing object attributes
+- Calling object methods
 
 ---
 
@@ -70,7 +113,20 @@ class Account:
     def is_valid_amount(amount: float) -> bool:
         return amount > 0
 ```
+### Type Checking (`type` vs `isinstance`)
+- `type(obj)` returns the exact class/type of an object.
+- `isinstance(obj, ClassName)` checks if an object is an instance of a class or any subclass (preferred for polymorphism).
 
+```python
+class Animal: pass
+class Dog(Animal): pass
+
+buddy = Dog()
+
+print(type(buddy) is Dog)       # True
+print(type(buddy) is Animal)    # False (checks exact class)
+print(isinstance(buddy, Animal)) # True (checks inheritance hierarchy)
+```
 ---
 
 ## 3. Class Inheritance
@@ -98,114 +154,6 @@ buddy = Dog("Buddy", "Golden Retriever")
 print(buddy.eat())  # Buddy is eating (inherited method)
 print(buddy.bark()) # Woof!
 ```
-
----
-
-## 4. Encapsulation & Properties
-
-Encapsulation restricts direct access to an object's internal state to prevent accidental modifications.
-
-### Private & Protected Fields
-- **Protected** (`_name`): A convention suggesting the field is for internal/subclass use. Python does not enforce this.
-- **Private** (`__pin`): Triggers Name Mangling (`_ClassName__pin`), causing Python to raise an `AttributeError` if accessed directly.
-
-```python
-class User:
-    def __init__(self, username: str, pin: str):
-        self.username = username    # Public
-        self._status = "active"     # Protected
-        self.__pin = pin            # Private
-```
-
-### Property Getters & Setters (`@property`)
-Properties allow you to define methods that behave like attributes, which is useful for validating data when reading or writing a field.
-
-```python
-class Product:
-    def __init__(self, name: str, price: float):
-        self.name = name
-        self._price = price
-
-    @property
-    def price(self) -> float:
-        """Getter method"""
-        return self._price
-
-    @price.setter
-    def price(self, value: float):
-        """Setter method with validation"""
-        if value < 0:
-            raise ValueError("Price cannot be negative")
-        self._price = value
-
-# Usage
-item = Product("Laptop", 999.0)
-print(item.price)  # Accesses property getter -> 999.0
-item.price = 1050.0  # Accesses property setter
-
----
-
-## 5. Introspection, Abstract Classes, & Inheritance Arguments
-
-Python provides built-in mechanisms to inspect objects at runtime, define interfaces/abstract classes, and customize how arguments are passed during class inheritance.
-
-### Abstract Base Classes (ABCs)
-The `abc` module allows you to define abstract classes that cannot be instantiated and force subclasses to implement specific methods.
-
-```python
-from abc import ABC, abstractmethod
-
-class BaseRepository(ABC):
-    @abstractmethod
-    def save(self, data: dict) -> None:
-        """Subclasses must implement this method"""
-        pass
-
-# repo = BaseRepository()  # TypeError: Can't instantiate abstract class BaseRepository
-
-class SQLRepository(BaseRepository):
-    def save(self, data: dict) -> None:
-        print(f"Saving {data} to Database")
-```
-
-### Type Checking (`type` vs `isinstance`)
-- `type(obj)` returns the exact class/type of an object.
-- `isinstance(obj, ClassName)` checks if an object is an instance of a class or any subclass (preferred for polymorphism).
-
-```python
-class Animal: pass
-class Dog(Animal): pass
-
-buddy = Dog()
-
-print(type(buddy) is Dog)       # True
-print(type(buddy) is Animal)    # False (checks exact class)
-print(isinstance(buddy, Animal)) # True (checks inheritance hierarchy)
-```
-
-### Introspection: `__dict__` and `__annotations__`
-- **`__dict__`**: A dictionary containing the namespaces of an object (its attributes and values).
-- **`__annotations__`**: A dictionary containing type annotations defined on the class or function.
-
-```python
-class User:
-    username: str
-    email: str
-
-    def __init__(self, username: str, email: str):
-        self.username = username
-        self.email = email
-
-# Inspecting class annotations
-print(User.__annotations__) 
-# Output: {'username': <class 'str'>, 'email': <class 'str'>}
-
-# Inspecting instance attributes
-u = User(username="alice", email="alice@example.com")
-print(u.__dict__) 
-# Output: {'username': 'alice', 'email': 'alice@example.com'}
-```
-
 ### Passing Arguments Along with Class Name in Inheritance
 You can pass custom configuration arguments directly inside the class declaration parentheses next to the parent class name. This is done by implementing the special class method `__init_subclass__` in the parent class.
 
@@ -232,15 +180,100 @@ print(UserProfile.table_name)  # Output: users
 
 #### Why do we need this pattern?
 - **Declarative Configuration**: In ORM libraries (like SQLAlchemy or SQLModel) or API frameworks, it is common to define database tables or routes declaratively. This pattern allows subclasses to configure themselves during creation.
-- **Factory Registration**: You can use this hook to automatically register all child classes (e.g., adding them to a global registry dictionary for routing or database tables) without requiring manual setup:
-  ```python
-  # Autoregistration example
-  API_ROUTERS = {}
 
-  class BaseRouter:
-      def __init_subclass__(cls, route_path: str, **kwargs):
-          super().__init_subclass__(**kwargs)
-          API_ROUTERS[route_path] = cls
-  ```
-- **Alternative to Metaclasses**: Historically, doing this required complex custom metaclasses. `__init_subclass__` provides a simpler, cleaner way to customize subclass creation.
+---
+
+## 4. Encapsulation
+
+Encapsulation restricts direct access to an object's internal state to prevent accidental modifications.
+
+### Private & Protected Fields
+- **Protected** (`_name`): A convention suggesting the field is for internal/subclass use. Python does not enforce this.
+- **Private** (`__pin`): Triggers Name Mangling (`_ClassName__pin`), causing Python to raise an `AttributeError` if accessed directly.
+
+```python
+class User:
+    def __init__(self, username: str, pin: str):
+        self.username = username    # Public
+        self._status = "active"     # Protected
+        self.__pin = pin            # Private
+```
+## 5. Properties
+### Property Getters & Setters (`@property`)
+Properties allow you to define methods that behave like attributes, which is useful for validating data when reading or writing a field.
+
+```python
+class Product:
+    def __init__(self, name: str, price: float):
+        self.name = name
+        self._price = price
+
+    @property
+    def price(self) -> float:
+        """Getter method"""
+        return self._price
+
+    @price.setter
+    def price(self, value: float):
+        """Setter method with validation"""
+        if value < 0:
+            raise ValueError("Price cannot be negative")
+        self._price = value
+
+# Usage
+item = Product("Laptop", 999.0)
+print(item.price)  # Accesses property getter -> 999.0
+item.price = 1050.0  # Accesses property setter
+```
+---
+
+## 6.Abstract Classes
+
+Python provides built-in mechanisms to inspect objects at runtime, define interfaces/abstract classes, and customize how arguments are passed during class inheritance.
+
+### Abstract Base Classes (ABCs)
+The `abc` module allows you to define abstract classes that cannot be instantiated and force subclasses to implement specific methods.
+
+```python
+from abc import ABC, abstractmethod
+
+class BaseRepository(ABC):
+    @abstractmethod
+    def save(self, data: dict) -> None:
+        """Subclasses must implement this method"""
+        pass
+
+# repo = BaseRepository()  # TypeError: Can't instantiate abstract class BaseRepository
+
+class SQLRepository(BaseRepository):
+    def save(self, data: dict) -> None:
+        print(f"Saving {data} to Database")
+```
+## 7. Introspection
+ 
+### Introspection: `__dict__` and `__annotations__`
+- **`__dict__`**: A dictionary containing the namespaces of an object (its attributes and values).
+- **`__annotations__`**: A dictionary containing type annotations defined on the class or function.
+
+```python
+class User:
+    username: str
+    email: str
+
+    def __init__(self, username: str, email: str):
+        self.username = username
+        self.email = email
+
+# Inspecting class annotations
+print(User.__annotations__) 
+# Output: {'username': <class 'str'>, 'email': <class 'str'>}
+
+# Inspecting instance attributes
+u = User(username="alice", email="alice@example.com")
+print(u.__dict__) 
+# Output: {'username': 'alice', 'email': 'alice@example.com'}
+```
+
+
+
 

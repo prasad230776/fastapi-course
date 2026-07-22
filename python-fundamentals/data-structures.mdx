@@ -1,0 +1,515 @@
+---
+title: Data Structures
+description: The foundational building blocks of Programming
+icon: "boxes-stacked"
+---
+## Introduction
+
+A **data structure** is a way of organizing and storing data so it can be accessed, updated, and processed efficiently. Python provides several built-in data structures, each designed for different types of data and use cases.
+
+The most commonly used data structures are:
+
+- **Strings (`str`)** – Store textual data.
+- **Lists (`list`)** – Ordered, mutable collections.
+- **Tuples (`tuple`)** – Ordered, immutable collections.
+- **Sets (`set`)** – Unordered collections of unique elements.
+- **Dictionaries (`dict`)** – Store data as key-value pairs.
+- **Deque (`collections.deque`)** – A double-ended queue that supports fast insertion and deletion from both ends.
+
+Choosing the right data structure helps write programs that are more efficient, readable, and easier to maintain.
+
+## Overview
+
+| Data Structure | Ordered | Mutable | Duplicates | Example |
+|---------------|:-------:|:-------:|:----------:|---------|
+| `str` | ✅ | ❌ | ✅ | `"Python"` |
+| `list` | ✅ | ✅ | ✅ | `[1, 2, 3]` |
+| `tuple` | ✅ | ❌ | ✅ | `(1, 2, 3)` |
+| `set` | ❌ | ✅ | ❌ | `{1, 2, 3}` |
+| `dict` | ✅ | ✅ | Keys: ❌ | `{"name": "Alice"}` |
+| `deque` | ✅ | ✅ | ✅ | `deque([1, 2, 3])` |
+## Strings
+
+A **string (`str`)** is an immutable sequence of Unicode characters used to store text.
+
+```python
+text = "Hello Python"
+
+print(text)
+```
+
+### Creating Strings
+
+Strings can be created using single quotes, double quotes, or triple quotes.
+
+```python
+name = "Alice"
+city = 'Hyderabad'
+
+message = """Welcome
+to Python"""
+```
+
+### Indexing
+
+Access individual characters using their position.
+
+```python
+text = "Python"
+
+print(text[0])      # P
+print(text[2])      # t
+print(text[-1])     # n
+```
+
+### Slicing
+
+Extract a portion of a string using `start:stop:step`.
+
+```python
+text = "Python Programming"
+
+print(text[:6])      # Python
+print(text[7:])      # Programming
+print(text[::2])     # Pto rgamn
+print(text[::-1])    # Reverse
+```
+
+### String Operators
+
+| Operator | Description | Example |
+|----------|-------------|---------|
+| `+` | Concatenation | `"Hello" + " World"` |
+| `*` | Repetition | `"Hi " * 3` |
+| `in` | Membership | `"Py" in "Python"` |
+| `not in` | Non-membership | `"Java" not in "Python"` |
+
+```python
+print("Hello " + "Python")
+print("Hi! " * 3)
+print("Py" in "Python")
+print("Java" not in "Python")
+```
+
+### Common String Methods
+
+```python
+text = " hello python "
+
+print(text.upper())
+print(text.lower())
+print(text.title())
+
+print(text.strip())
+
+print(text.replace("python", "World"))
+
+print(text.find("python"))
+
+print(text.count("o"))
+```
+
+### Splitting and Joining Strings
+
+Use `split()` to convert a string into a list and `join()` to combine a list into a string.
+
+```python
+text = "Python,Java,C++"
+
+languages = text.split(",")
+
+print(languages)
+
+print("-".join(languages))
+```
+
+Output:
+
+```text
+['Python', 'Java', 'C++']
+Python-Java-C++
+```
+
+### String Formatting
+
+Use **f-strings** to insert variables into a string.
+
+```python
+name = "Alice"
+age = 20
+
+print(f"{name} is {age} years old.")
+```
+
+### Strings are Immutable
+
+Strings cannot be modified after creation.
+
+```python
+text = "Python"
+
+text = "J" + text[1:]
+
+print(text)
+```
+
+### Python Nuances
+
+- Strings are immutable.
+- Strings support indexing and slicing.
+- Negative indexing starts from the end.
+- Use `split()` to convert a string into a list.
+- Use `join()` to combine a list into a string.
+- Prefer **f-strings** for string formatting.
+
+## Lists
+
+A **list** is an ordered, mutable collection that can store elements of different data types. Lists are one of the most commonly used data structures in Python.
+
+```python
+numbers = [10, 20, 30]
+
+print(numbers)
+```
+
+### Creating Lists
+
+```python
+fruits = ["Apple", "Banana", "Orange"]
+
+mixed = [1, "Python", 3.14, True]
+
+empty = []
+```
+
+### Accessing Elements
+
+Lists support indexing and slicing.
+
+```python
+fruits = ["Apple", "Banana", "Orange", "Mango"]
+
+print(fruits[0])      # Apple
+print(fruits[-1])     # Mango
+
+print(fruits[:2])     # ['Apple', 'Banana']
+print(fruits[1:])     # ['Banana', 'Orange', 'Mango']
+print(fruits[::-1])   # Reverse list
+```
+
+### Common List Methods
+
+```python
+numbers = [10, 20, 30]
+
+numbers.append(40)
+numbers.insert(1, 15)
+numbers.extend([50, 60])
+
+print(numbers)
+
+numbers.remove(20)
+numbers.pop()
+
+print(numbers)
+
+numbers.sort()
+numbers.reverse()
+
+print(numbers)
+```
+
+### List Comprehension
+
+List comprehensions provide a concise way to create lists.
+
+```python
+squares = [x * x for x in range(1, 6)]
+
+print(squares)
+```
+
+### Python Nuances
+
+- Lists are **ordered** and **mutable**.
+- Lists can store elements of different data types.
+- Lists support indexing and slicing.
+- Duplicate values are allowed.
+- Use list comprehensions for concise list creation.
+
+## Tuples
+
+A **tuple** is an ordered, immutable collection that can store elements of different data types. Once created, a tuple cannot be modified.
+
+```python
+colors = ("Red", "Green", "Blue")
+
+print(colors)
+```
+
+### Creating Tuples
+
+```python
+numbers = (10, 20, 30)
+
+mixed = (1, "Python", 3.14, True)
+
+single = (10,)      # Single-element tuple
+
+empty = ()
+```
+
+> **Note:** A single-element tuple must include a trailing comma.
+
+### Accessing Elements
+
+Tuples support indexing and slicing.
+
+```python
+colors = ("Red", "Green", "Blue", "Yellow")
+
+print(colors[0])      # Red
+print(colors[-1])     # Yellow
+
+print(colors[:2])     # ('Red', 'Green')
+print(colors[1:])     # ('Green', 'Blue', 'Yellow')
+print(colors[::-1])   # Reverse tuple
+```
+
+### Tuple Packing and Unpacking
+
+```python
+student = ("Alice", 20, "Python")
+
+name, age, course = student
+
+print(name)
+print(age)
+print(course)
+```
+
+### Python Nuances
+
+- Tuples are **ordered** and **immutable**.
+- Tuples can store elements of different data types.
+- Tuples support indexing and slicing.
+- Duplicate values are allowed.
+- Tuples are commonly used for **fixed data** that should not change.
+- Remember the trailing comma when creating a single-element tuple.
+
+## Sets
+
+A **set** is an unordered, mutable collection of unique elements. Sets automatically remove duplicate values and are useful for performing mathematical set operations.
+
+```python
+numbers = {10, 20, 30, 20}
+
+print(numbers)
+```
+
+Output:
+
+```text
+{10, 20, 30}
+```
+
+### Creating Sets
+
+```python
+fruits = {"Apple", "Banana", "Orange"}
+
+numbers = {1, 2, 3, 4}
+
+empty = set()     # Creates an empty set
+```
+
+> **Note:** Use `set()` to create an empty set. Using `{}` creates an empty dictionary.
+
+### Common Set Methods
+
+```python
+numbers = {10, 20, 30}
+
+numbers.add(40)
+
+numbers.remove(20)
+
+numbers.discard(50)   # No error if element doesn't exist
+
+print(numbers)
+```
+
+### Set Operations
+
+```python
+a = {1, 2, 3}
+b = {3, 4, 5}
+
+print(a | b)    # Union
+print(a & b)    # Intersection
+print(a - b)    # Difference
+print(a ^ b)    # Symmetric Difference
+```
+
+### Python Nuances
+
+- Sets store **unique** elements only.
+- Sets are **unordered**, so indexing and slicing are not supported.
+- Duplicate values are automatically removed.
+- Sets are useful for membership testing and removing duplicates.
+- Use `set()` to create an empty set.
+
+## Dictionaries
+
+A **dictionary (`dict`)** stores data as **key-value pairs**. Keys are unique and are used to access their corresponding values.
+
+```python
+student = {
+    "name": "Alice",
+    "age": 20,
+    "course": "Python"
+}
+
+print(student)
+```
+
+### Creating Dictionaries
+
+```python
+student = {
+    "name": "Alice",
+    "age": 20,
+    "course": "Python"
+}
+
+empty = {}
+```
+
+### Accessing Values
+
+Access values using their keys.
+
+```python
+print(student["name"])
+
+print(student.get("age"))
+```
+
+> **Note:** `get()` returns `None` (or a default value) if the key does not exist, instead of raising an error.
+
+### Adding and Updating
+
+```python
+student["city"] = "Hyderabad"
+
+student["age"] = 21
+
+print(student)
+```
+
+### Removing Items
+
+```python
+student.pop("city")
+
+del student["course"]
+
+print(student)
+```
+
+### Common Dictionary Methods
+
+```python
+print(student.keys())
+
+print(student.values())
+
+print(student.items())
+```
+
+### Iterating Through a Dictionary
+
+```python
+for key, value in student.items():
+    print(key, value)
+```
+
+### Dictionary Comprehension
+
+```python
+squares = {x: x * x for x in range(1, 6)}
+
+print(squares)
+```
+
+### Python Nuances
+
+- Dictionaries store data as **key-value pairs**.
+- Keys must be **unique** and **immutable**.
+- Values can be of any data type.
+- Dictionaries are **mutable**.
+- Dictionaries preserve insertion order (Python 3.7+).
+- Use `get()` when a key may not exist.
+
+## deque
+
+A **deque (double-ended queue)** is a list-like data structure from Python's built-in `collections` module. It allows fast insertion and deletion of elements from **both the beginning and the end**, making it more efficient than a list for queue-like operations.
+
+```python
+from collections import deque
+
+dq = deque([10, 20, 30])
+
+print(dq)
+```
+
+### Creating a deque
+
+```python
+from collections import deque
+
+dq = deque([1, 2, 3])
+
+empty = deque()
+```
+
+### Common Operations
+
+```python
+from collections import deque
+
+dq = deque([10, 20, 30])
+
+dq.append(40)        # Add to the right
+dq.appendleft(5)     # Add to the left
+
+dq.pop()             # Remove from the right
+dq.popleft()         # Remove from the left
+
+print(dq)
+```
+
+### Rotating a deque
+
+```python
+from collections import deque
+
+dq = deque([1, 2, 3, 4])
+
+dq.rotate(1)
+
+print(dq)
+
+dq.rotate(-2)
+
+print(dq)
+```
+
+### Python Nuances
+
+- `deque` stands for **double-ended queue**.
+- Supports fast insertion and deletion from both ends.
+- Maintains the order of elements.
+- Allows duplicate values.
+- Ideal for implementing **queues**, **stacks**, and **sliding window** algorithms.
+- Prefer `deque` over `list` when frequently adding or removing elements from the beginning.
