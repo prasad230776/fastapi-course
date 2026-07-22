@@ -42,8 +42,8 @@
               "python-fundamentals/working-with-data",
               "python-fundamentals/type-hinting",
               "python-fundamentals/pydantic",
-              "python-fundamentals/dependency-management",
               "python-fundamentals/async-programming",
+              "python-fundamentals/dependency-management",
               "python-fundamentals/project-structure",
               "python-fundamentals/environment-variables"
             ]
