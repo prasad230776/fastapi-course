@@ -104,3 +104,29 @@ except InsufficientBalanceError as error:
     print(f"Transaction Failed: {error}")
     print(f"Shortage Amount: ${error.amount - error.balance}")
 ```
+
+---
+
+## Practice & Exercises
+
+To reinforce what you've learned in this section (try-except blocks, handling multiple errors, else/finally blocks, raising exceptions, and writing custom exceptions), practice with these interactive notebooks:
+
+<CardGroup cols={2}>
+  <Card
+    title="Follow-Along Practice"
+    icon="laptop-code"
+  >
+    Practice catching value errors, handling multiple exceptions like division by zero or file missing, using else and finally, raising validation errors, and subclassing Exception.
+
+    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/python%20material/fastapi-course/public/notebooks/basics_exercises/Exception_Handling_Practice.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/fastapi-course/blob/master/public/notebooks/basics_exercises/Exception_Handling_Practice.ipynb) | <a href="/public/notebooks/basics_exercises/Exception_Handling_Practice.ipynb" download>📥 Download</a>
+  </Card>
+  <Card
+    title="Practice Exercises"
+    icon="pen-to-square"
+  >
+    Test your knowledge with hands-on exercises including safe division function, config file loader cleanups, input username verifications, and custom email domain exceptions.
+
+    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/python%20material/fastapi-course/public/notebooks/basics_exercises/Exception_Handling_Exercises.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/fastapi-course/blob/master/public/notebooks/basics_exercises/Exception_Handling_Exercises.ipynb) | <a href="/public/notebooks/basics_exercises/Exception_Handling_Exercises.ipynb" download>📥 Download</a>
+  </Card>
+</CardGroup>
+

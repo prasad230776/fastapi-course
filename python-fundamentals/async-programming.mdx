@@ -87,3 +87,29 @@ asyncio.run(main())
 FastAPI is built on **ASGI** (Asynchronous Server Gateway Interface) and supports native `async def` route handlers.
 
 When a client sends a request to an `async def` endpoint that performs a database query or external API fetch, FastAPI yields control back to the event loop. The event loop can process other incoming requests in the meantime, resulting in massive throughput gains.
+
+---
+
+## Practice & Exercises
+
+To reinforce what you've learned in this section (async/await declarations, tasks, event loops, and concurrency), practice with these interactive notebooks:
+
+<CardGroup cols={2}>
+  <Card
+    title="Follow-Along Practice"
+    icon="laptop-code"
+  >
+    Practice defining async coroutines, working with non-blocking sleeps, understanding task scheduling, and implementing concurrent operations using asyncio.gather.
+
+    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/python%20material/fastapi-course/public/notebooks/basics_exercises/Async_Programming_Practice.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/fastapi-course/blob/master/public/notebooks/basics_exercises/Async_Programming_Practice.ipynb) | <a href="/public/notebooks/basics_exercises/Async_Programming_Practice.ipynb" download>📥 Download</a>
+  </Card>
+  <Card
+    title="Practice Exercises"
+    icon="pen-to-square"
+  >
+    Test your knowledge with hands-on exercises including simulated async file downloaders and concurrent batch file managers.
+
+    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/python%20material/fastapi-course/public/notebooks/basics_exercises/Async_Programming_Exercises.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/fastapi-course/blob/master/public/notebooks/basics_exercises/Async_Programming_Exercises.ipynb) | <a href="/public/notebooks/basics_exercises/Async_Programming_Exercises.ipynb" download>📥 Download</a>
+  </Card>
+</CardGroup>
+

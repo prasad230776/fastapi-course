@@ -119,3 +119,29 @@ print(data_dict)  # {'id': 123, 'username': 'alice', ...}
 json_string = user.model_dump_json()
 print(json_string)  # '{"id":123,"username":"alice",...}'
 ```
+
+---
+
+## Practice & Exercises
+
+To reinforce what you've learned in this section (defining BaseModels, Field constraints, custom validations, nested models, and serialization), practice with these interactive notebooks:
+
+<CardGroup cols={2}>
+  <Card
+    title="Follow-Along Practice"
+    icon="laptop-code"
+  >
+    Practice defining Pydantic models, verifying coercion, handling ValidationErrors, setting Field constraints, creating custom field validators, nesting models, and serializing models.
+
+    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/python%20material/fastapi-course/public/notebooks/basics_exercises/Pydantic_Practice.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/fastapi-course/blob/master/public/notebooks/basics_exercises/Pydantic_Practice.ipynb) | <a href="/public/notebooks/basics_exercises/Pydantic_Practice.ipynb" download>📥 Download</a>
+  </Card>
+  <Card
+    title="Practice Exercises"
+    icon="pen-to-square"
+  >
+    Test your knowledge with hands-on exercises including student GPA validator coercion, movies range length constraints, email domain field validators, and nested transaction schemas.
+
+    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/python%20material/fastapi-course/public/notebooks/basics_exercises/Pydantic_Exercises.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/fastapi-course/blob/master/public/notebooks/basics_exercises/Pydantic_Exercises.ipynb) | <a href="/public/notebooks/basics_exercises/Pydantic_Exercises.ipynb" download>📥 Download</a>
+  </Card>
+</CardGroup>
+

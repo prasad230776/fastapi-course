@@ -389,6 +389,93 @@ Functional programming in Python is mainly based on:
 - **Declarative Programming**
 - **Higher-Order Functions**
 
+## Generators
+
+A **generator** is a special type of function that produces values **one at a time** instead of returning them all at once. It uses the `yield` keyword instead of `return`. Generators are **memory-efficient** because they generate values only when needed.
+
+### Advantages
+
+- Uses less memory for large datasets.
+- Produces values lazily (on demand).
+- Suitable for processing streams of data or large files.
+
+### Creating a Generator
+
+```python
+def count_up_to(n):
+    for i in range(1, n + 1):
+        yield i
+
+numbers = count_up_to(5)
+
+for num in numbers:
+    print(num)
+```
+
+**Output**
+
+```
+1
+2
+3
+4
+5
+```
+
+### Using `next()`
+
+A generator can be iterated manually using the `next()` function.
+
+```python
+def countdown():
+    yield 3
+    yield 2
+    yield 1
+
+gen = countdown()
+
+print(next(gen))
+print(next(gen))
+print(next(gen))
+```
+
+**Output**
+
+```
+3
+2
+1
+```
+
+### Generator Expression
+
+Similar to list comprehensions, Python supports **generator expressions**.
+
+```python
+squares = (x ** 2 for x in range(5))
+
+for square in squares:
+    print(square)
+```
+
+**Output**
+
+```
+0
+1
+4
+9
+16
+```
+
+### Generator vs List
+
+| List | Generator |
+|------|-----------|
+| Stores all values in memory | Generates values one at a time |
+| Uses more memory | Memory efficient |
+| Created using `[]` | Created using `yield` or `()` |
+| Faster for small datasets | Better for large datasets |
 ---
 
 ## Declarative Programming
@@ -610,3 +697,28 @@ print(total)
 Use **list comprehensions** and built-in functions like `sum()` for better readability. Use `map()`, `filter()`, and `reduce()` when working with functional pipelines or callback-based APIs.
 
 </Tip>
+
+---
+
+## Practice & Exercises
+
+To reinforce what you've learned in this section (defining functions, scopes, lambda expressions, closures, decorators, and functional programming), practice with these interactive notebooks:
+
+<CardGroup cols={2}>
+  <Card
+    title="Follow-Along Practice"
+    icon="laptop-code"
+  >
+    Practice function definitions, positional/keyword arguments, variable scope rules, closures, wrapper decorators, and higher-order functions (map, filter, reduce).
+
+    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/python%20material/fastapi-course/public/notebooks/basics_exercises/Functions_Practice.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/fastapi-course/blob/master/public/notebooks/basics_exercises/Functions_Practice.ipynb) | <a href="/public/notebooks/basics_exercises/Functions_Practice.ipynb" download>📥 Download</a>
+  </Card>
+  <Card
+    title="Practice Exercises"
+    icon="pen-to-square"
+  >
+    Test your knowledge with hands-on exercises including positional/keyword argument formatters, nonlocal scope counters, closure factories, execution timer decorators, and functional pipelines.
+
+    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/python%20material/fastapi-course/public/notebooks/basics_exercises/Functions_Exercises.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/fastapi-course/blob/master/public/notebooks/basics_exercises/Functions_Exercises.ipynb) | <a href="/public/notebooks/basics_exercises/Functions_Exercises.ipynb" download>📥 Download</a>
+  </Card>
+</CardGroup>
