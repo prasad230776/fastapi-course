@@ -1,0 +1,542 @@
+---
+title: Introduction 
+description: Build modern, scalable REST APIs with Python
+icon: "server"
+---
+
+## Build modern backend applications
+
+Python is widely used for backend development, and FastAPI has become one of the most popular frameworks for building modern web APIs. It combines Python's simplicity with high performance, automatic validation, and interactive documentation, making it an excellent choice for developing production-ready backend services.
+
+
+## What you'll learn
+
+Throughout this section, you'll build a REST API from scratch while learning the core concepts of FastAPI:
+
+1. **Set up FastAPI** – Install FastAPI, Uvicorn, and create your first application
+2. **Build API endpoints** – Work with routes, HTTP methods, and parameters
+3. **Handle request and response data** – Validate data using Pydantic models
+4. **Explore API documentation** – Use Swagger UI and ReDoc to test and understand your APIs
+5. **Develop structured APIs** – Organize applications using routers and modular code
+
+By the end of this section, you'll be able to create well-structured REST APIs and have a strong foundation for building complete backend applications.
+
+## "How the Web Works"
+
+Before building APIs with FastAPI, it is essential to understand how data moves across the internet. Every time you load a webpage, log in to an app, or fetch data, your computer is participating in the **Client-Server Model** over the **HTTP protocol**.
+
+---
+
+### The Client-Server Model
+
+The web runs on a simple pattern of exchange:
+* **Client (The Requester)**: Typically a web browser (Chrome, Safari), a mobile app, or a command-line tool like `curl`. The client initiates communication by sending a **Request**.
+* **Server (The Responder)**: A computer running software (like our FastAPI application) that listens for incoming requests, processes them (often talking to databases), and sends back a **Response**.
+
+```mermaid
+sequenceDiagram
+    actor Client as Client (Browser/App)
+    participant Server as Server (FastAPI)
+    
+    Client->>Server: HTTP Request (GET /employees)
+    Note over Server: Processes request &<br/>fetches employee list
+    Server->>Client: HTTP Response (200 OK + JSON Data)
+```
+
+
+### FastAPI Fundamentals
+
+FastAPI is a modern, high-performance Python web framework for building APIs. It is built on top of **Starlette** and **Pydantic**, leveraging Python's type hints to provide automatic request validation, interactive API documentation, and excellent developer productivity.
+
+Before learning FastAPI, it's important to understand **what an API is**, **why it exists**, and **how applications communicate over the web**.
+
+---
+
+## What is an API?
+
+**API** stands for **Application Programming Interface**.
+
+An API is a set of rules that allows two software applications to communicate with each other. It acts as an intermediary between a **client** and a **server**, enabling them to exchange data and perform operations without exposing the internal implementation of either system.
+
+Every time you:
+
+- Log in to a website
+- Search for products on an e-commerce site
+- Check the weather on your phone
+- Book a cab
+- Make an online payment
+
+your application is communicating with one or more APIs.
+
+---
+
+## Why Do We Need APIs?
+
+Modern applications are made up of multiple independent components. APIs provide a standardized way for these components to communicate.
+
+APIs are commonly used to:
+
+- Connect frontend applications to backend services.
+- Exchange data between different systems.
+- Integrate third-party services such as payment gateways and maps.
+- Build mobile and web applications using the same backend.
+- Develop scalable microservices.
+- Serve AI and Machine Learning models.
+
+Without APIs, every application would need direct access to another application's internal code or database, making systems difficult to maintain and scale.
+
+---
+
+## Client–Server Architecture
+
+Most web applications follow the **Client–Server** architecture.
+
+- **Client** – Sends requests to the server (Browser, Mobile App, Desktop Application).
+- **Server** – Processes requests, performs business logic, accesses databases, and returns responses.
+
+```
+            HTTP Request
++-----------+ ---------> +-----------+
+|  Client   |            |  Server   |
+| Browser   |            | FastAPI   |
+| Mobile App| <--------- | Database  |
++-----------+  Response  +-----------+
+```
+
+FastAPI is used to build the **server-side** of this communication.
+
+---
+
+## HTTP Fundamentals
+
+Communication between clients and servers happens using the **HyperText Transfer Protocol (HTTP)**.
+
+HTTP follows a simple **Request → Response** model.
+
+1. The client sends an HTTP request.
+2. The server processes the request.
+3. The server returns an HTTP response.
+
+Every interaction with a web application follows this cycle.
+
+---
+
+## Anatomy of an HTTP Request
+
+An HTTP request typically consists of the following components:
+
+1. **HTTP Method** – Specifies the action to perform on the resource (GET, POST, PUT, DELETE, PATCH, etc.).
+
+2. **Host** – The domain name or IP address of the target server that should handle the request.
+
+3. **Endpoint (Path)** – The specific resource or API route being requested on the server (e.g., `/employees` or `/users/101`).
+
+4. **Path Parameters** – Dynamic values embedded within the endpoint path (e.g., `/employees/101`, where `101` is the path parameter).
+
+5. **Query Parameters** – Optional key-value pairs appended to the URL after `?` to filter, search, sort, or paginate data (e.g., `?department=HR&limit=10`).
+
+6. **Headers** – Metadata about the request, such as content type, authorization token, accepted response format, and user agent.
+
+7. **Cookies** – Client-specific data automatically sent by the browser, often used for sessions and user preferences.
+
+8. **Request Body** – The data sent to the server, typically in JSON format, used with methods like POST, PUT, and PATCH.
+
+### Example HTTP Request
+
+```http
+POST /employees/101?active=true HTTP/1.1
+Host: api.company.com
+Content-Type: application/json
+Authorization: Bearer <token>
+User-Agent: Mozilla/5.0
+
+{
+    "name": "Siva",
+    "department": "IT"
+}
+```
+
+### Request Components
+
+| Component | Example |
+|-----------|---------|
+| **HTTP Method** | `POST` |
+| **Host** | `api.company.com` |
+| **Endpoint (Path)** | `/employees/101` |
+| **Path Parameter** | `101` |
+| **Query Parameter** | `active=true` |
+| **Headers** | `Content-Type`, `Authorization`, `User-Agent` |
+| **Request Body** | JSON employee data |
+
+### URL Breakdown
+
+For the following URL:
+
+```text
+https://api.company.com/employees/101?active=true
+```
+
+| Part | Value |
+|------|-------|
+| **Protocol** | `https` |
+| **Host** | `api.company.com` |
+| **Endpoint (Path)** | `/employees/101` |
+| **Path Parameter** | `101` |
+| **Query Parameter** | `active=true` |
+
+> **Note:** The **URL** contains the protocol, host, endpoint (path), path parameters, and query parameters. The complete **HTTP request** additionally includes the HTTP method, headers, cookies, and an optional request body.
+
+---
+## How to Identify an Endpoint and a Path Parameter from a URL?
+
+A common question is:
+
+> **Given a URL, how can we tell which part is the endpoint and which part is a path parameter?**
+
+<Accordion title="Show Answer">
+
+### Short Answer
+
+**You cannot determine it by looking at the URL alone.**
+
+It depends on **how the route is defined in the application**.
+
+---
+
+### Example
+
+Consider the following URL:
+
+```text
+https://api.company.com/employees/101
+```
+
+The path is:
+
+```text
+/employees/101
+```
+
+Is `101` part of the endpoint or a path parameter?
+
+**We don't know until we see the route definition.**
+
+---
+
+### Case 1: `101` is a Path Parameter
+
+```python
+@app.get("/employees/{employee_id}")
+def get_employee(employee_id: int):
+    ...
+```
+
+Request:
+
+```text
+/employees/101
+```
+
+FastAPI extracts:
+
+```text
+employee_id = 101
+```
+
+| Component | Value |
+|----------|-------|
+| Endpoint Pattern | `/employees/{employee_id}` |
+| Requested URL | `/employees/101` |
+| Path Parameter | `employee_id = 101` |
+
+---
+
+### Case 2: `101` is Part of the Endpoint
+
+```python
+@app.get("/employees/101")
+def get_special_employee():
+    ...
+```
+
+Here, `101` is a fixed part of the endpoint.
+
+| Component | Value |
+|----------|-------|
+| Endpoint | `/employees/101` |
+| Path Parameter | None |
+
+---
+
+### Easy Way to Remember
+
+**Route Definition**
+
+```text
+/employees/{employee_id}
+```
+
+**Actual Request**
+
+```text
+/employees/101
+```
+
+- `{employee_id}` → Placeholder
+- `101` → Actual value
+
+---
+
+### Key Takeaway
+
+You **cannot identify a path parameter by looking only at the URL**.
+
+You must compare the URL with the **route definition**.
+
+- **Route Definition:** `/employees/{employee_id}`
+- **Request URL:** `/employees/101`
+- **Path Parameter Value:** `employee_id = 101`
+
+</Accordion>
+
+## Anatomy of an HTTP Response
+
+After processing a request, the server sends an HTTP response containing:
+
+- **Status Code** – Indicates whether the request was successful.
+- **Response Headers** – Metadata about the response.
+- **Response Body** – The returned data, usually in JSON format.
+
+### General Structure
+
+```
+HTTP/1.1 200 OK
+Headers
+
+Response Body
+```
+```json
+{
+    "id": 101,
+    "name": "John",
+    "age": 20
+}
+```
+
+---
+
+## API Endpoints
+
+An **endpoint** is a specific URL where an API provides access to a resource.
+
+Examples:
+
+```
+GET    /students
+GET    /students/101
+POST   /students
+PUT    /students/101
+DELETE /students/101
+```
+
+Each endpoint performs a specific operation on a resource.
+
+---
+
+## HTTP Methods
+
+| Method | Purpose |
+|---------|---------|
+| GET | Retrieve data |
+| POST | Create new data |
+| PUT | Replace existing data |
+| PATCH | Update part of existing data |
+| DELETE | Remove data |
+
+---
+
+## Example: HTTP GET Request
+
+Suppose a weather application wants to retrieve the current weather for **London**.
+
+### API URL
+
+This is the complete URL used by the client application.
+
+```text
+https://api.weatherapi.com/weather/current?city=London
+│       │                  │               │
+│       │                  │               └── Query Parameter
+│       │                  │
+│       │                  └────────────────── Endpoint (Resource)
+│       │
+│       └───────────────────────────────────── Host (Server)
+│
+└───────────────────────────────────────────── Protocol
+```
+
+- **Protocol** → `https`
+- **Host (Server)** → `api.weatherapi.com`
+- **Endpoint (Resource)** → `/weather/current`
+- **Query Parameter** → `city=London`
+
+> **Note:** In REST APIs, everything exposed by the server is treated as a **resource**. Examples include **students**, **users**, **products**, **orders**, and **weather**. Each resource is identified by its own endpoint.
+
+---
+
+## Actual HTTP Request
+
+When the client sends the request, it is represented as:
+
+```http
+GET /weather/current?city=London HTTP/1.1
+Host: api.weatherapi.com
+X-API-Key: abc123xyz456
+Accept: application/json
+```
+
+### Understanding the Request
+
+#### HTTP Method
+
+```text
+GET
+```
+
+Specifies the action to perform.
+
+- **GET** → Retrieve data
+- **POST** → Create data
+- **PUT** → Update data
+- **DELETE** → Delete data
+
+#### Endpoint
+
+```text
+/weather/current
+```
+
+Identifies the resource requested from the server.
+
+#### Query Parameter
+
+```text
+city=London
+```
+
+Provides additional information needed to process the request.
+
+#### Request Headers
+
+```http
+Host: api.weatherapi.com
+X-API-Key: abc123xyz456
+Accept: application/json
+```
+
+Headers carry additional information about the request.
+
+- **Host** → Target server
+- **X-API-Key** → Client authentication
+- **Accept** → Expected response format
+
+> **Note:** The complete URL contains the **protocol** and **host**, but the actual HTTP request sends only the **endpoint** and **query parameters** in the request line. The **host** is sent separately using the **Host** header.
+
+---
+
+## HTTP Response
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+    "city": "London",
+    "temperature": 18.5,
+    "condition": "Partly Cloudy"
+}
+```
+
+### Response Components
+
+- **Status Line** → `HTTP/1.1 200 OK`
+- **Response Headers** → Metadata about the response
+- **Response Body** → The actual data returned by the server
+
+---
+
+## Request–Response Flow
+
+```text
+Client
+   │
+   │ HTTP Request
+   ▼
+Server
+   │
+   │ HTTP Response
+   ▼
+Client
+```
+
+> **Remember:** Every API communication follows the same cycle:
+>
+> **Client → HTTP Request → Server → HTTP Response → Client**
+
+## Why FastAPI?
+
+FastAPI simplifies backend development by providing:
+
+- High performance
+- Automatic request validation
+- Interactive API documentation
+- Built-in support for Python type hints
+- Automatic OpenAPI specification generation
+- Easy integration with databases and authentication
+- Excellent developer productivity
+
+Throughout this chapter, you'll use FastAPI to build REST APIs while understanding the concepts behind modern backend development.
+
+<CardGroup cols={2}>
+
+<Card
+title="Getting Started"
+icon="rocket"
+href="/fastapi/fundamentals"
+>
+
+Install FastAPI, configure your environment, and build your first API.
+
+</Card>
+
+<Card
+title="Routing & HTTP Methods"
+icon="route"
+href="/fastapi/routing"
+>
+
+Create API endpoints using GET, POST, PUT, PATCH, and DELETE.
+
+</Card>
+
+<Card
+title="Request & Response Models"
+icon="cube"
+href="/fastapi/request-response-models"
+>
+
+Validate incoming data and return structured responses using Pydantic.
+
+</Card>
+
+<Card
+title="Interactive API Docs"
+icon="book-open"
+href="/fastapi/api-documentation"
+>
+
+Explore and test your APIs using Swagger UI and ReDoc.
+
+</Card>
+
+</CardGroup>

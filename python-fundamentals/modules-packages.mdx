@@ -136,7 +136,51 @@ json_str = json.dumps(data)
 # Deserialization (JSON String -> Dict)
 parsed_data = json.loads(json_str)
 ```
+### F.`string` Module
 
+The **`string`** module provides useful predefined string constants that are commonly used for text processing, validation, and random string generation.
+
+```python
+import string
+```
+
+| Constant | Description |
+|----------|-------------|
+| `string.ascii_lowercase` | Lowercase letters (`a-z`) |
+| `string.ascii_uppercase` | Uppercase letters (`A-Z`) |
+| `string.ascii_letters` | All English letters (`a-zA-Z`) |
+| `string.digits` | Digits (`0-9`) |
+| `string.hexdigits` | Hexadecimal digits |
+| `string.octdigits` | Octal digits (`0-7`) |
+| `string.punctuation` | Special characters (`!@#$...`) |
+| `string.whitespace` | Space, tab, newline, etc. |
+| `string.printable` | All printable ASCII characters |
+
+### Example
+
+```python
+import string
+
+print(string.ascii_letters)
+print(string.digits)
+print(string.punctuation)
+```
+
+### Generate a Random Password
+
+```python
+import random
+import string
+
+characters = (
+    string.ascii_letters +
+    string.digits +
+    string.punctuation
+)
+
+password = "".join(random.choice(characters) for _ in range(12))
+print(password)
+```
 ---
 
 ## 4. Third-Party Packages (e.g., `requests`)

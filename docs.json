@@ -56,8 +56,9 @@
           {
             "group": "Web & Routing",
             "pages": [
-              "fastapi-foundations/how-web-works",
-              "fastapi-foundations/intro-to-fastapi",
+              "fastapi-foundations/index",
+              "fastapi-foundations/fundamentals",
+              "fastapi-foundations/student-api",
               "fastapi-foundations/request-handling",
               "fastapi-foundations/response-handling",
               "fastapi-foundations/apirouter",

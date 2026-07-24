@@ -1,0 +1,286 @@
+---
+title: Student Mgmt System -1
+description: Student CRUD API Project
+icon: "api"
+---
+
+In this project, you will build a complete **Student CRUD API** using **FastAPI** and a **local Python dictionary**. We will not use a database in this project.
+
+## Project Setup
+
+In this project, you will create a FastAPI application using **uv** for package management and a **virtual environment** for dependency isolation.
+
+### Step 1: Create the Project Folder
+
+Create a new project folder.
+
+```bash
+mkdir student-api
+cd student-api
+```
+
+### Step 2: Create a Virtual Environment
+
+Create a virtual environment using **uv**.
+
+```bash
+uv venv
+```
+
+This creates a virtual environment in the `.venv` folder.
+
+### Step 3: Activate the Virtual Environment
+
+**Windows (Command Prompt)**
+
+```bash
+.venv\Scripts\activate
+```
+
+**Windows (PowerShell)**
+
+```powershell
+.venv\Scripts\Activate.ps1
+```
+
+**macOS / Linux**
+
+```bash
+source .venv/bin/activate
+```
+
+After activation, your terminal prompt should display **(.venv)**.
+
+### Step 4: Install the Required Packages
+
+```bash
+uv add fastapi uvicorn
+```
+
+This command:
+
+- Installs FastAPI and Uvicorn
+- Creates `pyproject.toml`
+- Creates `uv.lock`
+
+### Step 5: Create the Project Structure
+
+```text
+student-api/
+│
+├── .venv/
+├── main.py
+├── pyproject.toml
+└── uv.lock
+```
+
+### Step 6: Create the Application File
+
+Create a file named **main.py**.
+
+### Step 7: Run the Application
+
+```bash
+uv run uvicorn main:app --reload
+```
+
+The `--reload` option automatically restarts the server whenever you save changes.
+
+### Step 8: Open the Application
+
+**Home:** `http://127.0.0.1:8000`
+
+**Swagger UI:** `http://127.0.0.1:8000/docs`
+
+## Build the Student CRUD API
+
+### Step 1: Create the FastAPI Application
+
+Create `main.py` and initialize the FastAPI application.
+
+<Accordion title="Show Code">
+
+```python
+from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get("/")
+def home():
+    return {"message": "Welcome to Student API"}
+```
+
+</Accordion>
+
+Run the application and verify the home page.
+
+### Step 2: Create the Student Model
+
+<Accordion title="Show Code">
+
+```python
+from pydantic import BaseModel
+
+class Student(BaseModel):
+    name: str
+    age: int
+    course: str
+```
+
+</Accordion>
+
+### Step 3: Create a Local Data Store
+
+<Accordion title="Show Code">
+
+```python
+students = {
+    1: {
+        "name": "Rahul",
+        "age": 20,
+        "course": "CSE"
+    },
+    2: {
+        "name": "Sneha",
+        "age": 21,
+        "course": "ECE"
+    }
+}
+```
+
+</Accordion>
+
+### Step 4: Build the Create Student API
+
+**Endpoint:** `POST /students`
+
+**Sample Request**
+
+```json
+{
+  "name": "John",
+  "age": 22,
+  "course": "IT"
+}
+```
+
+<Accordion title="Show Code">
+
+```python
+@app.post("/students")
+def create_student(student: Student):
+    student_id = max(students.keys()) + 1
+    students[student_id] = student.model_dump()
+    return {
+        "id": student_id,
+        "student": students[student_id]
+    }
+```
+
+</Accordion>
+
+Test the endpoint from Swagger UI.
+
+### Step 5: Build the Get All Students API
+
+**Endpoint:** `GET /students`
+
+<Accordion title="Show Code">
+
+```python
+@app.get("/students")
+def get_students():
+    return students
+```
+
+</Accordion>
+
+### Step 6: Build the Get Student by ID API
+
+**Endpoint:** `GET /students/{student_id}`
+
+**Example:** `GET /students/1`
+
+<Accordion title="Show Code">
+
+```python
+from fastapi import HTTPException
+
+@app.get("/students/{student_id}")
+def get_student(student_id: int):
+    if student_id not in students:
+        raise HTTPException(status_code=404, detail="Student not found")
+    return students[student_id]
+```
+
+</Accordion>
+
+### Step 7: Build the Update Student API
+
+**Endpoint:** `PUT /students/{student_id}`
+
+**Sample Request**
+
+```json
+{
+  "name": "John",
+  "age": 23,
+  "course": "AI & DS"
+}
+```
+
+<Accordion title="Show Code">
+
+```python
+@app.put("/students/{student_id}")
+def update_student(student_id: int, student: Student):
+    if student_id not in students:
+        raise HTTPException(status_code=404, detail="Student not found")
+
+    students[student_id] = student.model_dump()
+
+    return {
+        "message": "Student updated",
+        "student": students[student_id]
+    }
+```
+
+</Accordion>
+
+### Step 8: Build the Delete Student API
+
+**Endpoint:** `DELETE /students/{student_id}`
+
+<Accordion title="Show Code">
+
+```python
+@app.delete("/students/{student_id}")
+def delete_student(student_id: int):
+    if student_id not in students:
+        raise HTTPException(status_code=404, detail="Student not found")
+
+    deleted_student = students.pop(student_id)
+
+    return {
+        "message": "Student deleted",
+        "student": deleted_student
+    }
+```
+
+</Accordion>
+
+### Step 9: Test the Complete CRUD Flow
+
+Open **Swagger UI**: `http://127.0.0.1:8000/docs`
+
+Execute the APIs in this order:
+
+1. `GET /students`
+2. `POST /students`
+3. `GET /students`
+4. `GET /students/{student_id}`
+5. `PUT /students/{student_id}`
+6. `GET /students/{student_id}`
+7. `DELETE /students/{student_id}`
+
+Observe how the dictionary changes after every operation.

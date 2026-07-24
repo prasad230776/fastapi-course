@@ -1,0 +1,541 @@
+---
+title: FastAPI Fundamentals
+description: Building Basic Applications
+icon: "api"
+---
+##  What is FastAPI?
+
+FastAPI is a modern, high-performance Python framework for building REST APIs. It uses Python type hints, provides automatic validation, and generates interactive API documentation out of the box.
+
+
+### Key Features of FastAPI
+* **🚀 High Performance**: Built on top of Starlette and Pydantic, making it one of the fastest Python frameworks available, on par with Node.js and Go.
+* **✍️ Faster Coding**: Speeds up feature development by 200% to 300%.
+* **🛡️ Fewer Bugs**: Reduces developer-induced errors by about 40% through automatic validation.
+* **📖 Auto-Generated Documentation**: Generates interactive documentation pages (Swagger UI and ReDoc) automatically.
+* **🔒 Modern & Async**: Native support for asynchronous programming (`async/await`) out of the box.
+
+---
+
+## The Tech Stack Under the Hood
+
+FastAPI stands on the shoulders of giants:
+
+```mermaid
+graph TD
+    Client[Client Browser/App] --> Uvicorn[Uvicorn ASGI Server]
+    Uvicorn --> FastAPI[FastAPI App Framework]
+    FastAPI --> Starlette[Starlette: Routing & Web Parts]
+    FastAPI --> Pydantic[Pydantic: Data Validation & Serialization]
+```
+
+* **Uvicorn**: An ASGI (Asynchronous Server Gateway Interface) web server implementation for Python. It acts as the web server that receives incoming TCP connections from clients and forwards them to FastAPI.
+* **Starlette**: A lightweight ASGI framework toolkit. FastAPI inherits all its routing and web handling capabilities from Starlette.
+* **Pydantic**: The data validation and serialization library. It enforces types and formats data.
+---
+
+## Learning Objectives in this chapter..
+
+After completing this chapter, you will be able to:
+
+- Install and configure FastAPI
+- Create and run your first API
+- Understand routing and HTTP methods
+- Work with path and query parameters
+- Accept request data using Pydantic models
+- Return structured responses
+- Validate request data
+- Use HTTP status codes
+- Explore the generated API documentation
+
+## Prerequisites
+
+- Python 3.10 or later
+- pip or uv
+- Virtual Environment (recommended)
+- VS Code or any Python IDE
+
+## Creating a Virtual Environment
+
+```bash
+python -m venv .venv
+```
+
+Activate the environment.
+
+**Windows**
+
+```bash
+.venv\Scripts\activate
+```
+
+**macOS / Linux**
+
+```bash
+source .venv/bin/activate
+```
+
+## Installing FastAPI
+
+```bash
+pip install fastapi
+pip install "uvicorn[standard]"
+```
+
+Verify the installation.
+
+```bash
+pip show fastapi
+pip show uvicorn
+```
+
+## Your First FastAPI Application
+
+Create a file named **`main.py`**.
+
+```python
+from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get("/")
+def home():
+    return {"message": "Welcome to FastAPI"}
+```
+## Understanding the First FastAPI Program
+Unlike traditional Python programs, a FastAPI application is **not a program that runs from top to bottom and immediately produces an output**.
+
+Instead, we **configure** the FastAPI server by telling it:
+
+- What application to create
+- Which URLs it should respond to
+- Which function should execute for each URL
+
+When a client (such as a browser or Postman) sends a request, the FastAPI server uses this configuration to determine which function to execute.
+
+### Key Points
+
+#### 1. Import the FastAPI Class
+
+```python
+from fastapi import FastAPI
+```
+
+Imports the **FastAPI** class, which is used to create a FastAPI application.
+
+---
+
+#### 2. Create the Application
+
+```python
+app = FastAPI()
+```
+
+Creates the FastAPI application object.
+
+The `app` object stores:
+
+- API endpoints
+- Application configuration
+- Middleware
+- Dependencies
+- API documentation
+
+> **Note:** This does **not** start the server. It only creates and configures the application.
+
+---
+
+#### 3. Register an Endpoint
+
+```python
+@app.get("/")
+```
+
+Registers a **GET** endpoint for the root URL (`/`).
+
+It tells FastAPI:
+
+> "If a GET request is received for `/`, execute the function below."
+
+---
+
+#### 4. Define the Request Handler
+
+```python
+def home():
+```
+
+This is a normal Python function.
+
+Unlike traditional Python programs, **you do not call this function yourself**. FastAPI automatically calls it when a matching request arrives.
+
+---
+
+#### 5. Return the Response
+
+```python
+return {"message": "Welcome to FastAPI"}
+```
+
+Returns a Python dictionary.
+
+FastAPI automatically converts it into a JSON response.
+
+Client receives:
+
+```json
+{
+    "message": "Welcome to FastAPI"
+}
+```
+
+---
+
+#### 6. JSON is the Default Response Format
+
+FastAPI automatically converts Python objects such as:
+
+- Dictionaries
+- Lists
+- Pydantic models
+
+into **JSON** before sending them to the client.
+
+You do **not** need to manually convert them into JSON.
+
+---
+
+## Traditional Python vs FastAPI
+
+### Traditional Python
+
+- Program executes from top to bottom.
+- Functions are called explicitly by the programmer.
+- Program ends after execution.
+
+```python
+def greet():
+    print("Hello")
+
+greet()
+```
+
+---
+
+### FastAPI
+
+- You configure the application.
+- Register API endpoints.
+- Start the server.
+- FastAPI waits for incoming requests.
+- FastAPI automatically calls the appropriate function when a request arrives.
+
+---
+
+## Execution Flow
+
+```text
+Start Application
+        │
+        ▼
+Create FastAPI App
+        │
+        ▼
+Register Endpoints
+        │
+        ▼
+Start FastAPI Server
+        │
+        ▼
+Wait for Client Requests
+        │
+        ▼
+Request Received
+        │
+        ▼
+Find Matching Endpoint
+        │
+        ▼
+Execute Function
+        │
+        ▼
+Convert Response to JSON
+        │
+        ▼
+Send Response to Client
+```
+
+---
+
+## Key Takeaways
+
+- `FastAPI()` creates the web application.
+- `@app.get("/")` registers an endpoint.
+- Functions are executed **automatically** by FastAPI.
+- Most FastAPI code is **configuration**, not direct execution.
+- By default, FastAPI returns responses in **JSON** format.
+- FastAPI handles request routing and response generation automatically.
+
+## Running the Application
+
+```bash
+uvicorn main:app --reload
+```
+
+Common options:
+
+```bash
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
+
+**Command Breakdown**
+
+- `main` → Python file (`main.py`)
+- `app` → FastAPI application object
+- `--reload` → Restart server on code changes
+- `--host` → Host address
+- `--port` → Server port
+
+## Accessing the Application
+
+| URL | Purpose |
+|------|---------|
+| `http://127.0.0.1:8000` | Application |
+| `http://127.0.0.1:8000/docs` | Swagger UI |
+| `http://127.0.0.1:8000/redoc` | ReDoc |
+| `http://127.0.0.1:8000/openapi.json` | OpenAPI Specification |
+
+## Routing
+
+A **route** maps an API endpoint to a Python function.
+
+```python
+@app.<http_method>("endpoint")
+def function_name():
+    ...
+```
+
+Example:
+
+```python
+@app.get("/students")
+def get_students():
+    return {"message": "Getting all students"}
+```
+
+Request flow:
+
+```
+Request → Route → Function → Response
+```
+
+### Common Routes
+
+```python
+@app.get("/students")
+def get_students():
+    return {"message": "Getting all students"}
+```
+
+```python
+@app.post("/students")
+def create_student():
+    return {"message": "Student created"}
+```
+
+```python
+@app.put("/students/{student_id}")
+def update_student(student_id: int):
+    return {"message": f"Updating student {student_id}"}
+```
+
+```python
+@app.delete("/students/{student_id}")
+def delete_student(student_id: int):
+    return {"message": f"Deleting student {student_id}"}
+```
+
+> A route simply connects an API endpoint to a Python function.
+
+## Path Parameters
+
+Path parameters are part of the URL and identify a specific resource.
+
+```python
+@app.get("/students/{student_id}")
+def get_student(student_id: int):
+    return {"student_id": student_id}
+```
+
+Request:
+
+```http
+GET /students/101
+```
+
+Examples:
+
+```text
+/students/101
+/products/25
+/orders/5001
+```
+
+## Query Parameters
+
+Query parameters appear after the `?` in the URL.
+
+```python
+@app.get("/students")
+def get_students(course: str, semester: int):
+    return {
+        "course": course,
+        "semester": semester
+    }
+```
+
+Request:
+
+```http
+GET /students?course=CSE&semester=4
+```
+
+Common uses:
+
+- Searching
+- Filtering
+- Sorting
+- Pagination
+
+## Request Body
+
+Use a Pydantic model to receive JSON data.
+
+```python
+from pydantic import BaseModel
+
+class Student(BaseModel):
+    name: str
+    age: int
+    course: str
+```
+
+```python
+@app.post("/students")
+def create_student(student: Student):
+    return student
+```
+
+Request body:
+
+```json
+{
+    "name": "Rahul",
+    "age": 20,
+    "course": "CSE"
+}
+```
+
+## Response Models
+
+Define the response structure using `response_model`.
+
+```python
+from pydantic import BaseModel
+
+class StudentResponse(BaseModel):
+    id: int
+    name: str
+    age: int
+    course: str
+```
+
+```python
+@app.post("/students", response_model=StudentResponse)
+def create_student(student: Student):
+    return {
+        "id": 101,
+        **student.model_dump()
+    }
+```
+
+## Status Codes
+
+```python
+from fastapi import status
+
+@app.post("/students", status_code=status.HTTP_201_CREATED)
+def create_student(student: Student):
+    return student
+```
+
+| Code | Meaning |
+|------|---------|
+| 200 | OK |
+| 201 | Created |
+| 204 | No Content |
+| 400 | Bad Request |
+| 401 | Unauthorized |
+| 403 | Forbidden |
+| 404 | Not Found |
+| 422 | Validation Error |
+| 500 | Internal Server Error |
+
+## Request Validation
+
+FastAPI automatically validates incoming data.
+
+```python
+from pydantic import BaseModel, Field
+
+class Student(BaseModel):
+    name: str
+    age: int = Field(gt=0)
+    course: str
+```
+
+Invalid request:
+
+```json
+{
+    "name": "Rahul",
+    "age": -5,
+    "course": "CSE"
+}
+```
+
+If validation fails, FastAPI returns a **422 Validation Error** without executing the route.
+
+## Automatic API Documentation
+
+| URL | Purpose |
+|------|---------|
+| `http://localhost:8000/docs` | Swagger UI |
+| `http://localhost:8000/redoc` | ReDoc |
+| `http://localhost:8000/openapi.json` | OpenAPI JSON |
+
+## Quick Commands
+
+| Conventional (`pip`) | Modern (`uv`) |
+|----------------------|---------------|
+| `pip install fastapi` | `uv add fastapi` |
+| `pip install "uvicorn[standard]"` | `uv add "uvicorn[standard]"` |
+| `uvicorn main:app --reload` | `uv run uvicorn main:app --reload` |
+| `uvicorn main:app --reload --port 8001` | `uv run uvicorn main:app --reload --port 8001` |
+| `uvicorn main:app --reload --host 0.0.0.0` | `uv run uvicorn main:app --reload --host 0.0.0.0` |
+| `pip freeze > requirements.txt` | `uv export --format requirements-txt -o requirements.txt` |
+| `pip install -r requirements.txt` | `uv pip install -r requirements.txt` *(or `uv sync`)* |
+
+## Summary
+
+In this chapter, you learned how to:
+
+- Install FastAPI
+- Create and run a FastAPI application
+- Define routes
+- Work with path and query parameters
+- Accept request bodies
+- Return response models
+- Validate request data
+- Use HTTP status codes
+- Explore the generated API documentation
