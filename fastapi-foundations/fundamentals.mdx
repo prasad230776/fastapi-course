@@ -7,7 +7,6 @@ icon: "api"
 
 FastAPI is a modern, high-performance Python framework for building REST APIs. It uses Python type hints, provides automatic validation, and generates interactive API documentation out of the box.
 
-
 ### Key Features of FastAPI
 * **🚀 High Performance**: Built on top of Starlette and Pydantic, making it one of the fastest Python frameworks available, on par with Node.js and Go.
 * **✍️ Faster Coding**: Speeds up feature development by 200% to 300%.
@@ -318,6 +317,131 @@ Request flow:
 Request → Route → Function → Response
 ```
 
+## Common conventions for designing clean and consistent REST APIs
+
+### General Guidelines
+
+- Use **nouns** for resources, not verbs.
+- Use **plural** resource names.
+- Keep URLs **lowercase**.
+- Use **hyphens (`-`)** instead of underscores (`_`).
+- Keep URLs short and meaningful.
+
+### Good Examples
+
+```text
+/students
+/students/101
+/student-courses
+```
+
+### Bad Examples
+
+```text
+/getStudents
+/createStudent
+/studentDetails
+/get_student
+```
+
+## HTTP Methods
+
+| Method | Purpose | Example |
+|---------|----------|---------|
+| GET | Retrieve data | `GET /students` |
+| POST | Create a resource | `POST /students` |
+| PUT | Replace an existing resource | `PUT /students/101` |
+| PATCH | Partially update a resource | `PATCH /students/101` |
+| DELETE | Remove a resource | `DELETE /students/101` |
+
+
+## Path Variables
+
+Use **path variables** when identifying a **specific resource**.
+
+### Good Examples
+
+```http
+GET /students/101
+PUT /students/101
+DELETE /students/101
+GET /students/101/courses
+```
+
+### Bad Examples
+
+```http
+GET /students?id=101
+DELETE /deleteStudent?id=101
+```
+
+> **Rule:** If the value uniquely identifies a resource, use a **path variable**.
+
+
+## Query Parameters
+
+Use **query parameters** for **optional operations**, such as:
+
+- Filtering
+- Searching
+- Sorting
+- Pagination
+
+### Good Examples
+
+```http
+GET /students?department=CSE
+GET /students?name=John
+GET /students?sort=name
+GET /students?page=1&limit=10
+```
+
+### Bad Examples
+
+```http
+GET /students/CSE
+GET /students/page/1
+GET /students/sort/name
+```
+
+> **Rule:** If the parameter changes **how data is retrieved** rather than **which resource is retrieved**, use a **query parameter**.
+
+
+## Request Body
+
+Use the request body with **POST**, **PUT**, and **PATCH** requests.
+
+```json
+{
+    "name": "John",
+    "age": 21,
+    "department": "CSE"
+}
+```
+
+## Student API Example
+
+```text
+GET    /students
+GET    /students/101
+GET    /students?department=CSE
+GET    /students?name=John
+GET    /students?page=1&limit=10
+
+POST   /students
+PUT    /students/101
+PATCH  /students/101
+DELETE /students/101
+```
+
+## Quick Rules
+
+| Use | Example |
+|------|---------|
+| **Path Variable** | `/students/101` (identifies a specific resource) |
+| **Query Parameter** | `/students?department=CSE` (filters or modifies the result) |
+| **Request Body** | `POST /students` (sends resource data) |
+
 ### Common Routes
 
 ```python
@@ -494,6 +618,187 @@ Invalid request:
 ```
 
 If validation fails, FastAPI returns a **422 Validation Error** without executing the route.
+
+## Data Validation can be applied to:
+
+- **Request Body** using `Field()`
+- **Query Parameters** using `Query()`
+- **Path Parameters** using `Path()`
+
+In **Pydantic v2**, the recommended way to specify validations is using Python's `Annotated` type.
+
+### What is `Annotated`?
+
+`Annotated` lets you combine a **data type** with **validation metadata**.
+
+**Syntax**
+
+```python
+Annotated[type, validation]
+```
+
+For example:
+
+```python
+from typing import Annotated
+from pydantic import Field
+
+age: Annotated[int, Field(gt=0, lt=100)]
+```
+
+Here:
+
+- `int` specifies the expected data type.
+- `Field(gt=0, lt=100)` specifies the validation rules.
+
+The equivalent (older) syntax is:
+
+```python
+age: int = Field(gt=0, lt=100)
+```
+
+Both styles work, but **`Annotated` is the recommended approach** in FastAPI and Pydantic v2.
+
+### 1. `Field()` – Request Body Validation
+
+`Field()` is used inside **Pydantic models** to validate request body fields.
+
+**Recommended**
+
+```python
+from typing import Annotated
+from pydantic import BaseModel, EmailStr, Field
+
+class Student(BaseModel):
+    name: Annotated[str, Field(min_length=3, max_length=50)]
+    age: Annotated[int, Field(gt=0, lt=100)]
+    email: EmailStr
+    cgpa: Annotated[float, Field(ge=0, le=10)]
+```
+
+**Alternative**
+
+```python
+class Student(BaseModel):
+    name: str = Field(min_length=3, max_length=50)
+    age: int = Field(gt=0, lt=100)
+    email: EmailStr
+    cgpa: float = Field(ge=0, le=10)
+```
+
+### 2.`Query()` – Query Parameter Validation
+
+`Query()` validates values passed as query parameters.
+
+Example request:
+
+```http
+GET /students?page=1&limit=20&dept=CSE
+```
+
+**Recommended**
+
+```python
+from typing import Annotated
+from fastapi import Query
+
+@app.get("/students")
+def get_students(
+    page: Annotated[int, Query(ge=1)] = 1,
+    limit: Annotated[int, Query(ge=1, le=100)] = 20,
+    department: Annotated[str | None, Query(alias="dept")] = None,
+):
+    ...
+```
+
+**Alternative**
+
+```python
+@app.get("/students")
+def get_students(
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=20, ge=1, le=100),
+    department: str | None = Query(default=None, alias="dept"),
+):
+    ...
+```
+
+### 3. `Path()` – Path Parameter Validation
+
+`Path()` validates values passed as path parameters.
+
+Example request:
+
+```http
+GET /students/101
+```
+
+**Recommended**
+
+```python
+from typing import Annotated
+from fastapi import Path
+
+@app.get("/students/{student_id}")
+def get_student(
+    student_id: Annotated[int, Path(gt=0)]
+):
+    ...
+```
+
+**Alternative**
+
+```python
+@app.get("/students/{student_id}")
+def get_student(
+    student_id: int = Path(gt=0)
+):
+    ...
+```
+### Common Validation Options
+
+| Option | Purpose |
+|---------|---------|
+| `gt` | Greater than |
+| `ge` | Greater than or equal |
+| `lt` | Less than |
+| `le` | Less than or equal |
+| `min_length` | Minimum string length |
+| `max_length` | Maximum string length |
+| `pattern` | Regular expression |
+| `default` | Default value |
+| `alias` | Alternate field/parameter name |
+| `title` | Display title in API docs |
+| `description` | Description in API docs |
+| `examples` | Example values |
+
+### Common Pydantic Types
+
+| Type | Purpose |
+|------|---------|
+| `EmailStr` | Validates email addresses |
+| `AnyUrl` | Validates URLs |
+| `UUID` | Validates UUID values |
+| `date` | Date |
+| `datetime` | Date and time |
+| `Decimal` | High-precision decimal |
+
+Example:
+
+```python
+from pydantic import BaseModel, EmailStr
+
+class Student(BaseModel):
+    email: EmailStr
+```
+
+If an invalid email is provided, FastAPI automatically returns a **422 Unprocessable Entity** response.
+
+> **Note:** `EmailStr` requires the `email-validator` package.
+
+```bash
+pip install email-validator
+```
 
 ## Automatic API Documentation
 
