@@ -3,11 +3,9 @@ title: Introduction
 description: Build modern, scalable REST APIs with Python
 icon: "server"
 ---
-
 ## Build modern backend applications
 
 Python is widely used for backend development, and FastAPI has become one of the most popular frameworks for building modern web APIs. It combines Python's simplicity with high performance, automatic validation, and interactive documentation, making it an excellent choice for developing production-ready backend services.
-
 
 ## What you'll learn
 
@@ -21,11 +19,10 @@ Throughout this section, you'll build a REST API from scratch while learning the
 
 By the end of this section, you'll be able to create well-structured REST APIs and have a strong foundation for building complete backend applications.
 
-## "How the Web Works"
+## How the Web Works
 
 Before building APIs with FastAPI, it is essential to understand how data moves across the internet. Every time you load a webpage, log in to an app, or fetch data, your computer is participating in the **Client-Server Model** over the **HTTP protocol**.
 
----
 
 ### The Client-Server Model
 
@@ -50,8 +47,6 @@ FastAPI is a modern, high-performance Python web framework for building APIs. It
 
 Before learning FastAPI, it's important to understand **what an API is**, **why it exists**, and **how applications communicate over the web**.
 
----
-
 ## What is an API?
 
 **API** stands for **Application Programming Interface**.
@@ -68,7 +63,6 @@ Every time you:
 
 your application is communicating with one or more APIs.
 
----
 
 ## Why Do We Need APIs?
 
@@ -85,27 +79,9 @@ APIs are commonly used to:
 
 Without APIs, every application would need direct access to another application's internal code or database, making systems difficult to maintain and scale.
 
----
-
-## Client–Server Architecture
-
-Most web applications follow the **Client–Server** architecture.
-
-- **Client** – Sends requests to the server (Browser, Mobile App, Desktop Application).
-- **Server** – Processes requests, performs business logic, accesses databases, and returns responses.
-
-```
-            HTTP Request
-+-----------+ ---------> +-----------+
-|  Client   |            |  Server   |
-| Browser   |            | FastAPI   |
-| Mobile App| <--------- | Database  |
-+-----------+  Response  +-----------+
-```
 
 FastAPI is used to build the **server-side** of this communication.
 
----
 
 ## HTTP Fundamentals
 
@@ -118,8 +94,6 @@ HTTP follows a simple **Request → Response** model.
 3. The server returns an HTTP response.
 
 Every interaction with a web application follows this cycle.
-
----
 
 ## Anatomy of an HTTP Request
 
@@ -186,7 +160,7 @@ https://api.company.com/employees/101?active=true
 
 > **Note:** The **URL** contains the protocol, host, endpoint (path), path parameters, and query parameters. The complete **HTTP request** additionally includes the HTTP method, headers, cookies, and an optional request body.
 
----
+
 ## How to Identify an Endpoint and a Path Parameter from a URL?
 
 A common question is:
@@ -201,7 +175,6 @@ A common question is:
 
 It depends on **how the route is defined in the application**.
 
----
 
 ### Example
 
@@ -221,7 +194,6 @@ Is `101` part of the endpoint or a path parameter?
 
 **We don't know until we see the route definition.**
 
----
 
 ### Case 1: `101` is a Path Parameter
 
@@ -249,7 +221,6 @@ employee_id = 101
 | Requested URL | `/employees/101` |
 | Path Parameter | `employee_id = 101` |
 
----
 
 ### Case 2: `101` is Part of the Endpoint
 
@@ -266,7 +237,6 @@ Here, `101` is a fixed part of the endpoint.
 | Endpoint | `/employees/101` |
 | Path Parameter | None |
 
----
 
 ### Easy Way to Remember
 
@@ -285,7 +255,6 @@ Here, `101` is a fixed part of the endpoint.
 - `{employee_id}` → Placeholder
 - `101` → Actual value
 
----
 
 ### Key Takeaway
 
@@ -323,8 +292,6 @@ Response Body
 }
 ```
 
----
-
 ## API Endpoints
 
 An **endpoint** is a specific URL where an API provides access to a resource.
@@ -341,8 +308,6 @@ DELETE /students/101
 
 Each endpoint performs a specific operation on a resource.
 
----
-
 ## HTTP Methods
 
 | Method | Purpose |
@@ -352,8 +317,6 @@ Each endpoint performs a specific operation on a resource.
 | PUT | Replace existing data |
 | PATCH | Update part of existing data |
 | DELETE | Remove data |
-
----
 
 ## Example: HTTP GET Request
 
@@ -381,8 +344,6 @@ https://api.weatherapi.com/weather/current?city=London
 - **Query Parameter** → `city=London`
 
 > **Note:** In REST APIs, everything exposed by the server is treated as a **resource**. Examples include **students**, **users**, **products**, **orders**, and **weather**. Each resource is identified by its own endpoint.
-
----
 
 ## Actual HTTP Request
 
@@ -442,8 +403,6 @@ Headers carry additional information about the request.
 
 > **Note:** The complete URL contains the **protocol** and **host**, but the actual HTTP request sends only the **endpoint** and **query parameters** in the request line. The **host** is sent separately using the **Host** header.
 
----
-
 ## HTTP Response
 
 ```http
@@ -462,8 +421,6 @@ Content-Type: application/json
 - **Status Line** → `HTTP/1.1 200 OK`
 - **Response Headers** → Metadata about the response
 - **Response Body** → The actual data returned by the server
-
----
 
 ## Request–Response Flow
 
