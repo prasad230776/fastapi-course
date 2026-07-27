@@ -1,0 +1,198 @@
+---
+title: "Getting Started with SQLite"
+description: "Set up SQLite and Visual Studio Code, create your first database, and execute SQL statements."
+---
+
+# Getting Started with SQLite
+
+Before writing SQL queries, we need a **Database Management System (DBMS)**. Throughout this course, we'll use **SQLite**, one of the most popular lightweight relational databases.
+
+SQLite is ideal for learning SQL because it requires no installation of a separate database server and stores the entire database in a single file.
+
+## Why SQLite?
+
+SQLite offers several advantages for beginners and developers:
+
+- Lightweight and fast
+- Zero configuration
+- No database server required
+- Entire database stored in a single file
+- Open source
+- Cross-platform
+- Widely used in mobile, desktop, and embedded applications
+
+## Installing SQLite
+
+Download SQLite from the official website:
+
+https://www.sqlite.org/download.html
+
+Verify the installation:
+
+```bash
+sqlite3 --version
+```
+
+## Visual Studio Code Extension
+
+Install the **SQLite** extension from the VS Code Marketplace to:
+
+- Create databases
+- Browse tables
+- Execute SQL queries
+- View query results
+- Manage database objects
+
+## Creating a Database
+
+Create a new folder for the project.
+
+```
+employee-management-system/
+```
+
+Inside the folder, create a database file named:
+
+```
+employee.db
+```
+
+You can create it using the SQLite command line:
+
+```bash
+sqlite3 employee.db
+```
+
+If the file does not exist, SQLite automatically creates it.
+
+## SQLite Command Prompt
+
+Once the database is opened, you'll see the SQLite prompt:
+
+```text
+sqlite>
+```
+
+You can now execute SQL statements.
+
+## Useful SQLite Commands
+
+| Command | Description |
+|---------|-------------|
+| `.help` | Display all available commands |
+| `.tables` | List all tables |
+| `.schema` | Display the database schema |
+| `.headers on` | Show column names in query results |
+| `.mode table` | Display results in table format |
+| `.quit` | Exit SQLite |
+
+## Executing Your First SQL Statement
+
+Execute the following statement:
+
+```sql
+SELECT 'Hello, SQLite!';
+```
+
+Output:
+
+```text
+Hello, SQLite!
+--------------
+Hello, SQLite!
+```
+
+## Working with SQLite in Visual Studio Code
+
+After installing the **SQLite** extension, you can perform almost all database operations directly from Visual Studio Code.
+
+Some common tasks include:
+
+- Open an existing SQLite database
+- Create a new database
+- Create and modify tables
+- Browse database objects
+- View table data
+- Execute SQL queries
+- Inspect query results
+- Refresh the database after changes
+
+## Opening the Database
+
+Open the project folder in VS Code and create a file named:
+
+```text
+employee.db
+```
+
+Open the database using the SQLite extension.
+
+Once opened, the database appears in the **SQLite Explorer**.
+
+## SQLite Explorer
+
+The SQLite Explorer lets you inspect the database visually.
+
+You can:
+
+- View all databases
+- Expand tables
+- Inspect table columns
+- View table data
+- Refresh database objects after changes
+
+As we create new tables throughout the course, they will automatically appear in the explorer after refreshing.
+
+## Writing SQL Queries
+
+Create a new SQL file.
+
+```
+queries.sql
+```
+
+Write your SQL statements inside this file.
+
+Example:
+
+```sql
+SELECT 'Hello SQLite!';
+```
+
+## Running SQL Queries
+
+To execute a query:
+
+- Place the cursor inside the SQL statement
+- Click **Run Query** (or use the extension's run command)
+- View the results in the Query Results window
+
+The results are displayed in a tabular format, making it easy to inspect the output.
+
+## Inspecting Tables
+
+After creating tables, you can inspect them without writing additional SQL.
+
+Common operations include:
+
+- View table structure
+- Browse all records
+- Sort columns
+- Search data
+- Refresh the table after inserting or updating records
+
+This makes learning SQL much more interactive.
+
+## Course Workflow
+
+Throughout this course, we'll primarily use Visual Studio Code to:
+
+1. Create the database
+2. Write SQL queries
+3. Execute queries
+4. Inspect tables
+5. View query results
+6. Modify data
+7. Verify changes
+
+> **Note:** SQLite also provides a command-line interface (CLI). While it's useful in some situations, we'll primarily use Visual Studio Code for a more visual and beginner-friendly experience.

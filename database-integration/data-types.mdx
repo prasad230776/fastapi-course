@@ -1,0 +1,146 @@
+---
+title: "SQLite Data Types"
+description: "Learn the SQLite data types and how to choose the appropriate type for your data."
+---
+
+# SQLite Data Types
+
+Every column in a table stores a specific type of data. Choosing the appropriate data type helps organize data correctly and makes your database easier to maintain.
+
+Unlike many database systems, SQLite uses **dynamic typing**, meaning it is flexible about the type of data stored in a column. However, it's still a good practice to choose the most appropriate data type for each column.
+
+## Storage Classes
+
+SQLite supports five storage classes.
+
+| Data Type | Description | Example |
+|-----------|-------------|---------|
+| INTEGER | Whole numbers | `101`, `-25`, `50000` |
+| REAL | Decimal (floating-point) numbers | `99.95`, `3.14159` |
+| TEXT | Text or character data | `"John"`, `"IT"` |
+| BLOB | Binary data | Images, PDFs, Files |
+| NULL | Represents the absence of a value | `NULL` |
+
+## INTEGER
+
+Stores whole numbers.
+
+**Examples**
+
+```text
+101
+50000
+-25
+```
+
+Common uses:
+
+- Employee ID
+- Department ID
+- Age
+- Quantity
+
+## REAL
+
+Stores decimal numbers.
+
+**Examples**
+
+```text
+55000.75
+3.14
+99.99
+```
+
+Common uses:
+
+- Salary
+- Price
+- Percentage
+- Rating
+
+## TEXT
+
+Stores character data.
+
+**Examples**
+
+```text
+John
+alice@example.com
+Finance
+```
+
+Common uses:
+
+- Name
+- Email
+- Department Name
+- Address
+
+## BLOB
+
+Stores binary data exactly as it is.
+
+Common uses:
+
+- Images
+- PDF documents
+- Audio files
+- Videos
+
+> BLOBs are rarely used directly in application databases. Files are often stored separately, with only their file paths stored in the database.
+
+## NULL
+
+Represents a missing or unknown value.
+
+Example:
+
+| Employee ID | Name | Phone |
+|-------------|------|-------|
+| 101 | John | NULL |
+
+Here, `NULL` means the phone number is not available.
+
+## Choosing the Right Data Type
+
+| Information | Recommended Data Type |
+|-------------|-----------------------|
+| Employee ID | INTEGER |
+| Department ID | INTEGER |
+| Name | TEXT |
+| Email | TEXT |
+| Salary | REAL |
+| Joining Date | TEXT |
+| Profile Picture | BLOB |
+
+## SQLite Type Affinity
+
+SQLite is more flexible than many other database systems. Even if a column is declared with a specific data type, SQLite may still allow compatible values of other types.
+
+For example:
+
+```sql
+salary REAL
+```
+
+Although the column is defined as `REAL`, SQLite can still store an integer value such as:
+
+```text
+50000
+```
+
+This flexibility is known as **Type Affinity**.
+
+> Throughout this course, we'll follow standard database design practices and use the most appropriate data type for each column.
+
+## Summary
+
+| Data Type | Used For |
+|-----------|----------|
+| INTEGER | Whole numbers |
+| REAL | Decimal numbers |
+| TEXT | Character data |
+| BLOB | Binary files |
+| NULL | Missing or unknown values |

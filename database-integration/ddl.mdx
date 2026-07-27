@@ -1,0 +1,208 @@
+---
+title: "Data Definition Language (DDL)"
+description: "Learn how to create, modify and remove database objects using DDL statements."
+---
+
+# Data Definition Language (DDL)
+
+Data Definition Language (DDL) consists of SQL statements used to create and modify the structure of database objects such as tables.
+
+Unlike DML commands (`INSERT`, `UPDATE`, `DELETE`), DDL commands modify the **database schema** rather than the data.
+
+## DDL Commands
+
+| Command | Purpose |
+|---------|---------|
+| `CREATE` | Creates database objects |
+| `ALTER` | Modifies existing database objects |
+| `DROP` | Removes database objects |
+| `TRUNCATE` | Removes all rows while keeping the table *(Not supported in SQLite)* |
+| `RENAME` | Renames a database object |
+
+## CREATE TABLE
+
+The `CREATE TABLE` statement creates a new table.
+
+### Syntax
+
+```sql
+CREATE TABLE table_name (
+    column1 datatype,
+    column2 datatype,
+    ...
+);
+```
+
+### Example
+
+```sql
+CREATE TABLE project (
+    project_id INTEGER PRIMARY KEY,
+    project_name TEXT NOT NULL,
+    budget REAL
+);
+```
+
+### Exercises
+
+**1. Create a table named `course`.**
+
+<Accordion title="Solution">
+
+```sql
+CREATE TABLE course (
+    course_id INTEGER PRIMARY KEY,
+    course_name TEXT NOT NULL,
+    duration INTEGER
+);
+```
+
+</Accordion>
+
+**2. Create a table named `branch`.**
+
+<Accordion title="Solution">
+
+```sql
+CREATE TABLE branch (
+    branch_id INTEGER PRIMARY KEY,
+    branch_name TEXT NOT NULL
+);
+```
+
+</Accordion>
+
+## ALTER TABLE
+
+The `ALTER TABLE` statement modifies the structure of an existing table.
+
+### Add a Column
+
+```sql
+ALTER TABLE employee
+ADD COLUMN phone TEXT;
+```
+
+### Rename a Column
+
+```sql
+ALTER TABLE employee
+RENAME COLUMN city TO work_city;
+```
+
+### Rename a Table
+
+```sql
+ALTER TABLE employee
+RENAME TO employees;
+```
+
+> **Note**
+>
+> SQLite supports adding columns and renaming tables and columns. However, dropping or modifying existing columns has limited support compared to other databases.
+
+### Exercises
+
+**1. Add a column named `experience` to the Employee table.**
+
+<Accordion title="Solution">
+
+```sql
+ALTER TABLE employee
+ADD COLUMN experience INTEGER;
+```
+
+</Accordion>
+
+**2. Rename the `department` table to `departments`.**
+
+<Accordion title="Solution">
+
+```sql
+ALTER TABLE department
+RENAME TO departments;
+```
+
+</Accordion>
+
+## DROP TABLE
+
+The `DROP TABLE` statement permanently removes a table and all of its data.
+
+### Syntax
+
+```sql
+DROP TABLE table_name;
+```
+
+### Example
+
+```sql
+DROP TABLE project;
+```
+
+### Exercises
+
+**1. Delete the `course` table.**
+
+<Accordion title="Solution">
+
+```sql
+DROP TABLE course;
+```
+
+</Accordion>
+
+## TRUNCATE TABLE
+
+The `TRUNCATE TABLE` statement removes all rows from a table while keeping the table structure.
+
+### Syntax
+
+```sql
+TRUNCATE TABLE employee;
+```
+
+> **Note**
+>
+> SQLite **does not support** the `TRUNCATE TABLE` statement.
+>
+> To remove all rows from a table in SQLite, use:
+>
+> ```sql
+> DELETE FROM employee;
+> ```
+
+## RENAME TABLE
+
+Rename a table.
+
+```sql
+ALTER TABLE employee
+RENAME TO employees;
+```
+
+### Exercises
+
+**1. Rename the `project` table to `projects`.**
+
+<Accordion title="Solution">
+
+```sql
+ALTER TABLE project
+RENAME TO projects;
+```
+
+</Accordion>
+
+## Summary
+
+| Command | Purpose |
+|---------|---------|
+| `CREATE TABLE` | Create a new table |
+| `ALTER TABLE` | Modify an existing table |
+| `DROP TABLE` | Delete a table permanently |
+| `TRUNCATE TABLE` | Remove all rows *(Not supported in SQLite)* |
+| `RENAME` | Rename a table or column |
+
+

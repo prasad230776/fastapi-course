@@ -1,0 +1,194 @@
+---
+title: "Working with the Employee Management Database"
+description: "Import the sample database, explore its tables, and execute your first SQL queries using Visual Studio Code."
+---
+
+# Working with the Employee Management Database
+
+Before learning SQL, we'll work with a sample database that represents an **Employee Management System**.
+
+Instead of creating tables from scratch, we'll import a ready-made database and use it to learn SQL through practical examples.
+
+## Project Database
+
+Throughout this course, we'll use a database named:
+
+```text
+employee_management.db
+```
+
+The database contains two related tables:
+
+- Department
+- Employee
+
+## Database Design
+
+### Department
+
+| Column | Description |
+|---------|-------------|
+| department_id | Unique identifier for the department |
+| department_name | Name of the department |
+
+### Employee
+
+| Column | Description |
+|---------|-------------|
+| employee_id | Unique identifier for the employee |
+| employee_name | Employee name |
+| gender | Gender of the employee |
+| designation | Employee job title |
+| email | Employee email address |
+| salary | Monthly salary (₹) |
+| department_id | Department to which the employee belongs |
+| city | Employee's work location |
+| joining_date | Date the employee joined the company |
+
+## Sample Database Script
+
+Create a file named:
+
+```text
+employee_management.sql
+```
+
+Paste the following SQL script into the file.
+
+```sql
+DROP TABLE IF EXISTS employee;
+DROP TABLE IF EXISTS department;
+
+CREATE TABLE department (
+    department_id INTEGER PRIMARY KEY,
+    department_name TEXT NOT NULL
+);
+
+CREATE TABLE employee (
+    employee_id INTEGER PRIMARY KEY,
+    employee_name TEXT NOT NULL,
+    gender TEXT NOT NULL,
+    designation TEXT NOT NULL,
+    email TEXT UNIQUE,
+    salary REAL NOT NULL,
+    department_id INTEGER NOT NULL,
+    city TEXT NOT NULL,
+    joining_date TEXT NOT NULL,
+    FOREIGN KEY (department_id) REFERENCES department(department_id)
+);
+
+INSERT INTO department VALUES
+(1, 'Human Resources'),
+(2, 'Information Technology'),
+(3, 'Finance'),
+(4, 'Marketing'),
+(5, 'Operations');
+
+INSERT INTO employee VALUES
+(101, 'Aarav Sharma', 'Male', 'Software Engineer', 'aarav.sharma@example.com', 65000, 2, 'Bengaluru', '2022-01-15'),
+(102, 'Priya Reddy', 'Female', 'HR Manager', 'priya.reddy@example.com', 82000, 1, 'Hyderabad', '2021-08-20'),
+(103, 'Rahul Verma', 'Male', 'Software Engineer', 'rahul.verma@example.com', 58000, 2, 'Bengaluru', '2023-03-10'),
+(104, 'Sneha Iyer', 'Female', 'Finance Manager', 'sneha.iyer@example.com', 95000, 3, 'Chennai', '2020-11-05'),
+(105, 'Vikram Singh', 'Male', 'Senior Software Engineer', 'vikram.singh@example.com', 110000, 2, 'Bengaluru', '2019-07-18'),
+(106, 'Ananya Gupta', 'Female', 'Marketing Executive', 'ananya.gupta@example.com', 61000, 4, 'Mumbai', '2023-06-12'),
+(107, 'Karthik Kumar', 'Male', 'Operations Executive', 'karthik.kumar@example.com', 69000, 5, 'Hyderabad', '2022-09-30'),
+(108, 'Meera Nair', 'Female', 'Accountant', 'meera.nair@example.com', 98000, 3, 'Chennai', '2021-02-14'),
+(109, 'Rohan Patel', 'Male', 'Marketing Executive', 'rohan.patel@example.com', 54000, 4, 'Ahmedabad', '2024-01-08'),
+(110, 'Divya Joshi', 'Female', 'HR Executive', 'divya.joshi@example.com', 88000, 1, 'Hyderabad', '2020-05-25'),
+(111, 'Arjun Rao', 'Male', 'Software Engineer', 'arjun.rao@example.com', 62000, 2, 'Bengaluru', '2022-04-18'),
+(112, 'Neha Kapoor', 'Female', 'HR Executive', 'neha.kapoor@example.com', 56000, 1, 'Delhi', '2023-07-10'),
+(113, 'Siddharth Jain', 'Male', 'Team Lead', 'siddharth.jain@example.com', 145000, 2, 'Bengaluru', '2018-06-11'),
+(114, 'Pooja Menon', 'Female', 'Accountant', 'pooja.menon@example.com', 71000, 3, 'Kochi', '2021-10-15'),
+(115, 'Harsha Vardhan', 'Male', 'Software Engineer', 'harsha.vardhan@example.com', 67000, 2, 'Hyderabad', '2024-02-21'),
+(116, 'Nikhil Reddy', 'Male', 'Senior Software Engineer', 'nikhil.reddy@example.com', 118000, 2, 'Bengaluru', '2020-03-09'),
+(117, 'Kavya Srinivas', 'Female', 'Marketing Manager', 'kavya.srinivas@example.com', 96000, 4, 'Hyderabad', '2019-12-01'),
+(118, 'Aditya Kulkarni', 'Male', 'Operations Manager', 'aditya.kulkarni@example.com', 101000, 5, 'Pune', '2020-08-19'),
+(119, 'Ishita Sharma', 'Female', 'Marketing Executive', 'ishita.sharma@example.com', 59000, 4, 'Mumbai', '2023-11-13'),
+(120, 'Manoj Kumar', 'Male', 'Operations Executive', 'manoj.kumar@example.com', 57000, 5, 'Visakhapatnam', '2022-05-30'),
+(121, 'Deepika Rao', 'Female', 'Finance Manager', 'deepika.rao@example.com', 122000, 3, 'Chennai', '2019-09-23'),
+(122, 'Ajay Mishra', 'Male', 'Software Engineer', 'ajay.mishra@example.com', 64000, 2, 'Delhi', '2021-01-12'),
+(123, 'Bhavana Shetty', 'Female', 'HR Executive', 'bhavana.shetty@example.com', 52000, 1, 'Mysuru', '2024-04-05'),
+(124, 'Ritesh Desai', 'Male', 'Marketing Executive', 'ritesh.desai@example.com', 63000, 4, 'Ahmedabad', '2022-08-17'),
+(125, 'Lakshmi Narayan', 'Female', 'Operations Executive', 'lakshmi.narayan@example.com', 66000, 5, 'Hyderabad', '2021-06-28');
+```
+
+## Importing the Database
+
+1. Open the project folder in Visual Studio Code.
+2. Create a new SQLite database named:
+
+```text
+employee_management.db
+```
+
+3. Open the database using the **SQLite** extension.
+4. Open the `employee_management.sql` file.
+5. Execute the SQL script.
+
+The database, tables, and sample data will be created automatically.
+
+## Exploring the Database
+
+Open the **SQLite Explorer** in Visual Studio Code.
+
+You can:
+
+- View the database
+- Expand the tables
+- Inspect table columns
+- Browse table data
+- Refresh the explorer after changes
+
+You should now see the following tables:
+
+- Department
+- Employee
+
+## Viewing Table Data
+
+Select a table from the SQLite Explorer to view its contents.
+
+You can:
+
+- Browse records
+- Sort records
+- Search records
+- Verify changes after executing SQL statements
+
+## Writing SQL Queries
+
+Create a file named:
+
+```text
+queries.sql
+```
+
+We'll write all SQL queries in this file throughout the course.
+
+## Running Your First Query
+
+Write the following query:
+
+```sql
+SELECT *
+FROM employee;
+```
+
+Execute the query using the **Run Query** option provided by the SQLite extension.
+
+The results will be displayed in the **Query Results** window.
+
+## Course Workflow
+
+Throughout this course, we'll follow the same workflow:
+
+1. Open the database
+2. Explore the tables
+3. Write SQL queries in `queries.sql`
+4. Execute the queries
+5. View the results
+6. Modify the queries
+7. Observe the output
+
+In the next module, we'll begin learning SQL by writing our first **SELECT** statements to retrieve data from the Employee and Department tables.
+````

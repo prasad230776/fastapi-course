@@ -1,0 +1,358 @@
+---
+title: "Working with Joins"
+description: "Learn how to combine data from multiple tables using SQL joins."
+---
+
+# Working with Joins
+
+Until now, we've retrieved data from a single table. In real-world applications, related data is often stored across multiple tables.
+
+A **JOIN** combines rows from two or more tables based on a related column.
+
+In our Employee Management System:
+
+- The **Employee** table stores employee details.
+- The **Department** table stores department information.
+- Both tables are related through the `department_id` column.
+
+## Types of Joins
+
+| Join | Description |
+|------|-------------|
+| `INNER JOIN` | Returns only matching rows from both tables |
+| `LEFT JOIN` | Returns all rows from the left table and matching rows from the right table |
+| `RIGHT JOIN` | Returns all rows from the right table and matching rows from the left table *(Not supported in SQLite)* |
+| `FULL OUTER JOIN` | Returns all matching and non-matching rows from both tables *(Not supported in SQLite)* |
+| `CROSS JOIN` | Returns every possible combination of rows |
+| `SELF JOIN` | Joins a table with itself |
+
+## INNER JOIN
+
+An **INNER JOIN** returns only the rows that have matching values in both tables.
+
+### Syntax
+
+```sql
+SELECT columns
+FROM table1
+INNER JOIN table2
+ON table1.column = table2.column;
+```
+
+Display employee names along with their department names.
+
+```sql
+SELECT employee_name,
+       department_name
+FROM employee
+INNER JOIN department
+ON employee.department_id = department.department_id;
+```
+
+Using table aliases:
+
+```sql
+SELECT e.employee_name,
+       d.department_name
+FROM employee AS e
+INNER JOIN department AS d
+ON e.department_id = d.department_id;
+```
+
+### Exercises
+
+**1. Display employee name and city along with the department name.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT e.employee_name,
+       e.city,
+       d.department_name
+FROM employee e
+INNER JOIN department d
+ON e.department_id = d.department_id;
+```
+
+</Accordion>
+
+**2. Display employee name, designation and department name.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT e.employee_name,
+       e.designation,
+       d.department_name
+FROM employee e
+INNER JOIN department d
+ON e.department_id = d.department_id;
+```
+
+</Accordion>
+
+## LEFT JOIN
+
+A **LEFT JOIN** returns all rows from the left table and only the matching rows from the right table.
+
+If no matching row exists, the columns from the right table contain `NULL`.
+
+### Syntax
+
+```sql
+SELECT columns
+FROM table1
+LEFT JOIN table2
+ON table1.column = table2.column;
+```
+
+Display all employees and their department names.
+
+```sql
+SELECT e.employee_name,
+       d.department_name
+FROM employee e
+LEFT JOIN department d
+ON e.department_id = d.department_id;
+```
+
+### Exercises
+
+**1. Display employee name and department name using a LEFT JOIN.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT e.employee_name,
+       d.department_name
+FROM employee e
+LEFT JOIN department d
+ON e.department_id = d.department_id;
+```
+
+</Accordion>
+
+## RIGHT JOIN
+
+A **RIGHT JOIN** returns all rows from the right table and matching rows from the left table.
+
+> **Note:** SQLite does **not** support `RIGHT JOIN`.
+
+Equivalent queries can usually be written using a `LEFT JOIN` by swapping the table order.
+
+Example (supported in databases like MySQL and PostgreSQL):
+
+```sql
+SELECT e.employee_name,
+       d.department_name
+FROM employee e
+RIGHT JOIN department d
+ON e.department_id = d.department_id;
+```
+
+## FULL OUTER JOIN
+
+A **FULL OUTER JOIN** returns:
+
+- Matching rows
+- Rows existing only in the left table
+- Rows existing only in the right table
+
+> **Note:** SQLite does **not** support `FULL OUTER JOIN`.
+
+Example (supported in databases like PostgreSQL):
+
+```sql
+SELECT e.employee_name,
+       d.department_name
+FROM employee e
+FULL OUTER JOIN department d
+ON e.department_id = d.department_id;
+```
+
+## CROSS JOIN
+
+A **CROSS JOIN** returns every possible combination of rows from both tables.
+
+If one table has 25 rows and the other has 5 rows, the result contains **125 rows**.
+
+### Syntax
+
+```sql
+SELECT columns
+FROM table1
+CROSS JOIN table2;
+```
+
+Example:
+
+```sql
+SELECT employee_name,
+       department_name
+FROM employee
+CROSS JOIN department;
+```
+
+### Exercises
+
+**1. Count the total number of rows returned by the CROSS JOIN.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT COUNT(*)
+FROM employee
+CROSS JOIN department;
+```
+
+</Accordion>
+
+## SELF JOIN
+
+A **SELF JOIN** joins a table with itself.
+
+It is useful when records within the same table are related, such as employees reporting to managers.
+
+Example:
+
+```sql
+SELECT e1.employee_name,
+       e2.employee_name AS manager_name
+FROM employee e1
+INNER JOIN employee e2
+ON e1.manager_id = e2.employee_id;
+```
+
+> **Note:** Our current Employee table does not contain a `manager_id` column, so we'll revisit SELF JOIN later when extending the database schema.
+
+## Join Summary
+
+| Join | Returns |
+|------|---------|
+| INNER JOIN | Only matching rows |
+| LEFT JOIN | All left rows and matching right rows |
+| RIGHT JOIN | All right rows and matching left rows *(Not supported in SQLite)* |
+| FULL OUTER JOIN | All matching and non-matching rows *(Not supported in SQLite)* |
+| CROSS JOIN | Every possible combination |
+| SELF JOIN | A table joined with itself |
+
+## Practice Questions
+
+**1. Display employee name and department name.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT e.employee_name,
+       d.department_name
+FROM employee e
+INNER JOIN department d
+ON e.department_id = d.department_id;
+```
+
+</Accordion>
+
+**2. Display employee name, designation and department name.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT e.employee_name,
+       e.designation,
+       d.department_name
+FROM employee e
+INNER JOIN department d
+ON e.department_id = d.department_id;
+```
+
+</Accordion>
+
+**3. Display employee name, city and department name sorted by department name.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT e.employee_name,
+       e.city,
+       d.department_name
+FROM employee e
+INNER JOIN department d
+ON e.department_id = d.department_id
+ORDER BY d.department_name;
+```
+
+</Accordion>
+
+**4. Display the number of employees in each department.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT d.department_name,
+       COUNT(*) AS total_employees
+FROM employee e
+INNER JOIN department d
+ON e.department_id = d.department_id
+GROUP BY d.department_name;
+```
+
+</Accordion>
+
+**5. Display the average salary of each department.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT d.department_name,
+       AVG(e.salary) AS average_salary
+FROM employee e
+INNER JOIN department d
+ON e.department_id = d.department_id
+GROUP BY d.department_name;
+```
+
+</Accordion>
+
+<Callout type="info">
+
+**Note**
+
+SQL supports two ways to join tables:
+
+**1. Explicit Join (Recommended)**
+
+```sql
+SELECT e.employee_name,
+       d.department_name
+FROM employee e
+JOIN department d
+ON e.department_id = d.department_id;
+```
+
+or
+
+```sql
+SELECT e.employee_name,
+       d.department_name
+FROM employee e
+INNER JOIN department d
+ON e.department_id = d.department_id;
+```
+
+The `JOIN` keyword is a shorthand for `INNER JOIN`. Both queries produce the **same result**.
+
+**2. Implicit Join (Old Style)**
+
+```sql
+SELECT e.employee_name,
+       d.department_name
+FROM employee e,
+     department d
+WHERE e.department_id = d.department_id;
+```
+
+This syntax is still supported by SQLite and many other databases, but it is considered **legacy syntax** and is generally avoided in modern SQL.
+
+Throughout this course, we'll use the **explicit `JOIN` syntax** because it is easier to read, follows modern SQL standards, and clearly expresses the relationship between tables.
+
+</Callout>

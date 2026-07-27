@@ -1,0 +1,547 @@
+---
+title: "Reading Data using SELECT"
+description: "Learn how to retrieve data from a database using the SELECT statement."
+---
+
+# Reading Data using SELECT
+
+The **SELECT** statement is used to retrieve data from one or more tables in a database.
+
+It is the most commonly used SQL statement and belongs to the **Data Query Language (DQL)** category.
+
+## Basic Syntax
+
+```sql
+SELECT column1, column2, ...
+FROM table_name;
+```
+
+### Understanding the Syntax
+
+| Keyword | Purpose |
+|----------|---------|
+| `SELECT` | Specifies the columns to retrieve |
+| `FROM` | Specifies the table to retrieve data from |
+| `*` | Represents all columns |
+
+## Your First SELECT Statement
+
+Retrieve all employee records.
+
+```sql
+SELECT *
+FROM employee;
+```
+
+### Explanation
+
+- `SELECT` tells the database that we want to retrieve data.
+- `*` means all columns.
+- `FROM` specifies the table.
+- `employee` is the table name.
+
+### Exercises
+
+**1. Display all employee records.**
+
+**2. Display all department records.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee;
+
+SELECT *
+FROM department;
+```
+
+</Accordion>
+
+---
+
+## Selecting Specific Columns
+
+Retrieve only employee names.
+
+```sql
+SELECT employee_name
+FROM employee;
+```
+
+Retrieve employee name and salary.
+
+```sql
+SELECT employee_name, salary
+FROM employee;
+```
+
+### Explanation
+
+Instead of retrieving every column, we can specify only the columns we need.
+
+### Exercises
+
+**1. Display employee name and designation.**
+
+**2. Display employee name, city and salary.**
+
+**3. Display employee name and joining date.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT employee_name, designation
+FROM employee;
+
+SELECT employee_name, city, salary
+FROM employee;
+
+SELECT employee_name, joining_date
+FROM employee;
+```
+
+</Accordion>
+
+---
+
+## Changing the Order of Columns
+
+The output columns appear in the same order as specified in the SELECT statement.
+
+```sql
+SELECT salary, employee_name
+FROM employee;
+```
+
+### Exercises
+
+**1. Display designation before employee name.**
+
+**2. Display city, employee name and salary.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT designation, employee_name
+FROM employee;
+
+SELECT city, employee_name, salary
+FROM employee;
+```
+
+</Accordion>
+
+---
+
+## Selecting the Same Column Multiple Times
+
+A column can be selected more than once.
+
+```sql
+SELECT employee_name,
+       employee_name
+FROM employee;
+```
+
+Although this is rarely used, it demonstrates that SQL returns exactly what you ask for.
+
+### Exercise
+
+Display the salary column twice.
+
+<Accordion title="Solution">
+
+```sql
+SELECT salary,
+       salary
+FROM employee;
+```
+
+</Accordion>
+
+---
+
+## Removing Duplicate Values using DISTINCT
+
+Retrieve all unique cities.
+
+```sql
+SELECT DISTINCT city
+FROM employee;
+```
+
+Retrieve all unique designations.
+
+```sql
+SELECT DISTINCT designation
+FROM employee;
+```
+
+### Explanation
+
+`DISTINCT` removes duplicate values from the result set.
+
+### Exercises
+
+**1. Display all unique genders.**
+
+**2. Display all unique department IDs.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT DISTINCT gender
+FROM employee;
+
+SELECT DISTINCT department_id
+FROM employee;
+```
+
+</Accordion>
+
+---
+
+## Renaming Columns using AS
+
+Aliases improve the readability of the output.
+
+```sql
+SELECT employee_name AS Employee,
+       salary AS Salary
+FROM employee;
+```
+
+The `AS` keyword is optional.
+
+```sql
+SELECT employee_name Employee,
+       salary Salary
+FROM employee;
+```
+
+### Exercises
+
+**1. Rename employee_name as Name.**
+
+**2. Rename joining_date as Joining Date.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT employee_name AS Name
+FROM employee;
+
+SELECT joining_date AS "Joining Date"
+FROM employee;
+```
+
+</Accordion>
+
+---
+
+## Arithmetic Expressions
+
+SQL can perform calculations while retrieving data.
+
+Calculate annual salary.
+
+```sql
+SELECT employee_name,
+       salary,
+       salary * 12 AS annual_salary
+FROM employee;
+```
+
+Increase salary by ₹5,000.
+
+```sql
+SELECT employee_name,
+       salary,
+       salary + 5000 AS revised_salary
+FROM employee;
+```
+
+### Exercises
+
+**1. Increase salary by ₹10,000.**
+
+**2. Display monthly salary and annual salary.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT employee_name,
+       salary,
+       salary + 10000 AS revised_salary
+FROM employee;
+
+SELECT employee_name,
+       salary,
+       salary * 12 AS annual_salary
+FROM employee;
+```
+
+</Accordion>
+
+---
+
+## Combining Text Values
+
+SQLite uses `||` to concatenate strings.
+
+```sql
+SELECT employee_name || ' - ' || designation AS employee_details
+FROM employee;
+```
+
+### Exercises
+
+**1. Display employee name and city.**
+
+**2. Display employee name and gender.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT employee_name || ' - ' || city
+FROM employee;
+
+SELECT employee_name || ' - ' || gender
+FROM employee;
+```
+
+</Accordion>
+
+---
+
+## Using Built-in Functions
+
+Functions can also be used in the SELECT statement.
+
+Current date.
+
+```sql
+SELECT DATE('now');
+```
+
+Convert names to uppercase.
+
+```sql
+SELECT UPPER(employee_name)
+FROM employee;
+```
+
+Convert names to lowercase.
+
+```sql
+SELECT LOWER(employee_name)
+FROM employee;
+```
+
+Find the length of employee names.
+
+```sql
+SELECT LENGTH(employee_name)
+FROM employee;
+```
+
+Round salary.
+
+```sql
+SELECT ROUND(salary)
+FROM employee;
+```
+
+### Exercises
+
+**1. Display employee names in uppercase.**
+
+**2. Display employee names in lowercase.**
+
+**3. Display the length of every employee name.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT UPPER(employee_name)
+FROM employee;
+
+SELECT LOWER(employee_name)
+FROM employee;
+
+SELECT LENGTH(employee_name)
+FROM employee;
+```
+
+</Accordion>
+
+---
+
+## SELECT without a Table
+
+A table is not always required.
+
+Return a number.
+
+```sql
+SELECT 100;
+```
+
+Return a string.
+
+```sql
+SELECT 'Welcome to SQL';
+```
+
+Perform a calculation.
+
+```sql
+SELECT 25 + 75;
+```
+
+Display the current date.
+
+```sql
+SELECT DATE('now');
+```
+
+### Explanation
+
+When no table is involved, SQLite simply evaluates the expression and returns the result.
+
+### Exercises
+
+**1. Display your name.**
+
+**2. Calculate 250 × 12.**
+
+**3. Display today's date.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT 'Your Name';
+
+SELECT 250 * 12;
+
+SELECT DATE('now');
+```
+
+</Accordion>
+
+---
+
+## Limiting the Number of Rows
+
+Retrieve only the first five employees.
+
+```sql
+SELECT *
+FROM employee
+LIMIT 5;
+```
+
+Retrieve the first three employee names.
+
+```sql
+SELECT employee_name
+FROM employee
+LIMIT 3;
+```
+
+### Exercises
+
+**1. Display the first 10 employees.**
+
+**2. Display the first 2 departments.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+LIMIT 10;
+
+SELECT *
+FROM department
+LIMIT 2;
+```
+
+</Accordion>
+
+---
+
+## Skipping Rows using OFFSET
+
+Skip the first five employees and retrieve the next five.
+
+```sql
+SELECT *
+FROM employee
+LIMIT 5 OFFSET 5;
+```
+
+### Exercises
+
+**1. Retrieve employees 11–15.**
+
+**2. Retrieve three employees after skipping the first two.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+LIMIT 5 OFFSET 10;
+
+SELECT *
+FROM employee
+LIMIT 3 OFFSET 2;
+```
+
+</Accordion>
+
+---
+
+## Writing Comments
+
+Single-line comment.
+
+```sql
+-- Display all employees
+SELECT *
+FROM employee;
+```
+
+Multi-line comment.
+
+```sql
+/*
+Display all
+employees
+*/
+SELECT *
+FROM employee;
+```
+
+---
+
+## Summary
+
+| Feature | Purpose |
+|---------|---------|
+| `SELECT *` | Retrieve all columns |
+| Specific Columns | Retrieve selected columns |
+| Column Order | Control the order of output columns |
+| Duplicate Columns | Retrieve the same column multiple times |
+| `DISTINCT` | Remove duplicate values |
+| `AS` | Rename output columns |
+| Arithmetic Expressions | Perform calculations |
+| `||` | Combine text values |
+| Built-in Functions | Process data during retrieval |
+| `SELECT` without `FROM` | Evaluate expressions without a table |
+| `LIMIT` | Restrict the number of rows |
+| `OFFSET` | Skip rows before retrieving data |
+| Comments | Document SQL queries |
+````

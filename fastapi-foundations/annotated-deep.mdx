@@ -1,0 +1,358 @@
+---
+title: "Deep Dive into `Annotated`"
+description: "Understand the modern `Annotated` syntax and how it simplifies validation, dependency injection, and type annotations in FastAPI and Pydantic."
+icon: "folder-tree"
+---
+## Understanding `Annotated`
+
+Throughout this course, you've seen two different ways of writing validations and dependencies.
+
+For example, in Pydantic models, we previously wrote:
+
+```python
+from pydantic import BaseModel, Field
+
+class EmployeeCreateRequest(BaseModel):
+    name: str = Field(min_length=2)
+```
+
+Later, we switched to the recommended syntax:
+
+```python
+from typing import Annotated
+from pydantic import BaseModel, Field
+
+class EmployeeCreateRequest(BaseModel):
+    name: Annotated[str, Field(min_length=2)]
+```
+
+Similarly, for Dependency Injection, we can write:
+
+```python
+from fastapi import Depends
+
+def get_employees(
+    repository: EmployeeRepository = Depends(get_employee_repository),
+):
+    ...
+```
+
+or the recommended syntax:
+
+```python
+from typing import Annotated
+from fastapi import Depends
+
+def get_employees(
+    repository: Annotated[
+        EmployeeRepository,
+        Depends(get_employee_repository),
+    ],
+):
+    ...
+```
+
+Both styles are equivalent. However, **`Annotated` is the recommended approach** in modern FastAPI and Pydantic.
+
+### Why Use `Annotated`?
+
+The purpose of `Annotated` is to separate the **actual data type** from its **metadata**.
+
+General syntax:
+
+```python
+Annotated[Type, Metadata]
+```
+
+- **Type** describes the expected data type.
+- **Metadata** provides additional instructions such as validation rules or dependency information.
+
+### Common Examples
+
+| Purpose | Old Style | Recommended Style |
+|---------|-----------|-------------------|
+| Request Body | `name: str = Field(...)` | `name: Annotated[str, Field(...)]` |
+| Query Parameter | `limit: int = Query(...)` | `limit: Annotated[int, Query(...)]` |
+| Path Parameter | `id: int = Path(...)` | `id: Annotated[int, Path(...)]` |
+| Header | `token: str = Header(...)` | `token: Annotated[str, Header(...)]` |
+| Dependency | `repo: EmployeeRepository = Depends(...)` | `repo: Annotated[EmployeeRepository, Depends(...)]` |
+
+Notice that only the **metadata** changes.
+
+### How to Read `Annotated`
+
+Consider this example.
+
+```python
+name: Annotated[str, Field(min_length=2)]
+```
+
+It can be read as:
+
+- The value is a **string**.
+- It must satisfy the validation rules defined by `Field()`.
+
+Likewise,
+
+```python
+repository: Annotated[
+    EmployeeRepository,
+    Depends(get_employee_repository),
+]
+```
+
+can be read as:
+
+- The value is an **EmployeeRepository**.
+- FastAPI should obtain it by calling `get_employee_repository()`.
+
+### `Field()` vs `Depends()`
+
+Although both are used with `Annotated`, they serve different purposes.
+
+#### `Field()`
+
+Used inside **Pydantic models** to validate data.
+
+```python
+class EmployeeCreateRequest(BaseModel):
+    name: Annotated[str, Field(min_length=2)]
+```
+
+Here:
+
+- **Type:** `str`
+- **Metadata:** `Field(min_length=2)`
+
+#### `Depends()`
+
+Used by **FastAPI** for Dependency Injection.
+
+```python
+repository: Annotated[
+    EmployeeRepository,
+    Depends(get_employee_repository),
+]
+```
+
+Here:
+
+- **Type:** `EmployeeRepository`
+- **Metadata:** `Depends(get_employee_repository)`
+
+Unlike `Field()`, `Depends()` does **not** perform validation. Instead, it tells FastAPI **how to create the required object**.
+
+### Creating Reusable Dependency Aliases
+
+Suppose many endpoints need an `EmployeeRepository`.
+
+Instead of repeatedly writing:
+
+```python
+repository: Annotated[
+    EmployeeRepository,
+    Depends(get_employee_repository),
+]
+```
+
+we can create a reusable alias.
+
+```python
+RepositoryDep = Annotated[
+    EmployeeRepository,
+    Depends(get_employee_repository),
+]
+```
+
+Now the endpoint becomes much cleaner.
+
+```python
+@router.get("/employees")
+def get_employees(
+    repository: RepositoryDep,
+):
+    ...
+```
+
+FastAPI expands this alias internally to:
+
+```python
+repository: Annotated[
+    EmployeeRepository,
+    Depends(get_employee_repository),
+]
+```
+
+### Mental Model
+
+Think of `Annotated` as attaching extra information to a type.
+
+```text
+Annotated[
+    Type,
+    Metadata
+]
+```
+
+Examples:
+
+```python
+Annotated[str, Field(min_length=2)]
+```
+
+```text
+Type
+ └── str
+
+Metadata
+ └── Validate minimum length = 2
+```
+
+```python
+Annotated[
+    EmployeeRepository,
+    Depends(get_employee_repository),
+]
+```
+
+```text
+Type
+ └── EmployeeRepository
+
+Metadata
+ └── Create using get_employee_repository()
+```
+
+### Key Takeaway
+
+`Annotated` always combines two things:
+
+- **The actual type** (`str`, `int`, `EmployeeRepository`, etc.).
+- **Metadata** that describes how the value should be validated or obtained.
+
+The metadata depends on the context:
+
+- `Field()` → Request body validation.
+- `Query()` → Query parameter validation.
+- `Path()` → Path parameter validation.
+- `Header()` → Header extraction.
+- `Depends()` → Dependency Injection.
+
+Once you understand this pattern, you'll notice that FastAPI and Pydantic use `Annotated` consistently throughout the framework.
+
+## `Annotated` and Default Values
+
+A common question is:
+
+> **If `Annotated` moves the metadata inside the type annotation, where do default values go?**
+
+The answer is simple:
+
+- **Validation metadata** goes inside `Annotated`.
+- **Default values** are still assigned using `=`.
+
+### Example 1: `Field()`
+
+```python
+from typing import Annotated
+from pydantic import BaseModel, Field
+
+class Employee(BaseModel):
+    name: Annotated[str, Field(min_length=2)]
+    department: Annotated[str, Field(max_length=30)] = "Engineering"
+```
+
+Here:
+
+- `str` is the type.
+- `Field(...)` defines the validation rules.
+- `"Engineering"` is the default value.
+
+### Example 2: `Query()`
+
+```python
+from typing import Annotated
+from fastapi import Query
+
+@app.get("/employees")
+def get_employees(
+    limit: Annotated[int, Query(ge=1, le=100)] = 10,
+):
+    ...
+```
+
+Here:
+
+- `int` is the type.
+- `Query(...)` defines the validation rules.
+- `10` is the default value.
+
+### Example 3: `Header()`
+
+```python
+from typing import Annotated
+from fastapi import Header
+
+@app.get("/profile")
+def profile(
+    language: Annotated[str, Header()] = "en",
+):
+    ...
+```
+
+Here:
+
+- `str` is the type.
+- `Header()` tells FastAPI to read the value from the request header.
+- `"en"` is the default value if the header is not provided.
+
+### Example 4: `Depends()`
+
+Although less common, the same syntax applies.
+
+```python
+from typing import Annotated
+from fastapi import Depends
+
+def get_employees(
+    repository: Annotated[
+        EmployeeRepository,
+        Depends(get_employee_repository),
+    ],
+):
+    ...
+```
+
+Notice that there is **no default value** here because FastAPI always injects the dependency.
+
+### General Rule
+
+```python
+parameter: Annotated[Type, Metadata] = DefaultValue
+```
+
+- **Type** → What kind of value is expected.
+- **Metadata** → Validation or dependency information.
+- **DefaultValue** → Used only when the value is optional.
+
+### Examples
+
+| Parameter | Type | Metadata | Default |
+|-----------|------|----------|---------|
+| `name: Annotated[str, Field(min_length=2)]` | `str` | `Field()` | None (required) |
+| `limit: Annotated[int, Query(ge=1)] = 10` | `int` | `Query()` | `10` |
+| `department: Annotated[str, Header()] = "Engineering"` | `str` | `Header()` | `"Engineering"` |
+| `repository: Annotated[EmployeeRepository, Depends(get_employee_repository)]` | `EmployeeRepository` | `Depends()` | None (injected) |
+
+### Key Takeaway
+
+Think of the syntax as three separate parts:
+
+```python
+parameter: Annotated[Type, Metadata] = DefaultValue
+```
+
+- **Type** defines what the value is.
+- **Metadata** defines how FastAPI or Pydantic should process it.
+- **DefaultValue** defines what to use when the value is optional.
+

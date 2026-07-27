@@ -1,0 +1,329 @@
+---
+title: "Creating, Updating and Deleting Data"
+description: "Learn how to insert, update and delete records using SQL."
+---
+
+# Creating, Updating and Deleting Data
+
+So far, we've only retrieved data using the `SELECT` statement.
+
+In this chapter, we'll learn how to modify data stored in a database using the **Data Manipulation Language (DML)** commands.
+
+## DML Commands
+
+| Command | Purpose |
+|---------|---------|
+| `INSERT` | Add new rows |
+| `UPDATE` | Modify existing rows |
+| `DELETE` | Remove rows |
+
+## INSERT
+
+The `INSERT` statement adds one or more rows to a table.
+
+### Syntax
+
+```sql
+INSERT INTO table_name
+VALUES (value1, value2, ...);
+```
+
+## Insert a Single Row
+
+```sql
+INSERT INTO employee
+VALUES (
+126,
+'Ravi Kumar',
+'Male',
+'Software Engineer',
+'ravi.kumar@example.com',
+72000,
+2,
+'Hyderabad',
+'2024-06-15'
+);
+```
+
+### Insert Selected Columns
+
+```sql
+INSERT INTO employee (
+employee_id,
+employee_name,
+gender,
+designation,
+salary,
+department_id,
+city,
+joining_date
+)
+VALUES (
+127,
+'Pallavi Rao',
+'Female',
+'HR Executive',
+58000,
+1,
+'Bengaluru',
+'2024-07-01'
+);
+```
+
+### Insert Multiple Rows
+
+```sql
+INSERT INTO department
+VALUES
+(6, 'Research'),
+(7, 'Administration');
+```
+
+### Exercises
+
+**1. Insert a new Marketing Executive.**
+
+<Accordion title="Solution">
+
+```sql
+INSERT INTO employee
+VALUES (
+128,
+'Arun Kumar',
+'Male',
+'Marketing Executive',
+'arun.kumar@example.com',
+62000,
+4,
+'Chennai',
+'2024-08-10'
+);
+```
+
+</Accordion>
+
+**2. Insert a new department named Sales.**
+
+<Accordion title="Solution">
+
+```sql
+INSERT INTO department
+VALUES (8, 'Sales');
+```
+
+</Accordion>
+
+---
+
+## UPDATE
+
+The `UPDATE` statement modifies existing records.
+
+### Syntax
+
+```sql
+UPDATE table_name
+SET column1 = value1,
+    column2 = value2
+WHERE condition;
+```
+
+## Update a Single Column
+
+Increase Ravi Kumar's salary.
+
+```sql
+UPDATE employee
+SET salary = 78000
+WHERE employee_id = 126;
+```
+
+## Update Multiple Columns
+
+```sql
+UPDATE employee
+SET city = 'Bengaluru',
+    salary = 80000
+WHERE employee_id = 126;
+```
+
+## Update Multiple Rows
+
+Increase the salary of all Software Engineers.
+
+```sql
+UPDATE employee
+SET salary = salary + 5000
+WHERE designation = 'Software Engineer';
+```
+
+### Exercises
+
+**1. Change the city of employee 127 to Hyderabad.**
+
+<Accordion title="Solution">
+
+```sql
+UPDATE employee
+SET city = 'Hyderabad'
+WHERE employee_id = 127;
+```
+
+</Accordion>
+
+**2. Increase the salary of all HR Executives by ₹3,000.**
+
+<Accordion title="Solution">
+
+```sql
+UPDATE employee
+SET salary = salary + 3000
+WHERE designation = 'HR Executive';
+```
+
+</Accordion>
+
+---
+
+## DELETE
+
+The `DELETE` statement removes one or more rows from a table.
+
+### Syntax
+
+```sql
+DELETE FROM table_name
+WHERE condition;
+```
+
+## Delete a Single Row
+
+Delete employee 128.
+
+```sql
+DELETE FROM employee
+WHERE employee_id = 128;
+```
+
+## Delete Multiple Rows
+
+Delete all employees from Chennai.
+
+```sql
+DELETE FROM employee
+WHERE city = 'Chennai';
+```
+
+### Exercises
+
+**1. Delete employee 127.**
+
+<Accordion title="Solution">
+
+```sql
+DELETE FROM employee
+WHERE employee_id = 127;
+```
+
+</Accordion>
+
+**2. Delete all employees from the Operations department.**
+
+<Accordion title="Solution">
+
+```sql
+DELETE FROM employee
+WHERE department_id = 5;
+```
+
+</Accordion>
+
+---
+
+## Important Note
+
+Without a `WHERE` clause, `UPDATE` and `DELETE` affect **all rows** in the table.
+
+Example:
+
+```sql
+UPDATE employee
+SET salary = 50000;
+```
+
+The above query updates the salary of **every employee**.
+
+Similarly,
+
+```sql
+DELETE FROM employee;
+```
+
+removes **all rows** from the table while keeping the table structure intact.
+
+Always verify your `WHERE` clause before executing `UPDATE` or `DELETE` statements.
+
+---
+
+## Summary
+
+| Statement | Purpose |
+|----------|---------|
+| `INSERT INTO` | Insert new rows |
+| `UPDATE ... SET` | Modify existing rows |
+| `DELETE FROM` | Delete rows |
+| `WHERE` | Restrict affected rows |
+
+## Practice Questions
+
+**1. Insert a new employee into the Finance department.**
+
+<Accordion title="Solution">
+
+```sql
+INSERT INTO employee
+VALUES (
+129,
+'Sunita Sharma',
+'Female',
+'Accountant',
+'sunita.sharma@example.com',
+68000,
+3,
+'Pune',
+'2024-09-01'
+);
+```
+
+</Accordion>
+
+**2. Increase the salary of all Marketing Executives by ₹5,000.**
+
+<Accordion title="Solution">
+
+```sql
+UPDATE employee
+SET salary = salary + 5000
+WHERE designation = 'Marketing Executive';
+```
+
+</Accordion>
+
+**3. Delete all employees who joined before 2020.**
+
+<Accordion title="Solution">
+
+```sql
+DELETE FROM employee
+WHERE joining_date < '2020-01-01';
+```
+
+</Accordion>
+
+### Summary
+
+1. **SELECT** – Read data
+2. **INSERT** – Add data
+3. **UPDATE** – Modify data
+4. **DELETE** – Remove data
+

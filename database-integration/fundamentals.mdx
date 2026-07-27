@@ -1,0 +1,274 @@
+---
+title: "Database Fundamentals"
+description: "Understand the basic building blocks of a relational database."
+---
+
+# Database Fundamentals
+
+Before writing SQL queries, it's important to understand the basic terminology used in databases.
+
+## Data
+
+**Data** is a collection of facts, values, or information that can be stored and processed.
+
+**Examples**
+
+- Employee names
+- Department names
+- Salaries
+- Email addresses
+
+## Datum
+
+A **datum** is a single piece of data or a single value.
+
+**Example**
+
+| Employee ID | Name | Salary |
+|-------------|------|--------|
+| 101 | John | 50000 |
+
+- `101` → Datum
+- `John` → Datum
+- `50000` → Datum
+
+The complete row is made up of multiple datum values, and together they form **data**.
+
+## Database
+
+A **database** is an organized collection of related data stored electronically so it can be accessed, managed, and updated efficiently.
+
+Example:
+
+An Employee Management System stores information about:
+
+- Employees
+- Departments
+- Salaries
+- Job Roles
+
+All of this information together forms the database.
+
+## Table
+
+A **table** is a collection of related data organized into rows and columns.
+
+Example:
+
+**Employee**
+
+| Employee ID | Name | Salary |
+|-------------|------|--------|
+| 101 | John | 50000 |
+| 102 | Alice | 65000 |
+
+## Row (Record)
+
+A **row** represents a single record in a table.
+
+Example:
+
+| Employee ID | Name | Salary |
+|-------------|------|--------|
+| 101 | John | 50000 |
+
+This entire row represents one employee.
+
+## Column (Field/Attribute)
+
+A **column** represents a particular property of every record.
+
+Example:
+
+- Employee ID
+- Name
+- Salary
+
+Each column stores one type of information.
+
+## Field
+
+A **field** is the value stored at the intersection of a row and a column.
+
+Example:
+
+| Employee ID | Name | Salary |
+|-------------|------|--------|
+| 101 | John | 50000 |
+
+The value **John** is a field.
+
+## Record
+
+A **record** is another name for a row.
+
+Example:
+
+| Employee ID | Name | Salary |
+|-------------|------|--------|
+| 101 | John | 50000 |
+
+This entire row is one record.
+
+## Schema
+
+A **schema** defines the structure of a database, including:
+
+- Tables
+- Columns
+- Data types
+- Relationships
+- Constraints
+
+It acts as the blueprint of the database.
+
+## Summary
+
+Data is information stored in a database. A single value (such as an employee's name or salary) is a piece of data, dantum. Related pieces of data form a record (row), multiple records form a table, multiple related tables form a database, and the overall structure of the database is defined by its schema.
+
+| Level | Term | Description |
+|:-----:|------|-------------|
+| 1 | Datum | A single value (e.g., `John`, `50000`) |
+| 2 | Field | A cell containing a datum at the intersection of a row and a column |
+| 3 | Row / Record | A collection of related fields representing one entity |
+| 4 | Column / Attribute | A property or characteristic shared by all records in a table |
+| 5 | Table | A collection of related rows and columns |
+| 6 | Database | A collection of related tables |
+| 7 | Schema | The blueprint that defines the database structure, including tables, columns, relationships, and constraints |
+
+## Introduction to SQL
+
+**SQL (Structured Query Language)** is the standard language used to communicate with **relational databases**. It enables us to create databases, define tables, store data, retrieve information, update records, and manage the overall structure of a database.
+
+Unlike programming languages such as Python or Java, SQL is a **declarative language**. This means you specify **what** data you want, and the database determines **how** to retrieve or manipulate it efficiently.
+
+SQL is supported by almost every relational database management system, including:
+
+- SQLite
+- MySQL
+- PostgreSQL
+- Microsoft SQL Server
+- Oracle Database
+
+## Why Learn SQL?
+
+SQL is one of the most essential skills for software developers because almost every modern application stores its data in a database.
+
+With SQL, you can:
+
+- Create and manage databases
+- Store, retrieve, update, and delete data
+- Analyze and summarize information
+- Build backend applications
+- Develop REST APIs
+- Generate reports and dashboards
+- Work with ORMs like SQLAlchemy
+- Build applications using FastAPI, Django, Spring Boot, .NET, Laravel, and many other frameworks
+
+## Types of SQL Statements
+
+SQL commands are grouped into different categories based on their purpose.
+
+| Category | Full Form | Purpose | Common Commands |
+|----------|-----------|---------|-----------------|
+| DDL | Data Definition Language | Defines and modifies the database structure | `CREATE`, `ALTER`, `DROP`, `TRUNCATE` |
+| DML | Data Manipulation Language | Inserts, updates, and deletes data | `INSERT`, `UPDATE`, `DELETE` |
+| DQL | Data Query Language | Retrieves data from the database | `SELECT` |
+| DCL | Data Control Language | Controls user permissions and access | `GRANT`, `REVOKE` |
+| TCL | Transaction Control Language | Manages transactions | `BEGIN`, `COMMIT`, `ROLLBACK`, `SAVEPOINT` |
+
+## DDL (Data Definition Language)
+
+DDL commands define and modify the structure of a database.
+
+**Common Commands**
+
+- `CREATE`
+- `ALTER`
+- `DROP`
+- `TRUNCATE`
+
+**Example**
+
+```sql
+CREATE TABLE employee (
+    employee_id INTEGER PRIMARY KEY,
+    name TEXT
+);
+```
+
+## DML (Data Manipulation Language)
+
+DML commands are used to add, modify, and remove records from tables.
+
+**Common Commands**
+
+- `INSERT`
+- `UPDATE`
+- `DELETE`
+
+**Example**
+
+```sql
+INSERT INTO employee (employee_id, name)
+VALUES (101, 'John');
+```
+
+## DQL (Data Query Language)
+
+DQL is used to retrieve information from a database.
+
+**Common Command**
+
+- `SELECT`
+
+**Example**
+
+```sql
+SELECT *
+FROM employee;
+```
+
+## DCL (Data Control Language)
+
+DCL commands control user permissions and database access.
+
+**Common Commands**
+
+- `GRANT`
+- `REVOKE`
+
+> **Note:** SQLite does not support `GRANT` and `REVOKE` because it does not provide built-in user management.
+
+## TCL (Transaction Control Language)
+
+TCL commands manage database transactions, ensuring that multiple operations are executed safely and consistently.
+
+**Common Commands**
+
+- `BEGIN`
+- `COMMIT`
+- `ROLLBACK`
+- `SAVEPOINT`
+
+**Example**
+
+```sql
+BEGIN TRANSACTION;
+
+UPDATE employee
+SET salary = salary + 5000
+WHERE employee_id = 101;
+
+COMMIT;
+```
+
+## Summary
+
+| Category | Purpose |
+|----------|---------|
+| DDL | Defines the database structure |
+| DML | Inserts, updates, and deletes data |
+| DQL | Retrieves data from the database |
+| DCL | Controls user permissions |
+| TCL | Manages database transactions |

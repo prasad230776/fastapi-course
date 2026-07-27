@@ -1,0 +1,401 @@
+---
+title: "Advanced SQL Concepts"
+description: "Overview of important database concepts used in real-world applications."
+---
+
+# Advanced SQL Concepts
+
+In this chapter, we'll explore important database concepts that improve database design, performance, consistency, and automation.
+
+## Database Normalization
+
+Normalization is the process of organizing data to reduce redundancy and improve consistency.
+
+### Objectives
+
+- Eliminate duplicate data
+- Reduce data inconsistency
+- Improve data integrity
+- Simplify data maintenance
+
+### Normal Forms
+
+| Normal Form | Purpose |
+|-------------|---------|
+| First Normal Form (1NF) | Eliminate repeating groups and ensure atomic values |
+| Second Normal Form (2NF) | Remove partial dependencies |
+| Third Normal Form (3NF) | Remove transitive dependencies |
+| BCNF | Stronger version of 3NF for complex relationships |
+
+For most application development, **1NF**, **2NF**, and **3NF** are sufficient.
+
+## First Normal Form (1NF)
+
+A table is in **First Normal Form (1NF)** if:
+
+- Each column contains only one (atomic) value.
+- There are no repeating groups or multiple values in a single column.
+
+### Before 1NF
+
+| Employee ID | Employee Name | Phone Numbers |
+|-------------|---------------|---------------|
+| 101 | Aarav Sharma | 9876543210, 9123456789 |
+| 102 | Priya Reddy | 9988776655 |
+
+The **Phone Numbers** column contains multiple values.
+
+### After 1NF
+
+| Employee ID | Employee Name | Phone Number |
+|-------------|---------------|--------------|
+| 101 | Aarav Sharma | 9876543210 |
+| 101 | Aarav Sharma | 9123456789 |
+| 102 | Priya Reddy | 9988776655 |
+
+Each column now contains only one value.
+
+### Summary
+
+- One value per cell
+- No repeating groups
+- Atomic values only
+
+## Second Normal Form (2NF)
+
+A table is in **Second Normal Form (2NF)** if:
+
+- It is already in **1NF**.
+- Every non-key column depends on the **entire primary key**.
+
+> **Note**
+>
+> Second Normal Form mainly applies to tables with a **composite primary key** (a primary key consisting of two or more columns).
+
+### Before 2NF
+
+Suppose employees can work on multiple projects.
+
+Primary Key = **(Employee ID, Project ID)**
+
+| Employee ID | Project ID | Employee Name | Project Name | Hours Worked |
+|-------------|------------|---------------|--------------|-------------:|
+| 101 | P01 | Aarav Sharma | Payroll System | 20 |
+| 101 | P02 | Aarav Sharma | HR Portal | 15 |
+| 102 | P01 | Priya Reddy | Payroll System | 30 |
+
+Here:
+
+- **Employee Name** depends only on **Employee ID**.
+- **Project Name** depends only on **Project ID**.
+- **Hours Worked** depends on both **Employee ID** and **Project ID**.
+
+This is called a **partial dependency**.
+
+### After 2NF
+
+#### Employee
+
+| Employee ID | Employee Name |
+|-------------|---------------|
+| 101 | Aarav Sharma |
+| 102 | Priya Reddy |
+
+#### Project
+
+| Project ID | Project Name |
+|------------|--------------|
+| P01 | Payroll System |
+| P02 | HR Portal |
+
+#### Employee_Project
+
+| Employee ID | Project ID | Hours Worked |
+|-------------|------------|-------------:|
+| 101 | P01 | 20 |
+| 101 | P02 | 15 |
+| 102 | P01 | 30 |
+
+Now every non-key column depends on the entire primary key.
+
+### Summary
+
+- Applicable to tables with composite primary keys
+- Removes partial dependencies
+- Separates related entities into different tables
+
+## Third Normal Form (3NF)
+
+A table is in **Third Normal Form (3NF)** if:
+
+- It is already in **2NF**.
+- Non-key columns should depend only on the primary key and not on other non-key columns.
+
+### Before 3NF
+
+| Employee ID | Employee Name | Department ID | Department Name |
+|-------------|---------------|---------------|-----------------|
+| 101 | Aarav Sharma | 2 | Information Technology |
+| 102 | Rahul Verma | 2 | Information Technology |
+| 103 | Sneha Iyer | 3 | Finance |
+
+Here,
+
+```text
+Employee ID
+      ↓
+Department ID
+      ↓
+Department Name
+```
+
+`Department Name` depends on `Department ID`, not directly on `Employee ID`.
+
+This is called a **transitive dependency**.
+
+### After 3NF
+
+#### Department
+
+| Department ID | Department Name |
+|---------------|-----------------|
+| 2 | Information Technology |
+| 3 | Finance |
+
+#### Employee
+
+| Employee ID | Employee Name | Department ID |
+|-------------|---------------|---------------|
+| 101 | Aarav Sharma | 2 |
+| 102 | Rahul Verma | 2 |
+| 103 | Sneha Iyer | 3 |
+
+The department information is now stored only once.
+
+### Summary
+
+- Removes transitive dependencies
+- Non-key columns should not depend on other non-key columns
+- Improves consistency and reduces redundancy
+
+## Benefits of Normalization
+
+- Eliminates duplicate data
+- Prevents update anomalies
+- Prevents insertion anomalies
+- Prevents deletion anomalies
+- Saves storage space
+- Improves data consistency
+- Makes database maintenance easier
+
+## Comparison of Normal Forms
+
+| Normal Form | Goal | Problem Solved |
+|-------------|------|----------------|
+| **1NF** | Store atomic values | Removes repeating groups and multiple values in a column |
+| **2NF** | Remove partial dependencies | Ensures every non-key column depends on the entire composite primary key |
+| **3NF** | Remove transitive dependencies | Ensures non-key columns depend only on the primary key |
+
+## Remember
+
+- **1NF** → One value per cell.
+- **2NF** → Every non-key column must depend on the entire composite primary key.
+- **3NF** → Non-key columns should depend only on the primary key.
+
+## ACID Properties
+
+A transaction should satisfy the ACID properties to ensure reliable database operations.
+
+| Property | Description |
+|----------|-------------|
+| Atomicity | Either all operations succeed or none do |
+| Consistency | The database remains in a valid state before and after the transaction |
+| Isolation | Concurrent transactions do not interfere with each other |
+| Durability | Once committed, changes are permanently stored |
+
+## Indexes
+
+An index is a special database object that improves the speed of data retrieval.
+
+Instead of scanning every row in a table, the database can use an index to quickly locate the required records.
+
+### Advantages
+
+- Faster searching
+- Faster sorting
+- Faster joins
+- Improved grouping
+- Better query performance
+
+### Disadvantages
+
+- Requires additional storage
+- Slows down INSERT, UPDATE, and DELETE operations
+- Requires maintenance when data changes
+
+### Types of Indexes
+
+| Type | Purpose |
+|------|---------|
+| Single Column Index | Index on one column |
+| Composite Index | Index on multiple columns |
+| Unique Index | Prevents duplicate values |
+
+### Examples
+
+Create an index on employee name.
+
+```sql
+CREATE INDEX idx_employee_name
+ON employee(employee_name);
+```
+
+Create an index on department ID.
+
+```sql
+CREATE INDEX idx_department
+ON employee(department_id);
+```
+
+Create a composite index.
+
+```sql
+CREATE INDEX idx_city_designation
+ON employee(city, designation);
+```
+
+Create a unique index.
+
+```sql
+CREATE UNIQUE INDEX idx_employee_email
+ON employee(email);
+```
+
+Drop an index.
+
+```sql
+DROP INDEX idx_employee_name;
+```
+
+### When to Use Indexes
+
+Create indexes on columns frequently used in:
+
+- `WHERE`
+- `JOIN`
+- `ORDER BY`
+- `GROUP BY`
+
+Examples:
+
+- `employee_id`
+- `department_id`
+- `email`
+- `employee_name`
+- `city`
+
+### When Not to Use Indexes
+
+Avoid indexes on:
+
+- Small tables
+- Frequently updated columns
+- Columns with very few unique values (such as `gender`)
+
+## Views
+
+A view is a **virtual table** created from a SQL query.
+
+Views do not store data. Instead, they display the result of a query whenever they are accessed.
+
+### Advantages
+
+- Simplifies complex queries
+- Improves security
+- Reuses common queries
+- Hides unnecessary columns
+
+### Example
+
+```sql
+CREATE VIEW employee_details AS
+SELECT e.employee_name,
+       e.designation,
+       d.department_name
+FROM employee e
+JOIN department d
+ON e.department_id = d.department_id;
+```
+
+Query the view.
+
+```sql
+SELECT *
+FROM employee_details;
+```
+
+## Stored Procedures
+
+A stored procedure is a collection of SQL statements stored in the database and executed as a single unit.
+
+### Advantages
+
+- Reusable business logic
+- Better performance
+- Reduced network traffic
+- Improved security
+
+> **Note**
+>
+> SQLite does **not** support stored procedures.
+>
+> They are available in databases such as MySQL, SQL Server, Oracle, and PostgreSQL (through stored procedures/functions).
+
+## Triggers
+
+A trigger is a database object that automatically executes when a specified event occurs.
+
+### Trigger Events
+
+| Event | Description |
+|-------|-------------|
+| INSERT | Executes before or after inserting data |
+| UPDATE | Executes before or after updating data |
+| DELETE | Executes before or after deleting data |
+
+### Common Uses
+
+- Audit logging
+- Data validation
+- Automatic calculations
+- Maintaining history tables
+- Enforcing business rules
+
+SQLite supports triggers.
+
+### Example
+
+```sql
+CREATE TRIGGER update_employee_timestamp
+AFTER UPDATE ON employee
+BEGIN
+    UPDATE employee
+    SET updated_at = CURRENT_TIMESTAMP
+    WHERE employee_id = NEW.employee_id;
+END;
+```
+
+> **Note**
+>
+> The above example assumes the `employee` table contains an `updated_at` column.
+
+## Summary
+
+| Concept | Purpose |
+|---------|---------|
+| Normalization | Reduce redundancy and improve database design |
+| ACID Properties | Ensure reliable transactions |
+| Indexes | Improve query performance |
+| Views | Create reusable virtual tables |
+| Stored Procedures | Store reusable SQL logic *(Not supported in SQLite)* |
+| Triggers | Automatically execute SQL on database events |

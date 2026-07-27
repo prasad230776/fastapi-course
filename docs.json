@@ -67,22 +67,33 @@
               "fastapi-foundations/apirouter",
               "fastapi-foundations/dependency-injection",
               "fastapi-foundations/dependency-emp-app",
+              "fastapi-foundations/annotated-deep",
               "fastapi-foundations/emp-mgmt-all-concepts",
-              "fastapi-foundations/api-documentation"
+              "fastapi-foundations/api-documentation",
+              "fastapi-foundations/modularisation"
             ]
           }
         ]
       },
       {
-        "tab": "Database Integration",
+        "tab": "SQL",
         "groups": [
           {
             "group": "Data Persistence",
             "pages": [
-              "database-integration/relational-databases",
-              "database-integration/sqlalchemy",
-              "database-integration/migrations",
-              "database-integration/crud-operations"
+              "database-integration/introduction",
+              "database-integration/fundamentals",
+              "database-integration/relations",
+              "database-integration/getting-started-sqlite",
+              "database-integration/data-types",
+              "database-integration/creating-database",
+              "database-integration/basic-select",
+              "database-integration/advanced-select",
+              "database-integration/joins",
+              "database-integration/others-cud",
+              "database-integration/ddl",
+              "database-integration/dcl-tcl",
+              "database-integration/advanced-sql"
             ]
           }
         ]

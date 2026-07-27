@@ -1,0 +1,1479 @@
+---
+title: "Filtering, Sorting and Grouping Data"
+description: "Learn how to filter, sort and group records using WHERE, ORDER BY, GROUP BY and HAVING."
+---
+# Complete Structure of the SELECT Statement
+
+```sql
+SELECT [DISTINCT] column1, column2, expression, ...
+FROM table_name
+[WHERE condition]
+[GROUP BY column1, column2, ...]
+[HAVING condition]
+[ORDER BY column1 [ASC|DESC], column2 [ASC|DESC]]
+[LIMIT number]
+[OFFSET number];
+```
+
+## Clause Order
+
+| Order | Clause | Purpose | Example |
+|------:|--------|---------|---------|
+| 1 | `SELECT` | Specifies the columns to retrieve | `SELECT employee_name, salary` |
+| 2 | `DISTINCT` | Removes duplicate rows | `SELECT DISTINCT city` |
+| 3 | `FROM` | Specifies the table | `FROM employee` |
+| 4 | `WHERE` | Filters rows | `WHERE salary > 70000` |
+| 5 | `GROUP BY` | Groups rows | `GROUP BY department_id` |
+| 6 | `HAVING` | Filters grouped results | `HAVING AVG(salary) > 80000` |
+| 7 | `ORDER BY` | Sorts the result | `ORDER BY salary DESC` |
+| 8 | `LIMIT` | Restricts the number of rows | `LIMIT 5` |
+| 9 | `OFFSET` | Skips rows | `OFFSET 5` |
+
+# Complete Example
+
+```sql
+SELECT DISTINCT department_id,
+       AVG(salary) AS average_salary
+FROM employee
+WHERE gender = 'Female'
+GROUP BY department_id
+HAVING AVG(salary) > 70000
+ORDER BY average_salary DESC
+LIMIT 3
+OFFSET 1;
+```
+
+## Explanation
+
+| Clause | Description |
+|---------|-------------|
+| `SELECT DISTINCT department_id, AVG(salary)` | Retrieves unique department IDs along with their average salary. |
+| `FROM employee` | Reads data from the Employee table. |
+| `WHERE gender = 'Female'` | Considers only female employees. |
+| `GROUP BY department_id` | Creates one group for each department. |
+| `HAVING AVG(salary) > 70000` | Keeps only departments whose average salary exceeds ₹70,000. |
+| `ORDER BY average_salary DESC` | Sorts departments from highest to lowest average salary. |
+| `LIMIT 3` | Returns only the first three rows. |
+| `OFFSET 1` | Skips the first row before returning the results. |
+
+# SQL Query Execution Order
+
+Although we write the query in this order:
+
+```sql
+SELECT
+FROM
+WHERE
+GROUP BY
+HAVING
+ORDER BY
+LIMIT
+OFFSET
+```
+
+The database processes it internally in the following order:
+
+| Execution Order | Clause |
+|---------------:|--------|
+| 1 | `FROM` |
+| 2 | `WHERE` |
+| 3 | `GROUP BY` |
+| 4 | `HAVING` |
+| 5 | `SELECT` |
+| 6 | `DISTINCT` |
+| 7 | `ORDER BY` |
+| 8 | `LIMIT` |
+| 9 | `OFFSET` |
+
+## Best Practices
+
+- Use meaningful aliases.
+- Always specify column names.
+- Avoid SELECT * in production.
+- Use WHERE with UPDATE and DELETE.
+- Use indexes wisely.
+- Keep queries readable.
+- Write one clause per line.
+- Prefer explicit JOIN syntax.
+- Use transactions for critical operations.
+- Comment complex queries.
+
+# Filtering, Sorting and Grouping Data
+
+In this chapter, we'll learn how to retrieve only the required records, sort them, group them, and filter grouped results.
+
+## Filtering Data using WHERE
+
+The `WHERE` clause filters rows based on one or more conditions.
+
+### Syntax
+
+```sql
+SELECT column_name
+FROM table_name
+WHERE condition;
+```
+## Comparison Operators
+
+Comparison operators compare two values and return only the rows that satisfy the specified condition.
+
+| Operator | Description | Example |
+|----------|-------------|---------|
+| `=` | Equal to | `department_id = 2` |
+| `!=` or `<>` | Not equal to | `department_id <> 2` |
+| `>` | Greater than | `salary > 80000` |
+| `<` | Less than | `salary < 60000` |
+| `>=` | Greater than or equal to | `salary >= 100000` |
+| `<=` | Less than or equal to | `salary <= 70000` |
+
+### Equal To (`=`)
+
+Retrieve all employees working in the Information Technology department.
+
+```sql
+SELECT *
+FROM employee
+WHERE department_id = 2;
+```
+
+#### Exercises
+
+**1. Display all employees working in the Human Resources department.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE department_id = 1;
+```
+
+</Accordion>
+
+**2. Display all female employees.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE gender = 'Female';
+```
+
+</Accordion>
+
+**3. Display all employees whose designation is 'Software Engineer'.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE designation = 'Software Engineer';
+```
+
+</Accordion>
+
+## Not Equal To (`!=` or `<>`)
+
+Retrieve all employees who are not from the Information Technology department.
+
+```sql
+SELECT *
+FROM employee
+WHERE department_id <> 2;
+```
+
+#### Exercises
+
+**1. Display all employees who are not from the Finance department.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE department_id <> 3;
+```
+
+</Accordion>
+
+**2. Display all employees whose gender is not Male.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE gender <> 'Male';
+```
+
+</Accordion>
+
+## Greater Than (`>`)
+
+Retrieve employees earning more than ₹80,000.
+
+```sql
+SELECT *
+FROM employee
+WHERE salary > 80000;
+```
+
+#### Exercises
+
+**1. Display employees earning more than ₹1,00,000.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE salary > 100000;
+```
+
+</Accordion>
+
+**2. Display employees who joined after '2022-01-01'.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE joining_date > '2022-01-01';
+```
+
+</Accordion>
+
+## Less Than (`<`)
+
+Retrieve employees earning less than ₹60,000.
+
+```sql
+SELECT *
+FROM employee
+WHERE salary < 60000;
+```
+
+#### Exercises
+
+**1. Display employees earning less than ₹70,000.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE salary < 70000;
+```
+
+</Accordion>
+
+**2. Display employees who joined before '2021-01-01'.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE joining_date < '2021-01-01';
+```
+
+</Accordion>
+
+## Greater Than or Equal To (`>=`)
+
+Retrieve employees earning ₹1,00,000 or more.
+
+```sql
+SELECT *
+FROM employee
+WHERE salary >= 100000;
+```
+
+#### Exercises
+
+**1. Display employees earning ₹90,000 or more.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE salary >= 90000;
+```
+
+</Accordion>
+
+**2. Display employees who joined on or after '2023-01-01'.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE joining_date >= '2023-01-01';
+```
+
+</Accordion>
+
+## Less Than or Equal To (`<=`)
+
+Retrieve employees earning ₹70,000 or less.
+
+```sql
+SELECT *
+FROM employee
+WHERE salary <= 70000;
+```
+
+#### Exercises
+
+**1. Display employees earning ₹60,000 or less.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE salary <= 60000;
+```
+
+</Accordion>
+
+**2. Display employees who joined on or before '2021-12-31'.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE joining_date <= '2021-12-31';
+```
+
+</Accordion>
+
+## Logical Operators
+
+Logical operators combine two or more conditions to retrieve more specific results.
+
+| Operator | Description | Example |
+|----------|-------------|---------|
+| `AND` | All conditions must be true | `gender = 'Female' AND city = 'Hyderabad'` |
+| `OR` | At least one condition must be true | `city = 'Hyderabad' OR city = 'Bengaluru'` |
+| `NOT` | Reverses a condition | `NOT department_id = 2` |
+
+## AND
+
+The `AND` operator returns only those rows where **all conditions are true**.
+
+Retrieve female employees working in Hyderabad.
+
+```sql
+SELECT *
+FROM employee
+WHERE gender = 'Female'
+AND city = 'Hyderabad';
+```
+
+Retrieve Software Engineers earning more than ₹60,000.
+
+```sql
+SELECT *
+FROM employee
+WHERE designation = 'Software Engineer'
+AND salary > 60000;
+```
+
+### Exercises
+
+**1. Display male employees working in Bengaluru.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE gender = 'Male'
+AND city = 'Bengaluru';
+```
+
+</Accordion>
+
+**2. Display employees from the IT department earning more than ₹80,000.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE department_id = 2
+AND salary > 80000;
+```
+
+</Accordion>
+
+**3. Display female employees working in the Marketing department.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE gender = 'Female'
+AND department_id = 4;
+```
+
+</Accordion>
+
+## OR
+
+The `OR` operator returns rows where **at least one condition is true**.
+
+Retrieve employees from Hyderabad or Bengaluru.
+
+```sql
+SELECT *
+FROM employee
+WHERE city = 'Hyderabad'
+OR city = 'Bengaluru';
+```
+
+Retrieve employees who are either HR Managers or Finance Managers.
+
+```sql
+SELECT *
+FROM employee
+WHERE designation = 'HR Manager'
+OR designation = 'Finance Manager';
+```
+
+### Exercises
+
+**1. Display employees from Chennai or Mumbai.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE city = 'Chennai'
+OR city = 'Mumbai';
+```
+
+</Accordion>
+
+**2. Display employees from the HR or Finance departments.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE department_id = 1
+OR department_id = 3;
+```
+
+</Accordion>
+
+**3. Display employees whose gender is Female or whose city is Hyderabad.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE gender = 'Female'
+OR city = 'Hyderabad';
+```
+
+</Accordion>
+
+## NOT
+
+The `NOT` operator reverses the result of a condition.
+
+Retrieve employees who are not from the IT department.
+
+```sql
+SELECT *
+FROM employee
+WHERE NOT department_id = 2;
+```
+
+Retrieve employees who are not female.
+
+```sql
+SELECT *
+FROM employee
+WHERE NOT gender = 'Female';
+```
+
+### Exercises
+
+**1. Display employees who are not from the Marketing department.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE NOT department_id = 4;
+```
+
+</Accordion>
+
+**2. Display employees who are not from Hyderabad.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE NOT city = 'Hyderabad';
+```
+
+</Accordion>
+
+**3. Display employees whose designation is not 'Software Engineer'.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE NOT designation = 'Software Engineer';
+```
+
+</Accordion>
+
+## Combining AND, OR and NOT
+
+Logical operators can be combined to create more complex conditions.
+
+Retrieve female employees from the IT department earning more than ₹60,000.
+
+```sql
+SELECT *
+FROM employee
+WHERE gender = 'Female'
+AND department_id = 2
+AND salary > 60000;
+```
+
+Retrieve employees who are from Hyderabad or Bengaluru and earn more than ₹70,000.
+
+```sql
+SELECT *
+FROM employee
+WHERE (city = 'Hyderabad' OR city = 'Bengaluru')
+AND salary > 70000;
+```
+
+> **Tip:** Use parentheses `()` to group conditions and improve readability when combining multiple logical operators.
+
+## Special Operators
+
+Special operators simplify common filtering scenarios and make SQL queries easier to write and understand.
+
+| Operator | Description | Example |
+|----------|-------------|---------|
+| `BETWEEN` | Checks whether a value lies within a range | `salary BETWEEN 60000 AND 90000` |
+| `IN` | Matches any value from a list | `city IN ('Hyderabad', 'Chennai')` |
+| `LIKE` | Matches text using patterns | `employee_name LIKE 'A%'` |
+| `IS NULL` | Checks for missing values | `email IS NULL` |
+| `IS NOT NULL` | Checks for non-missing values | `email IS NOT NULL` |
+
+## BETWEEN
+
+The `BETWEEN` operator retrieves rows whose values fall within a specified range. The boundary values are included.
+
+Retrieve employees earning between ₹60,000 and ₹90,000.
+
+```sql
+SELECT *
+FROM employee
+WHERE salary BETWEEN 60000 AND 90000;
+```
+
+Retrieve employees who joined between 2021 and 2023.
+
+```sql
+SELECT *
+FROM employee
+WHERE joining_date BETWEEN '2021-01-01' AND '2023-12-31';
+```
+
+### Exercises
+
+**1. Display employees earning between ₹50,000 and ₹70,000.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE salary BETWEEN 50000 AND 70000;
+```
+
+</Accordion>
+
+**2. Display employees who joined between 2020 and 2022.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE joining_date BETWEEN '2020-01-01' AND '2022-12-31';
+```
+
+</Accordion>
+
+**3. Display employees earning between ₹80,000 and ₹1,20,000.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE salary BETWEEN 80000 AND 120000;
+```
+
+</Accordion>
+
+## IN
+
+The `IN` operator checks whether a value matches any value in a given list. It is a cleaner alternative to multiple `OR` conditions.
+
+Retrieve employees from Hyderabad and Bengaluru.
+
+```sql
+SELECT *
+FROM employee
+WHERE city IN ('Hyderabad', 'Bengaluru');
+```
+
+Retrieve employees from the HR and Finance departments.
+
+```sql
+SELECT *
+FROM employee
+WHERE department_id IN (1, 3);
+```
+
+### Exercises
+
+**1. Display employees from Chennai and Mumbai.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE city IN ('Chennai', 'Mumbai');
+```
+
+</Accordion>
+
+**2. Display employees from the IT and Operations departments.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE department_id IN (2, 5);
+```
+
+</Accordion>
+
+**3. Display employees whose designation is either 'Software Engineer' or 'Accountant'.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE designation IN ('Software Engineer', 'Accountant');
+```
+
+</Accordion>
+
+## LIKE
+
+The `LIKE` operator searches for text that matches a specified pattern.
+
+### Wildcards
+
+| Wildcard | Description | Example |
+|----------|-------------|---------|
+| `%` | Matches zero or more characters | `'A%'` |
+| `_` | Matches exactly one character | `'A_'` |
+
+Retrieve employees whose names start with 'A'.
+
+```sql
+SELECT *
+FROM employee
+WHERE employee_name LIKE 'A%';
+```
+
+Retrieve employees whose names end with 'a'.
+
+```sql
+SELECT *
+FROM employee
+WHERE employee_name LIKE '%a';
+```
+
+Retrieve employees whose names contain 'ar'.
+
+```sql
+SELECT *
+FROM employee
+WHERE employee_name LIKE '%ar%';
+```
+
+Retrieve employees whose names have 'a' as the second character.
+
+```sql
+SELECT *
+FROM employee
+WHERE employee_name LIKE '_a%';
+```
+
+### Exercises
+
+**1. Display employees whose names start with 'S'.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE employee_name LIKE 'S%';
+```
+
+</Accordion>
+
+**2. Display employees whose names end with 'n'.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE employee_name LIKE '%n';
+```
+
+</Accordion>
+
+**3. Display employees whose names contain 'sh'.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE employee_name LIKE '%sh%';
+```
+
+</Accordion>
+
+## IS NULL
+
+The `IS NULL` operator retrieves rows where a column has no value.
+
+Retrieve employees whose email is not available.
+
+```sql
+SELECT *
+FROM employee
+WHERE email IS NULL;
+```
+
+### Exercises
+
+**1. Display employees whose joining date is NULL.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE joining_date IS NULL;
+```
+
+</Accordion>
+
+## IS NOT NULL
+
+The `IS NOT NULL` operator retrieves rows where a column contains a value.
+
+Retrieve employees whose email is available.
+
+```sql
+SELECT *
+FROM employee
+WHERE email IS NOT NULL;
+```
+
+### Exercises
+
+**1. Display employees whose joining date is available.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE joining_date IS NOT NULL;
+```
+
+</Accordion>
+
+**2. Display employees whose city is available.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE city IS NOT NULL;
+```
+
+</Accordion>
+
+## Using Multiple Special Operators
+
+Special operators can be combined with logical operators.
+
+Retrieve female employees from Hyderabad or Bengaluru earning between ₹60,000 and ₹90,000.
+
+```sql
+SELECT *
+FROM employee
+WHERE gender = 'Female'
+AND city IN ('Hyderabad', 'Bengaluru')
+AND salary BETWEEN 60000 AND 90000;
+```
+
+Retrieve Software Engineers whose names start with 'A'.
+
+```sql
+SELECT *
+FROM employee
+WHERE designation = 'Software Engineer'
+AND employee_name LIKE 'A%';
+```
+## Sorting Data using ORDER BY
+
+The `ORDER BY` clause arranges the rows returned by a query in a specific order.
+
+| Keyword | Description |
+|---------|-------------|
+| `ASC` | Sorts in ascending order (default) |
+| `DESC` | Sorts in descending order |
+
+## Ascending Order (`ASC`)
+
+The `ASC` keyword sorts data from the smallest to the largest value. For text, it sorts alphabetically from A to Z. Since `ASC` is the default, it can be omitted.
+
+Sort employees by salary in ascending order.
+
+```sql
+SELECT *
+FROM employee
+ORDER BY salary ASC;
+```
+
+The above query is equivalent to:
+
+```sql
+SELECT *
+FROM employee
+ORDER BY salary;
+```
+
+Sort employees alphabetically by name.
+
+```sql
+SELECT *
+FROM employee
+ORDER BY employee_name;
+```
+
+### Exercises
+
+**1. Display employees sorted by joining date in ascending order.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+ORDER BY joining_date;
+```
+
+</Accordion>
+
+**2. Display employees sorted alphabetically by city.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+ORDER BY city;
+```
+
+</Accordion>
+
+**3. Display departments sorted by department name.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM department
+ORDER BY department_name;
+```
+
+</Accordion>
+
+## Descending Order (`DESC`)
+
+The `DESC` keyword sorts data from the largest to the smallest value. For text, it sorts in reverse alphabetical order.
+
+Sort employees by salary from highest to lowest.
+
+```sql
+SELECT *
+FROM employee
+ORDER BY salary DESC;
+```
+
+Sort employees by joining date from newest to oldest.
+
+```sql
+SELECT *
+FROM employee
+ORDER BY joining_date DESC;
+```
+
+### Exercises
+
+**1. Display employees sorted by employee name in reverse alphabetical order.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+ORDER BY employee_name DESC;
+```
+
+</Accordion>
+
+**2. Display employees sorted by salary from highest to lowest.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+ORDER BY salary DESC;
+```
+
+</Accordion>
+
+**3. Display departments sorted in reverse alphabetical order.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM department
+ORDER BY department_name DESC;
+```
+
+</Accordion>
+
+## Sorting by Multiple Columns
+
+You can sort the result using more than one column.
+
+The second column is used when two or more rows have the same value in the first column.
+
+Sort employees by department and then by salary.
+
+```sql
+SELECT *
+FROM employee
+ORDER BY department_id,
+         salary DESC;
+```
+
+Sort employees by city and then by employee name.
+
+```sql
+SELECT *
+FROM employee
+ORDER BY city,
+         employee_name;
+```
+
+### Exercises
+
+**1. Sort employees by designation and then by salary (highest first).**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+ORDER BY designation,
+         salary DESC;
+```
+
+</Accordion>
+
+**2. Sort employees by gender and then by employee name.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+ORDER BY gender,
+         employee_name;
+```
+
+</Accordion>
+
+---
+
+## Aggregate Functions
+
+Aggregate functions perform calculations on multiple rows and return a single result.
+
+| Function | Description |
+|----------|-------------|
+| `COUNT()` | Counts the number of rows |
+| `SUM()` | Calculates the total of a numeric column |
+| `AVG()` | Calculates the average value |
+| `MIN()` | Returns the smallest value |
+| `MAX()` | Returns the largest value |
+
+## COUNT()
+
+The `COUNT()` function returns the total number of rows.
+
+Count the number of employees.
+
+```sql
+SELECT COUNT(*)
+FROM employee;
+```
+
+Count the number of employees in the IT department.
+
+```sql
+SELECT COUNT(*)
+FROM employee
+WHERE department_id = 2;
+```
+
+### Exercises
+
+**1. Count the number of female employees.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT COUNT(*)
+FROM employee
+WHERE gender = 'Female';
+```
+
+</Accordion>
+
+**2. Count the number of employees from Hyderabad.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT COUNT(*)
+FROM employee
+WHERE city = 'Hyderabad';
+```
+
+</Accordion>
+
+## SUM()
+
+The `SUM()` function returns the total of a numeric column.
+
+Calculate the total salary paid to all employees.
+
+```sql
+SELECT SUM(salary)
+FROM employee;
+```
+
+### Exercises
+
+**1. Calculate the total salary of employees in the Finance department.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT SUM(salary)
+FROM employee
+WHERE department_id = 3;
+```
+
+</Accordion>
+
+**2. Calculate the total salary of female employees.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT SUM(salary)
+FROM employee
+WHERE gender = 'Female';
+```
+
+</Accordion>
+
+## AVG()
+
+The `AVG()` function returns the average value of a numeric column.
+
+Calculate the average salary.
+
+```sql
+SELECT AVG(salary)
+FROM employee;
+```
+
+### Exercises
+
+**1. Find the average salary of employees in the IT department.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT AVG(salary)
+FROM employee
+WHERE department_id = 2;
+```
+
+</Accordion>
+
+**2. Find the average salary of female employees.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT AVG(salary)
+FROM employee
+WHERE gender = 'Female';
+```
+
+</Accordion>
+
+## MIN()
+
+The `MIN()` function returns the smallest value in a column.
+
+Find the minimum salary.
+
+```sql
+SELECT MIN(salary)
+FROM employee;
+```
+
+### Exercises
+
+**1. Find the minimum salary in the Marketing department.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT MIN(salary)
+FROM employee
+WHERE department_id = 4;
+```
+
+</Accordion>
+
+**2. Find the earliest joining date.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT MIN(joining_date)
+FROM employee;
+```
+
+</Accordion>
+
+## MAX()
+
+The `MAX()` function returns the largest value in a column.
+
+Find the highest salary.
+
+```sql
+SELECT MAX(salary)
+FROM employee;
+```
+
+Find the latest joining date.
+
+```sql
+SELECT MAX(joining_date)
+FROM employee;
+```
+
+### Exercises
+
+**1. Find the highest salary in the IT department.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT MAX(salary)
+FROM employee
+WHERE department_id = 2;
+```
+
+</Accordion>
+
+**2. Find the latest joining date of employees in the HR department.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT MAX(joining_date)
+FROM employee
+WHERE department_id = 1;
+```
+
+</Accordion>
+
+## Grouping Clauses
+
+Grouping clauses work together with aggregate functions to summarize data and generate reports.
+
+| Clause | Purpose |
+|---------|---------|
+| `GROUP BY` | Groups rows having the same value |
+| `HAVING` | Filters groups after grouping |
+
+## GROUP BY
+
+The `GROUP BY` clause groups rows that have the same value in one or more columns.
+
+It is commonly used with aggregate functions such as `COUNT()`, `SUM()`, `AVG()`, `MIN()`, and `MAX()`.
+
+Find the number of employees in each department.
+
+```sql
+SELECT department_id,
+       COUNT(*) AS total_employees
+FROM employee
+GROUP BY department_id;
+```
+
+Find the average salary of each department.
+
+```sql
+SELECT department_id,
+       AVG(salary) AS average_salary
+FROM employee
+GROUP BY department_id;
+```
+
+Find the highest salary in each department.
+
+```sql
+SELECT department_id,
+       MAX(salary) AS highest_salary
+FROM employee
+GROUP BY department_id;
+```
+
+### Exercises
+
+**1. Find the total salary paid by each department.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT department_id,
+       SUM(salary) AS total_salary
+FROM employee
+GROUP BY department_id;
+```
+
+</Accordion>
+
+**2. Find the minimum salary in each department.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT department_id,
+       MIN(salary) AS minimum_salary
+FROM employee
+GROUP BY department_id;
+```
+
+</Accordion>
+
+**3. Find the number of employees in each city.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT city,
+       COUNT(*) AS total_employees
+FROM employee
+GROUP BY city;
+```
+
+</Accordion>
+
+**4. Find the average salary of male and female employees.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT gender,
+       AVG(salary) AS average_salary
+FROM employee
+GROUP BY gender;
+```
+
+</Accordion>
+
+## HAVING
+
+The `HAVING` clause filters the groups created by the `GROUP BY` clause.
+
+Unlike the `WHERE` clause, which filters individual rows, `HAVING` filters the grouped results.
+
+Display departments having more than four employees.
+
+```sql
+SELECT department_id,
+       COUNT(*) AS total_employees
+FROM employee
+GROUP BY department_id
+HAVING COUNT(*) > 4;
+```
+
+Display departments whose average salary is greater than ₹80,000.
+
+```sql
+SELECT department_id,
+       AVG(salary) AS average_salary
+FROM employee
+GROUP BY department_id
+HAVING AVG(salary) > 80000;
+```
+
+Display cities having more than two employees.
+
+```sql
+SELECT city,
+       COUNT(*) AS total_employees
+FROM employee
+GROUP BY city
+HAVING COUNT(*) > 2;
+```
+
+### Exercises
+
+**1. Display departments whose total salary is greater than ₹3,00,000.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT department_id,
+       SUM(salary) AS total_salary
+FROM employee
+GROUP BY department_id
+HAVING SUM(salary) > 300000;
+```
+
+</Accordion>
+
+**2. Display cities having more than three employees.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT city,
+       COUNT(*) AS total_employees
+FROM employee
+GROUP BY city
+HAVING COUNT(*) > 3;
+```
+
+</Accordion>
+
+**3. Display genders whose average salary is greater than ₹75,000.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT gender,
+       AVG(salary) AS average_salary
+FROM employee
+GROUP BY gender
+HAVING AVG(salary) > 75000;
+```
+
+</Accordion>
+
+## WHERE vs HAVING
+
+Both `WHERE` and `HAVING` are used to filter data, but they operate at different stages of query execution.
+
+| WHERE | HAVING |
+|--------|---------|
+| Filters individual rows | Filters grouped rows |
+| Applied before `GROUP BY` | Applied after `GROUP BY` |
+| Cannot use aggregate functions | Can use aggregate functions |
+
+### Example using WHERE
+
+Display employees earning more than ₹80,000.
+
+```sql
+SELECT *
+FROM employee
+WHERE salary > 80000;
+```
+
+### Example using HAVING
+
+Display departments whose average salary is greater than ₹80,000.
+
+```sql
+SELECT department_id,
+       AVG(salary) AS average_salary
+FROM employee
+GROUP BY department_id
+HAVING AVG(salary) > 80000;
+```
+
+
+
+

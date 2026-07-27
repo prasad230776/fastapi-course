@@ -1,0 +1,152 @@
+---
+title: "Relational Database Concepts"
+description: "Learn the core concepts of relational databases, including tables, keys, relationships, and constraints."
+---
+
+# Relational Database Concepts
+
+A **Relational Database** stores data in the form of **tables**. Each table represents a specific entity, and tables are connected using **relationships**.
+
+In this course, we'll build an **Employee Management System** using two tables:
+
+- Department
+- Employee
+
+Each employee belongs to a department, and each department is managed by one employee.
+
+## Tables
+
+A **table** stores related information in the form of **rows** and **columns**.
+
+### Department
+
+| Department ID | Department Name | Manager ID |
+|---------------|-----------------|------------|
+| 1 | HR | 102 |
+| 2 | IT | 105 |
+| 3 | Finance | 108 |
+
+### Employee
+
+| Employee ID | Name | Email | Salary | Department ID | Joining Date |
+|-------------|------|-------|--------|---------------|--------------|
+| 101 | John | john@example.com | 50000 | 2 | 2023-01-15 |
+| 102 | Alice | alice@example.com | 85000 | 1 | 2021-08-10 |
+| 103 | David | david@example.com | 60000 | 2 | 2022-05-20 |
+| 104 | Sophia | sophia@example.com | 55000 | 1 | 2023-09-01 |
+| 105 | Michael | michael@example.com | 95000 | 2 | 2020-11-12 |
+| 106 | Emma | emma@example.com | 70000 | 3 | 2022-02-14 |
+| 107 | James | james@example.com | 65000 | 3 | 2023-04-18 |
+| 108 | Olivia | olivia@example.com | 90000 | 3 | 2019-07-05 |
+
+## Primary Key
+
+A **Primary Key (PK)** is a column that uniquely identifies each row in a table.
+
+### Characteristics
+
+- Unique for every record
+- Cannot contain NULL values
+- Each table has only one primary key
+
+### Examples
+
+| Table | Primary Key |
+|-------|-------------|
+| Department | department_id |
+| Employee | employee_id |
+
+## Foreign Key
+
+A **Foreign Key (FK)** is a column that references the primary key of another table.
+
+It creates a relationship between two tables.
+
+### Examples
+
+| Table | Foreign Key | References |
+|-------|-------------|------------|
+| Employee | department_id | Department.department_id |
+| Department | manager_id | Employee.employee_id |
+
+## Relationships
+
+Relationships define how data in different tables is connected.
+
+### One-to-One (1:1)
+
+One record in one table is related to exactly one record in another table.
+
+**Example**
+
+- Employee ↔ Passport
+
+### One-to-Many (1:N)
+
+One record in one table is related to many records in another table.
+
+**Example**
+
+- One Department → Many Employees
+
+This is the primary relationship used in this course.
+
+### Many-to-Many (M:N)
+
+Many records in one table are related to many records in another table.
+
+This relationship is implemented using a **junction (bridge) table**.
+
+**Example**
+
+- Students ↔ Courses
+
+A student can enroll in many courses, and a course can have many students.
+
+## Constraints
+
+Constraints are rules that ensure data remains accurate and consistent.
+
+| Constraint | Purpose |
+|------------|---------|
+| PRIMARY KEY | Uniquely identifies each record |
+| FOREIGN KEY | Maintains relationships between tables |
+| NOT NULL | Prevents empty values |
+| UNIQUE | Prevents duplicate values |
+| CHECK | Restricts allowed values |
+| DEFAULT | Assigns a default value when none is provided |
+
+## Entity Relationship Overview
+
+```
+Department
++---------------------------+
+| department_id (PK)        |
+| department_name           |
+| manager_id (FK)           |
++---------------------------+
+            ▲
+            │
+            │
+Employee    │
++---------------------------+
+| employee_id (PK)          |
+| name                      |
+| email                     |
+| salary                    |
+| department_id (FK) -------┘
+| joining_date              |
++---------------------------+
+```
+
+## Summary
+
+| Concept | Description |
+|---------|-------------|
+| Table | Stores related data in rows and columns |
+| Primary Key | Uniquely identifies each record |
+| Foreign Key | Connects related tables |
+| One-to-One | One record relates to one record |
+| One-to-Many | One record relates to many records |
+| Many-to-Many | Many records relate through a junction table |
+| Constraints | Rules that maintain data integrity |

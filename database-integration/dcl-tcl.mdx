@@ -1,0 +1,257 @@
+---
+title: "DCL and TCL commands"
+description: "Learn how SQL manages user permissions and database transactions."
+---
+
+# Data Control Language (DCL)
+
+Data Control Language (DCL) consists of SQL commands used to control access and permissions on database objects.
+
+DCL is commonly used by **Database Administrators (DBAs)** to determine who can access or modify data.
+
+## DCL Commands
+
+| Command | Purpose |
+|---------|---------|
+| `GRANT` | Gives privileges to users |
+| `REVOKE` | Removes previously granted privileges |
+
+## GRANT
+
+The `GRANT` statement provides specific permissions to a user.
+
+### Syntax
+
+```sql
+GRANT privilege
+ON object_name
+TO user_name;
+```
+
+### Example
+
+Allow a user to read data from the Employee table.
+
+```sql
+GRANT SELECT
+ON employee
+TO user1;
+```
+
+Allow a user to insert and update records.
+
+```sql
+GRANT INSERT, UPDATE
+ON employee
+TO user1;
+```
+
+## REVOKE
+
+The `REVOKE` statement removes permissions previously granted to a user.
+
+### Syntax
+
+```sql
+REVOKE privilege
+ON object_name
+FROM user_name;
+```
+
+### Example
+
+Remove the SELECT permission.
+
+```sql
+REVOKE SELECT
+ON employee
+FROM user1;
+```
+
+Remove INSERT and UPDATE permissions.
+
+```sql
+REVOKE INSERT, UPDATE
+ON employee
+FROM user1;
+```
+
+## Common Privileges
+
+| Privilege | Description |
+|-----------|-------------|
+| `SELECT` | Read data |
+| `INSERT` | Add new records |
+| `UPDATE` | Modify existing records |
+| `DELETE` | Remove records |
+| `ALL PRIVILEGES` | Grants all available permissions |
+
+### Example
+
+```sql
+GRANT ALL PRIVILEGES
+ON employee
+TO admin_user;
+```
+
+## SQLite Note
+
+> **Note**
+>
+> SQLite does **not** support `GRANT` and `REVOKE`.
+>
+> Unlike enterprise database systems such as **MySQL**, **PostgreSQL**, **Oracle**, and **SQL Server**, SQLite does not implement user accounts or privilege management.
+
+## Summary
+
+| Command | Purpose |
+|---------|---------|
+| `GRANT` | Grant permissions |
+| `REVOKE` | Remove permissions |
+
+---
+
+# Transaction Control Language (TCL)
+
+Transaction Control Language (TCL) consists of SQL commands used to manage database transactions.
+
+A **transaction** is a sequence of one or more SQL statements executed as a single unit of work.
+
+If all statements succeed, the transaction is saved. If any statement fails, the transaction can be rolled back.
+
+## TCL Commands
+
+| Command | Purpose |
+|---------|---------|
+| `BEGIN` | Starts a transaction |
+| `COMMIT` | Saves the transaction permanently |
+| `ROLLBACK` | Undoes the transaction |
+| `SAVEPOINT` | Creates a checkpoint within a transaction |
+| `ROLLBACK TO` | Rolls back to a savepoint |
+| `RELEASE SAVEPOINT` | Removes a savepoint |
+
+## BEGIN
+
+Start a new transaction.
+
+```sql
+BEGIN;
+```
+
+## COMMIT
+
+Save all changes permanently.
+
+```sql
+BEGIN;
+
+UPDATE employee
+SET salary = salary + 5000
+WHERE employee_id = 101;
+
+COMMIT;
+```
+
+## ROLLBACK
+
+Undo all changes made after the transaction began.
+
+```sql
+BEGIN;
+
+UPDATE employee
+SET salary = salary + 5000
+WHERE employee_id = 101;
+
+ROLLBACK;
+```
+
+The salary remains unchanged because the transaction was rolled back.
+
+## SAVEPOINT
+
+A savepoint creates a checkpoint inside a transaction.
+
+```sql
+BEGIN;
+
+UPDATE employee
+SET salary = salary + 5000
+WHERE employee_id = 101;
+
+SAVEPOINT salary_updated;
+```
+
+## ROLLBACK TO SAVEPOINT
+
+Rollback only to the specified savepoint instead of cancelling the entire transaction.
+
+```sql
+ROLLBACK TO salary_updated;
+```
+
+## RELEASE SAVEPOINT
+
+Remove a savepoint after it is no longer needed.
+
+```sql
+RELEASE SAVEPOINT salary_updated;
+```
+
+## Complete Example
+
+```sql
+BEGIN;
+
+UPDATE employee
+SET salary = salary + 5000
+WHERE employee_id = 101;
+
+SAVEPOINT first_update;
+
+UPDATE employee
+SET city = 'Hyderabad'
+WHERE employee_id = 101;
+
+ROLLBACK TO first_update;
+
+COMMIT;
+```
+
+### Result
+
+- Salary update is saved.
+- City update is undone.
+- Transaction is committed successfully.
+
+## Transaction Flow
+
+```text
+BEGIN
+   │
+   ▼
+Execute SQL Statements
+   │
+   ▼
+SAVEPOINT (Optional)
+   │
+   ▼
+More SQL Statements
+   │
+   ├────────────► COMMIT (Save Changes)
+   │
+   └────────────► ROLLBACK (Undo Changes)
+                  │
+                  └──► ROLLBACK TO SAVEPOINT (Undo Partial Changes)
+```
+
+## Summary
+
+| Command | Purpose |
+|---------|---------|
+| `BEGIN` | Start a transaction |
+| `COMMIT` | Save changes permanently |
+| `ROLLBACK` | Undo all changes |
+| `SAVEPOINT` | Create a checkpoint |
+| `ROLLBACK TO` | Undo changes up to a savepoint |
+| `RELEASE SAVEPOINT` | Remove a savepoint |
