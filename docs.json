@@ -59,6 +59,7 @@
               "fastapi-foundations/index",
               "fastapi-foundations/fundamentals",
               "fastapi-foundations/student-api",
+              "fastapi-foundations/dependency-injection",
               "fastapi-foundations/grocery-simple",
               "fastapi-foundations/request-handling",
               "fastapi-foundations/response-handling",
