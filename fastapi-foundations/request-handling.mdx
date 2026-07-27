@@ -137,3 +137,209 @@ def get_system_info(user_agent: str | None = Header(None), x_api_key: str | None
 
 > [!NOTE]
 > FastAPI automatically converts snake_case arguments (like `x_api_key`) to match kebab-case headers (like `X-API-Key`) sent by the client.
+
+## Request Validation
+
+FastAPI automatically validates incoming data.
+
+```python
+from pydantic import BaseModel, Field
+
+class Student(BaseModel):
+    name: str
+    age: int = Field(gt=0)
+    course: str
+```
+
+Invalid request:
+
+```json
+{
+    "name": "Rahul",
+    "age": -5,
+    "course": "CSE"
+}
+```
+
+If validation fails, FastAPI returns a **422 Validation Error** without executing the route.
+
+## Data Validation can be applied to:
+
+- **Request Body** using `Field()`
+- **Query Parameters** using `Query()`
+- **Path Parameters** using `Path()`
+
+In **Pydantic v2**, the recommended way to specify validations is using Python's `Annotated` type.
+
+### What is `Annotated`?
+
+`Annotated` lets you combine a **data type** with **validation metadata**.
+
+**Syntax**
+
+```python
+Annotated[type, validation]
+```
+
+For example:
+
+```python
+from typing import Annotated
+from pydantic import Field
+
+age: Annotated[int, Field(gt=0, lt=100)]
+```
+
+Here:
+
+- `int` specifies the expected data type.
+- `Field(gt=0, lt=100)` specifies the validation rules.
+
+The equivalent (older) syntax is:
+
+```python
+age: int = Field(gt=0, lt=100)
+```
+
+Both styles work, but **`Annotated` is the recommended approach** in FastAPI and Pydantic v2.
+
+### 1. `Field()` – Request Body Validation
+
+`Field()` is used inside **Pydantic models** to validate request body fields.
+
+**Recommended**
+
+```python
+from typing import Annotated
+from pydantic import BaseModel, EmailStr, Field
+
+class Student(BaseModel):
+    name: Annotated[str, Field(min_length=3, max_length=50)]
+    age: Annotated[int, Field(gt=0, lt=100)]
+    email: EmailStr
+    cgpa: Annotated[float, Field(ge=0, le=10)]
+```
+
+**Alternative**
+
+```python
+class Student(BaseModel):
+    name: str = Field(min_length=3, max_length=50)
+    age: int = Field(gt=0, lt=100)
+    email: EmailStr
+    cgpa: float = Field(ge=0, le=10)
+```
+
+### 2.`Query()` – Query Parameter Validation
+
+`Query()` validates values passed as query parameters.
+
+Example request:
+
+```http
+GET /students?page=1&limit=20&dept=CSE
+```
+
+**Recommended**
+
+```python
+from typing import Annotated
+from fastapi import Query
+
+@app.get("/students")
+def get_students(
+    page: Annotated[int, Query(ge=1)] = 1,
+    limit: Annotated[int, Query(ge=1, le=100)] = 20,
+    department: Annotated[str | None, Query(alias="dept")] = None,
+):
+    ...
+```
+
+**Alternative**
+
+```python
+@app.get("/students")
+def get_students(
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=20, ge=1, le=100),
+    department: str | None = Query(default=None, alias="dept"),
+):
+    ...
+```
+
+### 3. `Path()` – Path Parameter Validation
+
+`Path()` validates values passed as path parameters.
+
+Example request:
+
+```http
+GET /students/101
+```
+
+**Recommended**
+
+```python
+from typing import Annotated
+from fastapi import Path
+
+@app.get("/students/{student_id}")
+def get_student(
+    student_id: Annotated[int, Path(gt=0)]
+):
+    ...
+```
+
+**Alternative**
+
+```python
+@app.get("/students/{student_id}")
+def get_student(
+    student_id: int = Path(gt=0)
+):
+    ...
+```
+### Common Validation Options
+
+| Option | Purpose |
+|---------|---------|
+| `gt` | Greater than |
+| `ge` | Greater than or equal |
+| `lt` | Less than |
+| `le` | Less than or equal |
+| `min_length` | Minimum string length |
+| `max_length` | Maximum string length |
+| `pattern` | Regular expression |
+| `default` | Default value |
+| `alias` | Alternate field/parameter name |
+| `title` | Display title in API docs |
+| `description` | Description in API docs |
+| `examples` | Example values |
+
+### Common Pydantic Types
+
+| Type | Purpose |
+|------|---------|
+| `EmailStr` | Validates email addresses |
+| `AnyUrl` | Validates URLs |
+| `UUID` | Validates UUID values |
+| `date` | Date |
+| `datetime` | Date and time |
+| `Decimal` | High-precision decimal |
+
+Example:
+
+```python
+from pydantic import BaseModel, EmailStr
+
+class Student(BaseModel):
+    email: EmailStr
+```
+
+If an invalid email is provided, FastAPI automatically returns a **422 Unprocessable Entity** response.
+
+> **Note:** `EmailStr` requires the `email-validator` package.
+
+```bash
+pip install email-validator
+```

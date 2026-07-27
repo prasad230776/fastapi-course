@@ -59,13 +59,15 @@
               "fastapi-foundations/index",
               "fastapi-foundations/fundamentals",
               "fastapi-foundations/student-api",
-              "fastapi-foundations/dependency-injection",
               "fastapi-foundations/grocery-simple",
               "fastapi-foundations/request-handling",
               "fastapi-foundations/response-handling",
+              "fastapi-foundations/data-validation-models",
+              "fastapi-foundations/local-crud",
               "fastapi-foundations/apirouter",
               "fastapi-foundations/dependency-injection",
-              "fastapi-foundations/local-crud",
+              "fastapi-foundations/dependency-emp-app",
+              "fastapi-foundations/emp-mgmt-all-concepts",
               "fastapi-foundations/api-documentation"
             ]
           }
