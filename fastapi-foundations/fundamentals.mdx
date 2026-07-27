@@ -31,6 +31,213 @@ graph TD
 * **Starlette**: A lightweight ASGI framework toolkit. FastAPI inherits all its routing and web handling capabilities from Starlette.
 * **Pydantic**: The data validation and serialization library. It enforces types and formats data.
 
+## FastAPI Architecture
+
+FastAPI is **not built from scratch**. It combines the strengths of **Python**, **Starlette**, and **Pydantic**, while adding its own API-specific features.
+
+```text
+                Your Application
+                       │
+                  FastAPI
+        ┌──────────────┴──────────────┐
+        │                             │
+    Starlette                     Pydantic
+ (Web Framework)             (Data Validation)
+        │                             │
+        └──────────────┬──────────────┘
+                       │
+                  Uvicorn (ASGI)
+```
+
+### Python Language Features
+
+FastAPI relies heavily on Python's language features.
+
+- Functions
+- Classes & Objects
+- Type Hints
+- Function Parameters
+- Default Arguments
+- Async/Await
+- Decorators
+- Generators (`yield`)
+- Context Managers
+- Exceptions
+- Modules & Packages
+
+Example:
+
+```python
+@app.get("/users")
+def get_users(limit: int = 10):
+    ...
+```
+
+Python provides:
+
+- Function definition
+- Decorator syntax
+- Type hints
+- Default arguments
+- Async programming support
+
+### Starlette Responsibilities (Web Layer)
+
+Starlette provides the web framework capabilities.
+
+- ASGI application
+- Routing
+- Request object
+- Response classes
+- Middleware
+- Exception handling
+- WebSockets
+- Background Tasks
+- Static Files
+- Template rendering
+- Lifespan events (startup/shutdown)
+
+Common classes:
+
+```python
+Request
+JSONResponse
+HTMLResponse
+FileResponse
+StreamingResponse
+StaticFiles
+WebSocket
+```
+
+Think of Starlette as the **Web Framework** that handles everything related to HTTP communication.
+
+### Pydantic Responsibilities (Data Layer)
+
+Pydantic handles data validation and serialization.
+
+- Data Models (`BaseModel`)
+- Request Body Validation
+- Type Conversion
+- Serialization (`model_dump()`)
+- Deserialization
+- Field Validation
+- JSON Schema Generation
+- Settings Management (`BaseSettings`)
+
+Example:
+
+```python
+class User(BaseModel):
+    name: str
+    age: int
+```
+
+Pydantic automatically:
+
+- Validates input data
+- Converts compatible types
+- Generates validation errors
+- Serializes responses
+- Generates schemas for API documentation
+
+Think of Pydantic as the **Data Validation Framework**.
+
+### FastAPI Responsibilities
+
+FastAPI binds Starlette and Pydantic together and adds API-specific features.
+
+#### Request Handling
+
+- Path Parameters
+- Query Parameters
+- Headers
+- Cookies
+- Request Body Parsing
+
+#### Dependency Injection
+
+- `Depends()`
+- Automatic dependency resolution
+- Dependency cleanup using `yield`
+
+#### Response Handling
+
+- Response Models
+- Automatic serialization
+- Status code handling
+
+#### API Documentation
+
+- OpenAPI generation
+- Swagger UI
+- ReDoc
+
+#### Security
+
+- OAuth2 helpers
+- JWT integration helpers
+- API Key support
+- Security dependencies
+
+#### Routing Enhancements
+
+- APIRouter
+- Tags
+- Prefixes
+- API versioning support
+
+### Responsibility Summary
+
+| Component | Responsibility |
+|-----------|----------------|
+| Python | Language features (functions, classes, decorators, async, type hints, etc.) |
+| Starlette | Web framework (HTTP, routing, middleware, requests, responses, WebSockets) |
+| Pydantic | Data validation, serialization, data models, settings |
+| FastAPI | API framework that binds Starlette and Pydantic together while adding dependency injection, parameter handling, security, response models, and automatic API documentation |
+
+### How They Work Together
+
+```text
+HTTP Request
+      │
+      ▼
+Uvicorn
+      │
+      ▼
+Starlette
+(Routing, Request, Middleware)
+      │
+      ▼
+FastAPI
+(Parameter Parsing, DI, API Logic)
+      │
+      ▼
+Pydantic
+(Validate & Convert Data)
+      │
+      ▼
+Your Endpoint
+      │
+      ▼
+Pydantic
+(Serialize Response)
+      │
+      ▼
+Starlette
+(Create HTTP Response)
+      │
+      ▼
+Client
+```
+
+### Summary
+
+| Component | Think of it as |
+|-----------|----------------|
+| Python | Programming Language |
+| Starlette | Web Framework |
+| Pydantic | Data Validation Framework |
+| FastAPI | API Framework that integrates Starlette and Pydantic into a complete REST API framework |
 
 ## Learning Objectives in this chapter..
 
