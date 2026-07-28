@@ -235,7 +235,7 @@ class Product(BaseModel):
 > - `Field(None)` → Optional field
 > - `Field(default=value)` → Default value
 > - Use parameters like `min_length`, `ge`, `gt`, `pattern`, and `description` to validate data and improve API documentation.
-```
+
 
 
 ## 4. Custom Validators (`@field_validator`)
@@ -294,6 +294,235 @@ print(data_dict)  # {'id': 123, 'username': 'alice', ...}
 json_string = user.model_dump_json()
 print(json_string)  # '{"id":123,"username":"alice",...}'
 ```
+
+---
+##Class Attributes in Dataclasses and Pydantic Models
+
+### Instance Attributes vs Class Attributes
+
+| Instance Attribute | Class Attribute |
+|--------------------|-----------------|
+| Belongs to each object | Shared by all objects |
+| Stored separately for every instance | Stored only once in the class |
+| Included in the constructor | Not included in the constructor |
+| Can have different values for different objects | Same value for all objects (unless overridden) |
+
+## Instance Attributes (Fields)
+
+These are the attributes that represent the data of each object.
+
+### Dataclass
+
+```python
+from dataclasses import dataclass
+
+@dataclass
+class Student:
+    name: str
+    age: int
+```
+
+Usage:
+
+```python
+student = Student("John", 20)
+
+print(student.name)
+print(student.age)
+```
+
+Here, `name` and `age` are **instance attributes**.
+
+### Pydantic Model
+
+```python
+from pydantic import BaseModel
+
+class Student(BaseModel):
+    name: str
+    age: int
+```
+
+Usage:
+
+```python
+student = Student(name="John", age=20)
+
+print(student.name)
+print(student.age)
+```
+
+Again, `name` and `age` are **instance attributes** (also called **model fields** in Pydantic).
+
+## Class Attributes
+
+Class attributes belong to the class itself rather than individual objects.
+
+For both **dataclasses** and **Pydantic models**, use `ClassVar` from the `typing` module to declare class attributes.
+
+```python
+from typing import ClassVar
+```
+
+### Class Attributes in Dataclasses
+
+```python
+from dataclasses import dataclass
+from typing import ClassVar
+
+@dataclass
+class Student:
+    school: ClassVar[str] = "ABC School"
+    name: str
+    age: int
+```
+
+Usage:
+
+```python
+student = Student("John", 20)
+
+print(student.school)
+print(Student.school)
+```
+
+Output
+
+```text
+ABC School
+ABC School
+```
+
+Notice that `school` is **not** part of the constructor.
+
+```python
+Student("John", 20)
+```
+
+Not
+
+```python
+Student("John", 20, "XYZ School")
+```
+
+### Class Attributes in Pydantic
+
+```python
+from typing import ClassVar
+from pydantic import BaseModel
+
+class Student(BaseModel):
+    school: ClassVar[str] = "ABC School"
+    name: str
+    age: int
+```
+
+Usage
+
+```python
+student = Student(name="John", age=20)
+
+print(student.school)
+print(Student.school)
+```
+
+Output
+
+```text
+ABC School
+ABC School
+```
+
+The class attribute is **not** included in the model fields.
+
+```python
+print(student.model_dump())
+```
+
+Output
+
+```python
+{
+    "name": "John",
+    "age": 20
+}
+```
+
+## What Happens Without `ClassVar`?
+
+If you omit `ClassVar`, the attribute becomes an **instance attribute (field)**.
+
+### Dataclass
+
+```python
+from dataclasses import dataclass
+
+@dataclass
+class Student:
+    school: str = "ABC School"
+    name: str = ""
+```
+
+Now `school` becomes part of every object.
+
+```python
+student = Student()
+
+print(student.school)
+```
+
+It also appears in the constructor.
+
+### Pydantic
+
+```python
+from pydantic import BaseModel
+
+class Student(BaseModel):
+    school: str = "ABC School"
+    name: str
+```
+
+```python
+student = Student(name="John")
+
+print(student.model_dump())
+```
+
+Output
+
+```python
+{
+    "school": "ABC School",
+    "name": "John"
+}
+```
+
+Since `school` is a model field, it is included in serialization.
+
+## Summary
+
+| Declaration | Meaning |
+|-------------|---------|
+| `name: str` | Instance attribute (field) |
+| `age: int = 18` | Instance attribute with a default value |
+| `school: ClassVar[str] = "ABC School"` | Class attribute shared by all instances |
+
+## Key Takeaways
+
+- **Instance attributes** store data for each object.
+- **Class attributes** are shared across all objects.
+- In both **dataclasses** and **Pydantic**, use `ClassVar` to declare class attributes.
+- Attributes declared with `ClassVar`:
+  - Are **not** included in the constructor.
+  - Are **not** serialized.
+  - Are shared by all instances.
+- Without `ClassVar`, both dataclasses and Pydantic treat the attribute as an **instance field**.
+
+## Rule of Thumb
+
+- Use **normal type annotations** (`name: str`) for object data.
+- Use **`ClassVar`** for constants or values shared across all instances.
 
 ---
 
