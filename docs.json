@@ -65,6 +65,7 @@
               "fastapi-foundations/data-validation-models",
               "fastapi-foundations/local-crud",
               "fastapi-foundations/apirouter",
+              "fastapi-foundations/exception-handling",
               "fastapi-foundations/dependency-injection",
               "fastapi-foundations/dependency-emp-app",
               "fastapi-foundations/annotated-deep",

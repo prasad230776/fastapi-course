@@ -1,0 +1,283 @@
+---
+title: "Exception Handling in FastAPI"
+description: "A concise guide to the three common types of exception handling in FastAPI."
+---
+
+## Exception Hierarchy
+
+```text
+Exception (Python)
+│
+├── StarletteHTTPException
+│       │
+│       └── FastAPI HTTPException
+│
+└── RequestValidationError
+```
+
+Key points:
+
+- `HTTPException` is a subclass of `StarletteHTTPException`.
+- `RequestValidationError` is **not** an `HTTPException`.
+- All of them ultimately inherit from Python's `Exception`.
+
+## Three Types of Exceptions
+
+| Exception Type | Raised By | Typical Status Code | Handler |
+|---------------|-----------|---------------------|---------|
+| HTTP Exception | Your code or FastAPI/Starlette | 4xx / 5xx | `@app.exception_handler(StarletteHTTPException)` |
+| RequestValidationError | Pydantic/FastAPI | 422 | `@app.exception_handler(RequestValidationError)` |
+| Programming Exception | Python | 500 | `@app.exception_handler(Exception)` |
+
+## 1. HTTP Exceptions
+
+HTTP exceptions represent **expected errors** that are intentionally raised by your application or internally by FastAPI/Starlette.
+
+Example:
+
+```python
+raise HTTPException(
+    status_code=404,
+    detail="Post not found"
+)
+```
+
+Register the handler using:
+
+```python
+from starlette.exceptions import HTTPException as StarletteHTTPException
+
+@app.exception_handler(StarletteHTTPException)
+def http_exception_handler(request: Request, exception: StarletteHTTPException):
+    ...
+```
+
+### Why `StarletteHTTPException`?
+
+The hierarchy is
+
+```text
+StarletteHTTPException
+        │
+        ▼
+FastAPI HTTPException
+```
+
+Using `StarletteHTTPException` allows a single handler to catch:
+
+- HTTP exceptions raised by your application.
+- HTTP exceptions raised internally by FastAPI/Starlette (404 Route Not Found, 405 Method Not Allowed, etc.).
+
+## 2. Request Validation Exceptions
+
+Before executing a route, FastAPI validates the incoming request using Pydantic.
+
+Example:
+
+```python
+class UserCreate(BaseModel):
+    age: int
+```
+
+Request
+
+```json
+{
+    "age": "abc"
+}
+```
+
+Since `"abc"` cannot be converted into an integer, FastAPI raises a `RequestValidationError`.
+
+The route function is **never executed**.
+
+Register the handler using:
+
+```python
+from fastapi.exceptions import RequestValidationError
+
+@app.exception_handler(RequestValidationError)
+def validation_exception_handler(
+    request: Request,
+    exception: RequestValidationError
+):
+    ...
+```
+
+Although it is **not** an `HTTPException`, FastAPI automatically converts it into a **422 Unprocessable Content** response.
+
+## 3. Programming Exceptions
+
+Programming exceptions are unexpected runtime errors caused by bugs.
+
+Examples:
+
+- `ZeroDivisionError`
+- `AttributeError`
+- `TypeError`
+- `ValueError`
+
+Example:
+
+```python
+result = 10 / 0
+```
+
+Register the global handler using:
+
+```python
+@app.exception_handler(Exception)
+def global_exception_handler(
+    request: Request,
+    exception: Exception
+):
+    ...
+```
+
+Since almost every Python runtime exception inherits from `Exception`, this acts as a fallback handler and usually returns a **500 Internal Server Error**.
+
+## Which Handler is Called?
+
+### HTTP Exception
+
+```python
+raise HTTPException(status_code=404)
+```
+
+↓
+
+```text
+StarletteHTTPException Handler
+```
+
+### Invalid Request
+
+```json
+{
+    "age": "abc"
+}
+```
+
+↓
+
+```text
+RequestValidationError Handler
+```
+
+### Programming Error
+
+```python
+10 / 0
+```
+
+↓
+
+```text
+Exception Handler
+```
+
+FastAPI always chooses the **most specific matching handler**.
+
+## Request Flow
+
+```text
+                    Client Request
+                          │
+                          ▼
+                 Request Validation
+                          │
+             ┌────────────┴────────────┐
+             │                         │
+             ▼                         ▼
+Validation Failed              Route Function
+             │                         │
+             ▼                         ▼
+RequestValidationError      Exception Raised
+                                       │
+                          ┌────────────┴────────────┐
+                          │                         │
+                          ▼                         ▼
+                   HTTPException        Programming Exception
+                          │                         │
+                          ▼                         ▼
+           StarletteHTTPException      Exception Handler
+                    Handler
+```
+
+## Rule of Thumb
+
+- Use **`raise HTTPException()`** when you intentionally want to return an HTTP error.
+- Handle **`StarletteHTTPException`** to customize **all HTTP errors**, including those raised by your application and by FastAPI/Starlette.
+- Handle **`RequestValidationError`** to customize request validation errors returned by Pydantic.
+- Handle **`Exception`** as the global fallback for unexpected programming errors.
+```
+## Where Should Exception Handlers Be Placed?
+
+Exception handlers are registered **once** for the entire FastAPI application.
+
+They are **not** written inside individual routers.
+
+A common project structure is:
+
+```text
+app/
+│
+├── main.py
+├── core/
+│   └── exceptions.py
+│
+└── routers/
+    ├── users.py
+    ├── posts.py
+    └── auth.py
+```
+
+Define all handlers in a single file.
+
+```python
+# core/exceptions.py
+
+def register_exception_handlers(app: FastAPI):
+
+    @app.exception_handler(StarletteHTTPException)
+    async def http_handler(...):
+        ...
+
+    @app.exception_handler(RequestValidationError)
+    async def validation_handler(...):
+        ...
+
+    @app.exception_handler(Exception)
+    async def global_handler(...):
+        ...
+```
+
+Register them once when creating the application.
+
+```python
+# main.py
+
+app = FastAPI()
+
+register_exception_handlers(app)
+
+app.include_router(users_router)
+app.include_router(posts_router)
+```
+
+Every router automatically uses these handlers.
+
+```text
+                FastAPI Application
+                        │
+        register_exception_handlers()
+                        │
+        ┌───────────────┼───────────────┐
+        │               │               │
+        ▼               ▼               ▼
+   Users Router    Posts Router    Auth Router
+```
+
+If an exception occurs inside **any router**, FastAPI searches the application's registered handlers and executes the most specific matching one.
+
+Therefore, exception handlers are **application-level components**, not router-level components.
