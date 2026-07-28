@@ -28,6 +28,51 @@
         ]
       },
       {
+        "tab": "Getting Started",
+        "groups": [
+          {
+            "group": "Python setup",
+            "pages": [
+              "getting-started/index",
+              "getting-started/what-is-python",
+              "getting-started/installing-python"
+            ]
+          },
+          {
+            "group": "Platform guides",
+            "pages": [
+              "getting-started/installing-python-windows",
+              "getting-started/installing-python-macos",
+              "getting-started/installing-python-linux"
+            ]
+          },
+          {
+            "group": "Code editor",
+            "pages": [
+              "getting-started/vscode-introduction",
+              "getting-started/vscode-setup",
+              "getting-started/vscode-workspace",
+              "getting-started/first-python-file",
+              "getting-started/ipynb-notebooks"
+            ]
+          },
+          {
+            "group": "Resources",
+            "pages": [
+              "getting-started/course-resources"
+            ]
+          },
+          {
+            "group": "Dependency management",
+            "pages": [
+              "getting-started/virtual-environments",
+              "getting-started/packages-and-pip",
+              "getting-started/interactive-python"
+            ]
+          }
+        ]
+      },
+      {
         "tab": "Python Fundamentals",
         "groups": [
           {

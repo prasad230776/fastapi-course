@@ -1,0 +1,212 @@
+---
+title: Jupyter Notebooks
+description: Interactive environments for writing and executing Python code.
+icon: notebook
+---
+
+## Developing Python with Notebooks
+
+Jupyter notebooks provide an interactive environment where you can write Python code, execute it cell by cell, visualize outputs, and document your work using Markdown.
+
+The most common notebook environments are:
+
+- Jupyter Notebook
+- JupyterLab (Recommended)
+- Google Colab
+- VS Code Notebooks
+
+## Jupyter Notebook
+
+The classic notebook interface, ideal for learning and experimentation.
+
+### Install
+
+```bash
+pip install notebook
+```
+
+### Start
+
+```bash
+jupyter notebook
+```
+
+This opens a browser where you can create and run `.ipynb` notebook files.
+
+**Best for**
+
+- Learning Python
+- Practice programs
+- Small experiments
+
+## JupyterLab ⭐
+
+JupyterLab is the modern version of Jupyter Notebook with a richer interface.
+
+### Install
+
+```bash
+pip install jupyterlab
+```
+
+### Start
+
+```bash
+jupyter lab
+```
+
+JupyterLab includes:
+
+- File Explorer
+- Multiple notebooks
+- Terminal
+- Text editor
+- Output console
+
+**Best for**
+
+- Daily Python development
+- Data Science
+- AI and Machine Learning
+
+## Google Colab
+
+Google Colab is a cloud-based Jupyter Notebook that runs entirely in your browser.
+
+**Website**
+
+```text
+https://colab.research.google.com
+```
+
+Create a notebook from **File → New Notebook**.
+
+You can also open a new notebook instantly by visiting:
+
+```text
+https://colab.new
+```
+
+Install packages for the current session:
+
+```python
+%pip install pandas
+```
+
+**Advantages**
+
+- No installation required
+- Accessible from anywhere
+- Easy notebook sharing
+- Free GPU/TPU (limited)
+
+## VS Code Notebooks
+
+Visual Studio Code can create and run Jupyter notebooks alongside Python projects.
+
+### Install
+
+Install the following VS Code extensions:
+
+- Python
+- Jupyter
+
+Install notebook support:
+
+```bash
+pip install notebook ipykernel
+```
+
+Create a notebook by selecting:
+
+```text
+File → New File → notebook.ipynb
+```
+
+or open the Command Palette (**Ctrl/Cmd + Shift + P**) and search for:
+
+```text
+Jupyter: Create New Jupyter Notebook
+```
+
+## Running Commands in Notebooks
+
+### Python
+
+```python
+print("Hello, World!")
+```
+
+### Install Packages
+
+```python
+%pip install pandas
+```
+
+Using `%pip` is recommended because it installs packages into the active notebook environment.
+
+### Shell Commands
+
+```python
+!python --version
+!git status
+```
+
+The `!` prefix runs operating system commands directly from the notebook.
+
+## Package Management
+
+Install multiple packages:
+
+```bash
+pip install numpy pandas matplotlib
+```
+
+Upgrade a package:
+
+```bash
+pip install --upgrade pandas
+```
+
+View installed packages:
+
+```bash
+pip list
+```
+
+Save dependencies:
+
+```bash
+pip freeze > requirements.txt
+```
+
+Install from a requirements file:
+
+```bash
+pip install -r requirements.txt
+```
+
+## Useful Notebook Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| Shift + Enter | Run current cell |
+| Ctrl + Enter | Run and stay in current cell |
+| Alt + Enter | Run and create a new cell |
+| Esc | Command mode |
+| Enter | Edit mode |
+| A | Insert cell above |
+| B | Insert cell below |
+| D D | Delete current cell |
+| M | Convert to Markdown |
+| Y | Convert to Code |
+| Ctrl + S | Save notebook |
+
+## Which One Should You Use?
+
+| Tool | Best For |
+|------|----------|
+| Jupyter Notebook | Learning and practice |
+| JupyterLab | Daily notebook development ⭐ |
+| Google Colab | Cloud-based AI and ML |
+| VS Code Notebook | Professional Python development |

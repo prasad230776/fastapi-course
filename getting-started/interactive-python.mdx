@@ -1,0 +1,150 @@
+---
+title: Interactive Python
+description: My favorite way to write Python code
+icon: "sparkles"
+---
+
+## The best of both worlds
+
+Interactive Python mode is my favorite way to write Python code, and I rarely use anything else. It combines the organization of Python files with the interactivity of Jupyter notebooks.
+
+<Note>
+  This is how I'll be coding throughout the entire course. Once you try it, you'll understand why it's so powerful for learning and developing AI applications.
+</Note>
+
+## What is Interactive Python?
+
+Imagine you're cooking and tasting as you go, rather than waiting until the entire meal is done. That's Interactive Python:
+
+- Write code in a `.py` file (organized and clean)
+- Run pieces of it instantly with `Shift + Enter`
+- See results immediately in a side panel
+- Keep all your variables in memory
+
+## Why it's perfect for AI development
+
+When working with AI and data:
+- You're constantly inspecting data
+- Testing transformations
+- Checking outputs
+- Experimenting with different approaches
+
+Running an entire file every time (like we did with `hello.py`) would be slow and frustrating. Interactive mode lets you work iteratively.
+
+## Prerequisites
+
+Interactive Python requires the IPython kernel. Let's install it:
+
+1. Make sure your virtual environment is activated:
+   ```bash
+   # You should see (venv) in your terminal
+   ```
+
+2. Install the required package:
+   ```bash
+   pip install ipykernel
+   ```
+
+This package allows Jupyter to run Python code interactively.
+
+## Set up Interactive Python
+
+Now let's enable the interactive feature:
+
+1. Open VS Code settings:
+   - Press `Ctrl/Cmd + ,` (comma)
+   - Or File > Preferences > Settings
+
+2. Search for "execute selection"
+
+3. Find this setting:
+   **Jupyter > Interactive Window > Text Editor: Execute Selection**
+
+4. Check the box to enable it
+
+What this does: When you press `Shift + Enter`, your selected code will run in the Jupyter interactive window instead of the Python terminal. This gives you a much richer, more visual experience.
+
+That's it! You're ready to use interactive mode.
+
+## Your first interactive session
+
+1. Create a new file called `interactive_demo.py`
+
+2. Type this code:
+```python
+# Let's explore interactive mode
+name = "Python Learner"
+print(f"Hello, {name}!")
+
+# Some data to work with
+numbers = [1, 2, 3, 4, 5]
+print(f"Numbers: {numbers}")
+
+# Calculate something
+total = sum(numbers)
+print(f"Total: {total}")
+```
+
+3. Place your cursor on the first line
+
+4. Press `Shift + Enter`
+
+Watch what happens:
+- An Interactive window opens on the right
+- Your code runs line by line
+- You see output immediately
+
+## Interactive superpowers
+
+### Run selected code
+- Highlight any code
+- Press `Shift + Enter`
+- Only that selection runs
+
+### Variables stay in memory
+
+Run this step by step:
+```python
+# First, create a variable
+message = "Hello"
+
+# Later, use it (even in a different cell)
+print(message + " World!")
+
+# Modify it
+message = message.upper()
+print(message)
+```
+
+The variable `message` stays available throughout your session!
+
+## Practice and Exercises
+
+To reinforce what you've learned in the Getting Started section, practice with these interactive notebooks:
+
+<CardGroup cols={2}>
+  <Card
+    title="Follow-Along Practice"
+    icon="laptop-code"
+  >
+    Practice all the setup, package verification, and interactive commands discussed in this section.
+
+    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/python%20material/python4ai/public/notebooks/basics_exercises/Getting_Started_Practice.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/python4ai/blob/master/public/notebooks/basics_exercises/Getting_Started_Practice.ipynb) | <a href="/public/notebooks/basics_exercises/Getting_Started_Practice.ipynb" download>📥 Download</a>
+  </Card>
+  <Card
+    title="Practice Exercises"
+    icon="pen-to-square"
+  >
+    Test your environment setup and basic debugging skills with interactive exercises.
+
+    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/python%20material/python4ai/public/notebooks/basics_exercises/Getting_Started_Exercises.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/python4ai/blob/master/public/notebooks/basics_exercises/Getting_Started_Exercises.ipynb) | <a href="/public/notebooks/basics_exercises/Getting_Started_Exercises.ipynb" download>📥 Download</a>
+  </Card>
+</CardGroup>
+
+<Card
+  title="Start learning Python"
+  icon="rocket"
+  href="/basics"
+>
+  Your environment is perfect. Let's dive into Python fundamentals!
+</Card>
