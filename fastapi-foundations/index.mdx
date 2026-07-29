@@ -39,50 +39,6 @@ sequenceDiagram
     Note over Server: Processes request &<br/>fetches employee list
     Server->>Client: HTTP Response (200 OK + JSON Data)
 ```
-
-
-### FastAPI Fundamentals
-
-FastAPI is a modern, high-performance Python web framework for building APIs. It is built on top of **Starlette** and **Pydantic**, leveraging Python's type hints to provide automatic request validation, interactive API documentation, and excellent developer productivity.
-
-Before learning FastAPI, it's important to understand **what an API is**, **why it exists**, and **how applications communicate over the web**.
-
-## What is an API?
-
-**API** stands for **Application Programming Interface**.
-
-An API is a set of rules that allows two software applications to communicate with each other. It acts as an intermediary between a **client** and a **server**, enabling them to exchange data and perform operations without exposing the internal implementation of either system.
-
-Every time you:
-
-- Log in to a website
-- Search for products on an e-commerce site
-- Check the weather on your phone
-- Book a cab
-- Make an online payment
-
-your application is communicating with one or more APIs.
-
-
-## Why Do We Need APIs?
-
-Modern applications are made up of multiple independent components. APIs provide a standardized way for these components to communicate.
-
-APIs are commonly used to:
-
-- Connect frontend applications to backend services.
-- Exchange data between different systems.
-- Integrate third-party services such as payment gateways and maps.
-- Build mobile and web applications using the same backend.
-- Develop scalable microservices.
-- Serve AI and Machine Learning models.
-
-Without APIs, every application would need direct access to another application's internal code or database, making systems difficult to maintain and scale.
-
-
-FastAPI is used to build the **server-side** of this communication.
-
-
 ## HTTP Fundamentals
 
 Communication between clients and servers happens using the **HyperText Transfer Protocol (HTTP)**.
@@ -94,26 +50,6 @@ HTTP follows a simple **Request → Response** model.
 3. The server returns an HTTP response.
 
 Every interaction with a web application follows this cycle.
-
-## Anatomy of an HTTP Request
-
-An HTTP request typically consists of the following components:
-
-1. **HTTP Method** – Specifies the action to perform on the resource (GET, POST, PUT, DELETE, PATCH, etc.).
-
-2. **Host** – The domain name or IP address of the target server that should handle the request.
-
-3. **Endpoint (Path)** – The specific resource or API route being requested on the server (e.g., `/employees` or `/users/101`).
-
-4. **Path Parameters** – Dynamic values embedded within the endpoint path (e.g., `/employees/101`, where `101` is the path parameter).
-
-5. **Query Parameters** – Optional key-value pairs appended to the URL after `?` to filter, search, sort, or paginate data (e.g., `?department=HR&limit=10`).
-
-6. **Headers** – Metadata about the request, such as content type, authorization token, accepted response format, and user agent.
-
-7. **Cookies** – Client-specific data automatically sent by the browser, often used for sessions and user preferences.
-
-8. **Request Body** – The data sent to the server, typically in JSON format, used with methods like POST, PUT, and PATCH.
 
 ### Example HTTP Request
 
@@ -160,6 +96,137 @@ https://api.company.com/employees/101?active=true
 
 > **Note:** The **URL** contains the protocol, host, endpoint (path), path parameters, and query parameters. The complete **HTTP request** additionally includes the HTTP method, headers, cookies, and an optional request body.
 
+## Anatomy of an HTTP Request
+
+An HTTP request typically consists of the following components:
+
+1. **HTTP Method** – Specifies the action to perform on the resource (GET, POST, PUT, DELETE, PATCH, etc.).
+
+2. **Host** – The domain name or IP address of the target server that should handle the request.
+
+3. **Endpoint (Path)** – The specific resource or API route being requested on the server (e.g., `/employees` or `/users/101`).
+
+4. **Path Parameters** – Dynamic values embedded within the endpoint path (e.g., `/employees/101`, where `101` is the path parameter).
+
+5. **Query Parameters** – Optional key-value pairs appended to the URL after `?` to filter, search, sort, or paginate data (e.g., `?department=HR&limit=10`).
+
+6. **Headers** – Metadata about the request, such as content type, authorization token, accepted response format, and user agent.
+
+7. **Cookies** – Client-specific data automatically sent by the browser, often used for sessions and user preferences.
+
+8. **Request Body** – The data sent to the server, typically in JSON format, used with methods like POST, PUT, and PATCH.
+
+
+
+## HTTP Methods
+
+| Method | Purpose |
+|---------|---------|
+| GET | Retrieve data |
+| POST | Create new data |
+| PUT | Replace existing data |
+| PATCH | Update part of existing data |
+| DELETE | Remove data |
+
+## API Endpoints
+
+An **endpoint** is a specific URL where an API provides access to a resource.
+
+Examples:
+
+```
+GET    /students
+GET    /students/101
+POST   /students
+PUT    /students/101
+DELETE /students/101
+```
+
+Each endpoint performs a specific operation on a resource.
+
+## Example: HTTP GET Request
+
+Suppose a weather application wants to retrieve the current weather for **London**.
+
+### API URL
+
+This is the complete URL used by the client application.
+
+```text
+https://api.weatherapi.com/weather/current?city=London
+│       │                  │               │
+│       │                  │               └── Query Parameter
+│       │                  │
+│       │                  └────────────────── Endpoint (Resource)
+│       │
+│       └───────────────────────────────────── Host (Server)
+│
+└───────────────────────────────────────────── Protocol
+```
+
+- **Protocol** → `https`
+- **Host (Server)** → `api.weatherapi.com`
+- **Endpoint (Resource)** → `/weather/current`
+- **Query Parameter** → `city=London`
+
+> **Note:** In REST APIs, everything exposed by the server is treated as a **resource**. Examples include **students**, **users**, **products**, **orders**, and **weather**. Each resource is identified by its own endpoint.
+
+## Actual HTTP Request
+
+When the client sends the request, it is represented as:
+
+```http
+GET /weather/current?city=London HTTP/1.1
+Host: api.weatherapi.com
+X-API-Key: abc123xyz456
+Accept: application/json
+```
+
+### Understanding the Request
+
+#### HTTP Method
+
+```text
+GET
+```
+
+Specifies the action to perform.
+
+- **GET** → Retrieve data
+- **POST** → Create data
+- **PUT** → Update data
+- **DELETE** → Delete data
+
+#### Endpoint
+
+```text
+/weather/current
+```
+
+Identifies the resource requested from the server.
+
+#### Query Parameter
+
+```text
+city=London
+```
+
+Provides additional information needed to process the request.
+
+#### Request Headers
+
+```http
+Host: api.weatherapi.com
+X-API-Key: abc123xyz456
+Accept: application/json
+```
+Headers carry additional information about the request.
+
+- **Host** → Target server
+- **X-API-Key** → Client authentication
+- **Accept** → Expected response format
+
+> **Note:** The complete URL contains the **protocol** and **host**, but the actual HTTP request sends only the **endpoint** and **query parameters** in the request line. The **host** is sent separately using the **Host** header.
 
 ## How to Identify an Endpoint and a Path Parameter from a URL?
 
@@ -268,118 +335,6 @@ You must compare the URL with the **route definition**.
 
 </Accordion>
 
-
-## API Endpoints
-
-An **endpoint** is a specific URL where an API provides access to a resource.
-
-Examples:
-
-```
-GET    /students
-GET    /students/101
-POST   /students
-PUT    /students/101
-DELETE /students/101
-```
-
-Each endpoint performs a specific operation on a resource.
-
-## HTTP Methods
-
-| Method | Purpose |
-|---------|---------|
-| GET | Retrieve data |
-| POST | Create new data |
-| PUT | Replace existing data |
-| PATCH | Update part of existing data |
-| DELETE | Remove data |
-
-## Example: HTTP GET Request
-
-Suppose a weather application wants to retrieve the current weather for **London**.
-
-### API URL
-
-This is the complete URL used by the client application.
-
-```text
-https://api.weatherapi.com/weather/current?city=London
-│       │                  │               │
-│       │                  │               └── Query Parameter
-│       │                  │
-│       │                  └────────────────── Endpoint (Resource)
-│       │
-│       └───────────────────────────────────── Host (Server)
-│
-└───────────────────────────────────────────── Protocol
-```
-
-- **Protocol** → `https`
-- **Host (Server)** → `api.weatherapi.com`
-- **Endpoint (Resource)** → `/weather/current`
-- **Query Parameter** → `city=London`
-
-> **Note:** In REST APIs, everything exposed by the server is treated as a **resource**. Examples include **students**, **users**, **products**, **orders**, and **weather**. Each resource is identified by its own endpoint.
-
-## Actual HTTP Request
-
-When the client sends the request, it is represented as:
-
-```http
-GET /weather/current?city=London HTTP/1.1
-Host: api.weatherapi.com
-X-API-Key: abc123xyz456
-Accept: application/json
-```
-
-### Understanding the Request
-
-#### HTTP Method
-
-```text
-GET
-```
-
-Specifies the action to perform.
-
-- **GET** → Retrieve data
-- **POST** → Create data
-- **PUT** → Update data
-- **DELETE** → Delete data
-
-#### Endpoint
-
-```text
-/weather/current
-```
-
-Identifies the resource requested from the server.
-
-#### Query Parameter
-
-```text
-city=London
-```
-
-Provides additional information needed to process the request.
-
-#### Request Headers
-
-```http
-Host: api.weatherapi.com
-X-API-Key: abc123xyz456
-Accept: application/json
-```
-
-Headers carry additional information about the request.
-
-- **Host** → Target server
-- **X-API-Key** → Client authentication
-- **Accept** → Expected response format
-
-> **Note:** The complete URL contains the **protocol** and **host**, but the actual HTTP request sends only the **endpoint** and **query parameters** in the request line. The **host** is sent separately using the **Host** header.
-
 ## HTTP Response
 
 ```http
@@ -412,24 +367,31 @@ Server
    ▼
 Client
 ```
-
-> **Remember:** Every API communication follows the same cycle:
+> **Note:** Every API communication follows the same cycle:
 >
 > **Client → HTTP Request → Server → HTTP Response → Client**
+## HTTP Status Codes
 
-## Why FastAPI?
+Status codes are grouped by their first digit to let the client know immediately what kind of outcome occurred:
 
-FastAPI simplifies backend development by providing:
+### 🟢 2xx: Success
+* **`200 OK`**: The request succeeded, and the server returned the requested data.
+* **`201 Created`**: The request succeeded, and a new resource (e.g., a new employee) was successfully created.
 
-- High performance
-- Automatic request validation
-- Interactive API documentation
-- Built-in support for Python type hints
-- Automatic OpenAPI specification generation
-- Easy integration with databases and authentication
-- Excellent developer productivity
+### 🟡 3xx: Redirection
+* **`301 Moved Permanently`** / **`307 Temporary Redirect`**: The requested resource is at a different location.
 
-Throughout this chapter, you'll use FastAPI to build REST APIs while understanding the concepts behind modern backend development.
+### 🔴 4xx: Client Errors (Your fault)
+* **`400 Bad Request`**: The server could not understand the request (e.g., invalid JSON syntax).
+* **`401 Unauthorized`**: Authentication is required (e.g., missing or invalid JWT).
+* **`403 Forbidden`**: The client is authenticated but does not have permission (e.g., an employee trying to delete another employee's record).
+* **`404 Not Found`**: The requested resource does not exist (e.g., employee ID `999` doesn't exist).
+* **`422 Unprocessable Entity`**: The request structure is correct, but validation failed (e.g., Pydantic validation error).
+
+### 💥 5xx: Server Errors (My fault)
+* **`500 Internal Server Error`**: Something crashed on the server (e.g., unhandled Python exception, database down).
+* **`503 Service Unavailable`**: The server is overloaded or down for maintenance.
+
 
 <CardGroup cols={2}>
 
