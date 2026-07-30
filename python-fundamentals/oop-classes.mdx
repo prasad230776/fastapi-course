@@ -273,34 +273,281 @@ u = User(username="alice", email="alice@example.com")
 print(u.__dict__) 
 # Output: {'username': 'alice', 'email': 'alice@example.com'}
 ```
-## Type Annotations vs Class Variables
+---
+title: "Type Annotations, Default Values, and Class Variables"
+description: "Understand the differences between type annotations, default values, instance variables, and class variables."
+---
 
-| Type Annotations | Class Variables |
-|------------------|-----------------|
-| Declare the expected type of an attribute. | Store a value shared by all instances of the class. |
-| Do **not** create or initialize an attribute. | Create an actual class attribute. |
-| Used for type checking, IDE support, and documentation. | Used to store common data shared across all objects. |
-| Declared using `attribute: type`. | Declared using `attribute = value`. |
-| Accessing them through the class raises `AttributeError` unless a value is assigned. | Can be accessed through both the class and its instances. |
-| Commonly paired with `self.attribute = value` inside `__init__()`. | Usually defined directly inside the class body. |
+## Type Annotation
 
-### Example
+A type annotation only specifies the expected type of an attribute.
+
+It **does not create or initialize** the attribute.
 
 ```python
 class Product:
-    name: str                  # Type annotation
-    category = "Electronics"   # Class variable
-
-    def __init__(self, name):
-        self.name = name        # Instance attribute
+    name: str
+    price: float
 ```
 
-| Expression | Result |
-|------------|--------|
-| `Product.name` | ❌ `AttributeError` |
-| `Product.category` | ✅ `"Electronics"` |
-| `product.name` | ✅ Instance-specific value |
-| `product.category` | ✅ `"Electronics"` (shared by all instances) |
+Here, `name` and `price` are only type hints.
+
+Attempting to access them through the class results in an error.
+
+```python
+print(Product.name)
+```
+
+Output:
+
+```text
+AttributeError: type object 'Product' has no attribute 'name'
+```
+
+---
+
+## Instance Variables
+
+Instance variables are created when a value is assigned to `self`.
+
+```python
+class Product:
+    name: str
+    price: float
+
+    def __init__(self, name, price):
+        self.name = name
+        self.price = price
+```
+
+Each object gets its own copy.
+
+```python
+p1 = Product("Laptop", 999.99)
+p2 = Product("Phone", 699.99)
+
+print(p1.name)
+print(p2.name)
+```
+
+Output:
+
+```text
+Laptop
+Phone
+```
+
+---
+
+## Class Variables
+
+A class variable belongs to the class and is shared by all instances.
+
+```python
+class Product:
+    category = "Electronics"
+```
+
+It can be accessed through either the class or an object.
+
+```python
+print(Product.category)
+
+p = Product()
+print(p.category)
+```
+
+Output:
+
+```text
+Electronics
+Electronics
+```
+
+---
+
+## Type Annotations for Class Variables
+
+Class variables can also be annotated.
+
+```python
+class Product:
+    category: str = "Electronics"
+```
+
+The annotation documents the expected type but is **not enforced by Python**.
+
+```python
+Product.category = 100
+
+print(Product.category)
+```
+
+Output:
+
+```text
+100
+```
+
+---
+
+## Default Values
+
+A default value provides an initial value for an instance attribute.
+
+For example, in Pydantic:
+
+```python
+from pydantic import BaseModel
+
+class User(BaseModel):
+    name: str
+    country: str = "India"
+```
+
+```python
+user = User(name="Siva")
+
+print(user.country)
+```
+
+Output:
+
+```text
+India
+```
+
+Each object receives its own default value unless another value is provided.
+
+---
+
+## The Ambiguity
+
+Consider this declaration:
+
+```python
+class Product:
+    category: str = "Electronics"
+```
+
+Its meaning depends on the framework.
+
+### In Plain Python
+
+```python
+class Product:
+    category: str = "Electronics"
+```
+
+`category` is a **class variable**.
+
+### In Pydantic
+
+```python
+from pydantic import BaseModel
+
+class Product(BaseModel):
+    category: str = "Electronics"
+```
+
+`category` becomes an **instance field with a default value**.
+
+This difference exists because Pydantic interprets annotated attributes as model fields.
+
+---
+
+## Using `ClassVar`
+
+To explicitly indicate that an attribute is a class variable, use `ClassVar`.
+
+```python
+from typing import ClassVar
+
+class Product:
+    category: ClassVar[str] = "Electronics"
+```
+
+In Pydantic:
+
+```python
+from typing import ClassVar
+from pydantic import BaseModel
+
+class Product(BaseModel):
+    category: ClassVar[str] = "Electronics"
+    name: str
+```
+
+Here:
+
+- `category` is a class variable.
+- `name` is a model field.
+
+Pydantic ignores `ClassVar` attributes when creating the model.
+
+---
+
+## Comparison
+
+| Declaration | Plain Python | Pydantic |
+|-------------|--------------|----------|
+| `name: str` | Type annotation only | Required model field |
+| `name: str = "Siva"` | Class variable | Model field with a default value |
+| `name: ClassVar[str] = "Siva"` | Class variable | Class variable (ignored as a model field) |
+| `self.name = value` | Creates an instance variable | Not applicable inside `BaseModel` (Pydantic generates the constructor) |
+
+---
+
+## Type Annotation vs Class Variable
+
+| Type Annotation | Class Variable |
+|-----------------|----------------|
+| Describes the expected type. | Stores a value shared by all instances. |
+| Does not create an attribute. | Creates an actual class attribute. |
+| Uses `field: Type`. | Uses `field = value` or `field: ClassVar[Type] = value`. |
+| Mainly used by IDEs, type checkers, and frameworks. | Used to store common data for the class. |
+
+---
+
+## Class Variable vs Default Value
+
+| Class Variable | Default Value |
+|----------------|---------------|
+| Shared by every instance. | Initial value for each instance. |
+| Belongs to the class. | Belongs to each object. |
+| Accessed as `ClassName.variable`. | Accessed through the instance. |
+| In Pydantic, declare using `ClassVar`. | In Pydantic, declare using `field: Type = value`. |
+
+---
+
+## Rule of Thumb
+
+### Plain Python
+
+```python
+class Product:
+    category = "Electronics"      # Class variable
+    category: str = "Electronics" # Class variable with annotation
+```
+
+### Pydantic
+
+```python
+class User(BaseModel):
+    name: str                     # Required field
+    country: str = "India"        # Default value
+```
+
+### Explicit Class Variable (Recommended)
+
+```python
+from typing import ClassVar
+
+class Product:
+    category: ClassVar[str] = "Electronics"
+```
+
+Using `ClassVar` makes your intent explicit and prevents frameworks like Pydantic and dataclasses from treating the attribute as an instance field.
 ---
 
 ## Practice & Exercises
