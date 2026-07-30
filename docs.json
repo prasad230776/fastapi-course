@@ -85,6 +85,7 @@
               "python-fundamentals/oop-classes",
               "python-fundamentals/exception-handling",
               "python-fundamentals/working-with-data",
+              "python-fundamentals/context-mgmt",
               "python-fundamentals/type-hinting",
               "python-fundamentals/pydantic",
               "python-fundamentals/async-programming",

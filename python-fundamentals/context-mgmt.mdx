@@ -1,0 +1,669 @@
+---
+title: "Context Managers in Python"
+description: "Learn how context managers work, how to create your own using classes and generators, and how FastAPI uses the same mechanism for dependencies."
+---
+
+# Context Managers
+
+A **context manager** is an object that performs:
+
+- **Setup** before a block of code executes.
+- **Cleanup** after the block finishes, even if an exception occurs.
+
+It is used with the `with` statement.
+
+```python
+with resource:
+    # use the resource
+```
+
+General lifecycle:
+
+```text
+Acquire Resource
+      │
+      ▼
+Execute Block
+      │
+      ▼
+Release Resource
+```
+
+Common resources managed using context managers:
+
+- Files
+- Database connections
+- Locks
+- Network sockets
+- Temporary directories
+
+# The Most Common Context Manager
+
+Most Python developers use a context manager without realizing it.
+
+```python
+with open("students.txt") as file:
+    print(file.read())
+```
+
+Let's understand what happens.
+
+## Step 1
+
+```python
+open("students.txt")
+```
+
+creates a **file object**.
+
+## Step 2
+
+The returned object is assigned to the variable after `as`.
+
+```python
+with open("students.txt") as file:
+```
+
+Conceptually,
+
+```python
+file = open("students.txt")
+```
+
+The variable **`file`** holds the object returned by `open()`.
+
+## Step 3
+
+The code inside the block executes.
+
+```python
+print(file.read())
+```
+
+## Step 4
+
+When execution leaves the `with` block, Python automatically closes the file.
+
+```text
+Create File
+     │
+     ▼
+Assign to file
+     │
+     ▼
+Execute Block
+     │
+     ▼
+Close File
+```
+
+# How Does `with` Work?
+
+Any object used with the `with` statement must implement two special methods.
+
+```python
+__enter__()
+__exit__()
+```
+
+Conceptually,
+
+```python
+with resource as value:
+    print(value)
+```
+
+works like this:
+
+```python
+resource = ...
+
+value = resource.__enter__()
+
+try:
+    print(value)
+finally:
+    resource.__exit__()
+```
+
+- `__enter__()` performs setup.
+- `__exit__()` performs cleanup.
+
+# Creating a Context Manager Using a Class
+
+```python
+class MyContext:
+    def __enter__(self):
+        print("Setup")
+        return "Hello"
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        print("Cleanup")
+```
+
+Usage:
+
+```python
+with MyContext() as message:
+    print(message)
+```
+
+Output:
+
+```text
+Setup
+Hello
+Cleanup
+```
+
+Notice that the variable after `as` receives the value returned by `__enter__()`.
+
+# Generator-Based Context Managers
+
+Writing a class for simple setup and cleanup is often unnecessary.
+
+Python provides the `@contextmanager` decorator.
+
+```python
+from contextlib import contextmanager
+```
+
+Example:
+
+```python
+from contextlib import contextmanager
+
+@contextmanager
+def my_context():
+    print("Setup")
+    yield "Hello"
+    print("Cleanup")
+```
+
+Usage:
+
+```python
+with my_context() as message:
+    print(message)
+```
+
+Output:
+
+```text
+Setup
+Hello
+Cleanup
+```
+
+# Understanding `yield`
+
+The `yield` divides the function into two parts.
+
+Before `yield`
+
+```python
+print("Setup")
+```
+
+runs before entering the `with` block.
+
+The yielded value
+
+```python
+yield "Hello"
+```
+
+becomes the variable after `as`.
+
+```python
+message = "Hello"
+```
+
+After the `with` block finishes, execution resumes after the `yield`.
+
+```python
+print("Cleanup")
+```
+
+Execution flow:
+
+```text
+Generator Starts
+       │
+       ▼
+Setup
+       │
+       ▼
+yield "Hello"
+       │
+       ▼
+Execute with Block
+       │
+       ▼
+Resume Generator
+       │
+       ▼
+Cleanup
+```
+
+# Normal Execution
+
+Example:
+
+```python
+from contextlib import contextmanager
+
+@contextmanager
+def my_context():
+    print("Setup")
+    yield "Hello"
+    print("Cleanup")
+
+with my_context() as message:
+    print(message)
+```
+
+Output:
+
+```text
+Setup
+Hello
+Cleanup
+```
+
+Conceptually, Python behaves like:
+
+```python
+generator = my_context()
+
+message = next(generator)
+
+print(message)
+
+next(generator)
+```
+
+Notice that the generator is resumed using:
+
+```python
+next(generator)
+```
+
+which continues execution after the `yield`.
+
+# Exception Handling
+
+Now consider this example.
+
+```python
+from contextlib import contextmanager
+
+@contextmanager
+def my_context():
+    try:
+        yield "Hello"
+        print("After Yield")
+    finally:
+        print("Cleanup")
+
+with my_context() as message:
+    print(message)
+    raise Exception("Something went wrong")
+```
+
+Output:
+
+```text
+Hello
+Cleanup
+Traceback...
+```
+
+Notice that:
+
+```python
+print("After Yield")
+```
+
+never executes.
+
+Why?
+
+Because Python does **not** resume the generator normally.
+
+Instead of:
+
+```python
+next(generator)
+```
+
+Python resumes it using:
+
+```python
+generator.throw(exception)
+```
+
+The exception is injected back into the generator exactly where it was paused.
+
+Conceptually,
+
+```python
+yield "Hello"
+```
+
+becomes
+
+```python
+raise Exception("Something went wrong")
+```
+
+Execution flow:
+
+```text
+yield
+   │
+   ▼
+Exception inside with
+   │
+   ▼
+generator.throw(exception)
+   │
+   ▼
+finally
+```
+
+# Catching the Exception Inside the Generator
+
+The generator itself can handle the exception.
+
+```python
+from contextlib import contextmanager
+
+@contextmanager
+def my_context():
+    try:
+        yield "Hello"
+        print("After Yield")
+    except Exception as e:
+        print("Generator caught:", e)
+    finally:
+        print("Cleanup")
+
+with my_context() as message:
+    print(message)
+    raise Exception("Error")
+```
+
+Output:
+
+```text
+Hello
+Generator caught: Error
+Cleanup
+```
+
+Notice that:
+
+```python
+print("After Yield")
+```
+
+is skipped.
+
+Since the exception was thrown back into the generator, execution jumps directly to:
+
+```python
+except
+```
+
+instead of continuing after the `yield`.
+
+# Complete Example
+
+The following example demonstrates how an exception raised inside the `with` block travels back into the generator.
+
+```python
+from contextlib import contextmanager
+
+@contextmanager
+def my_context():
+    try:
+        data = "my data"
+        yield data
+        print("after yield")
+    except Exception as e:
+        print("from generator:", e)
+    finally:
+        print("in generator finally")
+
+with my_context() as context_data:
+    try:
+        print(context_data)
+        raise Exception("error")
+    finally:
+        print("in context finally")
+```
+
+Output:
+
+```text
+my data
+in context finally
+from generator: error
+in generator finally
+```
+
+## Step 1
+
+Python creates the generator.
+
+```python
+generator = my_context()
+```
+
+Nothing executes yet.
+
+## Step 2
+
+Python enters the context.
+
+```python
+context_data = next(generator)
+```
+
+Execution pauses at:
+
+```python
+yield data
+```
+
+The yielded value becomes:
+
+```python
+context_data = "my data"
+```
+
+## Step 3
+
+The `with` block executes.
+
+```python
+print(context_data)
+raise Exception("error")
+```
+
+Before leaving the block, the local `finally` executes.
+
+```text
+in context finally
+```
+
+The exception is still active.
+
+## Step 4
+
+Since an exception escaped from the `with` block, Python does **not** call:
+
+```python
+next(generator)
+```
+
+Instead it calls:
+
+```python
+generator.throw(Exception("error"))
+```
+
+The exception is injected back into the generator at the suspended `yield`.
+
+Conceptually,
+
+```python
+yield data
+```
+
+becomes
+
+```python
+raise Exception("error")
+```
+
+inside the generator.
+
+## Step 5
+
+The generator catches the exception.
+
+```python
+except Exception as e:
+    print("from generator:", e)
+```
+
+Output:
+
+```text
+from generator: error
+```
+
+Notice that:
+
+```python
+print("after yield")
+```
+
+never executes because execution does not continue normally after the `yield`.
+
+## Step 6
+
+Finally always executes.
+
+```python
+finally:
+    print("in generator finally")
+```
+
+Output:
+
+```text
+in generator finally
+```
+
+Since the generator catches the exception and does **not** re-raise it, the exception is considered handled and no traceback is produced.
+
+Execution flow:
+
+```text
+Create Generator
+       │
+       ▼
+next(generator)
+       │
+       ▼
+yield "my data"
+       │
+       ▼
+Execute with Block
+       │
+       ▼
+Exception Raised
+       │
+       ▼
+Context Finally
+       │
+       ▼
+generator.throw(exception)
+       │
+       ▼
+Generator except
+       │
+       ▼
+Generator finally
+       │
+       ▼
+Generator ends
+```
+
+# FastAPI Uses the Same Mechanism
+
+FastAPI uses generator-based context managers for dependencies.
+
+```python
+from fastapi import Depends, FastAPI
+
+app = FastAPI()
+
+def get_message():
+    print("Creating resource")
+    try:
+        yield "Hello"
+    finally:
+        print("Cleaning resource")
+
+@app.get("/")
+def home(message: str = Depends(get_message)):
+    return {"message": message}
+```
+
+Execution flow:
+
+```text
+Request
+    │
+    ▼
+Call Dependency
+    │
+    ▼
+yield value
+    │
+    ▼
+Execute Endpoint
+    │
+    ▼
+Endpoint Returns
+    │
+    ▼
+Resume Generator
+    │
+    ▼
+Cleanup
+    │
+    ▼
+Send Response
+```
+
+The endpoint returning does **not** immediately send the HTTP response.
+
+FastAPI first resumes the generator so that cleanup executes, and only then sends the response to the client.
+
+# Key Takeaways
+
+- A context manager automatically performs setup and cleanup.
+- The `with` statement works with objects implementing `__enter__()` and `__exit__()`.
+- The variable after `as` receives the object returned by `__enter__()` or yielded by the generator.
+- `@contextmanager` provides a concise way to create custom context managers.
+- Normal completion resumes the generator using `next(generator)`.
+- Exceptions resume the generator using `generator.throw(exception)`.
+- `generator.throw()` injects the exception at the suspended `yield`.
+- Statements after `yield` execute only during normal execution.
+- `finally` always executes, making context managers ideal for resource management.
+- FastAPI's `yield` dependencies are built on the same mechanism.

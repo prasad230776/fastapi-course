@@ -273,7 +273,34 @@ u = User(username="alice", email="alice@example.com")
 print(u.__dict__) 
 # Output: {'username': 'alice', 'email': 'alice@example.com'}
 ```
+## Type Annotations vs Class Variables
 
+| Type Annotations | Class Variables |
+|------------------|-----------------|
+| Declare the expected type of an attribute. | Store a value shared by all instances of the class. |
+| Do **not** create or initialize an attribute. | Create an actual class attribute. |
+| Used for type checking, IDE support, and documentation. | Used to store common data shared across all objects. |
+| Declared using `attribute: type`. | Declared using `attribute = value`. |
+| Accessing them through the class raises `AttributeError` unless a value is assigned. | Can be accessed through both the class and its instances. |
+| Commonly paired with `self.attribute = value` inside `__init__()`. | Usually defined directly inside the class body. |
+
+### Example
+
+```python
+class Product:
+    name: str                  # Type annotation
+    category = "Electronics"   # Class variable
+
+    def __init__(self, name):
+        self.name = name        # Instance attribute
+```
+
+| Expression | Result |
+|------------|--------|
+| `Product.name` | ❌ `AttributeError` |
+| `Product.category` | ✅ `"Electronics"` |
+| `product.name` | ✅ Instance-specific value |
+| `product.category` | ✅ `"Electronics"` (shared by all instances) |
 ---
 
 ## Practice & Exercises
