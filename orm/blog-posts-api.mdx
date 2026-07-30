@@ -1,0 +1,1161 @@
+---
+title: "Blog Posts Management System"
+description: "Build a simple Blog Posts Management System using FastAPI and SQLAlchemy ORM."
+---
+
+## Problem Statement
+
+Develop a REST API to manage blog posts.
+
+Each blog post contains:
+
+- ID
+- Title
+- Description
+- Author
+- Created At
+
+The application should support the following operations:
+
+- Create a Post
+- View All Posts
+- View a Post
+- Update a Post
+- Delete a Post
+
+## Phase 1 - Project Planning
+
+### Step 1 - Create the Project
+
+Initialize a new project.
+
+```bash
+uv init blog-api
+
+cd blog-api
+```
+
+### Step 2 - Create a Virtual Environment
+
+```bash
+uv venv
+```
+
+Activate the virtual environment.
+
+**Windows**
+
+```bash
+.venv\Scripts\activate
+```
+
+**macOS / Linux**
+
+```bash
+source .venv/bin/activate
+```
+
+### Step 3 - Install Required Packages
+
+```bash
+uv add fastapi "uvicorn[standard]" sqlalchemy
+```
+
+### Step 4 - Create the Project Structure
+
+```text
+blog-api/
+│
+├── app/
+│   ├── api/
+│   │   └── posts.py
+│   ├── database.py
+│   ├── models.py
+│   ├── schemas.py
+│   ├── dependencies.py
+│   ├── crud.py
+│   └── main.py
+│
+├── pyproject.toml
+└── uv.lock
+```
+
+##### Implementation Roadmap
+
+```text
+Phase 1  → Planning
+                │
+                ▼
+Phase 2  → Database Configuration
+                │
+                ▼
+Phase 3  → Create Database Schemas
+                │
+                ▼
+Phase 4  → Create Database
+                │
+                ▼
+Phase 5  → Create Models
+                │
+                ▼
+Phase 6  → Dependency Injection
+                │
+                ▼
+Phase 7  → CRUD Layer
+                │
+                ▼
+Phase 8  → API Layer
+                │
+                ▼
+Phase 9  → Test APIs
+                │
+                ▼
+Phase 10 → Alembic Setup
+                │
+                ▼
+Phase 11 → Generate Migrations
+                │
+                ▼
+Phase 12 → SQLite → PostgreSQL
+```
+## Phase 2 - Database Configuration
+
+### Objective
+
+Configure SQLAlchemy so the application can communicate with the database.
+
+### File Structure
+
+```text
+app/
+│
+├── database.py
+└── main.py
+```
+
+### Step 1 - Configure the Database
+
+**File:** `app/database.py`
+
+```python
+from sqlalchemy import create_engine
+from sqlalchemy.orm import DeclarativeBase, sessionmaker
+
+DATABASE_URL = "sqlite:///blog.db"
+
+engine = create_engine(DATABASE_URL)
+```
+
+### Step 2 - Create the Declarative Base
+
+**File:** `app/database.py`
+
+```python
+class Base(DeclarativeBase):
+    pass
+```
+
+All ORM models will inherit from this class.
+
+### Step 3 - Create the Session Factory
+
+**File:** `app/database.py`
+
+```python
+SessionLocal = sessionmaker(
+    bind=engine,
+    autoflush=False,
+    autocommit=False
+)
+```
+
+`SessionLocal` is a **session factory**. It creates a new database session whenever required.
+
+### Complete File
+
+**File:** `app/database.py`
+
+```python
+from sqlalchemy import create_engine
+from sqlalchemy.orm import DeclarativeBase, sessionmaker
+
+DATABASE_URL = "sqlite:///blog.db"
+
+engine = create_engine(DATABASE_URL)
+
+SessionLocal = sessionmaker(
+    bind=engine,
+    autoflush=False,
+    autocommit=False
+)
+
+class Base(DeclarativeBase):
+    pass
+```
+
+### Architecture
+
+```text
+Application
+      │
+      ▼
+DATABASE_URL
+      │
+      ▼
+Engine
+      │
+      ▼
+SessionLocal
+      │
+      ▼
+Database Session
+```
+
+### Summary
+
+- `DATABASE_URL` specifies the database connection.
+- `create_engine()` creates the SQLAlchemy engine.
+- `Base` is the parent class for all models.
+- `SessionLocal` creates database sessions.
+- No tables are created in this phase.
+
+
+## Phase 3 - Create Database Schemas
+
+### Objective
+
+Define the structure of the `posts` table using a SQLAlchemy model.
+
+### Database Design
+
+### posts
+
+| Column | Type | Constraints |
+|---------|------|-------------|
+| id | Integer | Primary Key |
+| title | String(200) | Not Null |
+| description | Text | Not Null |
+| author | String(100) | Not Null |
+| created_at | DateTime | Default Current Time |
+
+### File Structure
+
+```text
+app/
+│
+├── database.py
+└── schemas.py
+```
+
+### Step 1 - Create the schema
+
+**File:** `app/schemas.py`
+
+```python
+from datetime import datetime
+
+from sqlalchemy import DateTime, String, Text
+from sqlalchemy.orm import Mapped, mapped_column
+
+from app.database import Base
+
+
+class Post(Base):
+    __tablename__ = "posts"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str] = mapped_column(String(200))
+    description: Mapped[str] = mapped_column(Text)
+    author: Mapped[str] = mapped_column(String(100))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+```
+
+### Model Structure
+
+```text
+Post
+ │
+ ├── id
+ ├── title
+ ├── description
+ ├── author
+ └── created_at
+```
+
+### How SQLAlchemy Maps the Model
+
+```text
+Python Class
+      │
+      ▼
+SQLAlchemy Model
+      │
+      ▼
+Database Table
+```
+
+```text
+Post
+      │
+      ▼
+posts
+```
+
+```text
+id            → INTEGER PRIMARY KEY
+title         → VARCHAR(200)
+description   → TEXT
+author        → VARCHAR(100)
+created_at    → DATETIME
+```
+
+### Summary
+
+- `Base` is the parent class of every model.
+- `__tablename__` specifies the table name.
+- `Mapped[]` defines the Python data type.
+- `mapped_column()` defines the database column.
+- One model represents one database table.
+
+## Phase 4 - Create Database
+
+### Objective
+
+Create the SQLite database and generate the `posts` table from the SQLAlchemy model.
+
+### File Structure
+
+```text
+app/
+│
+├── database.py
+├── models.py
+└── main.py
+```
+
+### Step 1 - Import the Required Components
+
+**File:** `app/main.py`
+
+```python
+from fastapi import FastAPI
+
+from app.database import Base, engine
+from app.schemas import Post
+```
+
+> Importing `Post` registers the model with `Base.metadata`.
+
+### Step 2 - Create the Database Tables
+
+**File:** `app/main.py`
+
+```python
+Base.metadata.create_all(engine)
+```
+
+This creates all models registered with `Base`.
+
+### Step 3 - Create the FastAPI Application
+
+**File:** `app/main.py`
+
+```python
+app = FastAPI()
+```
+
+### Complete File
+
+**File:** `app/main.py`
+
+```python
+from fastapi import FastAPI
+
+from app.database import Base, engine
+from app.models import Post
+
+Base.metadata.create_all(engine)
+
+app = FastAPI()
+```
+
+### What Happens Internally?
+
+```text
+Start Application
+        │
+        ▼
+Import Models
+        │
+        ▼
+Base.metadata
+        │
+        ▼
+create_all(engine)
+        │
+        ▼
+blog.db
+        │
+        ▼
+posts Table
+```
+
+### Generated Database
+
+```text
+blog.db
+    │
+    ▼
+posts
+├── id
+├── title
+├── description
+├── author
+└── created_at
+```
+
+### Verify the Database
+
+Run the application.
+
+```bash
+uv run uvicorn app.main:app --reload
+```
+
+A new SQLite database file is created.
+
+```text
+blog-api/
+│
+├── app/
+├── blog.db
+├── pyproject.toml
+└── uv.lock
+```
+
+Open `blog.db` using **DB Browser for SQLite** or any SQLite viewer to verify that the `posts` table has been created.
+
+### Summary
+
+- `Base.metadata` contains information about all registered models.
+- `create_all(engine)` creates all missing tables.
+- Importing the model is necessary so SQLAlchemy can register it.
+- The database and tables are created automatically when the application starts.
+- Existing tables are **not** recreated.
+
+## Phase 5 - Create Pydantic Models
+
+### Step 1 - Create the Base Model
+
+**File:** `app/models.py`
+
+```python
+from pydantic import BaseModel
+
+
+class PostBase(BaseModel):
+    title: str
+    description: str
+    author: str
+```
+
+This model contains the fields common to all post models.
+
+### Step 2 - Create the Request Model
+
+**File:** `app/models.py`
+
+```python
+class PostRequest(PostBase):
+    pass
+```
+
+This model is used to validate data received from the client.
+
+### Step 3 - Create the Response Model
+
+**File:** `app/models.py`
+
+```python
+from datetime import datetime
+
+from pydantic import ConfigDict
+
+
+class PostResponse(PostBase):
+    id: int
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+```
+
+This model is used to return data to the client.
+
+### Complete File
+
+**File:** `app/models.py`
+
+```python
+from datetime import datetime
+
+from pydantic import BaseModel, ConfigDict
+
+
+class PostBase(BaseModel):
+    title: str
+    description: str
+    author: str
+
+
+class PostRequest(PostBase):
+    pass
+
+
+class PostResponse(PostBase):
+    id: int
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+```
+
+### Model Hierarchy
+
+```text
+            BaseModel
+                │
+                ▼
+            PostBase
+          ┌──────────┐
+          ▼          ▼
+ PostRequest   PostResponse
+                    │
+              id
+              created_at
+```
+
+### Why Use a Base Model?
+
+Without `PostBase`, the fields would be duplicated.
+
+```text
+PostRequest
+------------
+title
+description
+author
+
+PostResponse
+-------------
+title
+description
+author
+id
+created_at
+```
+
+With `PostBase`, the common fields are defined only once and inherited by both models.
+
+### Key Points
+
+- `PostBase` contains the common fields.
+- `PostRequest` is used for creating and updating posts.
+- `PostResponse` extends `PostBase` by adding database-generated fields.
+- This approach avoids duplication and makes the models easier to maintain.
+
+## Phase 6 - Dependency Injection
+
+### Objective
+
+Create a reusable database session that can be used by all API endpoints.
+
+### File
+
+**File:** `app/dependencies.py`
+
+```python
+from sqlalchemy.orm import Session
+
+from app.database import SessionLocal
+
+
+def get_db():
+    db = SessionLocal()
+
+    try:
+        yield db
+    finally:
+        db.close()
+```
+
+### Flow
+
+```text
+Request
+   │
+   ▼
+Create Session
+   │
+   ▼
+Use Session
+   │
+   ▼
+Close Session
+```
+
+### Key Points
+
+- `SessionLocal()` creates a database session.
+- `yield` returns the session.
+- `db.close()` closes the session after the request.
+- `get_db()` will be used in all API endpoints.
+
+## Phase 7 - CRUD Layer
+
+### Objective
+
+Implement the CRUD operations for the `posts` table using SQLAlchemy ORM.
+
+### File Structure
+
+```text
+app/
+│
+├── crud.py
+├── models.py
+└── schemas.py
+```
+
+### Step 1 - Create a Post
+
+**File:** `app/crud.py`
+
+```python
+from sqlalchemy.orm import Session
+
+from app.models import PostRequest
+from app.schemas import Post
+
+
+def create_post(db: Session, post: PostRequest):
+    db_post = Post(**post.model_dump())
+
+    db.add(db_post)
+    db.commit()
+    db.refresh(db_post)
+
+    return db_post
+```
+
+### Step 2 - Get All Posts
+
+**File:** `app/crud.py`
+
+```python
+from sqlalchemy import select
+
+
+def get_posts(db: Session):
+    stmt = select(Post)
+
+    return db.execute(stmt).scalars().all()
+```
+
+### Step 3 - Get a Post
+
+**File:** `app/crud.py`
+
+```python
+def get_post(db: Session, post_id: int):
+    stmt = select(Post).where(Post.id == post_id)
+
+    return db.execute(stmt).scalar_one_or_none()
+```
+
+### Step 4 - Update a Post
+
+**File:** `app/crud.py`
+
+```python
+def update_post(db: Session, post_id: int, post: PostRequest):
+    db_post = get_post(db, post_id)
+
+    if db_post:
+        db_post.title = post.title
+        db_post.description = post.description
+        db_post.author = post.author
+
+        db.commit()
+        db.refresh(db_post)
+
+    return db_post
+```
+
+### Step 5 - Delete a Post
+
+**File:** `app/crud.py`
+
+```python
+def delete_post(db: Session, post_id: int):
+    db_post = get_post(db, post_id)
+
+    if db_post:
+        db.delete(db_post)
+        db.commit()
+
+    return db_post
+```
+
+### Summary
+
+```text
+Create  → create_post()
+Read    → get_posts()
+Read    → get_post()
+Update  → update_post()
+Delete  → delete_post()
+```
+## Phase 8 - API Layer
+
+### Objective
+
+Create API endpoints for managing blog posts using the CRUD layer and Dependency Injection.
+
+### File Structure
+
+```text
+app/
+│
+├── api/
+│   └── posts.py
+│
+├── crud.py
+├── dependencies.py
+├── models.py
+└── main.py
+```
+
+### Step 1 - Create the API Endpoints
+
+**File:** `app/api/posts.py`
+
+```python
+from typing import Annotated
+
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+
+from app.crud import (
+    create_post,
+    delete_post,
+    get_post,
+    get_posts,
+    update_post,
+)
+from app.dependencies import get_db
+from app.models import PostRequest, PostResponse
+
+posts = APIRouter(prefix="/posts", tags=["Posts"])
+
+DBSession = Annotated[Session, Depends(get_db)]
+
+
+@router.post("/", response_model=PostResponse)
+def create(post: PostRequest, db: DBSession):
+    return create_post(db, post)
+
+
+@router.get("/", response_model=list[PostResponse])
+def read_all(db: DBSession):
+    return get_posts(db)
+
+
+@router.get("/{post_id}", response_model=PostResponse)
+def read(post_id: int, db: DBSession):
+    return get_post(db, post_id)
+
+
+@router.put("/{post_id}", response_model=PostResponse)
+def update(post_id: int, post: PostRequest, db: DBSession):
+    return update_post(db, post_id, post)
+
+
+@router.delete("/{post_id}", response_model=PostResponse)
+def delete(post_id: int, db: DBSession):
+    return delete_post(db, post_id)
+```
+
+### Step 2 - Register the Router
+
+**File:** `app/main.py`
+
+```python
+from fastapi import FastAPI
+
+from app.api.posts import posts
+
+app = FastAPI()
+
+app.include_router(posts)
+```
+
+### API Endpoints
+
+| Method | Endpoint | Description |
+|---------|----------|-------------|
+| POST | `/posts` | Create a Post |
+| GET | `/posts` | Get All Posts |
+| GET | `/posts/{post_id}` | Get a Post |
+| PUT | `/posts/{post_id}` | Update a Post |
+| DELETE | `/posts/{post_id}` | Delete a Post |
+
+### Request Flow
+
+```text
+Client
+   │
+   ▼
+API Endpoint
+   │
+   ▼
+Depends(get_db)
+   │
+   ▼
+CRUD Layer
+   │
+   ▼
+SQLAlchemy
+   │
+   ▼
+SQLite
+```
+
+### Summary
+
+- `APIRouter` groups all post-related endpoints.
+- `Depends(get_db)` provides a database session.
+- Endpoints call the CRUD functions.
+- Pydantic models validate requests and responses.
+
+## Phase 9 - Testing
+
+### Objective
+
+Run the application and verify all CRUD operations using the interactive API documentation.
+
+### Step 1 - Run the Application
+
+```bash
+uv run uvicorn app.main:app --reload
+```
+
+The application starts on:
+
+```text
+http://127.0.0.1:8000
+```
+
+### Step 2 - Open Swagger UI
+
+Open the following URL in your browser.
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+### Step 3 - Test the APIs
+
+#### Create a Post
+
+**POST** `/posts`
+
+Request Body
+
+```json
+{
+  "title": "Introduction to SQLAlchemy",
+  "description": "Learning SQLAlchemy ORM with FastAPI.",
+  "author": "Siva Prasad"
+}
+```
+
+#### Get All Posts
+
+**GET** `/posts`
+
+#### Get a Post
+
+**GET** `/posts/{post_id}`
+
+Example
+
+```text
+/posts/1
+```
+
+#### Update a Post
+
+**PUT** `/posts/{post_id}`
+
+Request Body
+
+```json
+{
+  "title": "SQLAlchemy ORM",
+  "description": "Updated blog post.",
+  "author": "Siva Prasad"
+}
+```
+
+#### Delete a Post
+
+**DELETE** `/posts/{post_id}`
+
+Example
+
+```text
+/posts/1
+```
+
+### Request Flow
+
+```text
+Swagger UI
+      │
+      ▼
+API Endpoint
+      │
+      ▼
+CRUD Layer
+      │
+      ▼
+SQLite Database
+      │
+      ▼
+API Response
+```
+## Phase 10 - Configure Alembic
+
+### Objective
+
+Configure Alembic to manage database schema changes.
+
+### Step 1 - Install Alembic
+
+```bash
+uv add alembic
+```
+
+### Step 2 - Initialize Alembic
+
+```bash
+uv run alembic init alembic
+```
+
+A new folder structure is created.
+
+```text
+blog-api/
+│
+├── alembic/
+│   ├── versions/
+│   ├── env.py
+│   └── script.py.mako
+│
+├── app/
+├── alembic.ini
+├── pyproject.toml
+└── uv.lock
+```
+
+### Step 3 - Configure the Database URL
+
+**File:** `alembic.ini`
+
+```ini
+sqlalchemy.url = sqlite:///blog.db
+```
+
+> Later, this can be replaced with the PostgreSQL connection string.
+
+### Step 4 - Configure the Metadata
+
+**File:** `alembic/env.py`
+
+Import the SQLAlchemy schema.
+
+```python
+from app.database import Base
+from app.schemas import Post
+```
+
+Update the target metadata.
+
+```python
+target_metadata = Base.metadata
+```
+
+Alembic now knows which database schemas to track.
+
+### Flow
+
+```text
+SQLAlchemy Schemas
+        │
+        ▼
+Base.metadata
+        │
+        ▼
+Alembic
+        │
+        ▼
+Migration Files
+```
+
+### Summary
+
+- Install Alembic.
+- Initialize the Alembic project.
+- Configure the database connection.
+- Register the SQLAlchemy schemas using `Base.metadata`.
+## Phase 11 - Generate and Apply Migrations
+
+### Objective
+
+Generate migration files from the SQLAlchemy schemas and apply them to the database.
+
+### Step 1 - Generate the Initial Migration
+
+```bash
+uv run alembic revision --autogenerate -m "Create posts table"
+```
+
+A migration file is created.
+
+```text
+alembic/
+│
+└── versions/
+    └── xxxxxxxxx_create_posts_table.py
+```
+
+### Step 2 - Apply the Migration
+
+```bash
+uv run alembic upgrade head
+```
+
+The migration is executed and the database schema is created.
+
+### Migration Flow
+
+```text
+SQLAlchemy Schemas
+        │
+        ▼
+Generate Migration
+        │
+        ▼
+Migration File
+        │
+        ▼
+Upgrade Database
+```
+
+## Phase 12 - Deploy to PostgreSQL
+
+### Objective
+
+Move the application from the development database (SQLite) to the production database (PostgreSQL).
+
+### Development
+
+```text
+FastAPI
+    │
+SQLAlchemy
+    │
+SQLite
+```
+
+```python
+DATABASE_URL = "sqlite:///blog.db"
+```
+
+### Production
+
+```text
+FastAPI
+    │
+SQLAlchemy
+    │
+PostgreSQL
+```
+
+```python
+DATABASE_URL = "postgresql+psycopg://username:password@localhost:5432/blog_db"
+```
+
+### Steps
+
+#### 1. Install the PostgreSQL Driver
+
+```bash
+uv add psycopg[binary]
+```
+
+#### 2. Create a PostgreSQL Database
+
+Example:
+
+```text
+blog_db
+```
+
+#### 3. Update the Database URL
+
+**File:** `app/database.py`
+
+```python
+DATABASE_URL = "postgresql+psycopg://username:password@localhost:5432/blog_db"
+```
+
+#### 4. Update Alembic
+
+**File:** `alembic.ini`
+
+```ini
+sqlalchemy.url = postgresql+psycopg://username:password@localhost:5432/blog_db
+```
+
+#### 5. Apply the Migrations
+
+```bash
+uv run alembic upgrade head
+```
+
+### Deployment Flow
+
+```text
+SQLite
+   │
+   ▼
+Generate Migrations
+   │
+   ▼
+Change DATABASE_URL
+   │
+   ▼
+Run
+
+alembic upgrade head
+   │
+   ▼
+PostgreSQL
+```
+
+### Key Points
+
+- Only the database connection string changes.
+- The SQLAlchemy schemas remain unchanged.
+- Existing migration files create the PostgreSQL schema.
+- Use `alembic upgrade head` to apply all migrations.

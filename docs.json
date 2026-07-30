@@ -159,7 +159,8 @@
               "orm/select-query",
               "orm/relationships",
               "orm/advanced-queries",
-              "orm/migrations"
+              "orm/migrations",
+              "orm/blog-posts-api"
             ]
           }
         ]
