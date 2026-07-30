@@ -1,0 +1,1734 @@
+---
+title: "Select Queries"
+description: "Learn SQLAlchemy select queries by comparing them with SQLite queries using a sample dataset."
+---
+
+# Select Queries
+
+This chapter demonstrates how SQL queries are translated into SQLAlchemy ORM queries.
+
+Each concept follows the same structure:
+
+1. Task
+2. SQL (SQLite)
+3. SQLAlchemy Solution
+4. Expected Output
+
+## Preparation
+
+### Student Model
+
+**File:** `models.py`
+
+```python
+from sqlalchemy import String
+from sqlalchemy.orm import Mapped, mapped_column
+
+class Student(Base):
+    __tablename__ = "students"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(100))
+    age: Mapped[int]
+    city: Mapped[str] = mapped_column(String(50))
+    course: Mapped[str] = mapped_column(String(50))
+    marks: Mapped[int]
+```
+
+### Sample Data
+
+**File:** `main.py`
+
+```python
+students = [
+    Student(name="Arjun", age=20, city="Hyderabad", course="Python", marks=85),
+    Student(name="Priya", age=22, city="Bengaluru", course="Java", marks=91),
+    Student(name="Rahul", age=19, city="Hyderabad", course="Python", marks=72),
+    Student(name="Sneha", age=21, city="Chennai", course="Java", marks=88),
+    Student(name="Kiran", age=20, city="Mumbai", course="Python", marks=95),
+    Student(name="Anjali", age=23, city="Hyderabad", course="React", marks=65),
+    Student(name="Rohit", age=18, city="Bengaluru", course="Python", marks=78),
+    Student(name="Divya", age=24, city="Delhi", course="Java", marks=81),
+    Student(name="Vikram", age=21, city="Hyderabad", course="React", marks=92),
+    Student(name="Meera", age=20, city="Mumbai", course="Python", marks=69),
+    Student(name="Suresh", age=22, city="Chennai", course="Java", marks=84),
+    Student(name="Pooja", age=19, city="Bengaluru", course="Python", marks=76),
+    Student(name="Naveen", age=25, city="Delhi", course="React", marks=87),
+    Student(name="Lakshmi", age=23, city="Hyderabad", course="Java", marks=90),
+    Student(name="Manoj", age=18, city="Mumbai", course="Python", marks=73),
+    Student(name="Deepa", age=21, city="Chennai", course="React", marks=82),
+    Student(name="Harsha", age=22, city="Delhi", course="Python", marks=94),
+    Student(name="Keerthi", age=20, city="Hyderabad", course="Java", marks=80),
+    Student(name="Ajay", age=19, city="Bengaluru", course="React", marks=89),
+    Student(name="Bhavana", age=24, city="Mumbai", course="Python", marks=77),
+    Student(name="Ganesh", age=21, city="Hyderabad", course="Java", marks=86),
+    Student(name="Kavya", age=22, city="Delhi", course="Python", marks=79),
+    Student(name="Mahesh", age=23, city="Chennai", course="React", marks=93),
+    Student(name="Nikhil", age=20, city="Hyderabad", course="Python", marks=74),
+    Student(name="Shreya", age=21, city="Bengaluru", course="Java", marks=97),
+]
+
+session.add_all(students)
+session.commit()
+```
+
+## Basic SELECT
+
+### Task
+
+Retrieve all students.
+
+### SQL (SQLite)
+
+```sql
+SELECT *
+FROM students;
+```
+
+<Accordion title="SQLAlchemy Solution">
+
+```python
+from sqlalchemy import select
+
+stmt = select(Student)
+
+result = session.execute(stmt)
+
+students = result.scalars().all()
+```
+
+</Accordion>
+
+<Accordion title="Expected Output">
+
+| Id | Name | Age | City | Course | Marks |
+|---:|------|----:|------------|--------|------:|
+| 1 | Arjun | 20 | Hyderabad | Python | 85 |
+| 2 | Priya | 22 | Bengaluru | Java | 91 |
+| 3 | Rahul | 19 | Hyderabad | Python | 72 |
+| ... | ... | ... | ... | ... | ... |
+| 25 | Shreya | 21 | Bengaluru | Java | 97 |
+
+</Accordion>
+
+## WHERE Clause
+
+### Task
+
+Retrieve all students whose age is **21 or above**.
+
+### SQL (SQLite)
+
+```sql
+SELECT *
+FROM students
+WHERE age >= 21;
+```
+
+<Accordion title="SQLAlchemy Solution">
+
+```python
+from sqlalchemy import select
+
+stmt = (
+    select(Student)
+    .where(Student.age >= 21)
+)
+
+result = session.execute(stmt)
+
+students = result.scalars().all()
+```
+
+</Accordion>
+
+<Accordion title="Expected Output">
+
+| Name | Age | City | Marks |
+|------|----:|------------|------:|
+| Priya | 22 | Bengaluru | 91 |
+| Sneha | 21 | Chennai | 88 |
+| Anjali | 23 | Hyderabad | 65 |
+| Divya | 24 | Delhi | 81 |
+| Vikram | 21 | Hyderabad | 92 |
+| Suresh | 22 | Chennai | 84 |
+| Naveen | 25 | Delhi | 87 |
+| Lakshmi | 23 | Hyderabad | 90 |
+| Deepa | 21 | Chennai | 82 |
+| Harsha | 22 | Delhi | 94 |
+| Ganesh | 21 | Hyderabad | 86 |
+| Kavya | 22 | Delhi | 79 |
+| Mahesh | 23 | Chennai | 93 |
+| Shreya | 21 | Bengaluru | 97 |
+
+</Accordion>
+
+## Comparison Operators
+
+### Greater Than (`>`)
+
+#### Task
+
+Retrieve all students whose marks are greater than **90**.
+
+### SQL (SQLite)
+
+```sql
+SELECT *
+FROM students
+WHERE marks > 90;
+```
+
+<Accordion title="SQLAlchemy Solution">
+
+```python
+stmt = (
+    select(Student)
+    .where(Student.marks > 90)
+)
+
+students = session.execute(stmt).scalars().all()
+```
+
+</Accordion>
+
+<Accordion title="Expected Output">
+
+| Name | Marks |
+|------|------:|
+| Priya | 91 |
+| Kiran | 95 |
+| Vikram | 92 |
+| Harsha | 94 |
+| Mahesh | 93 |
+| Shreya | 97 |
+
+</Accordion>
+
+### Less Than (`<`)
+
+#### Task
+
+Retrieve all students whose age is less than **20**.
+
+### SQL (SQLite)
+
+```sql
+SELECT *
+FROM students
+WHERE age < 20;
+```
+
+<Accordion title="SQLAlchemy Solution">
+
+```python
+stmt = (
+    select(Student)
+    .where(Student.age < 20)
+)
+
+students = session.execute(stmt).scalars().all()
+```
+
+</Accordion>
+
+<Accordion title="Expected Output">
+
+| Name | Age |
+|------|----:|
+| Rahul | 19 |
+| Rohit | 18 |
+| Pooja | 19 |
+| Manoj | 18 |
+| Ajay | 19 |
+
+</Accordion>
+
+### Greater Than or Equal To (`>=`)
+
+#### Task
+
+Retrieve all students whose marks are **85 or above**.
+
+### SQL (SQLite)
+
+```sql
+SELECT *
+FROM students
+WHERE marks >= 85;
+```
+
+<Accordion title="SQLAlchemy Solution">
+
+```python
+stmt = (
+    select(Student)
+    .where(Student.marks >= 85)
+)
+
+students = session.execute(stmt).scalars().all()
+```
+
+</Accordion>
+
+<Accordion title="Expected Output">
+
+| Name | Marks |
+|------|------:|
+| Arjun | 85 |
+| Priya | 91 |
+| Sneha | 88 |
+| Kiran | 95 |
+| Vikram | 92 |
+| Lakshmi | 90 |
+| Ajay | 89 |
+| Naveen | 87 |
+| Ganesh | 86 |
+| Harsha | 94 |
+| Mahesh | 93 |
+| Shreya | 97 |
+
+</Accordion>
+
+### Less Than or Equal To (`<=`)
+
+#### Task
+
+Retrieve all students whose age is **20 or below**.
+
+### SQL (SQLite)
+
+```sql
+SELECT *
+FROM students
+WHERE age <= 20;
+```
+
+<Accordion title="SQLAlchemy Solution">
+
+```python
+stmt = (
+    select(Student)
+    .where(Student.age <= 20)
+)
+
+students = session.execute(stmt).scalars().all()
+```
+
+</Accordion>
+
+<Accordion title="Expected Output">
+
+| Name | Age |
+|------|----:|
+| Arjun | 20 |
+| Rahul | 19 |
+| Kiran | 20 |
+| Rohit | 18 |
+| Meera | 20 |
+| Pooja | 19 |
+| Manoj | 18 |
+| Keerthi | 20 |
+| Ajay | 19 |
+| Nikhil | 20 |
+
+</Accordion>
+
+### Equal To (`==`)
+
+#### Task
+
+Retrieve all students from **Hyderabad**.
+
+### SQL (SQLite)
+
+```sql
+SELECT *
+FROM students
+WHERE city = 'Hyderabad';
+```
+
+<Accordion title="SQLAlchemy Solution">
+
+```python
+stmt = (
+    select(Student)
+    .where(Student.city == "Hyderabad")
+)
+
+students = session.execute(stmt).scalars().all()
+```
+
+</Accordion>
+
+<Accordion title="Expected Output">
+
+| Name | City |
+|------|-----------|
+| Arjun | Hyderabad |
+| Rahul | Hyderabad |
+| Anjali | Hyderabad |
+| Vikram | Hyderabad |
+| Lakshmi | Hyderabad |
+| Keerthi | Hyderabad |
+| Ganesh | Hyderabad |
+| Nikhil | Hyderabad |
+
+</Accordion>
+
+### Not Equal To (`!=`)
+
+#### Task
+
+Retrieve all students who are **not** enrolled in the **Python** course.
+
+### SQL (SQLite)
+
+```sql
+SELECT *
+FROM students
+WHERE course != 'Python';
+```
+
+<Accordion title="SQLAlchemy Solution">
+
+```python
+stmt = (
+    select(Student)
+    .where(Student.course != "Python")
+)
+
+students = session.execute(stmt).scalars().all()
+```
+
+</Accordion>
+
+<Accordion title="Expected Output">
+
+| Name | Course |
+|------|--------|
+| Priya | Java |
+| Sneha | Java |
+| Anjali | React |
+| Divya | Java |
+| Vikram | React |
+| Suresh | Java |
+| Naveen | React |
+| Lakshmi | Java |
+| Deepa | React |
+| Keerthi | Java |
+| Ajay | React |
+| Ganesh | Java |
+| Mahesh | React |
+| Shreya | Java |
+
+</Accordion>
+## AND Operator
+
+### Task
+
+Retrieve all students from **Hyderabad** who scored **85 or above**.
+
+### SQL (SQLite)
+
+```sql
+SELECT *
+FROM students
+WHERE city = 'Hyderabad'
+AND marks >= 85;
+```
+
+<Accordion title="SQLAlchemy Solution">
+
+```python
+stmt = (
+    select(Student)
+    .where(
+        Student.city == "Hyderabad",
+        Student.marks >= 85
+    )
+)
+
+students = session.execute(stmt).scalars().all()
+```
+
+</Accordion>
+
+<Accordion title="Expected Output">
+
+| Name | City | Marks |
+|------|-----------|------:|
+| Arjun | Hyderabad | 85 |
+| Vikram | Hyderabad | 92 |
+| Lakshmi | Hyderabad | 90 |
+| Ganesh | Hyderabad | 86 |
+
+</Accordion>
+
+## OR Operator
+
+### Task
+
+Retrieve all students who are from **Delhi** or **Mumbai**.
+
+### SQL (SQLite)
+
+```sql
+SELECT *
+FROM students
+WHERE city = 'Delhi'
+OR city = 'Mumbai';
+```
+
+<Accordion title="SQLAlchemy Solution">
+
+```python
+from sqlalchemy import or_
+
+stmt = (
+    select(Student)
+    .where(
+        or_(
+            Student.city == "Delhi",
+            Student.city == "Mumbai"
+        )
+    )
+)
+
+students = session.execute(stmt).scalars().all()
+```
+
+</Accordion>
+
+<Accordion title="Expected Output">
+
+| Name | City |
+|------|----------|
+| Kiran | Mumbai |
+| Divya | Delhi |
+| Meera | Mumbai |
+| Naveen | Delhi |
+| Manoj | Mumbai |
+| Harsha | Delhi |
+| Bhavana | Mumbai |
+| Kavya | Delhi |
+
+</Accordion>
+
+## IN Operator
+
+### Task
+
+Retrieve all students who are from **Hyderabad**, **Delhi**, or **Chennai**.
+
+### SQL (SQLite)
+
+```sql
+SELECT *
+FROM students
+WHERE city IN ('Hyderabad', 'Delhi', 'Chennai');
+```
+
+<Accordion title="SQLAlchemy Solution">
+
+```python
+stmt = (
+    select(Student)
+    .where(
+        Student.city.in_([
+            "Hyderabad",
+            "Delhi",
+            "Chennai"
+        ])
+    )
+)
+
+students = session.execute(stmt).scalars().all()
+```
+
+</Accordion>
+
+<Accordion title="Expected Output">
+
+| Name | City |
+|------|-----------|
+| Arjun | Hyderabad |
+| Rahul | Hyderabad |
+| Sneha | Chennai |
+| Anjali | Hyderabad |
+| Divya | Delhi |
+| Vikram | Hyderabad |
+| Suresh | Chennai |
+| Naveen | Delhi |
+| Lakshmi | Hyderabad |
+| Deepa | Chennai |
+| Harsha | Delhi |
+| Keerthi | Hyderabad |
+| Ganesh | Hyderabad |
+| Kavya | Delhi |
+| Mahesh | Chennai |
+| Nikhil | Hyderabad |
+
+</Accordion>
+
+## NOT IN Operator
+
+### Task
+
+Retrieve all students who are **not** from **Hyderabad** or **Delhi**.
+
+### SQL (SQLite)
+
+```sql
+SELECT *
+FROM students
+WHERE city NOT IN ('Hyderabad', 'Delhi');
+```
+
+<Accordion title="SQLAlchemy Solution">
+
+```python
+stmt = (
+    select(Student)
+    .where(
+        Student.city.not_in([
+            "Hyderabad",
+            "Delhi"
+        ])
+    )
+)
+
+students = session.execute(stmt).scalars().all()
+```
+
+</Accordion>
+
+<Accordion title="Expected Output">
+
+| Name | City |
+|------|------------|
+| Priya | Bengaluru |
+| Sneha | Chennai |
+| Kiran | Mumbai |
+| Rohit | Bengaluru |
+| Meera | Mumbai |
+| Suresh | Chennai |
+| Pooja | Bengaluru |
+| Manoj | Mumbai |
+| Deepa | Chennai |
+| Ajay | Bengaluru |
+| Bhavana | Mumbai |
+| Mahesh | Chennai |
+| Shreya | Bengaluru |
+
+</Accordion>
+
+## BETWEEN Operator
+
+### Task
+
+Retrieve all students whose marks are between **80** and **90**.
+
+### SQL (SQLite)
+
+```sql
+SELECT *
+FROM students
+WHERE marks BETWEEN 80 AND 90;
+```
+
+<Accordion title="SQLAlchemy Solution">
+
+```python
+stmt = (
+    select(Student)
+    .where(
+        Student.marks.between(80, 90)
+    )
+)
+
+students = session.execute(stmt).scalars().all()
+```
+
+</Accordion>
+
+<Accordion title="Expected Output">
+
+| Name | Marks |
+|------|------:|
+| Arjun | 85 |
+| Sneha | 88 |
+| Divya | 81 |
+| Suresh | 84 |
+| Lakshmi | 90 |
+| Deepa | 82 |
+| Keerthi | 80 |
+| Ajay | 89 |
+| Ganesh | 86 |
+| Naveen | 87 |
+
+</Accordion>
+
+## LIKE Operator
+
+### Task
+
+Retrieve all students whose names start with **'K'**.
+
+### SQL (SQLite)
+
+```sql
+SELECT *
+FROM students
+WHERE name LIKE 'K%';
+```
+
+<Accordion title="SQLAlchemy Solution">
+
+```python
+stmt = (
+    select(Student)
+    .where(
+        Student.name.like("K%")
+    )
+)
+
+students = session.execute(stmt).scalars().all()
+```
+
+</Accordion>
+
+<Accordion title="Expected Output">
+
+| Name |
+|------|
+| Kiran |
+| Keerthi |
+| Kavya |
+
+</Accordion>
+
+## ILIKE Operator
+
+> **Note:** SQLite does not support `ILIKE`. The `LIKE` operator in SQLite is case-insensitive for ASCII characters by default.
+
+### Task
+
+Retrieve all students whose names contain **'ra'**, ignoring case.
+
+### SQL (SQLite)
+
+```sql
+SELECT *
+FROM students
+WHERE LOWER(name) LIKE '%ra%';
+```
+
+<Accordion title="SQLAlchemy Solution">
+
+```python
+stmt = (
+    select(Student)
+    .where(
+        Student.name.ilike("%ra%")
+    )
+)
+
+students = session.execute(stmt).scalars().all()
+```
+
+</Accordion>
+
+<Accordion title="Expected Output">
+
+| Name |
+|------|
+| Arjun |
+| Priya |
+| Harsha |
+
+</Accordion>
+
+## ORDER BY
+
+### Ascending Order
+
+#### Task
+
+Retrieve all students ordered by **marks in ascending order**.
+
+### SQL (SQLite)
+
+```sql
+SELECT *
+FROM students
+ORDER BY marks ASC;
+```
+
+<Accordion title="SQLAlchemy Solution">
+
+```python
+stmt = (
+    select(Student)
+    .order_by(Student.marks)
+)
+
+students = session.execute(stmt).scalars().all()
+```
+
+</Accordion>
+
+<Accordion title="Expected Output">
+
+| Name | Marks |
+|------|------:|
+| Anjali | 65 |
+| Meera | 69 |
+| Rahul | 72 |
+| Manoj | 73 |
+| Nikhil | 74 |
+| ... | ... |
+
+</Accordion>
+
+### Descending Order
+
+#### Task
+
+Retrieve all students ordered by **marks in descending order**.
+
+### SQL (SQLite)
+
+```sql
+SELECT *
+FROM students
+ORDER BY marks DESC;
+```
+
+<Accordion title="SQLAlchemy Solution">
+
+```python
+stmt = (
+    select(Student)
+    .order_by(Student.marks.desc())
+)
+
+students = session.execute(stmt).scalars().all()
+```
+
+</Accordion>
+
+<Accordion title="Expected Output">
+
+| Name | Marks |
+|------|------:|
+| Shreya | 97 |
+| Kiran | 95 |
+| Harsha | 94 |
+| Mahesh | 93 |
+| Vikram | 92 |
+| ... | ... |
+
+</Accordion>
+
+## DISTINCT
+
+### Task
+
+Retrieve all unique cities.
+
+### SQL (SQLite)
+
+```sql
+SELECT DISTINCT city
+FROM students;
+```
+
+<Accordion title="SQLAlchemy Solution">
+
+```python
+stmt = (
+    select(Student.city)
+    .distinct()
+)
+
+cities = session.execute(stmt).scalars().all()
+```
+
+</Accordion>
+
+<Accordion title="Expected Output">
+
+| City |
+|------|
+| Hyderabad |
+| Bengaluru |
+| Chennai |
+| Mumbai |
+| Delhi |
+
+</Accordion>
+
+## LIMIT
+
+### Task
+
+Retrieve the **top 5 students**.
+
+### SQL (SQLite)
+
+```sql
+SELECT *
+FROM students
+LIMIT 5;
+```
+
+<Accordion title="SQLAlchemy Solution">
+
+```python
+stmt = (
+    select(Student)
+    .limit(5)
+)
+
+students = session.execute(stmt).scalars().all()
+```
+
+</Accordion>
+
+<Accordion title="Expected Output">
+
+| Name |
+|------|
+| Arjun |
+| Priya |
+| Rahul |
+| Sneha |
+| Kiran |
+
+</Accordion>
+
+## OFFSET
+
+### Task
+
+Skip the first **5 students** and retrieve the next **5 students**.
+
+### SQL (SQLite)
+
+```sql
+SELECT *
+FROM students
+LIMIT 5 OFFSET 5;
+```
+
+<Accordion title="SQLAlchemy Solution">
+
+```python
+stmt = (
+    select(Student)
+    .offset(5)
+    .limit(5)
+)
+
+students = session.execute(stmt).scalars().all()
+```
+
+</Accordion>
+
+<Accordion title="Expected Output">
+
+| Name |
+|------|
+| Anjali |
+| Rohit |
+| Divya |
+| Vikram |
+| Meera |
+
+</Accordion>
+
+## first()
+
+### Task
+
+Retrieve the first student.
+
+### SQL (SQLite)
+
+```sql
+SELECT *
+FROM students
+LIMIT 1;
+```
+
+<Accordion title="SQLAlchemy Solution">
+
+```python
+student = (
+    session.execute(select(Student))
+    .scalars()
+    .first()
+)
+```
+
+</Accordion>
+
+<Accordion title="Expected Output">
+
+| Name |
+|------|
+| Arjun |
+
+</Accordion>
+
+## one()
+
+### Task
+
+Retrieve the student whose name is **Shreya**.
+
+### SQL (SQLite)
+
+```sql
+SELECT *
+FROM students
+WHERE name = 'Shreya';
+```
+
+<Accordion title="SQLAlchemy Solution">
+
+```python
+student = (
+    session.execute(
+        select(Student)
+        .where(Student.name == "Shreya")
+    )
+    .scalars()
+    .one()
+)
+```
+
+</Accordion>
+
+<Accordion title="Expected Output">
+
+| Name | City | Marks |
+|------|------------|------:|
+| Shreya | Bengaluru | 97 |
+
+</Accordion>
+
+## one_or_none()
+
+### Task
+
+Retrieve the student whose name is **Krishna**.
+
+### SQL (SQLite)
+
+```sql
+SELECT *
+FROM students
+WHERE name = 'Krishna';
+```
+
+<Accordion title="SQLAlchemy Solution">
+
+```python
+student = (
+    session.execute(
+        select(Student)
+        .where(Student.name == "Krishna")
+    )
+    .scalars()
+    .one_or_none()
+)
+```
+
+</Accordion>
+
+<Accordion title="Expected Output">
+
+```text
+None
+```
+
+</Accordion>
+
+# Aggregate Functions
+
+Aggregate functions perform calculations on multiple rows and return a single value.
+
+| Function | Purpose |
+|----------|---------|
+| `COUNT()` | Counts rows |
+| `SUM()` | Calculates the total |
+| `AVG()` | Calculates the average |
+| `MIN()` | Finds the minimum value |
+| `MAX()` | Finds the maximum value |
+
+## COUNT()
+
+### Task
+
+Find the total number of students.
+
+### SQL (SQLite)
+
+```sql
+SELECT COUNT(*)
+FROM students;
+```
+
+<Accordion title="SQLAlchemy Solution">
+
+```python
+from sqlalchemy import func
+
+stmt = select(func.count()).select_from(Student)
+
+count = session.execute(stmt).scalar()
+```
+
+</Accordion>
+
+<Accordion title="Expected Output">
+
+```text
+25
+```
+
+</Accordion>
+
+## SUM()
+
+### Task
+
+Find the total marks of all students.
+
+### SQL (SQLite)
+
+```sql
+SELECT SUM(marks)
+FROM students;
+```
+
+<Accordion title="SQLAlchemy Solution">
+
+```python
+from sqlalchemy import func
+
+stmt = select(func.sum(Student.marks))
+
+total = session.execute(stmt).scalar()
+```
+
+</Accordion>
+
+<Accordion title="Expected Output">
+
+```text
+2093
+```
+
+</Accordion>
+
+## AVG()
+
+### Task
+
+Find the average marks.
+
+### SQL (SQLite)
+
+```sql
+SELECT AVG(marks)
+FROM students;
+```
+
+<Accordion title="SQLAlchemy Solution">
+
+```python
+from sqlalchemy import func
+
+stmt = select(func.avg(Student.marks))
+
+average = session.execute(stmt).scalar()
+```
+
+</Accordion>
+
+<Accordion title="Expected Output">
+
+```text
+83.72
+```
+
+</Accordion>
+
+## MIN()
+
+### Task
+
+Find the minimum marks.
+
+### SQL (SQLite)
+
+```sql
+SELECT MIN(marks)
+FROM students;
+```
+
+<Accordion title="SQLAlchemy Solution">
+
+```python
+from sqlalchemy import func
+
+stmt = select(func.min(Student.marks))
+
+minimum = session.execute(stmt).scalar()
+```
+
+</Accordion>
+
+<Accordion title="Expected Output">
+
+```text
+65
+```
+
+</Accordion>
+
+## MAX()
+
+### Task
+
+Find the highest marks.
+
+### SQL (SQLite)
+
+```sql
+SELECT MAX(marks)
+FROM students;
+```
+
+<Accordion title="SQLAlchemy Solution">
+
+```python
+from sqlalchemy import func
+
+stmt = select(func.max(Student.marks))
+
+maximum = session.execute(stmt).scalar()
+```
+
+</Accordion>
+
+<Accordion title="Expected Output">
+
+```text
+97
+```
+
+</Accordion>
+
+## Multiple Aggregate Functions
+
+### Task
+
+Retrieve the total students, average marks, minimum marks and maximum marks.
+
+### SQL (SQLite)
+
+```sql
+SELECT
+    COUNT(*),
+    AVG(marks),
+    MIN(marks),
+    MAX(marks)
+FROM students;
+```
+
+<Accordion title="SQLAlchemy Solution">
+
+```python
+from sqlalchemy import func
+
+stmt = select(
+    func.count(),
+    func.avg(Student.marks),
+    func.min(Student.marks),
+    func.max(Student.marks)
+)
+
+result = session.execute(stmt).one()
+```
+
+</Accordion>
+
+<Accordion title="Expected Output">
+
+| Total Students | Average | Minimum | Maximum |
+|---------------:|--------:|--------:|--------:|
+| 25 | 83.72 | 65 | 97 |
+
+</Accordion>
+
+# SQL Functions (`func`)
+
+SQLAlchemy provides the `func` object to call SQL database functions.
+
+Instead of writing SQL functions as strings, they are accessed using `func`.
+
+## Import
+
+```python
+from sqlalchemy import func
+```
+
+## General Syntax
+
+### SQL
+
+```sql
+FUNCTION(column)
+```
+
+### SQLAlchemy
+
+```python
+func.function_name(column)
+```
+
+## Common SQL Functions
+
+| SQL | SQLAlchemy |
+|------|------------|
+| `COUNT(*)` | `func.count()` |
+| `SUM(marks)` | `func.sum(Student.marks)` |
+| `AVG(marks)` | `func.avg(Student.marks)` |
+| `MIN(marks)` | `func.min(Student.marks)` |
+| `MAX(marks)` | `func.max(Student.marks)` |
+| `LOWER(name)` | `func.lower(Student.name)` |
+| `UPPER(name)` | `func.upper(Student.name)` |
+| `LENGTH(name)` | `func.length(Student.name)` |
+
+## Example
+
+### SQL (SQLite)
+
+```sql
+SELECT COUNT(*)
+FROM students;
+```
+
+### SQLAlchemy
+
+```python
+from sqlalchemy import func
+
+stmt = select(func.count()).select_from(Student)
+
+count = session.execute(stmt).scalar()
+```
+
+## How `func` Works
+
+```text
+SQL Function
+      │
+      ▼
+func.function_name(...)
+      │
+      ▼
+SQLAlchemy Query
+      │
+      ▼
+Database Function
+      │
+      ▼
+Result
+```
+
+## Where Can `func` Be Used?
+
+`func` can be used with:
+
+- `select()`
+- `where()`
+- `group_by()`
+- `having()`
+- `order_by()`
+
+## Examples
+
+```python
+func.count()
+```
+
+Counts the number of rows.
+
+```python
+func.sum(Student.marks)
+```
+
+Calculates the total marks.
+
+```python
+func.avg(Student.marks)
+```
+
+Calculates the average marks.
+
+```python
+func.min(Student.marks)
+```
+
+Returns the minimum marks.
+
+```python
+func.max(Student.marks)
+```
+
+Returns the maximum marks.
+
+```python
+func.lower(Student.name)
+```
+
+Converts the name to lowercase.
+
+```python
+func.upper(Student.name)
+```
+
+Converts the name to uppercase.
+
+```python
+func.length(Student.name)
+```
+
+Returns the length of the student's name.
+
+## Key Points
+
+- `func` is used to call SQL database functions.
+- SQLAlchemy automatically converts `func` into the corresponding SQL function.
+- `func` works with all supported databases such as SQLite, MySQL, and PostgreSQL.
+- Aggregate functions like `COUNT()`, `SUM()`, `AVG()`, `MIN()`, and `MAX()` are accessed through `func`.
+
+# GROUP BY
+
+The `GROUP BY` clause groups rows that have the same values in one or more columns. It is commonly used with aggregate functions such as `COUNT()`, `SUM()`, `AVG()`, `MIN()`, and `MAX()`.
+
+## Group by One Column
+
+### Task
+
+Count the number of students in each city.
+
+### SQL (SQLite)
+
+```sql
+SELECT city, COUNT(*)
+FROM students
+GROUP BY city;
+```
+
+<Accordion title="SQLAlchemy Solution">
+
+```python
+from sqlalchemy import func
+
+stmt = (
+    select(
+        Student.city,
+        func.count()
+    )
+    .group_by(Student.city)
+)
+
+result = session.execute(stmt).all()
+```
+
+</Accordion>
+
+<Accordion title="Expected Output">
+
+| City | Students |
+|------|---------:|
+| Bengaluru | 5 |
+| Chennai | 4 |
+| Delhi | 4 |
+| Hyderabad | 8 |
+| Mumbai | 4 |
+
+</Accordion>
+
+## Count Students in Each Course
+
+### Task
+
+Find the number of students enrolled in each course.
+
+### SQL (SQLite)
+
+```sql
+SELECT course, COUNT(*)
+FROM students
+GROUP BY course;
+```
+
+<Accordion title="SQLAlchemy Solution">
+
+```python
+stmt = (
+    select(
+        Student.course,
+        func.count()
+    )
+    .group_by(Student.course)
+)
+
+result = session.execute(stmt).all()
+```
+
+</Accordion>
+
+<Accordion title="Expected Output">
+
+| Course | Students |
+|--------|---------:|
+| Java | 8 |
+| Python | 10 |
+| React | 7 |
+
+</Accordion>
+
+## Average Marks by City
+
+### Task
+
+Find the average marks scored by students in each city.
+
+### SQL (SQLite)
+
+```sql
+SELECT city, AVG(marks)
+FROM students
+GROUP BY city;
+```
+
+<Accordion title="SQLAlchemy Solution">
+
+```python
+stmt = (
+    select(
+        Student.city,
+        func.avg(Student.marks)
+    )
+    .group_by(Student.city)
+)
+
+result = session.execute(stmt).all()
+```
+
+</Accordion>
+
+<Accordion title="Expected Output">
+
+| City | Average Marks |
+|------|--------------:|
+| Bengaluru | 86.20 |
+| Chennai | 86.75 |
+| Delhi | 85.25 |
+| Hyderabad | 80.50 |
+| Mumbai | 78.50 |
+
+</Accordion>
+
+## Maximum Marks in Each Course
+
+### Task
+
+Find the highest marks scored in each course.
+
+### SQL (SQLite)
+
+```sql
+SELECT course, MAX(marks)
+FROM students
+GROUP BY course;
+```
+
+<Accordion title="SQLAlchemy Solution">
+
+```python
+stmt = (
+    select(
+        Student.course,
+        func.max(Student.marks)
+    )
+    .group_by(Student.course)
+)
+
+result = session.execute(stmt).all()
+```
+
+</Accordion>
+
+<Accordion title="Expected Output">
+
+| Course | Maximum Marks |
+|--------|--------------:|
+| Java | 97 |
+| Python | 95 |
+| React | 93 |
+
+</Accordion>
+
+# HAVING
+
+The `HAVING` clause filters groups after `GROUP BY`.
+
+Unlike `WHERE`, which filters individual rows, `HAVING` filters grouped results.
+
+## Students Count Greater Than 4
+
+### Task
+
+Retrieve cities having more than **4 students**.
+
+### SQL (SQLite)
+
+```sql
+SELECT city, COUNT(*)
+FROM students
+GROUP BY city
+HAVING COUNT(*) > 4;
+```
+
+<Accordion title="SQLAlchemy Solution">
+
+```python
+stmt = (
+    select(
+        Student.city,
+        func.count()
+    )
+    .group_by(Student.city)
+    .having(func.count() > 4)
+)
+
+result = session.execute(stmt).all()
+```
+
+</Accordion>
+
+<Accordion title="Expected Output">
+
+| City | Students |
+|------|---------:|
+| Bengaluru | 5 |
+| Hyderabad | 8 |
+
+</Accordion>
+
+## Average Marks Greater Than 85
+
+### Task
+
+Retrieve cities whose average marks are greater than **85**.
+
+### SQL (SQLite)
+
+```sql
+SELECT city, AVG(marks)
+FROM students
+GROUP BY city
+HAVING AVG(marks) > 85;
+```
+
+<Accordion title="SQLAlchemy Solution">
+
+```python
+stmt = (
+    select(
+        Student.city,
+        func.avg(Student.marks)
+    )
+    .group_by(Student.city)
+    .having(func.avg(Student.marks) > 85)
+)
+
+result = session.execute(stmt).all()
+```
+
+</Accordion>
+
+<Accordion title="Expected Output">
+
+| City | Average Marks |
+|------|--------------:|
+| Bengaluru | 86.20 |
+| Chennai | 86.75 |
+| Delhi | 85.25 |
+
+</Accordion>
+
+## WHERE vs HAVING
+
+| WHERE | HAVING |
+|--------|---------|
+| Filters individual rows | Filters grouped rows |
+| Used before `GROUP BY` | Used after `GROUP BY` |
+| Cannot filter aggregate values | Can filter aggregate values |
+
+## Complete Example
+
+### Task
+
+Retrieve the average marks for each city, considering only students with marks **80 or above**, and display only cities whose average marks are greater than **85**.
+
+### SQL (SQLite)
+
+```sql
+SELECT city, AVG(marks)
+FROM students
+WHERE marks >= 80
+GROUP BY city
+HAVING AVG(marks) > 85
+ORDER BY city;
+```
+
+<Accordion title="SQLAlchemy Solution">
+
+```python
+stmt = (
+    select(
+        Student.city,
+        func.avg(Student.marks)
+    )
+    .where(Student.marks >= 80)
+    .group_by(Student.city)
+    .having(func.avg(Student.marks) > 85)
+    .order_by(Student.city)
+)
+
+result = session.execute(stmt).all()
+```
+
+</Accordion>
+
+<Accordion title="Expected Output">
+
+| City | Average Marks |
+|------|--------------:|
+| Bengaluru | 92.33 |
+| Chennai | 87.67 |
+| Delhi | 87.00 |
+| Hyderabad | 88.25 |
+
+</Accordion>
+

@@ -1,0 +1,234 @@
+---
+title: "CRUD Operations"
+description: "Perform basic Create, Read, Update, and Delete operations using SQLAlchemy ORM."
+---
+
+# CRUD Operations
+
+All database operations are performed using a **Session**.
+
+## Create a Session
+
+### File: `database.py`
+
+```python
+from sqlalchemy.orm import sessionmaker
+
+SessionLocal = sessionmaker(bind=engine)
+```
+
+### File: `main.py`
+
+```python
+from database import SessionLocal
+
+session = SessionLocal()
+```
+
+## Create (Insert)
+
+### File: `main.py`
+
+```python
+student = Student(name="John", age=20)
+
+session.add(student)
+
+session.commit()
+```
+
+### Explanation
+
+```python
+student = Student(name="John", age=20)
+```
+
+Creates a new `Student` object.
+
+```python
+session.add(student)
+```
+
+Adds the object to the Session.
+
+```python
+session.commit()
+```
+
+Saves the object to the database.
+
+## Read (Select)
+
+### File: `main.py`
+
+```python
+from sqlalchemy import select
+
+stmt = select(Student)
+
+result = session.execute(stmt)
+
+students = result.scalars().all()
+```
+
+### Explanation
+
+```python
+stmt = select(Student)
+```
+
+Creates a query to retrieve all students.
+
+```python
+result = session.execute(stmt)
+```
+
+Executes the query and returns a `Result` object.
+
+```python
+students = result.scalars().all()
+```
+
+Extracts the `Student` objects and returns them as a Python list.
+
+## Update
+
+### File: `main.py`
+
+```python
+student = session.get(Student, 1)
+
+student.name = "John Doe"
+student.age = 21
+
+session.commit()
+```
+
+### Explanation
+
+```python
+student = session.get(Student, 1)
+```
+
+Retrieves the student whose primary key is `1`.
+
+```python
+student.name = "John Doe"
+student.age = 21
+```
+
+Updates the object's attributes.
+
+```python
+session.commit()
+```
+
+Saves the changes to the database.
+
+### Alternative (Direct Query)
+
+```python
+from sqlalchemy import update
+
+stmt = (
+    update(Student)
+    .where(Student.id == 1)
+    .values(name="John Doe", age=21)
+)
+
+session.execute(stmt)
+
+session.commit()
+```
+
+## Delete
+
+### File: `main.py`
+
+```python
+student = session.get(Student, 1)
+
+session.delete(student)
+
+session.commit()
+```
+
+### Explanation
+
+```python
+student = session.get(Student, 1)
+```
+
+Retrieves the student to be deleted.
+
+```python
+session.delete(student)
+```
+
+Marks the object for deletion.
+
+```python
+session.commit()
+```
+
+Removes the record from the database.
+
+### Alternative (Direct Query)
+
+```python
+from sqlalchemy import delete
+
+stmt = delete(Student).where(Student.id == 1)
+
+session.execute(stmt)
+
+session.commit()
+```
+
+## Rollback Changes
+
+### File: `main.py`
+
+```python
+try:
+    session.commit()
+except Exception:
+    session.rollback()
+```
+
+### Explanation
+
+```python
+session.rollback()
+```
+
+Discards all uncommitted changes if an error occurs.
+
+## Close the Session
+
+### File: `main.py`
+
+```python
+session.close()
+```
+
+### Explanation
+
+```python
+session.close()
+```
+
+Closes the Session and releases the database connection.
+
+## Quick Revision
+
+| Operation | ORM Approach | Direct Query |
+|-----------|--------------|--------------|
+| Create | `add()` | — |
+| Read | `select()` → `execute()` → `scalars().all()` | — |
+| Update | `get()` → Modify → `commit()` | `update()` → `execute()` → `commit()` |
+| Delete | `get()` → `delete()` → `commit()` | `delete()` → `execute()` → `commit()` |
+| Rollback | `rollback()` | — |
+| Close | `close()` | — |
+
+> **Note:** The object-based approach is the recommended way to work with SQLAlchemy ORM. Direct `update()` and `delete()` statements are useful for bulk operations and will be covered in detail in the **Advanced Queries** chapter.

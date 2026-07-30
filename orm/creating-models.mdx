@@ -1,0 +1,324 @@
+---
+title: "Creating Models"
+description: "Learn how to define database tables using SQLAlchemy ORM models, mapped attributes, data types, and column configurations."
+---
+
+# Creating Models
+
+A **Model** is a Python class that SQLAlchemy maps to a database table.
+
+```text
+Python Model            Database Table
+
+Student        ─────►      students
+Teacher        ─────►      teachers
+Course         ─────►      courses
+```
+
+Each:
+
+- Model represents a **table**
+- Model object represents a **row**
+- Attribute represents a **column**
+
+Example:
+
+```python
+student = Student(id=1, name="John", age=20)
+```
+
+| id | name | age |
+|---:|------|----:|
+| 1 | John | 20 |
+
+Every model inherits from `Base`.
+
+```python
+class Student(Base):
+    ...
+```
+
+## `__tablename__`
+
+`__tablename__` specifies the database table name.
+
+```python
+class Student(Base):
+    __tablename__ = "students"
+```
+
+```text
+Student Model
+      │
+      ▼
+__tablename__
+      │
+      ▼
+students Table
+```
+
+### Naming Convention
+
+| Model | Table |
+|--------|-------|
+| `Student` | `students` |
+| `Teacher` | `teachers` |
+| `Course` | `courses` |
+
+- Model names are usually **PascalCase** and singular.
+- Table names are usually **snake_case** and plural.
+
+## `Mapped`
+
+`Mapped` declares an attribute as a mapped database column.
+
+```python
+from sqlalchemy.orm import Mapped
+
+class Student(Base):
+    __tablename__ = "students"
+
+    id: Mapped[int]
+    name: Mapped[str]
+```
+
+```text
+Python Attribute
+        │
+        ▼
+Mapped[type]
+        │
+        ▼
+Database Column
+```
+
+`Mapped` only declares the attribute. The column configuration is done using `mapped_column()`.
+
+## `mapped_column()`
+
+`mapped_column()` creates and configures the database column.
+
+```python
+from sqlalchemy.orm import Mapped, mapped_column
+
+class Student(Base):
+    __tablename__ = "students"
+
+    id: Mapped[int] = mapped_column()
+    name: Mapped[str] = mapped_column()
+```
+
+Initially, it can be used without any arguments.
+
+```python
+name: Mapped[str] = mapped_column()
+```
+
+Additional options can be provided later.
+
+```python
+id: Mapped[int] = mapped_column(primary_key=True)
+
+name: Mapped[str] = mapped_column(nullable=False)
+
+age: Mapped[int] = mapped_column(default=18)
+```
+
+## SQLAlchemy Data Types
+
+SQLAlchemy automatically maps Python types to database types. SQLAlchemy-specific types are used when additional configuration is required.
+
+### Common Data Types
+
+| Python Type | SQLAlchemy Type | Example |
+|-------------|-----------------|---------|
+| `int` | `Integer` | `Mapped[int]` |
+| `str` | `String` | `Mapped[str]` |
+| `float` | `Float` | `Mapped[float]` |
+| `Decimal` | `Numeric` | `Mapped[Decimal]` |
+| `bool` | `Boolean` | `Mapped[bool]` |
+| `bytes` | `LargeBinary` | `Mapped[bytes]` |
+| `date` | `Date` | `Mapped[date]` |
+| `time` | `Time` | `Mapped[time]` |
+| `datetime` | `DateTime` | `Mapped[datetime]` |
+| `UUID` | `Uuid` | `Mapped[UUID]` |
+| `dict` | `JSON` | `Mapped[dict]` |
+
+### String Types
+
+```python
+from sqlalchemy import String, CHAR, Text
+
+name: Mapped[str] = mapped_column(String(100))
+
+gender: Mapped[str] = mapped_column(CHAR(1))
+
+description: Mapped[str] = mapped_column(Text)
+```
+
+| Type | Purpose |
+|------|---------|
+| `String(n)` | Variable-length string |
+| `CHAR(n)` | Fixed-length string |
+| `Text` | Large text |
+
+### Numeric Types
+
+```python
+from decimal import Decimal
+from sqlalchemy import Integer, Float, Numeric
+
+age: Mapped[int] = mapped_column(Integer)
+
+salary: Mapped[float] = mapped_column(Float)
+
+price: Mapped[Decimal] = mapped_column(Numeric(10, 2))
+```
+
+`Numeric(10, 2)` means:
+
+- `10` → Total digits
+- `2` → Digits after the decimal point
+
+### Date and Time Types
+
+```python
+from datetime import date, time, datetime
+from sqlalchemy import Date, Time, DateTime
+
+dob: Mapped[date] = mapped_column(Date)
+
+login_time: Mapped[time] = mapped_column(Time)
+
+created_at: Mapped[datetime] = mapped_column(DateTime)
+```
+
+### Other Types
+
+```python
+from uuid import UUID
+from sqlalchemy import Boolean, LargeBinary, JSON, Uuid
+
+is_active: Mapped[bool] = mapped_column(Boolean)
+
+photo: Mapped[bytes] = mapped_column(LargeBinary)
+
+settings: Mapped[dict] = mapped_column(JSON)
+
+user_id: Mapped[UUID] = mapped_column(Uuid)
+```
+
+## Common Column Constraints
+
+Constraints define rules for the data stored in a column.
+
+```python
+id: Mapped[int] = mapped_column(primary_key=True)
+
+name: Mapped[str] = mapped_column(nullable=False)
+
+email: Mapped[str] = mapped_column(unique=True)
+
+age: Mapped[int] = mapped_column(default=18)
+
+username: Mapped[str] = mapped_column(index=True)
+```
+
+| Constraint | Purpose |
+|------------|---------|
+| `primary_key=True` | Marks the primary key |
+| `nullable=False` | Value cannot be `NULL` |
+| `default=value` | Sets a default value |
+| `unique=True` | Prevents duplicate values |
+| `index=True` | Creates an index for faster searching |
+
+## Complete Model
+
+```python
+from decimal import Decimal
+from datetime import datetime
+
+from sqlalchemy import String, Numeric, DateTime
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+
+class Base(DeclarativeBase):
+    pass
+
+class Student(Base):
+    __tablename__ = "students"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(100), nullable=False)
+    age: Mapped[int] = mapped_column(default=18)
+    email: Mapped[str] = mapped_column(String(100), unique=True)
+    fee: Mapped[Decimal] = mapped_column(Numeric(10, 2))
+    created_at: Mapped[datetime] = mapped_column(DateTime)
+```
+
+### Model Representation
+
+```text
+Student
+
+id          → INTEGER PRIMARY KEY
+name        → VARCHAR(100) NOT NULL
+age         → INTEGER DEFAULT 18
+email       → VARCHAR(100) UNIQUE
+fee         → NUMERIC(10,2)
+created_at  → DATETIME
+```
+### ForeignKey
+
+A **Foreign Key** creates a link between two database tables.
+
+It is used when one table refers to a record in another table.
+
+```python
+from sqlalchemy import ForeignKey
+
+course_id: Mapped[int] = mapped_column(ForeignKey("courses.id"))
+```
+
+In this example:
+
+- `course_id` is a column in the current table.
+- `"courses.id"` refers to the `id` column of the `courses` table.
+
+```text
+students Table              courses Table
+
+course_id  ─────────────►      id
+```
+
+## Relationships
+`ForeignKey` establishes the database-level relationship. The `relationship()` function is used to access related objects in Python and will be discussed in the **Relationships** chapter.
+
+### Key Points
+
+- `ForeignKey` links one table to another.
+- It references the primary key of another table.
+- It helps maintain referential integrity.
+- It is commonly used in one-to-one, one-to-many, and many-to-many relationships.
+
+## Quick Revision
+
+| Concept | Purpose |
+|---------|---------|
+| Model | Represents a database table |
+| `__tablename__` | Specifies the table name |
+| `Mapped` | Declares a mapped attribute |
+| `mapped_column()` | Creates and configures a column |
+| Python Types | Define attribute types |
+| SQLAlchemy Types | Configure database-specific types |
+| `String(100)` | Limits string length |
+| `CHAR(1)` | Fixed-length string |
+| `Text` | Large text |
+| `Numeric(10,2)` | Decimal precision |
+| `Date`, `Time`, `DateTime` | Date and time values |
+| `JSON` | Stores JSON data |
+| `LargeBinary` | Stores binary data |
+| `primary_key` | Primary key |
+| `nullable` | Allow or disallow `NULL` |
+| `default` | Default value |
+| `unique` | Prevent duplicate values |
+| `index` | Improve search performance |

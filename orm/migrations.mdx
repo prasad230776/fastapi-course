@@ -1,0 +1,375 @@
+---
+title: "Database Migrations with Alembic"
+description: "Learn how to manage database schema changes using Alembic and deploy them safely from development to production."
+---
+
+## Database Migrations
+
+As an application evolves, the database schema also changes.
+
+For example:
+
+- Add a new table
+- Add a new column
+- Remove a column
+- Rename a column
+- Add a foreign key
+- Add an index
+
+Instead of recreating the database every time, we apply only the required schema changes.
+
+These schema changes are called **migrations**.
+
+## Why Do We Need Migrations?
+
+Suppose the initial model is
+
+```text
+Student
+--------
+id
+name
+```
+
+The database becomes
+
+```text
+students
+--------
+id
+name
+```
+
+Later, you update the model.
+
+```text
+Student
+--------
+id
+name
+email
+```
+
+Calling
+
+```python
+Base.metadata.create_all(engine)
+```
+
+does **not** add the `email` column.
+
+It only creates tables that do not already exist.
+
+To update existing tables without losing data, migrations are required.
+
+## What is Alembic?
+
+Alembic is SQLAlchemy's official migration tool.
+
+It compares your SQLAlchemy models with the current database and generates the SQL required to update the schema.
+
+```text
+Models
+   │
+   ▼
+Alembic
+   │
+   ▼
+Migration File
+   │
+   ▼
+Database
+```
+
+## Step 1 — Install Alembic
+
+```bash
+pip install alembic
+```
+
+## Step 2 — Initialize Alembic
+
+Run once for the project.
+
+```bash
+alembic init alembic
+```
+
+Project structure
+
+```text
+project/
+│
+├── alembic/
+│   ├── versions/
+│   └── env.py
+│
+├── models.py
+├── database.py
+└── alembic.ini
+```
+
+## Step 3 — Configure Alembic
+
+Import your SQLAlchemy metadata inside `alembic/env.py`.
+
+```python
+from models import Base
+
+target_metadata = Base.metadata
+```
+
+Configure the database URL in `alembic.ini` (or load it dynamically from your application settings).
+
+## Step 4 — Create the Initial Migration
+
+Generate the first migration from your models.
+
+```bash
+alembic revision --autogenerate -m "Initial tables"
+```
+
+A migration file is created.
+
+```text
+alembic/
+└── versions/
+    └── xxxxx_initial_tables.py
+```
+
+## Step 5 — Apply the Migration
+
+```bash
+alembic upgrade head
+```
+
+Database tables are created.
+
+```text
+Models
+    │
+    ▼
+Migration
+    │
+    ▼
+Database
+```
+
+## Step 6 — Modify the Models
+
+Suppose you add a new field.
+
+Before
+
+```python
+name: Mapped[str]
+```
+
+After
+
+```python
+name: Mapped[str]
+email: Mapped[str]
+```
+
+## Step 7 — Generate Another Migration
+
+```bash
+alembic revision --autogenerate -m "Add email column"
+```
+
+Alembic detects the change and creates another migration file.
+
+## Step 8 — Apply the Migration
+
+```bash
+alembic upgrade head
+```
+
+The `email` column is added without affecting existing data.
+
+## Development Workflow
+
+Every time the models change, follow these steps.
+
+```text
+Modify Models
+      │
+      ▼
+Generate Migration
+
+alembic revision --autogenerate
+      │
+      ▼
+Apply Migration
+
+alembic upgrade head
+```
+
+## Deploying to Production
+
+Suppose development uses SQLite.
+
+```text
+Development
+SQLite
+```
+
+Production uses PostgreSQL.
+
+```text
+Production
+PostgreSQL
+```
+
+The migration process is exactly the same.
+
+### Step 1
+
+Finish development using SQLite.
+
+```text
+SQLite
+│
+├── Models
+├── Migration Files
+└── Application
+```
+
+### Step 2
+
+Commit everything to Git.
+
+```text
+Git
+│
+├── Source Code
+├── Models
+└── Alembic Migrations
+```
+
+> The SQLite database itself is **not** committed.
+
+### Step 3
+
+Deploy the application to the production server.
+
+### Step 4
+
+Create an empty PostgreSQL database.
+
+Example:
+
+```text
+students_db
+```
+
+### Step 5
+
+Update the database connection string.
+
+Development
+
+```text
+sqlite:///students.db
+```
+
+Production
+
+```text
+postgresql://user:password@host:5432/students_db
+```
+
+No model changes are required.
+
+### Step 6
+
+Run
+
+```bash
+alembic upgrade head
+```
+
+Alembic reads all migration files and creates the PostgreSQL tables.
+
+```text
+Migration Files
+        │
+        ▼
+PostgreSQL Database
+```
+
+The schema in PostgreSQL now matches the schema that existed in SQLite.
+
+## Why This Works
+
+Alembic does **not** migrate the database itself.
+
+It migrates the **schema**.
+
+```text
+Models
+      │
+      ▼
+Migration Files
+      │
+      ▼
+SQLite
+
+or
+
+PostgreSQL
+
+or
+
+MySQL
+```
+
+As long as the database is supported by SQLAlchemy, the same migration files can be applied.
+
+## Key Commands
+
+Initialize Alembic
+
+```bash
+alembic init alembic
+```
+
+Generate a migration
+
+```bash
+alembic revision --autogenerate -m "Description"
+```
+
+Apply migrations
+
+```bash
+alembic upgrade head
+```
+
+Rollback one migration
+
+```bash
+alembic downgrade -1
+```
+
+Show current version
+
+```bash
+alembic current
+```
+
+Show migration history
+
+```bash
+alembic history
+```
+
+## Key Points
+
+- `create_all()` creates only missing tables.
+- Alembic updates existing database schemas.
+- Every schema change should generate a migration.
+- Migration files should be committed to Git.
+- The same migration files work for SQLite, PostgreSQL, and MySQL.
+- When deploying to production, change the database URL and run `alembic upgrade head`.

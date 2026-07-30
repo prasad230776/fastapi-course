@@ -1,0 +1,281 @@
+---
+title: "Relationships"
+description: "A relationship defines how records in one table are associated with records in another table."
+---
+
+In SQLAlchemy, relationships are represented using:
+
+- `ForeignKey()` → Creates the database-level relationship.
+- `relationship()` → Creates the Python object relationship.
+- `back_populates` → Enables navigation in both directions.
+
+## Relationship Types
+
+| Relationship | Description | Example |
+|--------------|-------------|---------|
+| One-to-One | One record is related to exactly one record | Person → Passport |
+| One-to-Many | One record is related to many records | Course → Students |
+| Many-to-One | Many records are related to one record | Students → Course |
+| Many-to-Many | Many records are related to many records | Students ↔ Courses |
+
+## One-to-One (1:1)
+
+One record in one table is associated with exactly one record in another table.
+
+**Examples**
+
+- One Person → One Passport
+- One Employee → One Parking Space
+
+```text
+Person
+   │
+   │ 1 : 1
+   ▼
+Passport
+```
+
+### SQLAlchemy Implementation
+
+```python
+class Person(Base):
+    __tablename__ = "persons"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str]
+    age: Mapped[int]
+
+    passport: Mapped["Passport"] = relationship(
+        back_populates="person",
+        uselist=False
+    )
+
+
+class Passport(Base):
+    __tablename__ = "passports"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    passport_number: Mapped[str]
+    country: Mapped[str]
+
+    person_id: Mapped[int] = mapped_column(
+        ForeignKey("persons.id"),
+        unique=True
+    )
+
+    person: Mapped["Person"] = relationship(
+        back_populates="passport"
+    )
+```
+
+### Key Points
+
+- Uses `ForeignKey()` to link the tables.
+- Uses `unique=True` to ensure one passport belongs to only one person.
+- Uses `uselist=False` so `person.passport` returns a single object instead of a list.
+
+## One-to-Many (1:N)
+
+One record in one table is associated with multiple records in another table.
+
+**Examples**
+
+- One Course → Many Students
+- One Department → Many Employees
+- One Customer → Many Orders
+
+```text
+Course
+   │
+   │ 1 : N
+   ▼
+Students
+```
+
+### SQLAlchemy Implementation
+
+```python
+class Course(Base):
+    __tablename__ = "courses"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str]
+    duration: Mapped[int]
+
+    students: Mapped[list["Student"]] = relationship(
+        back_populates="course"
+    )
+
+
+class Student(Base):
+    __tablename__ = "students"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str]
+    age: Mapped[int]
+
+    course_id: Mapped[int] = mapped_column(
+        ForeignKey("courses.id")
+    )
+
+    course: Mapped["Course"] = relationship(
+        back_populates="students"
+    )
+```
+
+### Key Points
+
+- The foreign key is stored in the **many** side (`Student`).
+- The **one** side (`Course`) contains a list of students.
+- One course can have many students.
+
+## Many-to-One (N:1)
+
+Many records in one table are associated with one record in another table.
+
+**Examples**
+
+- Many Students → One Course
+- Many Employees → One Department
+- Many Orders → One Customer
+
+```text
+Students
+   │
+   │ N : 1
+   ▼
+Course
+```
+
+### SQLAlchemy Implementation
+
+```python
+class Student(Base):
+    __tablename__ = "students"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str]
+    email: Mapped[str]
+
+    course_id: Mapped[int] = mapped_column(
+        ForeignKey("courses.id")
+    )
+
+    course: Mapped["Course"] = relationship(
+        back_populates="students"
+    )
+
+
+class Course(Base):
+    __tablename__ = "courses"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str]
+    fee: Mapped[float]
+
+    students: Mapped[list["Student"]] = relationship(
+        back_populates="course"
+    )
+```
+
+### Key Points
+
+- The foreign key is stored in the **many** side (`Student`).
+- Each student belongs to one course.
+- A many-to-one relationship is simply the reverse view of a one-to-many relationship.
+
+## Many-to-Many (N:N)
+
+Many records in one table are associated with many records in another table.
+
+**Examples**
+
+- Many Students → Many Courses
+- Many Doctors → Many Patients
+- Many Authors → Many Books
+
+```text
+Students
+     │
+     │ N : N
+Enrollment
+     │
+     ▼
+Courses
+```
+
+Since one table cannot directly store multiple foreign keys for another table, an **association (junction) table** is required.
+
+### SQLAlchemy Implementation
+
+#### Association Table
+
+```python
+from sqlalchemy import Table, Column
+
+student_courses = Table(
+    "student_courses",
+    Base.metadata,
+    Column("student_id", ForeignKey("students.id"), primary_key=True),
+    Column("course_id", ForeignKey("courses.id"), primary_key=True),
+)
+```
+
+#### Student Model
+
+```python
+class Student(Base):
+    __tablename__ = "students"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str]
+    email: Mapped[str]
+
+    courses: Mapped[list["Course"]] = relationship(
+        secondary=student_courses,
+        back_populates="students"
+    )
+```
+
+#### Course Model
+
+```python
+class Course(Base):
+    __tablename__ = "courses"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str]
+    duration: Mapped[int]
+
+    students: Mapped[list["Student"]] = relationship(
+        secondary=student_courses,
+        back_populates="courses"
+    )
+```
+
+### Key Points
+
+- Uses an **association table** to connect the two tables.
+- Neither table contains a direct foreign key to the other.
+- `secondary` specifies the association table.
+- One student can enroll in many courses.
+- One course can have many students.
+
+## Summary
+
+| Relationship | Database Implementation | SQLAlchemy Implementation |
+|--------------|-------------------------|---------------------------|
+| One-to-One | `ForeignKey` + `UNIQUE` | `relationship(..., uselist=False)` |
+| One-to-Many | Foreign key in child table | `relationship()` |
+| Many-to-One | Foreign key in current table | `ForeignKey()` + `relationship()` |
+| Many-to-Many | Association table | `relationship(secondary=...)` |
+
+## Key Points
+
+- `ForeignKey()` creates the relationship in the database.
+- `relationship()` creates the relationship between Python objects.
+- `back_populates` enables navigation from both models.
+- `uselist=False` is used for one-to-one relationships.
+- `secondary` is used only for many-to-many relationships.
+- The foreign key is usually stored on the **many** side of the relationship.
+- One-to-Many and Many-to-One are two views of the same relationship.

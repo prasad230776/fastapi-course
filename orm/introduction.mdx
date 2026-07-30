@@ -1,0 +1,315 @@
+---
+title: "ORM Introduction"
+description: "Understand what an ORM is, why it is needed, and how SQLAlchemy bridges Python objects with relational databases."
+---
+
+# Chapter 1: ORM Fundamentals
+
+## Learning Objectives
+
+By the end of this chapter, you will understand:
+
+- What an ORM is
+- Why we need an ORM
+- Database World vs Python World
+- How SQLAlchemy works
+- The mapping between database tables and Python objects
+- The complete lifecycle of an ORM operation
+
+## The Problem
+
+Suppose we have a table named `students`.
+
+```sql
+CREATE TABLE students (
+    id INTEGER PRIMARY KEY,
+    name TEXT,
+    age INTEGER
+);
+```
+
+To insert a student:
+
+```sql
+INSERT INTO students (name, age)
+VALUES ('John', 20);
+```
+
+To retrieve students:
+
+```sql
+SELECT * FROM students;
+```
+
+To update a student:
+
+```sql
+UPDATE students
+SET age = 21
+WHERE id = 1;
+```
+
+To delete a student:
+
+```sql
+DELETE FROM students
+WHERE id = 1;
+```
+
+As applications grow, writing SQL everywhere becomes repetitive and difficult to maintain.
+
+## What is an ORM?
+
+**ORM (Object Relational Mapper)** is a library that converts:
+
+- Python Objects ⇄ Database Rows
+
+Instead of writing SQL, we work with Python objects.
+
+Instead of this:
+
+```sql
+INSERT INTO students (name, age)
+VALUES ('John', 20);
+```
+
+we simply write:
+
+```python
+student = Student(name="John", age=20)
+```
+
+The ORM automatically generates the SQL.
+
+## Why Do We Need an ORM?
+
+Without an ORM:
+
+```text
+Python
+   │
+Write SQL
+   │
+Database
+```
+
+With an ORM:
+
+```text
+Python Objects
+      │
+      ▼
+ SQLAlchemy ORM
+      │
+      ▼
+   SQL Queries
+      │
+      ▼
+   Database
+```
+
+SQLAlchemy acts as a translator between Python and the database.
+
+## Database World vs Python World
+
+This is the most important concept to remember.
+
+### Database World
+
+The database understands:
+
+- Tables
+- Rows
+- Columns
+- SQL
+
+Example:
+
+| id | name | age |
+|----|------|-----|
+| 1 | John | 20 |
+
+### Python World
+
+Python understands:
+
+- Classes
+- Objects
+- Attributes
+
+Example:
+
+```python
+Student(
+    id=1,
+    name="John",
+    age=20
+)
+```
+
+The ORM connects these two worlds.
+
+## Object Mapping
+
+The ORM maps database concepts to Python concepts.
+
+| Database | Python |
+|----------|--------|
+| Table | Class |
+| Row | Object |
+| Column | Attribute |
+
+Example:
+
+| Database | Python |
+|----------|--------|
+| students | Student |
+| id | id |
+| name | name |
+| age | age |
+
+## CRUD Through an ORM
+
+### Create
+
+Instead of SQL:
+
+```sql
+INSERT INTO students (name, age)
+VALUES ('John', 20);
+```
+
+we create an object.
+
+```python
+student = Student(name="John", age=20)
+```
+
+### Read
+
+Instead of SQL:
+
+```sql
+SELECT * FROM students;
+```
+
+we ask for Python objects.
+
+```python
+students = session.execute(select(Student)).scalars().all()
+```
+
+### Update
+
+Instead of SQL:
+
+```sql
+UPDATE students
+SET age = 21
+WHERE id = 1;
+```
+
+we modify the object.
+
+```python
+student.age = 21
+session.commit()
+```
+
+### Delete
+
+Instead of SQL:
+
+```sql
+DELETE FROM students
+WHERE id = 1;
+```
+
+we remove the object.
+
+```python
+session.delete(student)
+session.commit()
+```
+
+## Complete Flow
+
+```text
+Python Object
+      │
+      ▼
+ SQLAlchemy ORM
+      │
+      ▼
+ SQL Statement
+      │
+      ▼
+   Database
+      │
+      ▼
+    Result
+      │
+      ▼
+Python Object
+```
+
+As developers, we mostly work with Python objects. SQLAlchemy handles the SQL generation.
+
+## SQL vs SQLAlchemy
+
+| SQL | SQLAlchemy |
+|------|------------|
+| INSERT | Create object + `session.add()` |
+| SELECT | `select()` |
+| UPDATE | Modify object or `update()` |
+| DELETE | `session.delete()` or `delete()` |
+
+## Mental Model
+
+Never think:
+
+> "I'm writing SQLAlchemy."
+
+Instead think:
+
+> "I'm describing the data I want."
+
+Example:
+
+```python
+select(Student)
+```
+
+Read it as:
+
+> Select students.
+
+Another example:
+
+```python
+select(Student).where(Student.age > 18)
+```
+
+Read it as:
+
+> Select students where age is greater than 18.
+
+The API becomes much easier when you read it like English.
+
+## Key Takeaways
+
+- ORM stands for **Object Relational Mapper**.
+- SQLAlchemy translates Python objects into SQL.
+- The database works with tables, rows, and columns.
+- Python works with classes, objects, and attributes.
+- SQLAlchemy bridges these two worlds.
+- Think in terms of Python objects rather than SQL statements.
+
+## Quick Revision
+
+- ORM = Python Objects ⇄ Database Rows
+- Table ⇄ Class
+- Row ⇄ Object
+- Column ⇄ Attribute
+- SQLAlchemy is a translator between Python and SQL.
+- Describe the data you want instead of thinking about SQL syntax.

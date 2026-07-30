@@ -1,0 +1,484 @@
+---
+title: "SQLAlchemy Fundamentals"
+description: "Understand the core building blocks of SQLAlchemy before creating models and writing queries."
+---
+
+# SQLAlchemy Fundamentals
+
+Every SQLAlchemy application follows the same workflow.
+
+```text
+Application
+     │
+     ▼
+Database URL          DATABASE_URL
+     │
+     ▼
+Engine                create_engine()
+     │
+     ▼
+DeclarativeBase       class Base(DeclarativeBase)
+     │
+     ▼
+Models                class Student(Base)
+     │
+     ▼
+Metadata              Base.metadata
+     │
+     ▼
+Create Tables         Base.metadata.create_all()
+     │
+     ▼
+Session Factory       sessionmaker()
+     │
+     ▼
+Session               SessionLocal()
+     │
+     ▼
+Database Operations   add() • execute() • commit() • rollback() • close()
+     │
+     ▼
+Database
+```
+
+We'll understand each of these building blocks one by one in this chapter.
+
+## Database URL
+
+Before connecting to a database, SQLAlchemy needs to know:
+
+- Which database to use
+- Where it is located
+- How to connect
+
+This information is provided using a **Database URL**.
+
+### General Format
+
+```text
+dialect://username:password@host:port/database_name
+```
+
+To use a specific driver:
+
+```text
+dialect+driver://username:password@host:port/database_name
+```
+
+> The driver is optional. Specify it only when you want SQLAlchemy to use a particular driver.
+
+### URL Components
+
+| Component | Description |
+|-----------|-------------|
+| `dialect` | Database type |
+| `driver` | *(Optional)* Python driver |
+| `username` | Database username |
+| `password` | Database password |
+| `host` | Database server |
+| `port` | Database port |
+| `database_name` | Database name |
+
+### Common URLs
+
+```python
+# SQLite
+DATABASE_URL = "sqlite:///students.db"
+
+# PostgreSQL
+DATABASE_URL = "postgresql://postgres:password@localhost:5432/school"
+
+# MySQL
+DATABASE_URL = "mysql://root:password@localhost:3306/school"
+
+# SQL Server
+DATABASE_URL = "mssql://username:password@localhost/database"
+
+# Oracle
+DATABASE_URL = "oracle://username:password@localhost:1521/orclpdb"
+```
+
+### Dialect
+
+A **Dialect** identifies the database type.
+
+Examples:
+
+```text
+sqlite
+postgresql
+mysql
+oracle
+mssql
+```
+
+SQLAlchemy generates the appropriate SQL based on the selected dialect.
+
+### Driver
+
+A **Driver** is the Python library that communicates with the database.
+
+```text
+Application
+     │
+SQLAlchemy
+     │
+  Driver
+     │
+ Database
+```
+
+Common drivers:
+
+| Database | Driver |
+|----------|--------|
+| SQLite | sqlite3 |
+| PostgreSQL | psycopg |
+| MySQL | pymysql |
+| SQL Server | pyodbc |
+| Oracle | oracledb |
+
+## Engine
+
+The **Engine** creates and manages database connections.
+
+```python
+from sqlalchemy import create_engine
+
+engine = create_engine(DATABASE_URL)
+```
+
+```text
+Application
+     │
+  Engine
+     │
+ Database
+```
+
+The Engine is responsible for:
+
+- Opening connections
+- Managing connection pooling
+- Sending SQL to the database
+
+Think of it as the **gateway** to the database.
+
+## DeclarativeBase
+
+Before defining models, SQLAlchemy needs a place to register them.
+
+```python
+from sqlalchemy.orm import DeclarativeBase
+
+class Base(DeclarativeBase):
+    pass
+```
+
+Every model inherits from `Base`.
+
+```python
+class Student(Base):
+    ...
+
+class Teacher(Base):
+    ...
+```
+
+`Base` automatically registers every model.
+
+## Registry
+
+The collection of registered models is called the **Registry**.
+
+```text
+Base
+
+Student
+Teacher
+Course
+Department
+```
+
+SQLAlchemy manages the Registry automatically.
+
+## Metadata
+
+**Metadata** stores information about every registered model, including:
+
+- Table names
+- Columns
+- Primary keys
+- Constraints
+- Relationships
+
+Using Metadata, SQLAlchemy can create all tables.
+
+```python
+Base.metadata.create_all(engine)
+```
+
+```text
+Models
+   │
+   ▼
+Metadata
+   │
+   ▼
+Database Tables
+```
+
+## Session
+
+The **Session** is SQLAlchemy's workspace for communicating with the database.
+
+Every database operation goes through a Session.
+
+```text
+Application
+     │
+  Session
+     │
+ Database
+```
+
+### Creating a Session
+
+Create a Session Factory.
+
+```python
+from sqlalchemy.orm import sessionmaker
+
+SessionLocal = sessionmaker(bind=engine)
+```
+
+Create a Session.
+
+```python
+session = SessionLocal()
+```
+
+A Session Factory is created once, while Sessions are created whenever database operations are performed.
+
+### Git Analogy
+
+| Git | SQLAlchemy |
+|------|------------|
+| Modify file | Create/Modify object |
+| `git add` | `session.add()` |
+| `git commit` | `session.commit()` |
+| `git restore` | `session.rollback()` |
+
+### Saving Changes
+
+Start tracking a new object.
+
+```python
+session.add(student)
+```
+
+Save tracked changes.
+
+```python
+session.commit()
+```
+
+Discard uncommitted changes.
+
+```python
+session.rollback()
+```
+
+Close the Session.
+
+```python
+session.close()
+```
+
+## Query Execution
+
+Every query follows the same workflow.
+
+```text
+Build Query
+     │
+     ▼
+Execute Query
+     │
+     ▼
+Process Result
+```
+
+### Build a Query
+
+```python
+from sqlalchemy import select
+
+stmt = select(Student)
+```
+
+### Execute the Query
+
+```python
+result = session.execute(stmt)
+```
+
+### Process the Result
+
+```python
+students = result.scalars()
+```
+
+## Retrieving Results
+
+Return all objects.
+
+```python
+students = result.scalars().all()
+```
+
+Return the first object.
+
+```python
+student = result.scalars().first()
+```
+
+Return exactly one object.
+
+```python
+student = result.scalars().one()
+```
+
+Return one object or `None`.
+
+```python
+student = result.scalars().one_or_none()
+```
+
+Retrieve directly by primary key.
+
+```python
+student = session.get(Student, 1)
+```
+
+### Why `scalars()`?
+
+When a query is executed,
+
+```python
+result = session.execute(select(Student))
+```
+
+`execute()` returns a **Result** object, not the actual `Student` objects.
+
+```text
+Database
+    │
+    ▼
+Result
+```
+
+To extract only the ORM objects, use `scalars()`.
+
+```python
+students = result.scalars()
+```
+
+`scalars()` returns a **ScalarResult**, which is an iterable of `Student` objects.
+
+```text
+Result
+   │
+scalars()
+   │
+   ▼
+ScalarResult
+```
+
+Notice that it is **still not a Python list**.
+
+### Why `all()`?
+
+Use `all()` to convert the `ScalarResult` into a list.
+
+```python
+students = result.scalars().all()
+```
+
+Result:
+
+```python
+[
+    Student(...),
+    Student(...),
+    Student(...)
+]
+```
+
+Without `all()`, you can still iterate over the results.
+
+```python
+students = result.scalars()
+
+for student in students:
+    print(student.name)
+```
+
+### Complete Flow
+
+```text
+select(Student)
+       │
+       ▼
+session.execute()
+       │
+       ▼
+Result
+       │
+       ▼
+scalars()
+       │
+       ▼
+ScalarResult
+       │
+       ▼
+all() / first() / one() / one_or_none()
+       │
+       ▼
+Python Objects
+```
+
+### Key Points
+
+- `execute()` returns a **Result** object.
+- `scalars()` extracts the ORM objects from the Result.
+- `scalars()` returns a **ScalarResult**, not a list.
+- `all()` converts the `ScalarResult` into a Python list.
+- `first()`, `one()`, and `one_or_none()` retrieve objects in different ways.
+
+> `get()` is a shortcut for retrieving an object using its primary key.
+
+## Quick Revision
+
+| Concept | Purpose |
+|----------|---------|
+| Database URL | Database connection information |
+| Dialect | Database type |
+| Driver | Python library that communicates with the database |
+| Engine | Creates and manages connections |
+| DeclarativeBase | Registers models |
+| Registry | Collection of registered models |
+| Metadata | Stores database schema information |
+| Session | Performs database operations |
+| `session.add()` | Starts tracking a new object |
+| `session.commit()` | Saves tracked changes |
+| `session.rollback()` | Discards uncommitted changes |
+| `session.close()` | Closes the Session |
+| `select()` | Builds a query |
+| `execute()` | Executes a query |
+| `scalars()` | Extracts ORM objects |
+| `all()` | Returns all objects |
+| `first()` | Returns the first object |
+| `one()` | Returns exactly one object |
+| `one_or_none()` | Returns one object or `None` |
+| `get()` | Retrieves an object by primary key |

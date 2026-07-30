@@ -146,6 +146,25 @@
         ]
       },
       {
+        "tab": "ORM",
+        "groups": [
+          {
+            "group": "ORM Integration",
+            "pages": [
+              "orm/introduction",
+              "orm/fundamentals",
+              "orm/creating-models",
+              "orm/creating-database",
+              "orm/basic-crud",
+              "orm/select-query",
+              "orm/relationships",
+              "orm/advanced-queries",
+              "orm/migrations"
+            ]
+          }
+        ]
+      },
+      {
         "tab": "Backend Architecture",
         "groups": [
           {

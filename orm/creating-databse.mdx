@@ -1,0 +1,209 @@
+---
+title: "Creating Database"
+description: "Create database tables from SQLAlchemy models and initialize the database for ORM operations."
+---
+
+# Creating Database
+
+After defining the models, the next step is to create the corresponding tables in the database.
+
+## Project Structure
+
+```text
+project/
+│
+├── database.py
+├── models.py
+└── main.py
+```
+
+## Database Configuration
+
+Create the Database URL and Engine.
+
+**File:** `database.py`
+
+```python
+from sqlalchemy import create_engine
+
+DATABASE_URL = "sqlite:///students.db"
+
+engine = create_engine(DATABASE_URL)
+```
+
+## Define the Base
+
+Create a common Base class for all models.
+
+**File:** `database.py`
+
+```python
+from sqlalchemy.orm import DeclarativeBase
+
+class Base(DeclarativeBase):
+    pass
+```
+
+> `Base` is typically defined once in `database.py` and imported into all model files.
+
+## Define the Model
+
+Create models by inheriting from `Base`.
+
+**File:** `models.py`
+
+```python
+from sqlalchemy import String
+from sqlalchemy.orm import Mapped, mapped_column
+
+from database import Base
+
+class Student(Base):
+    __tablename__ = "students"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(100))
+```
+
+## Create Tables
+
+Create all registered tables.
+
+**File:** `main.py`
+
+```python
+from database import engine, Base
+import models
+
+Base.metadata.create_all(engine)
+```
+
+`create_all()` reads every model registered with `Base` and creates the corresponding tables.
+
+```text
+Models
+   │
+   ▼
+Metadata
+   │
+   ▼
+create_all()
+   │
+   ▼
+Database Tables
+```
+
+## Multiple Models
+
+If multiple models are defined,
+
+**File:** `models.py`
+
+```python
+class Student(Base):
+    ...
+
+class Teacher(Base):
+    ...
+
+class Course(Base):
+    ...
+```
+
+calling
+
+**File:** `main.py`
+
+```python
+Base.metadata.create_all(engine)
+```
+
+creates all registered tables.
+
+## When is `create_all()` Called?
+
+It is typically called once when the application starts.
+
+**File:** `main.py`
+
+```python
+Base.metadata.create_all(engine)
+```
+
+If a table already exists, SQLAlchemy does not recreate it.
+
+> `create_all()` creates only missing tables. It does **not** modify existing tables. Schema changes should be managed using **Alembic**.
+
+## Complete Example
+
+### File: `database.py`
+
+```python
+from sqlalchemy import create_engine
+from sqlalchemy.orm import DeclarativeBase
+
+DATABASE_URL = "sqlite:///students.db"
+
+engine = create_engine(DATABASE_URL)
+
+class Base(DeclarativeBase):
+    pass
+```
+
+### File: `models.py`
+
+```python
+from sqlalchemy import String
+from sqlalchemy.orm import Mapped, mapped_column
+
+from database import Base
+
+class Student(Base):
+    __tablename__ = "students"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(100))
+```
+
+### File: `main.py`
+
+```python
+from database import engine, Base
+import models
+
+Base.metadata.create_all(engine)
+```
+
+## What Happens Internally?
+
+```text
+Start Application
+        │
+        ▼
+Create Engine
+        │
+        ▼
+Load Models
+        │
+        ▼
+Register Models
+        │
+        ▼
+Build Metadata
+        │
+        ▼
+create_all()
+        │
+        ▼
+Database Ready
+```
+
+## Key Points
+
+- Define the Engine in `database.py`.
+- Define `Base` once in `database.py`.
+- Define all models in `models.py`.
+- Call `Base.metadata.create_all(engine)` from `main.py`.
+- `create_all()` creates all registered tables.
+- Existing tables are not recreated.
+- Use Alembic for schema changes in existing databases.
