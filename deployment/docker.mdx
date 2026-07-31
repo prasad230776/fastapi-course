@@ -1,0 +1,381 @@
+---
+title: "Docker & Docker Compose Essentials"
+description: "A concise introduction to Docker, Docker Compose, their core concepts, and how they simplify the development and deployment of FastAPI applications."
+---
+
+## What is Docker?
+
+Docker is a **containerization platform** that packages an application along with its runtime, libraries, dependencies, and configuration into a **container**.
+
+> **Build once, run anywhere.**
+
+## Why Docker?
+
+- Eliminates "Works on my machine" issues
+- Provides consistent environments
+- Isolates application dependencies
+- Simplifies deployment
+- Makes applications portable across cloud platforms
+
+## Container
+
+A **container** is a lightweight, isolated runtime environment that contains:
+
+- Application code
+- Runtime (Python)
+- Dependencies
+- Configuration
+
+Containers share the host operating system, making them fast and efficient.
+
+## Virtual Machine vs Docker
+
+### Virtual Machine
+
+Each Virtual Machine runs its own operating system.
+
+```text
+Application
+     │
+Libraries
+     │
+Guest OS
+     │
+Hypervisor
+     │
+Host OS
+     │
+Hardware
+```
+
+### Docker Container
+
+Containers share the host operating system kernel.
+
+```text
+Application
+     │
+Libraries
+     │
+Docker Engine
+     │
+Host OS
+     │
+Hardware
+```
+
+### Comparison
+
+| Feature | Virtual Machine | Docker |
+|---------|-----------------|--------|
+| Operating System | Separate Guest OS | Shares Host OS |
+| Startup | Minutes | Seconds |
+| Size | GBs | MBs |
+| Performance | More overhead | Near-native |
+| Resource Usage | High | Low |
+| Best For | Full operating systems | Applications & Microservices |
+
+> **Virtual Machines virtualize an entire operating system, whereas Docker virtualizes only the application.**
+
+## Docker Architecture
+
+```text
+Docker Client
+      │
+      ▼
+Docker Engine
+      │
+      ├── Images
+      ├── Containers
+      ├── Networks
+      └── Volumes
+```
+
+## Image
+
+A **Docker Image** is a read-only template used to create containers.
+
+```text
+Dockerfile
+      │
+      ▼
+Docker Image
+      │
+      ▼
+Docker Container
+```
+
+## Dockerfile
+
+A **Dockerfile** contains instructions to build a Docker image.
+
+Common instructions:
+
+| Instruction | Purpose |
+|-------------|---------|
+| `FROM` | Base image |
+| `WORKDIR` | Working directory |
+| `COPY` | Copy project files |
+| `RUN` | Execute build commands |
+| `ENV` | Set environment variables |
+| `EXPOSE` | Document application port |
+| `CMD` | Startup command |
+
+Example:
+
+```dockerfile
+FROM python:3.12-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+
+RUN pip install -r requirements.txt
+
+COPY . .
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+## Container Lifecycle
+
+```text
+Dockerfile
+      │
+      ▼
+Build Image
+      │
+      ▼
+Run Container
+      │
+      ├── Start
+      ├── Stop
+      ├── Restart
+      └── Remove
+```
+
+## Registry
+
+A **Docker Registry** stores Docker images.
+
+Popular registries:
+
+- Docker Hub
+- GitHub Container Registry
+- Amazon ECR
+- Google Artifact Registry
+
+## Port Mapping
+
+Maps a host port to a container port.
+
+```text
+Host:8000
+     │
+     ▼
+Container:8000
+```
+
+```bash
+docker run -p 8000:8000 fastapi-app
+```
+
+## Environment Variables
+
+Store configuration outside the application.
+
+Examples:
+
+- Database URL
+- API Keys
+- JWT Secret
+
+```bash
+docker run --env-file .env fastapi-app
+```
+
+## Volumes
+
+Volumes store data outside containers, allowing data to persist even after a container is removed.
+
+Typical use cases:
+
+- PostgreSQL data
+- Uploaded files
+- Logs
+
+## Bind Mount
+
+A bind mount shares a local directory with a container, making code changes immediately available inside the container.
+
+```bash
+-v $(pwd):/app
+```
+
+Useful during development.
+
+## Networks
+
+Docker Networks allow containers to communicate securely.
+
+```text
+FastAPI
+    │
+    ├── PostgreSQL
+    └── Redis
+```
+
+---
+
+# Docker Compose
+
+## What is Docker Compose?
+
+Docker Compose manages **multiple containers** using a single configuration file (`docker-compose.yml`).
+
+Instead of starting containers one by one, Compose starts the entire application stack with a single command.
+
+```bash
+docker compose up
+```
+
+## Why Docker Compose?
+
+Ideal for applications with multiple services such as:
+
+- FastAPI
+- PostgreSQL
+- Redis
+- Nginx
+
+## Compose File
+
+The `docker-compose.yml` file defines:
+
+- Services
+- Images
+- Ports
+- Environment variables
+- Volumes
+- Networks
+- Dependencies
+
+Example:
+
+```yaml
+services:
+
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:16
+```
+
+## Common Compose Options
+
+| Option | Purpose |
+|---------|---------|
+| `services` | Define containers |
+| `build` | Build image |
+| `image` | Use existing image |
+| `ports` | Port mapping |
+| `environment` | Environment variables |
+| `env_file` | Load `.env` |
+| `volumes` | Persistent storage |
+| `depends_on` | Service dependency |
+| `restart` | Restart policy |
+
+## Multi-Container Architecture
+
+```text
+Browser
+    │
+    ▼
+Nginx
+    │
+    ▼
+FastAPI
+    │
+    ├── PostgreSQL
+    └── Redis
+```
+
+## Docker Workflow
+
+```text
+Write Code
+      │
+      ▼
+Create Dockerfile
+      │
+      ▼
+Build Image
+      │
+      ▼
+Run Container
+      │
+      ▼
+Test Application
+```
+
+## Docker Compose Workflow
+
+```text
+Create docker-compose.yml
+          │
+          ▼
+docker compose up
+          │
+          ▼
+All Services Running
+```
+
+## Deployment Workflow
+
+```text
+Develop
+    │
+    ▼
+Test
+    │
+    ▼
+Dockerize
+    │
+    ▼
+Build Image
+    │
+    ▼
+Deploy to Cloud
+    │
+    ▼
+Configure Domain & HTTPS
+    │
+    ▼
+Application Live
+```
+
+## Best Practices
+
+- Use lightweight base images (`python:3.x-slim`)
+- Keep secrets in `.env`
+- Use volumes for persistent data
+- Use Docker Compose for multi-container applications
+- Keep images small with `.dockerignore`
+- Pin dependency versions
+- Avoid storing persistent data inside containers
+
+## Summary
+
+- **Docker** packages applications into portable containers.
+- **Containers** are lightweight and share the host operating system.
+- **Docker Images** are blueprints used to create containers.
+- **Dockerfile** defines how images are built.
+- **Volumes** preserve data beyond a container's lifetime.
+- **Networks** enable communication between containers.
+- **Docker Compose** orchestrates multiple containers from a single configuration file.
+- Docker and Docker Compose provide a consistent, scalable, and production-ready environment for developing and deploying FastAPI applications.

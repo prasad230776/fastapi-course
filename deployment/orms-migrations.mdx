@@ -1,0 +1,338 @@
+---
+title: "ORMs and DB Migrations"
+description: "Learn what an ORM is, compare popular ORM libraries used with FastAPI, understand SQLAlchemy and SQLModel, and see why database migrations are essential in production applications."
+---
+
+## What is an ORM?
+
+**ORM (Object Relational Mapper)** is a library that allows you to interact with a relational database using Python objects instead of writing raw SQL queries.
+
+Instead of writing SQL:
+
+```sql
+SELECT * FROM users WHERE id = 1;
+```
+
+You write Python code:
+
+```python
+user = session.get(User, 1)
+```
+
+The ORM translates your Python code into SQL behind the scenes.
+
+## Why Use an ORM?
+
+Benefits:
+
+- Write Python instead of SQL
+- Improved readability and maintainability
+- Database-independent code
+- Built-in relationship handling
+- Protection against SQL Injection
+- Easier CRUD operations
+- Integration with Python type hints and IDEs
+
+ORMs are ideal for most business applications. Raw SQL can still be used for complex or performance-critical queries.
+
+## Popular ORMs for FastAPI
+
+| ORM | Description | Best For |
+|------|-------------|----------|
+| SQLAlchemy | Most powerful and widely used Python ORM | Production applications |
+| SQLModel | Built on SQLAlchemy + Pydantic | FastAPI projects and beginners |
+| Tortoise ORM | Async-first ORM inspired by Django | Fully asynchronous applications |
+| Ormar | Async ORM built with SQLAlchemy Core and Pydantic | Small to medium FastAPI projects |
+| Peewee | Lightweight ORM | Small applications and prototypes |
+| Pony ORM | Pythonic query syntax | Learning and small projects |
+
+## SQLAlchemy
+
+SQLAlchemy is the **industry-standard ORM** for Python and the most commonly used ORM in production FastAPI applications.
+
+### Features
+
+- Mature and highly stable
+- Supports synchronous and asynchronous programming
+- Powerful query API
+- Advanced relationships
+- Transactions
+- Connection pooling
+- Database-agnostic
+- Works with Alembic for migrations
+
+Example:
+
+```python
+user = User(name="John", email="john@example.com")
+
+session.add(user)
+session.commit()
+```
+
+### Advantages
+
+- Extremely flexible
+- Excellent performance
+- Large community
+- Supports nearly every SQL feature
+- Suitable for enterprise applications
+
+### Drawbacks
+
+- More boilerplate code
+- Separate Pydantic schemas are required
+- Slightly steeper learning curve
+
+---
+
+## SQLModel
+
+SQLModel is a modern ORM created by the author of FastAPI.
+
+It combines:
+
+- SQLAlchemy (ORM)
+- Pydantic (Validation)
+- Python Type Hints
+
+This allows a single model to act as both:
+
+- Database model
+- Validation model
+
+Example:
+
+```python
+class User(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    name: str
+    email: str
+```
+
+### Advantages
+
+- Less boilerplate
+- Excellent integration with FastAPI
+- Type-safe models
+- Easier to learn
+- Automatic Pydantic validation
+
+### Drawbacks
+
+- Smaller ecosystem than SQLAlchemy
+- Advanced SQLAlchemy features may require dropping down to SQLAlchemy APIs
+- Slower feature adoption compared to SQLAlchemy
+
+---
+
+## SQLAlchemy vs SQLModel
+
+| Feature | SQLAlchemy | SQLModel |
+|----------|------------|----------|
+| Maturity | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
+| Learning Curve | Higher | Easier |
+| Boilerplate | More | Less |
+| Uses Pydantic | Separate schemas | Built-in |
+| Advanced Features | Excellent | Good |
+| Enterprise Usage | Very Common | Growing |
+| FastAPI Integration | Excellent | Excellent |
+
+## Which One Should You Choose?
+
+Choose **SQLAlchemy** when:
+
+- Building large production systems
+- Complex database relationships
+- Advanced queries
+- Maximum flexibility
+- Enterprise applications
+
+Choose **SQLModel** when:
+
+- Learning FastAPI
+- Small to medium projects
+- Rapid development
+- Want fewer models and less boilerplate
+
+> **Recommendation:** Learn SQLAlchemy first. Since SQLModel is built on top of SQLAlchemy, understanding SQLAlchemy makes it much easier to use SQLModel and troubleshoot advanced scenarios.
+
+## What are Database Migrations?
+
+A **database migration** is a controlled way of evolving your database schema over time.
+
+Instead of manually modifying tables, migrations record every schema change as version-controlled scripts.
+
+For example:
+
+Version 1
+
+```text
+users
+------
+id
+name
+```
+
+Version 2
+
+```text
+users
+------
+id
+name
+email
+```
+
+Instead of manually running:
+
+```sql
+ALTER TABLE users ADD COLUMN email VARCHAR(255);
+```
+
+a migration tool generates and manages this change.
+
+## Why are Migrations Important?
+
+Without migrations:
+
+- Manual SQL changes
+- Difficult team collaboration
+- Inconsistent database schemas
+- Hard to roll back changes
+
+With migrations:
+
+- Version-controlled schema
+- Easy upgrades and rollbacks
+- Consistent development and production databases
+- Team-friendly workflow
+
+## Alembic
+
+**Alembic** is the official migration tool for SQLAlchemy.
+
+It can:
+
+- Create migration scripts
+- Upgrade databases
+- Downgrade databases
+- Track schema versions
+- Auto-generate migrations from model changes
+
+Typical workflow:
+
+```text
+Modify Models
+      │
+      ▼
+Generate Migration
+      │
+      ▼
+Review Migration
+      │
+      ▼
+Apply Migration
+      │
+      ▼
+Database Updated
+```
+
+## Common Alembic Commands
+
+Initialize Alembic:
+
+```bash
+alembic init migrations
+```
+
+Generate a migration:
+
+```bash
+alembic revision --autogenerate -m "Create users table"
+```
+
+Apply migrations:
+
+```bash
+alembic upgrade head
+```
+
+Rollback one migration:
+
+```bash
+alembic downgrade -1
+```
+
+Show current version:
+
+```bash
+alembic current
+```
+
+Show migration history:
+
+```bash
+alembic history
+```
+
+## SQLModel and Migrations
+
+Although SQLModel simplifies model definitions, **it does not provide its own migration system**.
+
+SQLModel relies on **Alembic**, the same migration tool used by SQLAlchemy.
+
+Therefore, the migration workflow is identical:
+
+```text
+SQLModel Models
+       │
+       ▼
+Alembic
+       │
+       ▼
+Migration Script
+       │
+       ▼
+Database
+```
+
+## Learning Order
+
+```text
+Relational Database
+        │
+        ▼
+ORM Concepts
+        │
+        ▼
+SQLAlchemy
+        │
+        ▼
+SQLModel
+        │
+        ▼
+Relationships
+        │
+        ▼
+Sessions
+        │
+        ▼
+CRUD Operations
+        │
+        ▼
+Alembic Migrations
+        │
+        ▼
+Production Database Management
+```
+
+## Summary
+
+- ORM maps Python objects to database tables.
+- SQLAlchemy is the most powerful and widely used ORM for FastAPI.
+- SQLModel is built on SQLAlchemy and Pydantic, offering a simpler developer experience.
+- SQLAlchemy provides greater flexibility, while SQLModel reduces boilerplate.
+- Database migrations keep schema changes version-controlled.
+- Alembic is the standard migration tool for both SQLAlchemy and SQLModel.
+- Understanding SQLAlchemy first provides a solid foundation for working with SQLModel and production-grade FastAPI applications.

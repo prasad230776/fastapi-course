@@ -183,31 +183,27 @@
         ]
       },
       {
-        "tab": "Advanced Development",
+        "tab": "Other Concepts",
         "groups": [
           {
-            "group": "Advanced Concepts",
+            "group": "Miscellaneous Concepts",
             "pages": [
-              "advanced-backend/middleware",
-              "advanced-backend/background-tasks",
-              "advanced-backend/file-uploads",
-              "advanced-backend/caching",
-              "advanced-backend/websockets",
-              "advanced-backend/rate-limiting"
+              "miscellaneous/middleware",
+              "miscellaneous/cors-csrf"
             ]
           }
         ]
       },
       {
-        "tab": "Testing & Deployment",
+        "tab": "Deployment",
         "groups": [
           {
-            "group": "QA & DevOps",
+            "group": "DevOps",
             "pages": [
-              "testing-deployment/manual-testing",
-              "testing-deployment/automated-testing",
-              "testing-deployment/docker",
-              "testing-deployment/production-deployment"
+              "deployment/development-order",
+              "deployment/orms-migrations",
+              "deployment/docker",
+              "deployment/production-deployment"
             ]
           }
         ]

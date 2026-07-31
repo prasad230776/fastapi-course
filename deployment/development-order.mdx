@@ -1,0 +1,337 @@
+---
+title: "Production Development Order"
+description: "A recommended implementation sequence for building a scalable, production-grade FastAPI application with clean architecture."
+---
+
+## Why this order?
+
+A production-grade FastAPI application is developed layer by layer. Each layer builds upon the previous one, ensuring clear separation of concerns, maintainability, and scalability.
+
+The Service layer depends on custom exceptions to report business errors consistently. Therefore, exception handling should be implemented before developing the Service layer.
+
+## Recommended Development Order
+
+```text
+Project Setup
+      │
+      ▼
+Configuration
+      │
+      ▼
+Database
+      │
+      ▼
+ORM Models
+      │
+      ▼
+Pydantic Schemas
+      │
+      ▼
+Repository Layer
+      │
+      ▼
+Custom Exceptions
+      │
+      ▼
+Global Exception Handlers
+      │
+      ▼
+Service Layer
+      │
+      ▼
+Dependency Injection
+      │
+      ▼
+Authentication & Authorization
+      │
+      ▼
+API Routes
+      │
+      ▼
+Middleware
+      │
+      ▼
+Testing
+      │
+      ▼
+Logging
+      │
+      ▼
+Docker & Deployment
+      │
+      ▼
+Monitoring
+```
+
+## Phase Overview
+
+### 1. Project Setup
+
+- Create project structure
+- Create virtual environment
+- Install dependencies
+- Initialize Git repository
+
+**Deliverables**
+
+- Project scaffold
+- `requirements.txt` or `pyproject.toml`
+- `main.py`
+
+### 2. Configuration
+
+- Environment variables
+- Application settings
+- Constants
+- Security configuration
+
+**Deliverables**
+
+- `.env`
+- `.env.example`
+- `config.py`
+
+### 3. Database
+
+- Configure SQLAlchemy
+- Create Engine
+- Session management
+- Database connection
+
+**Deliverables**
+
+- `database.py`
+
+### 4. ORM Models
+
+- Database tables
+- Relationships
+- Constraints
+- Indexes
+
+**Deliverables**
+
+- SQLAlchemy models
+
+### 5. Pydantic Schemas
+
+Create separate schemas for:
+
+- Create
+- Update
+- Response
+- Internal models
+
+These schemas validate incoming requests and serialize responses.
+
+### 6. Repository Layer
+
+Responsibilities:
+
+- CRUD operations
+- Database queries
+- Pagination
+- Transactions
+
+The repository should only communicate with the database.
+
+### 7. Custom Exceptions
+
+Create application-specific exceptions such as:
+
+- ResourceNotFoundException
+- DuplicateResourceException
+- AuthenticationException
+- AuthorizationException
+- ValidationException
+
+Services will raise these exceptions whenever business rules are violated.
+
+### 8. Global Exception Handlers
+
+Register exception handlers once for the entire application.
+
+Responsibilities:
+
+- Catch custom exceptions
+- Convert them into HTTP responses
+- Return consistent error formats
+
+This avoids writing `try-except` blocks in every route.
+
+### 9. Service Layer
+
+Responsibilities:
+
+- Business logic
+- Validation
+- Calling repositories
+- Coordinating multiple repositories
+- External API integration
+
+The Service layer should not contain SQL queries.
+
+Instead of returning HTTP responses, it raises custom exceptions.
+
+Example:
+
+```python
+user = user_repository.get_by_id(user_id)
+
+if user is None:
+    raise ResourceNotFoundException("User not found")
+
+return user
+```
+
+### 10. Dependency Injection
+
+Create reusable dependencies for:
+
+- Database session
+- Current user
+- Current admin
+- Permissions
+- Configuration
+
+### 11. Authentication & Authorization
+
+Implement:
+
+- Password hashing
+- JWT Authentication
+- Refresh Tokens
+- OAuth2
+- Role-Based Access Control (RBAC)
+
+### 12. API Routes
+
+Routes should only:
+
+- Receive requests
+- Validate input
+- Call services
+- Return responses
+
+Routes should never contain business logic.
+
+### 13. Middleware
+
+Examples:
+
+- CORS
+- Logging
+- Authentication
+- Request ID
+- Compression
+- Rate Limiting
+
+### 14. Testing
+
+Write:
+
+- Unit tests
+- Repository tests
+- Service tests
+- API tests
+- Integration tests
+
+### 15. Logging
+
+Configure:
+
+- Request logging
+- Error logging
+- Audit logging
+- Structured logs
+
+Avoid using `print()` statements.
+
+### 16. Docker & Deployment
+
+Prepare:
+
+- Dockerfile
+- Docker Compose
+- Environment configuration
+- Health checks
+
+### 17. Monitoring
+
+Add:
+
+- Health endpoints
+- Metrics
+- Error tracking
+- Performance monitoring
+
+## Why Exception Handling Comes Before the Service Layer
+
+The Repository layer simply returns data.
+
+```text
+Repository
+      │
+      ▼
+Returns Object / None
+```
+
+The Service layer applies business rules.
+
+If something is invalid, it raises a custom exception.
+
+```python
+user = user_repository.get_by_id(user_id)
+
+if user is None:
+    raise ResourceNotFoundException("User not found")
+```
+
+The Global Exception Handler catches that exception and converts it into a proper HTTP response.
+
+```text
+Client
+   │
+   ▼
+Route
+   │
+   ▼
+Service
+   │
+   ▼
+raise ResourceNotFoundException
+   │
+   ▼
+Global Exception Handler
+   │
+   ▼
+404 Not Found Response
+```
+
+## Layer Responsibilities
+
+| Layer | Responsibility |
+|--------|----------------|
+| Routes | Handle HTTP requests and responses |
+| Dependencies | Inject reusable resources |
+| Services | Business logic |
+| Repositories | Database operations |
+| Models | ORM mapping |
+| Schemas | Validation and serialization |
+| Exceptions | Represent business errors |
+| Exception Handlers | Convert exceptions into HTTP responses |
+| Middleware | Cross-cutting concerns |
+| Core | Configuration, database, security |
+
+## Best Practices
+
+- Build one layer at a time.
+- Keep routes thin.
+- Keep SQL inside repositories.
+- Keep business logic inside services.
+- Raise custom exceptions from services.
+- Handle exceptions globally.
+- Separate ORM models from Pydantic schemas.
+- Use dependency injection for reusable resources.
+- Write tests for every layer.
+- Add logging and monitoring before deployment.
