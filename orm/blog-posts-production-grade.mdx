@@ -1,0 +1,2256 @@
+---
+title: "Blog Posts API - V2"
+
+description: "Build a production-ready Blog Posts REST API using FastAPI, SQLAlchemy 2.0, and Pydantic v2 while learning layered architecture, dependency injection, repository and service patterns, request and response models, exception handling, Alembic migrations, and PostgreSQL deployment."
+---
+
+# Introduction
+
+In this project, we will build a **production-grade Blog Posts REST API** using **FastAPI**, **SQLAlchemy 2.0**, and **Pydantic v2**.
+
+Unlike a basic CRUD application, this project follows a **layered architecture** that separates responsibilities into the **API**, **Service**, and **Repository** layers. This makes the application easier to understand, test, maintain, and extend as it grows.
+
+Throughout the project, we will gradually transform a simple CRUD application into a production-ready backend by introducing industry-standard practices such as dependency injection, request and response models, exception handling, and database migrations.
+
+## Learning Objectives
+
+By the end of this project, you will learn how to:
+
+- Configure SQLAlchemy with FastAPI
+- Design a relational database
+- Create SQLAlchemy models
+- Create Pydantic models for API requests and responses
+- Implement CRUD operations using the Repository pattern
+- Organize business logic using the Service layer
+- Apply Dependency Injection
+- Design REST APIs using POST, GET, PUT, PATCH, and DELETE
+- Validate requests and return structured responses
+- Implement global exception handling
+- Manage database schema changes using Alembic
+- Deploy the application from SQLite to PostgreSQL
+
+## Project Features
+
+- Production-grade project structure
+- Repository-Service architecture
+- SQLAlchemy ORM
+- Pydantic Request and Response models
+- Full CRUD operations
+- PUT and PATCH update operations
+- Dependency Injection
+- Global Exception Handling
+- Alembic Migrations
+- SQLite and PostgreSQL support
+
+## Technologies
+
+- Python
+- FastAPI
+- SQLAlchemy 2.0
+- Pydantic v2
+- SQLite
+- PostgreSQL
+- Alembic
+- Uvicorn
+
+## Project Architecture
+
+```text
+                Client
+                   │
+                   ▼
+             API Layer
+                   │
+                   ▼
+           Service Layer
+                   │
+                   ▼
+         Repository Layer
+                   │
+                   ▼
+        SQLAlchemy Models
+                   │
+                   ▼
+              Database
+```
+
+## Project Structure
+
+```text
+app/
+│
+├── api/
+│   └── posts.py
+│
+├── repositories/
+│   └── post_repository.py
+│
+├── services/
+│   └── post_service.py
+│
+├── models.py
+├── schemas.py
+├── database.py
+├── dependencies.py
+├── exceptions.py
+├── main.py
+└── utils.py
+
+alembic/
+```
+
+## Pydantic Model Hierarchy
+
+```text
+PostBase
+│
+├── PostCreate
+├── PostPutUpdate
+├── PostPatchUpdate
+└── PostResponse
+```
+
+## Roadmap
+
+```text
+Phase 1  Planning
+Phase 2  Architecture
+Phase 3  Database Configuration
+Phase 4  SQLAlchemy Models
+Phase 5  Create Database
+Phase 6  Pydantic Models
+Phase 7  Dependency Injection
+Phase 8  Repository Layer
+Phase 9  Custom Exceptions
+Phase 10  Service Layer
+Phase 11  API Layer
+Phase 12  Global Exception Handling
+Phase 13  Main Application (assemble everything)
+Phase 14  Testing APIs
+Phase 15  Alembic
+Phase 16  PostgreSQL migration
+```
+## Phase 1 - Project Planning
+
+### Objective
+
+Set up the project structure and install the required dependencies for developing a production-grade FastAPI application.
+
+### Problem Statement
+
+Develop a **Blog Posts REST API** that allows clients to:
+
+- Create a blog post
+- Retrieve one or more blog posts
+- Replace an existing blog post
+- Partially update a blog post
+- Delete a blog post
+
+The application should follow a **Repository-Service architecture** and use **SQLAlchemy ORM**, **Pydantic**, **Dependency Injection**, **Alembic**, and **PostgreSQL**.
+
+### Step 1 - Create the Project
+
+```bash
+mkdir blog-api
+
+cd blog-api
+```
+
+### Step 2 - Initialize the Project
+
+```bash
+uv init
+```
+
+### Step 3 - Create a Virtual Environment
+
+```bash
+uv venv
+```
+
+### Step 4 - Activate the Virtual Environment
+
+**Windows**
+
+```bash
+.venv\Scripts\activate
+```
+
+**macOS / Linux**
+
+```bash
+source .venv/bin/activate
+```
+
+### Step 5 - Install Required Packages
+
+```bash
+uv add fastapi uvicorn sqlalchemy alembic pydantic[email] psycopg[binary]
+```
+
+### Step 6 - Create the Project Structure
+
+```text
+blog-api/
+│
+├── app/
+│   ├── api/
+│   ├── repositories/
+│   ├── services/
+│   ├── models.py
+│   ├── schemas.py
+│   ├── database.py
+│   ├── dependencies.py
+│   ├── exceptions.py
+│   ├── main.py
+│   └── utils.py
+│
+├── alembic/
+├── pyproject.toml
+└── uv.lock
+```
+
+### Project Flow
+
+```text
+Client
+   │
+   ▼
+API Layer
+   │
+   ▼
+Service Layer
+   │
+   ▼
+Repository Layer
+   │
+   ▼
+Database
+```
+
+### Key Points
+
+- Use **uv** for dependency and environment management.
+- Organize the project using a layered architecture.
+- Keep database access inside the Repository layer.
+- Keep business logic inside the Service layer.
+- The API layer should only handle HTTP requests and responses.
+
+## Phase 2 - Project Architecture
+
+### Objective
+
+Understand the layered architecture used to organize the application before implementing any code.
+
+### Layered Architecture
+
+The application is divided into multiple layers, where each layer has a single responsibility.
+
+```text
+                Client
+                   │
+                   ▼
+             API Layer
+                   │
+                   ▼
+           Service Layer
+                   │
+                   ▼
+         Repository Layer
+                   │
+                   ▼
+        SQLAlchemy Models
+                   │
+                   ▼
+              Database
+```
+
+### Layer Responsibilities
+
+| Layer | Responsibility |
+|--------|----------------|
+| API | Handles HTTP requests and responses |
+| Service | Implements business logic |
+| Repository | Performs database operations |
+| SQLAlchemy Models | Represents database tables |
+| Database | Stores application data |
+
+### Request Flow
+
+```text
+Client
+   │
+   ▼
+API Endpoint
+   │
+   ▼
+Service
+   │
+   ▼
+Repository
+   │
+   ▼
+Database
+```
+
+### Response Flow
+
+```text
+Database
+    │
+    ▼
+Repository
+    │
+    ▼
+Service
+    │
+    ▼
+API Endpoint
+    │
+    ▼
+Client
+```
+
+### Why Layered Architecture?
+
+Without layers:
+
+```text
+API
+ │
+ ├── Business Logic
+ ├── Validation
+ ├── Database Queries
+ └── Response
+```
+
+The endpoint becomes difficult to maintain.
+
+With layers:
+
+```text
+API
+ │
+ ▼
+Service
+ │
+ ▼
+Repository
+ │
+ ▼
+Database
+```
+
+Each layer has a single responsibility.
+
+### Project Structure
+
+```text
+app/
+│
+├── api/
+│   └── posts.py
+│
+├── repositories/
+│   └── post_repository.py
+│
+├── services/
+│   └── post_service.py
+│
+├── models.py
+├── schemas.py
+├── database.py
+├── dependencies.py
+├── exceptions.py
+├── main.py
+└── utils.py
+```
+
+### Key Points
+
+- The API layer should only handle HTTP requests and responses.
+- The Service layer contains the application's business logic.
+- The Repository layer interacts with the database.
+- Database operations should never be performed directly inside the API layer.
+- Each layer depends only on the layer below it.
+
+## Phase 3 - Database Configuration
+
+### Objective
+
+Configure SQLAlchemy and load the database configuration from environment variables.
+
+### Step 1 - Create the Environment File
+
+**File:** `.env`
+
+```env
+DATABASE_URL=sqlite:///blog.db
+
+# PostgreSQL Example
+# DATABASE_URL=postgresql+psycopg://postgres:password@localhost:5432/blog_db
+```
+
+### Step 2 - Create the Application Settings
+
+**File:** `app/config.py`
+
+```python
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    DATABASE_URL: str
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        extra="ignore",
+    )
+
+
+settings = Settings()
+```
+
+### Step 3 - Create the Database Configuration
+
+**File:** `app/database.py`
+
+```python
+from sqlalchemy import create_engine
+from sqlalchemy.orm import DeclarativeBase, sessionmaker
+
+from app.config import settings
+
+engine = create_engine(settings.DATABASE_URL)
+
+SessionLocal = sessionmaker(
+    bind=engine,
+    autoflush=False,
+    autocommit=False,
+)
+```
+
+### Step 4 - Create the Base Class
+
+**File:** `app/database.py`
+
+```python
+class Base(DeclarativeBase):
+    pass
+```
+
+### Complete File
+
+**File:** `app/database.py`
+
+```python
+from sqlalchemy import create_engine
+from sqlalchemy.orm import DeclarativeBase, sessionmaker
+
+from app.config import settings
+
+engine = create_engine(settings.DATABASE_URL)
+
+SessionLocal = sessionmaker(
+    bind=engine,
+    autoflush=False,
+    autocommit=False,
+)
+
+
+class Base(DeclarativeBase):
+    pass
+```
+
+### Configuration Flow
+
+```text
+.env
+   │
+   ▼
+config.py
+   │
+   ▼
+settings
+   │
+   ▼
+database.py
+   │
+   ▼
+Engine
+   │
+   ▼
+SessionLocal
+```
+
+### Key Points
+
+- Store configuration in `.env`.
+- Access configuration using Pydantic Settings.
+- Do not hardcode database connection strings.
+- Switching databases only requires changing `.env`.
+
+## Phase 4 - Create SQLAlchemy Models
+
+### Objective
+
+Create the SQLAlchemy model that represents the `posts` table in the database.
+
+### Database Design
+
+```text
+posts
+│
+├── id
+├── title
+├── description
+├── author
+└── created_at
+```
+
+### Step 1 - Create the SQLAlchemy Model
+
+**File:** `app/models.py`
+
+```python
+from datetime import datetime
+
+from sqlalchemy import DateTime, String, func
+from sqlalchemy.orm import Mapped, mapped_column
+
+from app.database import Base
+
+
+class Post(Base):
+    __tablename__ = "posts"
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    title: Mapped[str] = mapped_column(String(200))
+    description: Mapped[str]
+    author: Mapped[str] = mapped_column(String(100))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        server_default=func.now(),
+    )
+```
+
+### SQLAlchemy Mapping
+
+| Attribute | Description |
+|-----------|-------------|
+| `__tablename__` | Database table name |
+| `Mapped[]` | Python type of the column |
+| `mapped_column()` | Creates a database column |
+| `primary_key=True` | Primary key |
+| `index=True` | Creates a database index |
+| `server_default=func.now()` | Stores the current timestamp |
+
+### Model Flow
+
+```text
+Python Class
+      │
+      ▼
+SQLAlchemy Model
+      │
+      ▼
+Database Table
+```
+
+### Key Points
+
+- Each SQLAlchemy model represents a database table.
+- Each class attribute represents a table column.
+- `Mapped[]` defines the Python data type.
+- `mapped_column()` defines the database column.
+- `Base` enables SQLAlchemy ORM mapping.
+
+## Phase 5 - Create the Database
+
+### Objective
+
+Create the database tables from the SQLAlchemy models.
+
+### Step 1 - Create the FastAPI Application
+
+**File:** `app/main.py`
+
+```python
+from fastapi import FastAPI
+
+from app.database import Base, engine
+from app.models import Post
+
+app = FastAPI()
+```
+
+### Step 2 - Create the Database Tables
+
+**File:** `app/main.py`
+
+```python
+Base.metadata.create_all(bind=engine)
+```
+
+### Complete File
+
+**File:** `app/main.py`
+
+```python
+from fastapi import FastAPI
+
+from app.database import Base, engine
+from app.models import Post
+
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI()
+```
+
+### How It Works
+
+```text
+Post Model
+     │
+     ▼
+Base.metadata
+     │
+     ▼
+create_all()
+     │
+     ▼
+blog.db
+     │
+     ▼
+posts Table
+```
+
+### Verify the Database
+
+After running the application, a SQLite database named `blog.db` is created.
+
+The database contains the following table:
+
+```text
+posts
+│
+├── id
+├── title
+├── description
+├── author
+└── created_at
+```
+
+### Run the Application
+
+```bash
+uv run uvicorn app.main:app --reload
+```
+
+### Key Points
+
+- `Base.metadata` contains all registered SQLAlchemy models.
+- `create_all()` creates the tables that do not already exist.
+- Importing `Post` registers the model with `Base.metadata`.
+- During development, `create_all()` is sufficient.
+- In production, database schema changes should be managed using **Alembic**.
+
+## Phase 6 - Create Pydantic Models
+
+### Objective
+
+Create Pydantic models to validate API requests and structure API responses.
+
+### Model Hierarchy
+
+```text
+PostBase
+│
+├── PostCreate
+├── PostPutUpdate
+├── PostPatchUpdate
+└── PostResponse
+```
+
+### Step 1 - Create the Base Model
+
+**File:** `app/schemas.py`
+
+```python
+from datetime import datetime
+
+from pydantic import BaseModel, ConfigDict
+
+
+class PostBase(BaseModel):
+    title: str
+    description: str
+    author: str
+```
+
+### Step 2 - Create the Create Model
+
+**File:** `app/schemas.py`
+
+```python
+class PostCreate(PostBase):
+    pass
+```
+
+### Step 3 - Create the PUT Update Model
+
+**File:** `app/schemas.py`
+
+```python
+class PostPutUpdate(PostBase):
+    pass
+```
+
+### Step 4 - Create the PATCH Update Model
+
+**File:** `app/schemas.py`
+
+```python
+class PostPatchUpdate(BaseModel):
+    title: str | None = None
+    description: str | None = None
+    author: str | None = None
+```
+
+### Step 5 - Create the Response Model
+
+**File:** `app/schemas.py`
+
+```python
+class PostResponse(PostBase):
+    id: int
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+```
+
+### Complete File
+
+**File:** `app/schemas.py`
+
+```python
+from datetime import datetime
+
+from pydantic import BaseModel, ConfigDict
+
+
+class PostBase(BaseModel):
+    title: str
+    description: str
+    author: str
+
+
+class PostCreate(PostBase):
+    pass
+
+
+class PostPutUpdate(PostBase):
+    pass
+
+
+class PostPatchUpdate(BaseModel):
+    title: str | None = None
+    description: str | None = None
+    author: str | None = None
+
+
+class PostResponse(PostBase):
+    id: int
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+```
+
+### Model Usage
+
+| Model | Purpose |
+|--------|---------|
+| `PostCreate` | Validate data for creating a post |
+| `PostPutUpdate` | Validate complete replacement of a post (`PUT`) |
+| `PostPatchUpdate` | Validate partial updates (`PATCH`) |
+| `PostResponse` | Structure data returned by the API |
+
+### Request Flow
+
+```text
+Client
+   │
+   ▼
+PostCreate
+   │
+   ▼
+API
+   │
+   ▼
+Database
+```
+
+### Response Flow
+
+```text
+Database
+   │
+   ▼
+PostResponse
+   │
+   ▼
+Client
+```
+
+### Key Points
+
+- `PostBase` contains the common fields shared by multiple models.
+- `PostCreate` is used for creating new posts.
+- `PostPutUpdate` replaces the entire resource.
+- `PostPatchUpdate` updates only the supplied fields.
+- `PostResponse` controls the data returned by the API.
+- `ConfigDict(from_attributes=True)` allows Pydantic to create response objects directly from SQLAlchemy model instances.
+
+## Phase 7 - Dependency Injection
+
+### Objective
+
+Create a reusable database dependency that provides a database session to the Repository layer.
+
+### Why Dependency Injection?
+
+Without Dependency Injection, every API endpoint or repository would need to create and close its own database session.
+
+With Dependency Injection, FastAPI creates the session, provides it where needed, and automatically closes it after the request is completed.
+
+### Step 1 - Create the Database Dependency
+
+**File:** `app/dependencies.py`
+
+```python
+
+from app.database import SessionLocal
+
+
+def get_db():
+    db = SessionLocal()
+
+    try:
+        yield db
+    finally:
+        db.close()
+```
+
+### How It Works
+
+```text
+Client Request
+      │
+      ▼
+FastAPI
+      │
+      ▼
+get_db()
+      │
+      ▼
+SessionLocal()
+      │
+      ▼
+Database Session
+      │
+      ▼
+Repository
+      │
+      ▼
+Database
+      │
+      ▼
+db.close()
+```
+
+### Components
+
+| Component | Purpose |
+|----------|---------|
+| `SessionLocal()` | Creates a database session |
+| `yield` | Provides the session to FastAPI |
+| `finally` | Ensures the session is always closed |
+| `Generator` | Specifies that the function yields a value before cleanup |
+
+### Key Points
+
+- A new database session is created for each request.
+- The same session is shared throughout the request.
+- FastAPI automatically closes the session after the request is completed.
+- Database sessions should always be obtained through `get_db()`.
+
+## Phase 8 - Repository Layer (Database Operations)
+
+### Objective
+
+Implement the Repository layer to perform all database operations.
+
+### Responsibilities
+
+- Create records
+- Retrieve records
+- Update records
+- Delete records
+- Commit transactions
+
+### Step 1 - Create the Repository
+
+**File:** `app/repositories/post_repository.py`
+
+```python
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+from app.models import Post
+from app.schemas import (
+    PostCreate,
+    PostPutUpdate,
+    PostPatchUpdate,
+)
+```
+
+### Step 2 - Create the Repository Class
+
+```python
+class PostRepository:
+
+    def __init__(self, db: Session):
+        self.db = db
+```
+
+The database session is stored once and reused by all repository methods.
+
+### Step 3 - Create a Post
+
+```python
+def create(self, post: PostCreate) -> Post:
+    db_post = Post(**post.model_dump())
+
+    self.db.add(db_post)
+    self.db.commit()
+    self.db.refresh(db_post)
+
+    return db_post
+```
+
+### Step 4 - Get All Posts
+
+```python
+def get_all(self) -> list[Post]:
+    stmt = select(Post)
+
+    return self.db.execute(stmt).scalars().all()
+```
+
+### Step 5 - Get a Post
+
+```python
+def get_by_id(self, post_id: int) -> Post | None:
+    return self.db.get(Post, post_id)
+```
+
+### Step 6 - Replace a Post (PUT)
+
+```python
+def replace(
+    self,
+    db_post: Post,
+    post: PostPutUpdate,
+) -> Post:
+
+    db_post.title = post.title
+    db_post.description = post.description
+    db_post.author = post.author
+
+    self.db.commit()
+    self.db.refresh(db_post)
+
+    return db_post
+```
+
+### Step 7 - Update a Post (PATCH)
+
+```python
+def update(
+    self,
+    db_post: Post,
+    post: PostPatchUpdate,
+) -> Post:
+
+    for key, value in post.model_dump(exclude_unset=True).items():
+        setattr(db_post, key, value)
+
+    self.db.commit()
+    self.db.refresh(db_post)
+
+    return db_post
+```
+
+`exclude_unset=True` ensures that only the fields sent by the client are updated.
+
+### Step 8 - Delete a Post
+
+```python
+def delete(self, db_post: Post) -> None:
+    self.db.delete(db_post)
+    self.db.commit()
+```
+
+### Repository Flow
+
+```text
+API Layer
+    │
+    ▼
+Service Layer
+    │
+    ▼
+Repository Layer
+    │
+    ▼
+Database
+```
+
+### Database Session Flow
+
+```text
+Client
+   │
+   ▼
+API
+│
+├── Depends(get_db)
+│
+▼
+db: Session
+   │
+   ▼
+PostService(db)
+   │
+   ▼
+PostRepository(db)
+```
+### Complete File
+
+**File:** `app/repositories/post_repository.py`
+
+```python
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+from app.models import Post
+from app.schemas import (
+    PostCreate,
+    PostPutUpdate,
+    PostPatchUpdate,
+)
+
+
+class PostRepository:
+
+    def __init__(self, db: Session):
+        self.db = db
+
+    def create(self, post: PostCreate) -> Post:
+        db_post = Post(**post.model_dump())
+
+        self.db.add(db_post)
+        self.db.commit()
+        self.db.refresh(db_post)
+
+        return db_post
+
+    def get_all(self) -> list[Post]:
+        stmt = select(Post)
+
+        return self.db.execute(stmt).scalars().all()
+
+    def get_by_id(self, post_id: int) -> Post | None:
+        return self.db.get(Post, post_id)
+
+    def replace(
+        self,
+        db_post: Post,
+        post: PostPutUpdate,
+    ) -> Post:
+
+        db_post.title = post.title
+        db_post.description = post.description
+        db_post.author = post.author
+
+        self.db.commit()
+        self.db.refresh(db_post)
+
+        return db_post
+
+    def update(
+        self,
+        db_post: Post,
+        post: PostPatchUpdate,
+    ) -> Post:
+
+        for key, value in post.model_dump(exclude_unset=True).items():
+            setattr(db_post, key, value)
+
+        self.db.commit()
+        self.db.refresh(db_post)
+
+        return db_post
+
+    def delete(self, db_post: Post) -> None:
+        self.db.delete(db_post)
+        self.db.commit()
+```
+
+### Key Points
+
+- The Repository layer contains only database operations.
+- `Session.get()` retrieves a record using its primary key.
+- `execute().scalars().all()` retrieves ORM objects from a query.
+- The Service layer retrieves the entity before calling `replace()` or `update()`.
+- `exclude_unset=True` updates only the supplied fields.
+- `setattr()` dynamically updates object attributes.
+
+## Phase 9 - Custom Exceptions
+
+### Objective
+
+Create a custom exception to represent business errors in the application.
+
+### Step 1 - Create the Exception
+
+**File:** `app/exceptions.py`
+
+```python
+class PostException(Exception):
+
+    def __init__(self, status_code: int, message: str):
+        self.status_code = status_code
+
+        super().__init__(message)
+```
+
+### Complete File
+
+**File:** `app/exceptions.py`
+
+```python
+class PostException(Exception):
+
+    def __init__(self, status_code: int, message: str):
+        self.status_code = status_code
+
+        super().__init__(message)
+```
+
+### Usage
+
+```python
+raise PostException(
+    status_code=404,
+    message=f"Post with id {post_id} not found.",
+)
+```
+
+```python
+raise PostException(
+    status_code=409,
+    message=f"Post '{post.title}' already exists.",
+)
+```
+
+```python
+raise PostException(
+    status_code=400,
+    message="Title cannot be empty.",
+)
+```
+
+### Key Points
+
+- `PostException` represents business errors.
+- The status code and message are supplied while raising the exception.
+- A single exception handler handles all business exceptions.
+
+## Phase 10 - Service Layer (Business Logic)
+
+### Objective
+
+Implement the Service layer to coordinate business logic and interact with the Repository layer.
+
+### Responsibilities
+
+- Implement business logic
+- Validate business rules
+- Raise custom exceptions
+- Delegate database operations to the Repository
+
+### Step 1 - Create the Service
+
+**File:** `app/services/post_service.py`
+
+```python
+from sqlalchemy.orm import Session
+
+from app.exceptions import PostException
+from app.repositories.post_repository import PostRepository
+from app.schemas import PostCreate, PostPutUpdate, PostPatchUpdate
+```
+
+### Step 2 - Create the Service Class
+
+```python
+class PostService:
+
+    def __init__(self, db: Session):
+        self.repository = PostRepository(db)
+```
+
+### Step 3 - Create a Post
+
+```python
+def create(self, post: PostCreate):
+    return self.repository.create(post)
+```
+
+### Step 4 - Get All Posts
+
+```python
+def get_all(self):
+    return self.repository.get_all()
+```
+
+### Step 5 - Get a Post
+
+```python
+def get_by_id(self, post_id: int):
+    post = self.repository.get_by_id(post_id)
+
+    if not post:
+        raise PostException(
+            status_code=404,
+            message=f"Post with id {post_id} not found.",
+        )
+
+    return post
+```
+
+### Step 6 - Replace a Post (PUT)
+
+```python
+def replace(self, post_id: int, post: PostPutUpdate):
+    db_post = self.get_by_id(post_id)
+
+    return self.repository.replace(db_post, post)
+```
+
+### Step 7 - Update a Post (PATCH)
+
+```python
+def update(self, post_id: int, post: PostPatchUpdate):
+    db_post = self.get_by_id(post_id)
+
+    return self.repository.update(db_post, post)
+```
+
+### Step 8 - Delete a Post
+
+```python
+def delete(self, post_id: int):
+    db_post = self.get_by_id(post_id)
+
+    self.repository.delete(db_post)
+```
+
+### Complete File
+
+**File:** `app/services/post_service.py`
+
+```python
+from sqlalchemy.orm import Session
+
+from app.exceptions import PostException
+from app.repositories.post_repository import PostRepository
+from app.schemas import PostCreate, PostPutUpdate, PostPatchUpdate
+
+
+class PostService:
+
+    def __init__(self, db: Session):
+        self.repository = PostRepository(db)
+
+    def create(self, post: PostCreate):
+        return self.repository.create(post)
+
+    def get_all(self):
+        return self.repository.get_all()
+
+    def get_by_id(self, post_id: int):
+        post = self.repository.get_by_id(post_id)
+
+        if not post:
+            raise PostException(
+                status_code=404,
+                message=f"Post with id {post_id} not found.",
+            )
+
+        return post
+
+    def replace(self, post_id: int, post: PostPutUpdate):
+        db_post = self.get_by_id(post_id)
+
+        return self.repository.replace(db_post, post)
+
+    def update(self, post_id: int, post: PostPatchUpdate):
+        db_post = self.get_by_id(post_id)
+
+        return self.repository.update(db_post, post)
+
+    def delete(self, post_id: int):
+        db_post = self.get_by_id(post_id)
+
+        self.repository.delete(db_post)
+```
+
+### Service Flow
+
+```text
+API Layer
+    │
+    ▼
+Service Layer
+    │
+    ▼
+Repository Layer
+    │
+    ▼
+Database
+```
+
+### Key Points
+
+- The Service layer contains business logic.
+- The Service layer communicates only with the Repository layer.
+- The Repository layer contains only database operations.
+- The Service layer raises `PostException` for business errors.
+- The API layer communicates only with the Service layer.
+
+## Phase 11 - API Layer
+
+### Objective
+
+Implement REST APIs using FastAPI, Dependency Injection, and the Service layer.
+
+### Step 1 - Create the Router
+
+**File:** `app/routers/posts.py`
+
+```python
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, Response, status
+from sqlalchemy.orm import Session
+
+from app.dependencies import get_db
+from app.schemas import (
+    PostCreate,
+    PostPatchUpdate,
+    PostPutUpdate,
+    PostResponse,
+)
+from app.services.post_service import PostService
+```
+
+### Step 2 - Create the Router Instance
+
+```python
+posts = APIRouter(
+    prefix="/posts",
+    tags=["Posts"],
+)
+
+DBSession = Annotated[Session, Depends(get_db)]
+```
+
+### Step 3 - Create a Post
+
+```python
+@posts.post(
+    "/",
+    response_model=PostResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_post(post: PostCreate, db: DBSession):
+    service = PostService(db)
+
+    return service.create(post)
+```
+
+### Step 4 - Get All Posts
+
+```python
+@posts.get(
+    "/",
+    response_model=list[PostResponse],
+)
+def get_posts(db: DBSession):
+    service = PostService(db)
+
+    return service.get_all()
+```
+
+### Step 5 - Get a Post
+
+```python
+@posts.get(
+    "/{post_id}",
+    response_model=PostResponse,
+)
+def get_post(post_id: int, db: DBSession):
+    service = PostService(db)
+
+    return service.get_by_id(post_id)
+```
+
+### Step 6 - Replace a Post (PUT)
+
+```python
+@posts.put(
+    "/{post_id}",
+    response_model=PostResponse,
+)
+def replace_post(post_id: int, post: PostPutUpdate, db: DBSession):
+    service = PostService(db)
+
+    return service.replace(post_id, post)
+```
+
+### Step 7 - Update a Post (PATCH)
+
+```python
+@posts.patch(
+    "/{post_id}",
+    response_model=PostResponse,
+)
+def update_post(post_id: int, post: PostPatchUpdate, db: DBSession):
+    service = PostService(db)
+
+    return service.update(post_id, post)
+```
+
+### Step 8 - Delete a Post
+
+```python
+@posts.delete(
+    "/{post_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def delete_post(post_id: int, db: DBSession):
+    service = PostService(db)
+
+    service.delete(post_id)
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+```
+
+### Complete File
+
+**File:** `app/routers/posts.py`
+
+```python
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, Response, status
+from sqlalchemy.orm import Session
+
+from app.dependencies import get_db
+from app.schemas import (
+    PostCreate,
+    PostPatchUpdate,
+    PostPutUpdate,
+    PostResponse,
+)
+from app.services.post_service import PostService
+
+posts = APIRouter(
+    prefix="/posts",
+    tags=["Posts"],
+)
+
+DBSession = Annotated[Session, Depends(get_db)]
+
+
+@posts.post(
+    "/",
+    response_model=PostResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_post(post: PostCreate, db: DBSession):
+    service = PostService(db)
+
+    return service.create(post)
+
+
+@posts.get(
+    "/",
+    response_model=list[PostResponse],
+)
+def get_posts(db: DBSession):
+    service = PostService(db)
+
+    return service.get_all()
+
+
+@posts.get(
+    "/{post_id}",
+    response_model=PostResponse,
+)
+def get_post(post_id: int, db: DBSession):
+    service = PostService(db)
+
+    return service.get_by_id(post_id)
+
+
+@posts.put(
+    "/{post_id}",
+    response_model=PostResponse,
+)
+def replace_post(post_id: int, post: PostPutUpdate, db: DBSession):
+    service = PostService(db)
+
+    return service.replace(post_id, post)
+
+
+@posts.patch(
+    "/{post_id}",
+    response_model=PostResponse,
+)
+def update_post(post_id: int, post: PostPatchUpdate, db: DBSession):
+    service = PostService(db)
+
+    return service.update(post_id, post)
+
+
+@posts.delete(
+    "/{post_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def delete_post(post_id: int, db: DBSession):
+    service = PostService(db)
+
+    service.delete(post_id)
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+```
+
+### Request Flow
+
+```text
+Client
+   │
+   ▼
+API Layer
+   │
+Depends(get_db)
+   │
+   ▼
+Service Layer
+   │
+   ▼
+Repository Layer
+   │
+   ▼
+Database
+```
+
+### Key Points
+
+- The API layer handles HTTP requests and responses.
+- Dependency Injection provides the database session.
+- The API layer communicates only with the Service layer.
+- `response_model` controls the response structure.
+- Appropriate HTTP status codes are returned for each endpoint.
+- Exceptions raised by the Service layer are handled globally.
+
+## Phase 12 - Global Exception Handling
+
+### Objective
+
+Handle application exceptions globally and return consistent HTTP responses.
+
+### Step 1 - Create the Exception Handlers
+
+**File:** `app/exception_handlers.py`
+
+```python
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
+
+from app.exceptions import PostException
+```
+
+### Step 2 - Register the Exception Handlers
+
+```python
+def register_exception_handlers(app: FastAPI):
+    ...
+```
+
+### Step 3 - Handle Business Exceptions
+
+```python
+@app.exception_handler(PostException)
+async def post_exception_handler(request: Request, exc: PostException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"message": str(exc)},
+    )
+```
+
+### Step 4 - Handle Starlette HTTP Exceptions
+
+```python
+@app.exception_handler(StarletteHTTPException)
+async def starlette_http_exception_handler(request: Request, exc: StarletteHTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"message": exc.detail},
+    )
+```
+
+### Step 5 - Handle FastAPI HTTP Exceptions
+
+```python
+@app.exception_handler(HTTPException)
+async def fastapi_http_exception_handler(request: Request, exc: HTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"message": exc.detail},
+    )
+```
+
+### Step 6 - Handle Validation Errors
+
+```python
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(
+        status_code=422,
+        content={
+            "message": "Validation failed.",
+            "errors": exc.errors(),
+        },
+    )
+```
+
+### Step 7 - Handle Unexpected Errors
+
+```python
+@app.exception_handler(Exception)
+async def general_exception_handler(request: Request, exc: Exception):
+    return JSONResponse(
+        status_code=500,
+        content={"message": "Internal Server Error."},
+    )
+```
+
+### Complete File
+
+**File:** `app/exception_handlers.py`
+
+```python
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
+
+from app.exceptions import PostException
+
+
+def register_exception_handlers(app: FastAPI):
+
+    @app.exception_handler(PostException)
+    async def post_exception_handler(request: Request, exc: PostException):
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"message": str(exc)},
+        )
+
+    @app.exception_handler(StarletteHTTPException)
+    async def starlette_http_exception_handler(request: Request, exc: StarletteHTTPException):
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"message": exc.detail},
+        )
+
+    @app.exception_handler(HTTPException)
+    async def fastapi_http_exception_handler(request: Request, exc: HTTPException):
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"message": exc.detail},
+        )
+
+    @app.exception_handler(RequestValidationError)
+    async def validation_exception_handler(request: Request, exc: RequestValidationError):
+        return JSONResponse(
+            status_code=422,
+            content={
+                "message": "Validation failed.",
+                "errors": exc.errors(),
+            },
+        )
+
+    @app.exception_handler(Exception)
+    async def general_exception_handler(request: Request, exc: Exception):
+        return JSONResponse(
+            status_code=500,
+            content={"message": "Internal Server Error."},
+        )
+```
+
+### Exception Hierarchy
+
+```text
+Exception
+│
+├── PostException
+│
+├── StarletteHTTPException
+│     │
+│     └── FastAPI HTTPException
+│
+├── RequestValidationError
+│
+└── Exception
+```
+
+### Exception Flow
+
+```text
+API Layer
+     │
+     ▼
+Service Layer
+     │
+     ├── PostException
+     ├── StarletteHTTPException
+     ├── FastAPI HTTPException
+     ├── RequestValidationError
+     └── Exception
+             │
+             ▼
+Global Exception Handlers
+             │
+             ▼
+JSON Response
+```
+
+### Key Points
+
+- `PostException` handles business errors.
+- `StarletteHTTPException` handles Starlette HTTP exceptions.
+- `HTTPException` handles FastAPI HTTP exceptions.
+- `RequestValidationError` handles request validation failures.
+- `Exception` handles all remaining unhandled exceptions.
+- All exceptions are converted into consistent HTTP responses.
+
+## Phase 13 - Configure the FastAPI Application
+
+### Objective
+
+Configure the FastAPI application and assemble all application components.
+
+### Step 1 - Create the Main File
+
+**File:** `app/main.py`
+
+```python
+from fastapi import FastAPI
+
+from app.database import Base, engine
+from app.exception_handlers import register_exception_handlers
+from app.routers.posts import posts
+```
+
+### Step 2 - Create the FastAPI Application
+
+```python
+app = FastAPI(
+    title="Blog API",
+    version="1.0.0",
+)
+```
+
+### Step 3 - Register Exception Handlers
+
+```python
+register_exception_handlers(app)
+```
+
+### Step 4 - Register the Routers
+
+```python
+app.include_router(posts)
+```
+
+### Step 5 - Create Database Tables
+
+```python
+Base.metadata.create_all(bind=engine)
+```
+
+### Step 6 - Create the Root Endpoint
+
+```python
+@app.get("/")
+def home():
+    return {
+        "message": "Welcome to the Blog API."
+    }
+```
+
+### Complete File
+
+**File:** `app/main.py`
+
+```python
+from fastapi import FastAPI
+
+from app.database import Base, engine
+from app.exception_handlers import register_exception_handlers
+from app.routers.posts import posts
+
+app = FastAPI(
+    title="Blog API",
+    version="1.0.0",
+)
+
+register_exception_handlers(app)
+
+app.include_router(posts)
+
+Base.metadata.create_all(bind=engine)
+
+
+@app.get("/")
+def home():
+    return {
+        "message": "Welcome to the Blog API."
+    }
+```
+
+### Application Flow
+
+```text
+Client
+   │
+   ▼
+FastAPI Application
+   │
+   ├── Exception Handlers
+   ├── Routers
+   └── Database
+```
+
+### Key Points
+
+- `FastAPI()` creates the application instance.
+- `register_exception_handlers()` registers all global exception handlers.
+- `include_router()` registers the API routes.
+- `Base.metadata.create_all()` creates database tables if they do not exist.
+- The root endpoint verifies that the application is running.
+
+## Phase 14 - Test the APIs
+
+### Objective
+
+Test all API endpoints using the automatically generated Swagger UI.
+
+### Step 1 - Start the Application
+
+```bash
+uvicorn app.main:app --reload
+```
+
+### Step 2 - Open Swagger UI
+
+Open your browser and visit:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+### Step 3 - Test the Create API
+
+**POST** `/posts`
+
+**Request Body**
+
+```json
+{
+  "title": "FastAPI",
+  "description": "Learn FastAPI",
+  "author": "Siva"
+}
+```
+
+**Expected Response**
+
+- Status Code: **201 Created**
+- Returns the created post.
+
+### Step 4 - Test Get All Posts
+
+**GET** `/posts`
+
+**Expected Response**
+
+- Status Code: **200 OK**
+- Returns all posts.
+
+### Step 5 - Test Get Post by ID
+
+**GET** `/posts/{post_id}`
+
+**Example**
+
+```text
+/posts/1
+```
+
+**Expected Response**
+
+- Status Code: **200 OK**
+- Returns the requested post.
+
+### Step 6 - Test Replace a Post
+
+**PUT** `/posts/{post_id}`
+
+**Request Body**
+
+```json
+{
+  "title": "Advanced FastAPI",
+  "description": "Complete FastAPI Guide",
+  "author": "Siva"
+}
+```
+
+**Expected Response**
+
+- Status Code: **200 OK**
+- Returns the updated post.
+
+### Step 7 - Test Update a Post
+
+**PATCH** `/posts/{post_id}`
+
+**Request Body**
+
+```json
+{
+  "title": "FastAPI Advanced"
+}
+```
+
+**Expected Response**
+
+- Status Code: **200 OK**
+- Returns the updated post.
+
+### Step 8 - Test Delete a Post
+
+**DELETE** `/posts/{post_id}`
+
+**Expected Response**
+
+- Status Code: **204 No Content**
+
+### Step 9 - Test Custom Exception
+
+Request a non-existing post.
+
+**GET**
+
+```text
+/posts/100
+```
+
+**Expected Response**
+
+- Status Code: **404 Not Found**
+- Custom exception response.
+
+### Step 10 - Test Validation Error
+
+Call the Create API without the required fields.
+
+**Request Body**
+
+```json
+{
+  "title": "FastAPI"
+}
+```
+
+**Expected Response**
+
+- Status Code: **422 Unprocessable Entity**
+- Validation error response.
+
+### Step 11 - Test OpenAPI Documentation
+
+Open:
+
+```text
+http://127.0.0.1:8000/openapi.json
+```
+
+Verify that all endpoints are listed.
+
+### Key Points
+
+- Swagger UI allows interactive API testing.
+- Response models are automatically documented.
+- Validation errors are handled globally.
+- Custom exceptions return appropriate HTTP responses.
+- OpenAPI documentation is generated automatically.
+
+## Phase 15 - Alembic Migrations
+
+### Objective
+
+Manage database schema changes using Alembic.
+
+### Step 1 - Install Alembic
+
+```bash
+pip install alembic
+```
+
+### Step 2 - Initialize Alembic
+
+```bash
+alembic init alembic
+```
+
+This creates:
+
+```text
+alembic/
+│
+├── versions/
+├── env.py
+├── script.py.mako
+└── README
+
+alembic.ini
+```
+
+### Step 3 - Configure the Database URL
+
+**File:** `alembic.ini`
+
+```ini
+sqlalchemy.url = sqlite:///blog.db
+```
+
+### Step 4 - Configure the Metadata
+
+**File:** `alembic/env.py`
+
+Import the application metadata.
+
+```python
+from app.database import Base
+from app.models import Post
+```
+
+Update:
+
+```python
+target_metadata = Base.metadata
+```
+
+### Step 5 - Create the Initial Migration
+
+```bash
+alembic revision --autogenerate -m "Initial migration"
+```
+
+A migration file is created inside:
+
+```text
+alembic/versions/
+```
+
+### Step 6 - Apply the Migration
+
+```bash
+alembic upgrade head
+```
+
+The database tables are created.
+
+### Step 7 - Verify the Migration
+
+Open the database and verify that:
+
+- `posts` table exists
+- `alembic_version` table exists
+
+### Step 8 - Modify the Model
+
+Example:
+
+```python
+published: bool = Column(Boolean, default=False)
+```
+
+### Step 9 - Generate a New Migration
+
+```bash
+alembic revision --autogenerate -m "Added published column"
+```
+
+### Step 10 - Apply the Migration
+
+```bash
+alembic upgrade head
+```
+
+The new column is added without affecting existing data.
+
+### Step 11 - Roll Back a Migration
+
+Rollback one migration.
+
+```bash
+alembic downgrade -1
+```
+
+Rollback to the base migration.
+
+```bash
+alembic downgrade base
+```
+
+### Step 12 - View Migration History
+
+```bash
+alembic history
+```
+
+### Step 13 - View Current Version
+
+```bash
+alembic current
+```
+
+### Key Commands
+
+```bash
+alembic revision --autogenerate -m "message"
+```
+
+```bash
+alembic upgrade head
+```
+
+```bash
+alembic downgrade -1
+```
+
+```bash
+alembic downgrade base
+```
+
+```bash
+alembic history
+```
+
+```bash
+alembic current
+```
+
+### Key Points
+
+- Alembic manages database schema changes.
+- Each migration is stored as a versioned Python script.
+- `revision --autogenerate` detects model changes automatically.
+- `upgrade head` applies all pending migrations.
+- `downgrade` rolls back migrations.
+- Production applications should use Alembic instead of `Base.metadata.create_all()`.
+
+## Phase 16 - Migrate to PostgreSQL
+
+### Objective
+
+Configure the application to use PostgreSQL.
+
+### Step 1 - Install PostgreSQL Driver
+
+```bash
+pip install psycopg2-binary
+```
+
+### Step 2 - Create a PostgreSQL Database
+
+Example:
+
+```text
+blog_db
+```
+
+### Step 3 - Update Environment Variables
+
+**File:** `.env`
+
+```text
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=blog_db
+DB_USER=postgres
+DB_PASSWORD=password
+```
+
+### Step 4 - Update the Database URL
+
+**File:** `app/config.py`
+
+```python
+DATABASE_URL = (
+    f"postgresql+psycopg2://"
+    f"{settings.DB_USER}:{settings.DB_PASSWORD}"
+    f"@{settings.DB_HOST}:{settings.DB_PORT}"
+    f"/{settings.DB_NAME}"
+)
+```
+
+### Step 5 - Update Alembic
+
+**File:** `alembic/env.py`
+
+```python
+config.set_main_option("sqlalchemy.url", DATABASE_URL)
+```
+
+### Step 6 - Apply the Migrations
+
+```bash
+alembic upgrade head
+```
+
+### Key Points
+
+- Update only the database configuration.
+- Apply the migrations using Alembic.
+- No changes are required to the Models, Repository, Service or API layers.

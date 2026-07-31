@@ -1,0 +1,926 @@
+---
+title: "Session-Based Authentication"
+
+description: "Implement a complete session-based authentication system in FastAPI by creating a login API, generating and managing user sessions, storing session IDs in cookies, authenticating users using session validation, protecting API endpoints, and implementing logout functionality."
+---
+
+Instead of sending the username and password with every request, users will log in once. After successful authentication, the server will create a session and return a session cookie. The browser automatically sends this cookie with subsequent requests, allowing the server to identify the authenticated user.
+
+## What We Will Implement
+
+- Login using username and password.
+- Create a unique session for authenticated users.
+- Store the session on the server.
+- Send the session ID to the client as an HTTP cookie.
+- Authenticate users using the session cookie.
+- Protect API endpoints using session-based authentication.
+- Implement logout by destroying the user session.
+
+## Authentication Flow
+Session-Based Authentication is a **stateful authentication mechanism** in which the server maintains authentication information for each logged-in user. After a successful login, the server creates a unique session, stores it, and sends a session identifier to the client as a cookie. For subsequent requests, the browser automatically sends the session cookie, allowing the server to identify the authenticated user.
+
+## Overall Flow
+
+```text
+                 Registration
+                      │
+                      ▼
+           Store User Credentials
+                      │
+                      ▼
+                    Login
+                      │
+                      ▼
+      Verify Username & Password
+                      │
+          ┌───────────┴───────────┐
+          │                       │
+      Invalid                 Valid
+          │                       │
+          ▼                       ▼
+  401 Unauthorized        Create Session
+                                  │
+                                  ▼
+                      Generate Session ID
+                                  │
+                                  ▼
+                   Store Session in Database
+                                  │
+                                  ▼
+                Send Session ID as Cookie
+                                  │
+                  ───── Future Requests ─────
+                                  │
+                                  ▼
+            Browser Sends Session Cookie
+                                  │
+                                  ▼
+                  Read Session ID Cookie
+                                  │
+                                  ▼
+             Validate Session in Database
+                                  │
+                      ┌───────────┴───────────┐
+                      │                       │
+                  Invalid                 Valid
+                      │                       │
+                      ▼                       ▼
+             401 Unauthorized      Retrieve User
+                                              │
+                                              ▼
+                                      Execute API
+                                              │
+                                              ▼
+                                           Logout
+                                              │
+                                              ▼
+                              Delete Session from Database
+                                              │
+                                              ▼
+                               Delete Session Cookie
+```
+
+## Components
+
+| Component | Purpose |
+|-----------|---------|
+| User | Stores user credentials |
+| Login API | Authenticates the user |
+| Session | Represents a logged-in user |
+| Session ID | Unique identifier for the session |
+| Cookie | Stores the session ID on the client |
+| Session Table | Stores active sessions on the server |
+| Authentication Dependency | Validates the session and retrieves the user |
+| Logout API | Removes the session and cookie |
+
+## Advantages
+
+- Users log in only once.
+- Username and password are not sent with every request.
+- Browsers automatically send cookies with each request.
+- Easy to implement for traditional web applications.
+- The server can immediately invalidate a session by deleting it.
+- Supports centralized session management.
+- Well suited for server-rendered applications.
+
+## Disadvantages
+
+- The server must maintain session state.
+- Requires additional storage for active sessions.
+- Less scalable in distributed or microservice architectures.
+- Session storage must be shared across multiple servers in load-balanced environments.
+- Cookies are primarily designed for browser-based applications.
+- Session expiration and cleanup must be managed by the server.
+
+## APIs
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/login` | Authenticate the user and create a session |
+| POST | `/logout` | Destroy the current session |
+| GET | `/public` | Accessible by everyone |
+| GET | `/protected` | Accessible only to authenticated users |
+
+## Implementation Plan
+
+We will complete this implementation in the following tasks:
+
+1. Create the Login API.
+2. Create and store user sessions.
+3. Send the session ID as an HTTP cookie.
+4. Authenticate users using the session cookie.
+5. Protect API endpoints.
+6. Implement Logout by deleting the session.
+
+## Task 1 - Create the Project
+
+### Goal
+
+Create a new FastAPI project for implementing **Session-Based Authentication** using **SQLite**.
+
+### Create the Project
+
+```bash
+mkdir session_auth_app
+cd session_auth_app
+
+uv init
+uv add fastapi uvicorn sqlmodel passlib bcrypt python-multipart
+```
+
+### Create the Project Structure
+
+```text
+session_auth_app/
+│
+├── app.py
+├── database.py
+├── models.py
+├── auth.py
+├── pyproject.toml
+├── uv.lock
+└── .venv/
+```
+
+Create the required files.
+
+**Windows**
+
+```bash
+type nul > app.py
+type nul > database.py
+type nul > models.py
+type nul > auth.py
+```
+
+**macOS / Linux**
+
+```bash
+touch app.py database.py models.py auth.py
+```
+
+### Update `database.py`
+
+```python
+from sqlmodel import Session, create_engine
+
+DATABASE_URL = "sqlite:///session_auth.db"
+
+engine = create_engine(DATABASE_URL, echo=True)
+
+def get_session():
+    with Session(engine) as session:
+        yield session
+```
+### Update `app.py`
+
+```python
+from fastapi import FastAPI
+from sqlmodel import SQLModel
+
+from database import engine
+from models import User
+
+SQLModel.metadata.create_all(engine)
+
+app = FastAPI()
+
+@app.get("/")
+def root():
+    return {
+        "message": "Session Authentication API"
+    }
+```
+
+### Run the Application
+
+```bash
+uv run uvicorn app:app --reload
+```
+
+### Verify
+
+Open the following URLs:
+
+- http://127.0.0.1:8000
+- http://127.0.0.1:8000/docs
+
+### Expected Outcome
+
+At the end of this task, you should have:
+
+- A new FastAPI project.
+- A configured SQLite database.
+- A running FastAPI application.
+- The project ready for implementing session-based authentication.
+
+## Task 2 - Create the User and Session Models
+
+### Goal
+
+Create the database models required for implementing session-based authentication.
+
+### Update `models.py`
+
+```python
+from datetime import datetime
+
+from sqlmodel import Field, SQLModel
+
+
+class User(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    username: str = Field(index=True, unique=True)
+    password: str
+
+
+class Session(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    session_id: str = Field(index=True, unique=True)
+    user_id: int = Field(foreign_key="user.id")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class RegisterRequest(SQLModel):
+    username: str
+    password: str
+
+
+class LoginRequest(SQLModel):
+    username: str
+    password: str
+```
+
+Restart the application.
+
+```bash
+uv run uvicorn app:app --reload
+```
+
+### Verify
+
+After restarting the application, a new SQLite database named `session_auth.db` should be created with the following tables.
+
+| Table | Purpose |
+|--------|---------|
+| `user` | Stores user credentials |
+| `session` | Stores active user sessions |
+
+### Session Table
+
+| Column | Description |
+|--------|-------------|
+| `id` | Primary key |
+| `session_id` | Unique session identifier |
+| `user_id` | References the authenticated user |
+| `created_at` | Session creation timestamp |
+
+### Expected Outcome
+
+At the end of this task, you should have:
+
+- A `User` model.
+- A `Session` model.
+- Request models for registration and login.
+- Database tables created automatically.
+
+## Task 3 - Implement Password Hashing
+
+### Goal
+
+Implement password hashing and password verification using `bcrypt`.
+
+### Update `auth.py`
+
+```python
+from passlib.context import CryptContext
+
+pwd_context = CryptContext(
+    schemes=["bcrypt"],
+    deprecated="auto"
+)
+
+
+def hash_password(password: str) -> str:
+    return pwd_context.hash(password)
+
+
+def verify_password(password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(password, hashed_password)
+
+
+if __name__ == "__main__":
+    password = "secret123"
+
+    hashed_password = hash_password(password)
+
+    print(f"Original Password : {password}")
+    print(f"Hashed Password   : {hashed_password}")
+    print(f"Password Verified : {verify_password(password, hashed_password)}")
+```
+
+### Run the File
+
+```bash
+uv run auth.py
+```
+
+### Expected Output
+
+```text
+Original Password : secret123
+Hashed Password   : $2b$12$...
+Password Verified : True
+```
+
+### Why Hash Passwords?
+
+Passwords should never be stored as plain text. Instead, only their hashed values are stored in the database. During authentication, the entered password is verified against the stored hash.
+
+### Expected Outcome
+
+At the end of this task, you should have:
+
+- A reusable password hashing function.
+- A reusable password verification function.
+- A secure mechanism for storing user passwords.
+## Task 4 - Implement User Registration
+
+### Goal
+
+Create an API to register new users by storing their username and hashed password in the database.
+
+### Update `app.py`
+
+Import the required modules.
+
+```python
+from fastapi import Depends, HTTPException
+from sqlmodel import Session, select
+
+from auth import hash_password
+from database import get_session
+from models import RegisterRequest, User
+```
+
+Implement the registration endpoint.
+
+```python
+@app.post("/register")
+def register(
+    request: RegisterRequest,
+    session: Session = Depends(get_session)
+):
+    existing_user = session.exec(
+        select(User).where(User.username == request.username)
+    ).first()
+
+    if existing_user:
+        raise HTTPException(
+            status_code=400,
+            detail="Username already exists."
+        )
+
+    user = User(
+        username=request.username,
+        password=hash_password(request.password)
+    )
+
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+
+    return {
+        "message": "User registered successfully."
+    }
+```
+
+### Run the Application
+
+```bash
+uv run uvicorn app:app --reload
+```
+
+### Test the API
+
+Open the Swagger UI.
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+Call the registration endpoint.
+
+```http
+POST /register
+```
+
+Request Body
+
+```json
+{
+    "username": "john",
+    "password": "secret123"
+}
+```
+
+### Verify
+
+Open the `user` table in the SQLite database.
+
+The password should be stored as a hashed value similar to:
+
+```text
+$2b$12$...
+```
+
+instead of
+
+```text
+secret123
+```
+### Expected Outcome
+
+At the end of this task, you should have:
+
+- A working user registration API.
+- Duplicate username validation.
+- Passwords stored securely using hashing.
+
+## Task 5 - Implement Login and Create User Sessions
+
+### Goal
+
+Authenticate users using their username and password. After successful authentication, create a new session for the user and store it in the database.
+
+### Update `app.py`
+
+Import the required modules.
+
+```python
+import secrets
+
+from fastapi import Depends, HTTPException, Response, status
+from sqlmodel import Session, select
+
+from auth import verify_password
+from database import get_session
+from models import LoginRequest, Session as UserSession, User
+```
+
+Implement the login endpoint.
+
+```python
+@app.post("/login")
+def login(
+    request: LoginRequest,
+    response: Response,
+    session: Session = Depends(get_session),
+):
+    user = session.exec(
+        select(User).where(User.username == request.username)
+    ).first()
+
+    if not user or not verify_password(request.password, user.password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid username or password."
+        )
+
+    session_id = secrets.token_hex(32)
+
+    user_session = UserSession(
+        session_id=session_id,
+        user_id=user.id
+    )
+
+    session.add(user_session)
+    session.commit()
+
+    response.set_cookie(
+        key="session_id",
+        value=session_id,
+        httponly=True,
+    )
+
+    return {
+        "message": "Login successful."
+    }
+```
+
+### How It Works
+
+1. Receive the username and password.
+2. Retrieve the user from the database.
+3. Verify the password.
+4. Generate a unique session ID.
+5. Store the session in the database.
+6. Send the session ID as an HTTP cookie.
+7. Return a success response.
+
+### Run the Application
+
+```bash
+uv run uvicorn app:app --reload
+```
+
+### Test the API
+
+Open the Swagger UI.
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+Call:
+
+```http
+POST /login
+```
+
+Request Body
+
+```json
+{
+    "username": "john",
+    "password": "secret123"
+}
+```
+
+### Verify
+
+After a successful login:
+
+- A new record should be created in the `session` table.
+- A cookie named `session_id` should be returned in the response.
+
+### Expected Outcome
+
+At the end of this task, you should have:
+
+- A working login API.
+- Username and password verification.
+- A unique session created for each successful login.
+- The session ID stored in the database.
+- The session ID sent to the client as an HTTP cookie.
+
+## Task 6 - Authenticate Users Using Session Cookies
+
+### Goal
+
+Authenticate users using the session ID stored in the HTTP cookie.
+
+### Update `auth.py`
+
+Add the following function.
+
+```python
+from fastapi import Cookie, Depends, HTTPException, status
+from sqlmodel import Session, select
+
+from database import get_session
+from models import Session as UserSession, User
+
+
+def authenticate_user(
+    session_id: str | None = Cookie(default=None),
+    session: Session = Depends(get_session),
+) -> User:
+    if not session_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication required."
+        )
+
+    user_session = session.exec(
+        select(UserSession).where(
+            UserSession.session_id == session_id
+        )
+    ).first()
+
+    if not user_session:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid session."
+        )
+
+    user = session.get(User, user_session.user_id)
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found."
+        )
+
+    return user
+```
+
+### How It Works
+
+1. Read the `session_id` cookie.
+2. Find the corresponding session in the database.
+3. Retrieve the associated user.
+4. Return the authenticated user.
+5. Return **401 Unauthorized** if the session is invalid.
+
+### Authentication Flow
+
+```text
+Client Request
+      │
+      ▼
+Read session_id Cookie
+      │
+      ▼
+Find Session
+      │
+      ▼
+Find User
+      │
+      ▼
+Authenticated User
+```
+
+### Expected Outcome
+
+At the end of this task, you should have:
+
+- A reusable session authentication dependency.
+- Cookie-based authentication.
+- Session validation.
+- Retrieval of the authenticated user.
+
+## Task 7 - Create Public and Protected Endpoints
+
+### Goal
+
+Create public and protected endpoints using session-based authentication.
+
+### Update `app.py`
+
+Import the authentication dependency.
+
+```python
+from fastapi import Depends
+
+from auth import authenticate_user
+from models import User
+```
+
+Add the following endpoints.
+
+```python
+@app.get("/public")
+def public():
+    return {
+        "message": "This is a public endpoint."
+    }
+
+
+@app.get("/protected")
+def protected(
+    user: User = Depends(authenticate_user)
+):
+    return {
+        "message": f"Welcome {user.username}!"
+    }
+```
+
+### How It Works
+
+The `/public` endpoint is accessible to everyone.
+
+The `/protected` endpoint depends on the `authenticate_user()` dependency. Before executing the endpoint, FastAPI:
+
+1. Reads the `session_id` cookie.
+2. Validates the session.
+3. Retrieves the authenticated user.
+4. Executes the endpoint only if the session is valid.
+
+### Run the Application
+
+```bash
+uv run uvicorn app:app --reload
+```
+
+### Test the APIs
+
+Open the Swagger UI.
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+#### Public Endpoint
+
+Call:
+
+```http
+GET /public
+```
+
+This endpoint is accessible without authentication.
+
+#### Protected Endpoint
+
+1. Register a new user.
+2. Login using the `/login` endpoint.
+3. Call:
+
+```http
+GET /protected
+```
+
+If a valid session cookie is present, the response will be:
+
+```json
+{
+    "message": "Welcome john!"
+}
+```
+
+If the session is missing or invalid, the response will be:
+
+```http
+401 Unauthorized
+```
+
+### Authentication Flow
+
+```text
+Client Request
+      │
+      ▼
+Protected Endpoint
+      │
+      ▼
+Read Session Cookie
+      │
+      ▼
+Validate Session
+      │
+      ▼
+Retrieve User
+      │
+      ▼
+Authenticated?
+   ┌───────┴────────┐
+   │                │
+  Yes              No
+   │                │
+   ▼                ▼
+Execute API    401 Unauthorized
+```
+
+### Expected Outcome
+
+At the end of this task, you should have:
+
+- A public endpoint accessible to everyone.
+- A protected endpoint requiring a valid session.
+- A working implementation of session-based authentication.
+
+## Task 8 - Implement Logout
+
+### Goal
+
+Log out the authenticated user by deleting the session from the database and removing the session cookie.
+
+### Update `app.py`
+
+Import the required modules.
+
+```python
+from fastapi import Cookie, Depends, Response
+from sqlmodel import Session, select
+
+from database import get_session
+from models import Session as UserSession
+```
+
+Implement the logout endpoint.
+
+```python
+@app.post("/logout")
+def logout(
+    response: Response,
+    session_id: str | None = Cookie(default=None),
+    session: Session = Depends(get_session),
+):
+    if session_id:
+        user_session = session.exec(
+            select(UserSession).where(
+                UserSession.session_id == session_id
+            )
+        ).first()
+
+        if user_session:
+            session.delete(user_session)
+            session.commit()
+
+    response.delete_cookie("session_id")
+
+    return {
+        "message": "Logged out successfully."
+    }
+```
+
+### How It Works
+
+1. Read the `session_id` cookie.
+2. Find the corresponding session in the database.
+3. Delete the session.
+4. Remove the session cookie from the client.
+5. Return a success response.
+
+### Run the Application
+
+```bash
+uv run uvicorn app:app --reload
+```
+
+### Test the API
+
+Open the Swagger UI.
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+Call:
+
+```http
+POST /logout
+```
+
+### Verify
+
+After logging out:
+
+- The corresponding record should be removed from the `session` table.
+- The `session_id` cookie should be deleted.
+- Accessing the protected endpoint should return:
+
+```http
+401 Unauthorized
+```
+
+### Session Lifecycle
+
+```text
+Register
+    │
+    ▼
+Login
+    │
+    ▼
+Create Session
+    │
+    ▼
+Store Session
+    │
+    ▼
+Send Session Cookie
+    │
+    ▼
+Access Protected Endpoints
+    │
+    ▼
+Logout
+    │
+    ▼
+Delete Session
+    │
+    ▼
+Delete Session Cookie
+```
+
+### Expected Outcome
+
+At the end of this task, you should have:
+
+- A working logout API.
+- Server-side session invalidation.
+- Client-side cookie removal.
+- A complete session-based authentication system.
+

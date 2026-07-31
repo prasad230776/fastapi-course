@@ -1,0 +1,72 @@
+---
+title: Introduction
+description: Authentication and Authorization are two essential security mechanisms used in modern applications. Authentication verifies **who the user is**, while authorization determines **what the user is allowed to do**. Together, they protect application resources and ensure that only authorized users can perform specific actions.
+---
+
+## Authentication
+
+Authentication is the process of verifying a user's identity.
+
+It answers the question:
+
+> **Who are you?**
+
+### Common Authentication Mechanisms
+
+- **Username & Password** – The most common authentication method.
+- **Session-Based Authentication** – The server stores user session information after login.
+- **Token-Based Authentication** – The server issues a token that the client sends with each request.
+- **JWT (JSON Web Token)** – A popular token-based authentication mechanism for REST APIs.
+- **OAuth 2.0** – Allows users to log in using third-party providers such as Google or GitHub.
+- **Single Sign-On (SSO)** – Authenticate once and access multiple applications.
+- **Multi-Factor Authentication (MFA)** – Requires multiple verification methods (e.g., password + OTP).
+
+## Authorization
+
+Authorization determines what an authenticated user is permitted to access or perform.
+
+It answers the question:
+
+> **What are you allowed to do?**
+
+### Common Authorization Mechanisms
+
+- **Role-Based Access Control (RBAC)** – Permissions are assigned based on user roles (Admin, Teacher, Student).
+- **Permission-Based Authorization** – Individual permissions are assigned directly to users.
+- **Attribute-Based Access Control (ABAC)** – Access depends on attributes such as department, location, or time.
+- **Ownership-Based Authorization** – Users can access only the resources they own.
+
+## Authentication vs Authorization
+
+| Authentication | Authorization |
+|---------------|---------------|
+| Verifies user identity. | Determines user permissions. |
+| Answers **Who are you?** | Answers **What can you do?** |
+| Happens first. | Happens after authentication. |
+
+## What We Will Use
+
+Although multiple authentication and authorization mechanisms exist, in this course we will implement the most commonly used approach for REST APIs.
+
+### Authentication
+
+- Username & Password
+- Password Hashing
+- JWT (JSON Web Token)
+
+### Authorization
+
+- Role-Based Access Control (RBAC)
+- Ownership-Based Authorization
+
+## Example
+
+We will implement these concepts in a simple blog application.
+
+| User | Permissions |
+|------|-------------|
+| Guest | View blog posts |
+| Author | Create, update and delete their own posts |
+| Admin | Full access to all posts and users |
+
+By the end of this section, you will understand the complete authentication flow, secure API endpoints using JWT, and implement authorization using roles and ownership, which are widely used in production FastAPI applications.

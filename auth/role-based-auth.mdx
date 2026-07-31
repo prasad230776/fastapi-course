@@ -1,0 +1,1130 @@
+---
+title: "Role-Based Authorization"
+description: "Implement role-based authorization in FastAPI by assigning roles to users, creating reusable authorization dependencies, and restricting access to API endpoints based on user permissions."
+---
+
+# Role-Based Authorization
+
+In the previous section, we implemented **JWT Authentication**, where users proved their identity by presenting a valid JSON Web Token (JWT).
+
+Authentication answers the question:
+
+> **Who are you?**
+
+However, once a user is authenticated, we still need to determine what they are allowed to do. This is the responsibility of **Authorization**.
+
+In this section, we will implement **Role-Based Access Control (RBAC)** by assigning roles to users and restricting access to API endpoints based on those roles.
+
+## What We Will Implement
+
+- Add roles to users.
+- Assign roles during registration.
+- Include the user's role in the JWT.
+- Create reusable authorization dependencies.
+- Restrict endpoints based on roles.
+- Return appropriate authorization errors.
+
+## Authentication vs Authorization
+
+| Authentication | Authorization |
+|---------------|---------------|
+| Verifies the user's identity. | Determines what the user is allowed to access. |
+| Uses username/password and JWT. | Uses roles and permissions. |
+| Returns **401 Unauthorized** if authentication fails. | Returns **403 Forbidden** if the user lacks permission. |
+
+## Roles
+
+For this project, we will use three roles.
+
+| Role | Description |
+|------|-------------|
+| `admin` | Full access to all resources. |
+| `author` | Can manage their own posts. |
+| `user` | Can only access public resources. |
+
+## Authorization Flow
+
+```text
+Client Request
+      │
+      ▼
+Validate JWT
+      │
+      ▼
+Retrieve User
+      │
+      ▼
+Authenticate User
+      │
+      ▼
+Check Required Role
+      │
+      ├───────────────┐
+      │               │
+ Not Authorized   Authorized
+      │               │
+      ▼               ▼
+403 Forbidden    Execute API
+```
+
+## APIs
+
+| Endpoint | User | Author | Admin |
+|----------|:----:|:------:|:-----:|
+| GET `/public` | ✅ | ✅ | ✅ |
+| GET `/protected` | ✅ | ✅ | ✅ |
+| POST `/posts` | ❌ | ✅ | ✅ |
+| PUT `/posts/{id}` | ❌ | Own Posts | ✅ |
+| DELETE `/posts/{id}` | ❌ | Own Posts | ✅ |
+| GET `/users` | ❌ | ❌ | ✅ |
+
+## Implementation Plan
+
+We will complete this implementation in the following tasks:
+
+1. Create the Project
+2. Create the User Model
+3. Implement Password Hashing
+4. Create the Default Admin User
+5. Implement User Registration
+6. Implement Login and Generate JWT
+7. Validate JWT
+8. Create the Authorization Dependency
+9. Create an Admin API to Assign Roles
+10. Create Role-Protected Endpoints
+11. Test Role-Based Authorization
+
+## Learning Outcomes
+
+After completing this section, you will be able to:
+
+- Understand the difference between authentication and authorization.
+- Implement Role-Based Access Control (RBAC).
+- Restrict endpoints based on user roles.
+- Reuse authorization dependencies across multiple APIs.
+- Return appropriate `401 Unauthorized` and `403 Forbidden` responses.
+
+## Task 1 - Create the Project
+
+### Goal
+
+Create a new FastAPI project for implementing **Role-Based Authorization** using **JWT Authentication** and **SQLite**.
+
+### Create the Project
+
+```bash
+mkdir rbac_auth_app
+cd rbac_auth_app
+
+uv init
+uv add fastapi uvicorn sqlmodel passlib bcrypt python-multipart pyjwt
+```
+
+### Installed Packages
+
+| Package | Purpose |
+|---------|---------|
+| `fastapi` | Build REST APIs. |
+| `uvicorn` | ASGI server for running the FastAPI application. |
+| `sqlmodel` | Define models and interact with the SQLite database. |
+| `passlib` | Hash and verify user passwords. |
+| `bcrypt` | Secure hashing algorithm used by Passlib. |
+| `python-multipart` | Parse form data and file uploads (required by FastAPI for some authentication flows). |
+| `pyjwt` | Generate, sign, decode, and validate JSON Web Tokens (JWT). |
+
+### Create the Project Structure
+
+```text
+rbac_auth_app/
+│
+├── app.py
+├── database.py
+├── models.py
+├── auth.py
+├── pyproject.toml
+├── uv.lock
+└── .venv/
+```
+
+Create the required files.
+
+**Windows**
+
+```bash
+type nul > app.py
+type nul > database.py
+type nul > models.py
+type nul > auth.py
+```
+
+**macOS / Linux**
+
+```bash
+touch app.py database.py models.py auth.py
+```
+
+### Update `database.py`
+
+```python
+from sqlmodel import Session, create_engine
+
+DATABASE_URL = "sqlite:///rbac_auth.db"
+
+engine = create_engine(DATABASE_URL, echo=True)
+
+
+def get_session():
+    with Session(engine) as session:
+        yield session
+```
+
+### Update `app.py`
+
+```python
+from fastapi import FastAPI
+from sqlmodel import SQLModel
+
+from database import engine
+from models import User
+
+SQLModel.metadata.create_all(engine)
+
+app = FastAPI()
+
+
+@app.get("/")
+def root():
+    return {
+        "message": "Role-Based Authorization API"
+    }
+```
+
+### Run the Application
+
+```bash
+uv run uvicorn app:app --reload
+```
+
+### Verify
+
+Open the following URLs:
+
+- http://127.0.0.1:8000
+- http://127.0.0.1:8000/docs
+
+### Expected Outcome
+
+At the end of this task, you should have:
+
+- A new FastAPI project.
+- All required dependencies installed.
+- A configured SQLite database.
+- A running FastAPI application.
+- The project ready for implementing Role-Based Authorization.
+
+## Task 2 - Create the User Model
+
+### Goal
+
+Create the database models required for implementing Role-Based Authorization.
+
+### Update `models.py`
+
+```python
+from sqlmodel import Field, SQLModel
+
+
+class User(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    username: str = Field(index=True, unique=True)
+    password: str
+    role: str = "user"
+
+
+class RegisterRequest(SQLModel):
+    username: str
+    password: str
+
+class LoginRequest(SQLModel):
+    username: str
+    password: str
+```
+
+### Run the Application
+
+```bash
+uv run uvicorn app:app --reload
+```
+
+### Verify
+
+After starting the application, a new SQLite database named `rbac_auth.db` should be created with a `user` table containing the following columns.
+
+| Column | Type |
+|---------|------|
+| id | INTEGER |
+| username | TEXT |
+| password | TEXT |
+| role | TEXT |
+
+### Default Role
+
+If no role is specified during registration, the user is assigned the default role.
+
+```text
+user
+```
+
+### Supported Roles
+
+For this project, we will use the following roles:
+
+- `user`
+- `author`
+- `admin`
+
+### Expected Outcome
+
+At the end of this task, you should have:
+
+- A `User` model with a `role` field.
+- Request models for registration and login.
+- A `user` table with role information.
+- Default role assignment for new users.
+
+## Task 3 - Implement Password Hashing
+
+### Goal
+
+Implement password hashing and password verification using `bcrypt`.
+
+### Update `auth.py`
+
+```python
+from passlib.context import CryptContext
+
+pwd_context = CryptContext(
+    schemes=["bcrypt"],
+    deprecated="auto"
+)
+
+
+def hash_password(password: str) -> str:
+    return pwd_context.hash(password)
+
+
+def verify_password(password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(password, hashed_password)
+
+
+if __name__ == "__main__":
+    password = "admin123"
+
+    hashed_password = hash_password(password)
+
+    print(f"Original Password : {password}")
+    print(f"Hashed Password   : {hashed_password}")
+    print(f"Password Verified : {verify_password(password, hashed_password)}")
+```
+
+### Run the File
+
+```bash
+uv run auth.py
+```
+
+### Expected Output
+
+```text
+Original Password : admin123
+Hashed Password   : $2b$12$...
+Password Verified : True
+```
+
+### Why Hash Passwords?
+
+Passwords should never be stored as plain text. Instead, only their hashed values are stored in the database. During authentication, the entered password is verified against the stored hash.
+
+### Expected Outcome
+
+At the end of this task, you should have:
+
+- A reusable password hashing function.
+- A reusable password verification function.
+- A secure mechanism for storing user passwords.
+
+## Task 4 - Create the Default Admin User
+
+### Goal
+
+Automatically create an administrator account when the application starts.
+
+### Update `app.py`
+
+Import the required modules.
+
+```python
+from sqlmodel import Session, select
+
+from auth import hash_password
+from models import User
+```
+
+Add the following function.
+
+```python
+def create_admin():
+    with Session(engine) as session:
+        admin = session.exec(
+            select(User).where(User.username == "admin")
+        ).first()
+
+        if admin:
+            return
+
+        admin = User(
+            username="admin",
+            password=hash_password("admin123"),
+            role="admin"
+        )
+
+        session.add(admin)
+        session.commit()
+```
+
+Call the function after creating the database tables.
+
+```python
+SQLModel.metadata.create_all(engine)
+
+create_admin()
+
+app = FastAPI()
+```
+
+### Run the Application
+
+```bash
+uv run uvicorn app:app --reload
+```
+
+### Verify
+
+Open the `user` table in the SQLite database.
+
+The following user should be created automatically.
+
+| Username | Password | Role |
+|----------|----------|------|
+| admin | admin123 | admin |
+
+> **Note:** The password stored in the database will be a hashed value, not `admin123`.
+
+### Expected Outcome
+
+At the end of this task, you should have:
+
+- A default administrator account.
+- Automatic admin creation only if it does not already exist.
+- An administrator ready to manage user roles.
+
+## Task 5 - Implement User Registration
+
+### Goal
+
+Create an API to register new users. Every newly registered user is assigned the default role of **`user`**.
+
+### Update `app.py`
+
+Import the required modules.
+
+```python
+from fastapi import Depends, HTTPException
+from sqlmodel import Session, select
+
+from auth import hash_password
+from database import get_session
+from models import RegisterRequest, User
+```
+
+Implement the registration endpoint.
+
+```python
+@app.post("/register")
+def register(
+    request: RegisterRequest,
+    session: Session = Depends(get_session)
+):
+    existing_user = session.exec(
+        select(User).where(User.username == request.username)
+    ).first()
+
+    if existing_user:
+        raise HTTPException(
+            status_code=400,
+            detail="Username already exists."
+        )
+
+    user = User(
+        username=request.username,
+        password=hash_password(request.password),
+        role="user"
+    )
+
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+
+    return {
+        "message": "User registered successfully."
+    }
+```
+
+### How It Works
+
+1. Receive the username and password.
+2. Check whether the username already exists.
+3. Hash the password.
+4. Assign the default role `user`.
+5. Store the user in the database.
+6. Return a success response.
+
+### Run the Application
+
+```bash
+uv run uvicorn app:app --reload
+```
+
+### Test the API
+
+Open the Swagger UI.
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+Call:
+
+```http
+POST /register
+```
+
+Request Body
+
+```json
+{
+    "username": "john",
+    "password": "secret123"
+}
+```
+
+### Verify
+
+Open the `user` table in the SQLite database.
+
+A new record should be created similar to:
+
+| Username | Password | Role |
+|----------|----------|------|
+| john | *(hashed)* | user |
+
+> **Note:** Users cannot choose their own role during registration. Every new user is assigned the `user` role. Only an administrator can promote users to roles such as `author` or `admin`.
+
+### Expected Outcome
+
+At the end of this task, you should have:
+
+- A working user registration API.
+- Duplicate username validation.
+- Passwords stored securely using hashing.
+- Automatic assignment of the default `user` role.
+
+## Task 6 - Implement Login and Generate JWT
+
+### Goal
+
+Authenticate users using their username and password. Upon successful authentication, generate a JWT containing the user's identity and role.
+
+### Update `auth.py`
+
+Import the required modules.
+
+```python
+from datetime import datetime, timedelta, timezone
+
+import jwt
+```
+
+Add the following constants.
+
+```python
+SECRET_KEY = "7c9d3f1b5a8e2d6c4f9a1b7e3d5c8f2a6b9d4e1f7c3a8b5d2e6f9a1c4b7d8e3"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+```
+
+Implement the JWT generation function.
+
+```python
+def create_access_token(data: dict) -> str:
+    payload = data.copy()
+
+    payload["exp"] = (
+        datetime.now(timezone.utc)
+        + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    )
+
+    return jwt.encode(
+        payload,
+        SECRET_KEY,
+        algorithm=ALGORITHM
+    )
+```
+
+### Update `app.py`
+
+Import the required modules.
+
+```python
+from fastapi import Depends, HTTPException, status
+from sqlmodel import Session, select
+
+from auth import create_access_token, verify_password
+from database import get_session
+from models import LoginRequest, User
+```
+
+Implement the login endpoint.
+
+```python
+@app.post("/login")
+def login(
+    request: LoginRequest,
+    session: Session = Depends(get_session),
+):
+    user = session.exec(
+        select(User).where(User.username == request.username)
+    ).first()
+
+    if not user or not verify_password(request.password, user.password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid username or password."
+        )
+
+    access_token = create_access_token(
+        {
+            "sub": str(user.id),
+            "username": user.username,
+            "role": user.role
+        }
+    )
+
+    return {
+        "access_token": access_token,
+        "token_type": "bearer"
+    }
+```
+
+### JWT Claims
+
+The generated JWT contains the following claims.
+
+| Claim | Description |
+|-------|-------------|
+| `sub` | User ID |
+| `username` | Username |
+| `role` | User's role |
+| `exp` | Token expiration time |
+
+### Run the Application
+
+```bash
+uv run uvicorn app:app --reload
+```
+
+### Test the API
+
+Open the Swagger UI.
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+Call:
+
+```http
+POST /login
+```
+
+Request Body
+
+```json
+{
+    "username": "admin",
+    "password": "admin123"
+}
+```
+
+### Expected Response
+
+```json
+{
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "token_type": "bearer"
+}
+```
+
+### Verify
+
+Paste the generated token into the JWT debugger:
+
+:contentReference[oaicite:0]{index=0}
+
+The decoded payload should contain:
+
+```json
+{
+    "sub": "1",
+    "username": "admin",
+    "role": "admin",
+    "exp": 1750000000
+}
+```
+
+### Expected Outcome
+
+At the end of this task, you should have:
+
+- A working login API.
+- Username and password verification.
+- JWT generation.
+- The user's role included in the JWT.
+- A signed access token returned to the client.
+
+## Task 7 - Validate JWT and Authenticate Users
+
+### Goal
+
+Validate the JWT received in the `Authorization` header and return the authenticated user.
+
+### Update `auth.py`
+
+Import the required modules.
+
+```python
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from sqlmodel import Session
+
+from database import get_session
+from models import User
+
+security = HTTPBearer()
+```
+
+Implement the authentication dependency.
+
+```python
+def authenticate_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    session: Session = Depends(get_session),
+) -> User:
+
+    token = credentials.credentials
+
+    try:
+        payload = jwt.decode(
+            token,
+            SECRET_KEY,
+            algorithms=[ALGORITHM]
+        )
+
+        user_id = int(payload["sub"])
+
+    except jwt.PyJWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token."
+        )
+
+    user = session.get(User, user_id)
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found."
+        )
+
+    return user
+```
+
+### Nested Dependencies
+
+The `authenticate_user()` function is itself a dependency and depends on two other dependencies.
+
+- `HTTPBearer()` extracts the JWT from the `Authorization` header.
+- `get_session()` provides a database session.
+
+```text
+authenticate_user()
+        │
+        ├──────────────┐
+        ▼              ▼
+Depends(security)  Depends(get_session)
+        │              │
+        ▼              ▼
+ Bearer Token    Database Session
+```
+
+### How It Works
+
+1. Read the Bearer token from the `Authorization` header.
+2. Validate the JWT signature.
+3. Verify that the token has not expired.
+4. Extract the user ID from the token.
+5. Retrieve the authenticated user from the database.
+6. Return the authenticated user.
+7. Return **401 Unauthorized** if authentication fails.
+
+### Authorization Header
+
+The client must send the JWT as a Bearer token.
+
+```http
+Authorization: Bearer <JWT>
+```
+
+### Expected Outcome
+
+At the end of this task, you should have:
+
+- A reusable JWT authentication dependency.
+- JWT signature validation.
+- Token expiration validation.
+- Retrieval of the authenticated user.
+- Proper `401 Unauthorized` responses for invalid or expired tokens.
+
+## Task 8 - Create the Authorization Dependency
+
+### Goal
+
+Create a reusable dependency to authorize users based on their roles.
+
+### Update `auth.py`
+
+Implement the authorization dependency.
+
+```python
+from fastapi import Depends, HTTPException, status
+
+
+def require_roles(*allowed_roles: str):
+    def authorize(
+        user: User = Depends(authenticate_user),
+    ) -> User:
+
+        if user.role not in allowed_roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Insufficient privileges."
+            )
+
+        return user
+
+    return authorize
+```
+
+### How It Works
+
+1. Authenticate the user using the JWT.
+2. Retrieve the user's role.
+3. Compare the user's role with the allowed roles.
+4. Return the authenticated user if authorized.
+5. Return **403 Forbidden** if the user does not have the required role.
+
+### Using the Dependency
+
+Allow only administrators.
+
+```python
+user: User = Depends(require_roles("admin"))
+```
+
+Allow administrators and authors.
+
+```python
+user: User = Depends(require_roles("admin", "author"))
+```
+
+Allow any authenticated user.
+
+```python
+user: User = Depends(
+    require_roles("admin", "author", "user")
+)
+```
+
+### Nested Dependency Flow
+
+```text
+Request
+    │
+    ▼
+require_roles(...)
+    │
+    ▼
+authenticate_user()
+    │
+    ▼
+Validate JWT
+    │
+    ▼
+Retrieve User
+    │
+    ▼
+Check Role
+    │
+    ├──────────────┐
+    │              │
+Allowed      Not Allowed
+    │              │
+    ▼              ▼
+Return User   403 Forbidden
+```
+
+### Expected Outcome
+
+At the end of this task, you should have:
+
+- A reusable authorization dependency.
+- Role validation for authenticated users.
+- Support for one or more allowed roles.
+- Proper `403 Forbidden` responses for unauthorized users.
+
+## Task 9 - Create an Admin API to Assign Roles
+
+### Goal
+
+Allow only administrators to assign roles to existing users.
+
+### Update `models.py`
+
+Add the following request model.
+
+```python
+class RoleUpdateRequest(SQLModel):
+    role: str
+```
+
+### Update `app.py`
+
+Import the required modules.
+
+```python
+from fastapi import Depends, HTTPException
+from sqlmodel import Session
+
+from auth import require_roles
+from database import get_session
+from models import RoleUpdateRequest, User
+```
+
+Implement the role assignment endpoint.
+
+```python
+@app.put("/users/{user_id}/role")
+def update_role(
+    user_id: int,
+    request: RoleUpdateRequest,
+    session: Session = Depends(get_session),
+    admin: User = Depends(require_roles("admin"))
+):
+    user = session.get(User, user_id)
+
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found."
+        )
+
+    if request.role not in ["user", "author", "admin"]:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid role."
+        )
+
+    user.role = request.role
+
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+
+    return {
+        "message": "User role updated successfully."
+    }
+```
+
+### How It Works
+
+1. Authenticate the user.
+2. Verify that the user has the `admin` role.
+3. Retrieve the target user.
+4. Validate the requested role.
+5. Update the user's role.
+6. Save the changes to the database.
+
+### Run the Application
+
+```bash
+uv run uvicorn app:app --reload
+```
+
+### Test the API
+
+Login as the default administrator.
+
+```text
+Username: admin
+Password: admin123
+```
+
+Use the returned JWT to authorize in Swagger UI.
+
+Call:
+
+```http
+PUT /users/{user_id}/role
+```
+
+Request Body
+
+```json
+{
+    "role": "author"
+}
+```
+
+### Expected Response
+
+```json
+{
+    "message": "User role updated successfully."
+}
+```
+
+### Verify
+
+Open the `user` table in the SQLite database.
+
+The selected user's role should be updated.
+
+### Expected Outcome
+
+At the end of this task, you should have:
+
+- An administrator-only API for assigning roles.
+- Validation of supported roles.
+- Proper `403 Forbidden` responses for non-admin users.
+- Role information stored in the database.
+
+## Task 10 - Create Role-Protected Endpoints
+
+### Goal
+
+Protect API endpoints using Role-Based Authorization.
+
+### Update `app.py`
+
+Import the required modules.
+
+```python
+from fastapi import Depends
+
+from auth import authenticate_user, require_roles
+from models import User
+```
+
+Implement the following endpoints.
+
+```python
+@app.get("/public")
+def public():
+    return {
+        "message": "This is a public endpoint."
+    }
+
+
+@app.get("/profile")
+def profile(
+    user: User = Depends(authenticate_user)
+):
+    return {
+        "message": f"Welcome {user.username}!",
+        "role": user.role
+    }
+
+
+@app.get("/author")
+def author(
+    user: User = Depends(require_roles("author", "admin"))
+):
+    return {
+        "message": "Welcome Author!"
+    }
+
+
+@app.get("/admin")
+def admin(
+    user: User = Depends(require_roles("admin"))
+):
+    return {
+        "message": "Welcome Admin!"
+    }
+```
+
+### Endpoint Access
+
+| Endpoint | User | Author | Admin |
+|----------|:----:|:------:|:-----:|
+| `GET /public` | ✅ | ✅ | ✅ |
+| `GET /profile` | ✅ | ✅ | ✅ |
+| `GET /author` | ❌ | ✅ | ✅ |
+| `GET /admin` | ❌ | ❌ | ✅ |
+
+### How It Works
+
+- `/public` is accessible to everyone.
+- `/profile` requires authentication.
+- `/author` requires the `author` or `admin` role.
+- `/admin` requires the `admin` role.
+
+### Run the Application
+
+```bash
+uv run uvicorn app:app --reload
+```
+
+### Test the APIs
+
+1. Register a new user.
+2. Login and obtain a JWT.
+3. Call `/profile`.
+4. Login as the default administrator.
+5. Promote the user to the `author` role.
+6. Login again to obtain a **new JWT**.
+7. Call `/author`.
+8. Verify that only administrators can access `/admin`.
+
+> **Note:** If a user's role changes, they should log in again to obtain a new JWT containing the updated role.
+
+### Expected Outcome
+
+At the end of this task, you should have:
+
+- Public endpoints.
+- Authenticated endpoints.
+- Author-only endpoints.
+- Admin-only endpoints.
+- A complete implementation of Role-Based Authorization (RBAC).
+

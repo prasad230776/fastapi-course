@@ -1,7 +1,69 @@
 ---
-title: "Blog Posts API"
-description: "Build a simple Blog Posts API using FastAPI and SQLAlchemy ORM."
+title: "Blog Posts Management System"
+description: "Build a simple Blog Posts Management System using FastAPI and SQLAlchemy ORM."
 ---
+
+
+## Project Overview
+
+Develop a production-grade **Blog Posts REST API** using FastAPI and SQLAlchemy.
+
+This project gradually evolves from a simple CRUD application into a production-ready backend by introducing layered architecture and best practices.
+
+### What You Will Learn
+
+- SQLAlchemy configuration
+- SQLAlchemy models
+- Pydantic models
+- CRUD operations
+- Dependency Injection
+- Repository-Service architecture
+- Request and Response models
+- PUT and PATCH models
+- Global exception handling
+- Alembic migrations
+- SQLite to PostgreSQL deployment
+
+## Project Architecture
+
+```text
+Client
+   │
+   ▼
+API Layer
+   │
+   ▼
+Service Layer
+   │
+   ▼
+Repository Layer
+   │
+   ▼
+SQLAlchemy Models
+   │
+   ▼
+Database
+```
+
+## Updated Pydantic Models
+
+```text
+PostBase
+│
+├── PostCreate
+├── PostPutUpdate
+├── PostPatchUpdate
+└── PostResponse
+```
+
+> **Note:** The remaining phases continue with the same flow, but:
+>
+> - Replace the CRUD layer with Repository + Service layers.
+> - Use `PostCreate`, `PostPutUpdate`, `PostPatchUpdate`, and `PostResponse`.
+> - Return `response_model` from every endpoint.
+> - Add global exception handling before the testing phase.
+> - Keep Alembic and PostgreSQL deployment phases unchanged.
+
 
 ## Problem Statement
 
@@ -607,7 +669,7 @@ Close Session
 - `db.close()` closes the session after the request.
 - `get_db()` will be used in all API endpoints.
 
-## Phase 7 - CRUD Layer
+## Phase 7 - Repository Layer
 
 ### Objective
 
@@ -712,7 +774,7 @@ Read    → get_post()
 Update  → update_post()
 Delete  → delete_post()
 ```
-## Phase 8 - API Layer
+## Phase 8 - Service Layer
 
 ### Objective
 
@@ -834,7 +896,7 @@ SQLite
 - Endpoints call the CRUD functions.
 - Pydantic models validate requests and responses.
 
-## Phase 9 - Testing
+## Phase 9 - API Layer
 
 ### Objective
 
@@ -931,7 +993,11 @@ SQLite Database
       ▼
 API Response
 ```
-## Phase 10 - Configure Alembic
+## Phase 10 - Global Exception Handling
+
+## Phase 11 - Testing
+
+## Phase 12 - Configure Alembic
 
 ### Objective
 

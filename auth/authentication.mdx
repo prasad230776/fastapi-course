@@ -1,0 +1,97 @@
+---
+title: Authentication
+description: Understanding authentication and its role in securing applications.
+---
+
+# Authentication
+
+Authentication is the process of verifying the identity of a user before allowing access to an application.
+
+It answers the question:
+
+> **Who are you?**
+
+For example, when a user logs in using an email and password, the application verifies the credentials. If they are valid, the user is considered authenticated.
+
+## Why Authentication is Important
+
+- Prevents unauthorized access.
+- Verifies the identity of users.
+- Protects sensitive data and resources.
+- Provides a secure foundation for authorization.
+
+## Common Authentication Mechanisms
+
+### Username & Password
+
+The most common authentication method. The user enters their credentials, which are verified by the server.
+
+### Session-Based Authentication
+
+After a successful login, the server creates a session and stores it. The client sends a session ID (usually in a cookie) with every request.
+
+**Commonly used in:** Traditional web applications.
+
+### Token-Based Authentication
+
+After login, the server generates a token. The client includes this token in every request, allowing the server to identify the user.
+
+**Commonly used in:** REST APIs and mobile applications.
+
+### JWT (JSON Web Token)
+
+A widely used token-based authentication mechanism. The server issues a signed JWT after login, and the client sends it in the `Authorization` header for subsequent requests.
+
+**Commonly used in:** Modern REST APIs and microservices.
+
+### OAuth 2.0
+
+Allows users to log in using a third-party provider without sharing their password with the application.
+
+Examples:
+
+- Login with Google
+- Login with GitHub
+- Login with Microsoft
+
+### Single Sign-On (SSO)
+
+A user logs in once and gains access to multiple related applications without logging in again.
+
+### Multi-Factor Authentication (MFA)
+
+Requires more than one verification factor to authenticate a user.
+
+Examples:
+
+- Password + OTP
+- Password + Authenticator App
+- Password + Fingerprint
+
+## Authentication Flow
+
+```text
+User Login
+    │
+    ▼
+Verify Credentials
+    │
+    ▼
+Authentication Successful
+    │
+    ▼
+Issue Session or Token
+    │
+    ▼
+Access Protected Resources
+```
+
+## What We Will Implement
+
+In this course, we will implement authentication using:
+
+- Password Hashing
+- Username & Password
+- JWT (JSON Web Tokens)
+- Protected API Endpoints
+- Current User Retrieval

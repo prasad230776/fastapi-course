@@ -160,25 +160,8 @@
               "orm/relationships",
               "orm/advanced-queries",
               "orm/migrations",
-              "orm/blog-posts-api"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "Backend Architecture",
-        "groups": [
-          {
-            "group": "Clean Code",
-            "pages": [
-              "clean-architecture/layered-architecture",
-              "clean-architecture/models",
-              "clean-architecture/schemas",
-              "clean-architecture/repository-pattern",
-              "clean-architecture/service-layer",
-              "clean-architecture/di-scoping",
-              "clean-architecture/utilities",
-              "clean-architecture/logging-errors"
+              "orm/blog-posts-api",
+              "orm/blog-posts-production-grade"
             ]
           }
         ]
@@ -187,11 +170,14 @@
         "tab": "Security & Auth",
         "groups": [
           {
-            "group": "Authentication",
+            "group": "Authentication & Authorization",
             "pages": [
-              "security-auth/password-security",
-              "security-auth/jwt-auth",
-              "security-auth/authorization"
+              "auth/intro",
+              "auth/authentication",
+              "auth/basic-auth",
+              "auth/session-based",
+              "auth/jwt-auth",
+              "auth/role-based-auth"
             ]
           }
         ]

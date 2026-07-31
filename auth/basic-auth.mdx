@@ -1,0 +1,601 @@
+---
+title: Basic Authentication
+description: Build a simple authentication system using **FastAPI**, **SQLite**, and **HTTP Basic Authentication**.
+---
+## Step 1 - User Registration & Basic Authentication
+
+Build a simple authentication system using **FastAPI**, **SQLite**, and **HTTP Basic Authentication**.
+
+Users can register with a username and password. Passwords are securely hashed before being stored. Public endpoints are accessible by everyone, while protected endpoints require valid username and password credentials.
+
+### What We Will Build
+
+- Configure a SQLite database.
+- Create a `User` model.s
+- Register new users.
+- Hash passwords using `bcrypt`.
+- Verify user credentials.
+- Implement HTTP Basic Authentication.
+- Create public and protected API endpoints.
+
+### APIs
+
+| Method | Endpoint | Access | Description |
+|--------|----------|:------:|-------------|
+| POST | `/register` | Public | Register a new user |
+| GET | `/public` | Public | Accessible by everyone |
+| GET | `/protected` | Protected | Requires valid username and password |
+
+### Authentication
+
+Protected endpoints use **HTTP Basic Authentication**.
+
+The client sends the username and password in the `Authorization` header:
+
+```http
+Authorization: Basic <base64(username:password)>
+```
+
+The application verifies the credentials against the hashed password stored in the database before granting access.
+
+
+## Task 1 - Create the Project
+
+### Goal
+
+Create a new FastAPI project for implementing authentication using **SQLite** and **HTTP Basic Authentication**.
+
+### Create the Project
+
+```bash
+mkdir auth_app
+cd auth_app
+
+uv init
+uv add fastapi uvicorn sqlmodel passlib bcrypt python-multipart
+```
+
+### Create the Project Structure
+
+```text
+auth_app/
+│
+├── app.py
+├── database.py
+├── models.py
+├── auth.py
+├── pyproject.toml
+├── uv.lock
+└── .venv/
+```
+
+Create the required files.
+
+**Windows**
+
+```bash
+type nul > app.py
+type nul > database.py
+type nul > models.py
+type nul > auth.py
+```
+
+**macOS / Linux**
+
+```bash
+touch app.py database.py models.py auth.py
+```
+
+Add the following code to `app.py`.
+
+```python
+from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get("/")
+def root():
+    return {"message": "Authentication API"}
+```
+
+Start the development server.
+
+```bash
+uv run uvicorn app:app --reload
+```
+
+Open your browser and navigate to:
+
+- http://127.0.0.1:8000
+- http://127.0.0.1:8000/docs
+
+At the end of this task, you should have:
+
+- A FastAPI project initialized using `uv`.
+- Required dependencies installed.
+- The basic project structure created.
+- The application running successfully.
+
+## Task 2 - Create the User Model
+
+### Goal
+
+Create the `User` model to store user credentials and update the application to create the database tables automatically.
+
+### Update `models.py`
+
+```python
+from sqlmodel import SQLModel, Field
+
+
+class User(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    username: str = Field(index=True, unique=True)
+    password: str
+
+
+class RegisterRequest(SQLModel):
+    username: str
+    password: str
+```
+
+### Update `app.py`
+
+Import the `User` model before creating the database tables.
+
+```python
+from fastapi import FastAPI
+from sqlmodel import SQLModel
+
+from database import engine
+from models import User
+
+SQLModel.metadata.create_all(engine)
+
+app = FastAPI()
+
+
+@app.get("/")
+def root():
+    return {"message": "Authentication API"}
+```
+
+### Why Import `User`?
+
+Although the `User` model is not referenced directly, importing it registers the model with `SQLModel.metadata`. When `SQLModel.metadata.create_all(engine)` is executed, SQLModel creates the `user` table in the database.
+
+### Run the Application
+
+```bash
+uv run uvicorn app:app --reload
+```
+
+### Verify
+
+After starting the application, a new SQLite database named `auth.db` should be created with a `user` table containing the following columns:
+
+| Column | Type |
+|---------|------|
+| id | INTEGER |
+| username | TEXT |
+| password | TEXT |
+
+### Expected Outcome
+
+At the end of this task, you should have:
+
+- A `User` model.
+- A `RegisterRequest` model.
+- A `user` table created automatically in the SQLite database.
+- A FastAPI application ready for implementing user registration.
+
+## Task 3 - Implement Password Hashing
+
+### Goal
+
+Implement password hashing and verification using `bcrypt`.
+
+### Update `auth.py`
+
+```python
+from passlib.context import CryptContext
+
+pwd_context = CryptContext(
+    schemes=["bcrypt"],
+    deprecated="auto"
+)
+
+
+def hash_password(password: str) -> str:
+    return pwd_context.hash(password)
+
+
+def verify_password(password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(password, hashed_password)
+
+
+if __name__ == "__main__":
+    password = "secret123"
+
+    hashed_password = hash_password(password)
+
+    print(f"Original Password : {password}")
+    print(f"Hashed Password   : {hashed_password}")
+    print(f"Password Verified : {verify_password(password, hashed_password)}")
+```
+
+### Run the File
+
+```bash
+uv run auth.py
+```
+
+### Expected Output
+
+```text
+Original Password : secret123
+Hashed Password   : $2b$12$...
+Password Verified : True
+```
+
+### Why Hash Passwords?
+
+Passwords should never be stored as plain text. Instead, only their hashed values are stored in the database. During authentication, the entered password is hashed and compared with the stored hash.
+
+### Expected Outcome
+
+At the end of this task, you should have:
+
+- A reusable password hashing function.
+- A reusable password verification function.
+- A simple way to test the implementation independently.
+
+## Task 4 - Implement User Registration
+
+### Goal
+
+Create an API to register new users by storing their username and hashed password in the database.
+
+### Update `app.py`
+
+```python
+from fastapi import Depends, HTTPException
+from sqlmodel import Session, select
+
+from auth import hash_password
+from database import get_session
+from models import User, RegisterRequest
+
+
+@app.post("/register")
+def register(
+    request: RegisterRequest,
+    session: Session = Depends(get_session)
+):
+    existing_user = session.exec(
+        select(User).where(User.username == request.username)
+    ).first()
+
+    if existing_user:
+        raise HTTPException(
+            status_code=400,
+            detail="Username already exists."
+        )
+
+    user = User(
+        username=request.username,
+        password=hash_password(request.password)
+    )
+
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+
+    return {
+        "message": "User registered successfully."
+    }
+```
+
+### Run the Application
+
+```bash
+uv run uvicorn app:app --reload
+```
+
+### Test the API
+
+Open the Swagger UI.
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+Register a new user.
+
+```json
+{
+  "username": "john",
+  "password": "secret123"
+}
+```
+
+### Verify
+
+Open the `user` table in your SQLite database.
+
+The password should be stored as a hashed value similar to:
+
+```text
+$2b$12$...
+```
+
+instead of
+
+```text
+secret123
+```
+
+### Expected Outcome
+
+At the end of this task, you should have:
+
+- A working user registration API.
+- Duplicate username validation.
+- Passwords stored securely using hashing.
+
+## Task 5 - Implement HTTP Basic Authentication
+
+### Goal
+
+Authenticate users using HTTP Basic Authentication by verifying their username and password.
+
+### Update `auth.py`
+
+Add the following code.
+
+```python
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from sqlmodel import Session, select
+
+from database import get_session
+from models import User
+
+security = HTTPBasic()
+
+
+def authenticate_user(
+    credentials: HTTPBasicCredentials = Depends(security),
+    session: Session = Depends(get_session),
+) -> User:
+    user = session.exec(
+        select(User).where(User.username == credentials.username)
+    ).first()
+
+    if not user or not verify_password(credentials.password, user.password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid username or password.",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+
+    return user
+```
+
+### Nested Dependencies
+
+The `authenticate_user()` function is a **dependency** that itself depends on two other dependencies.
+
+- `security` extracts the username and password from the `Authorization` header.
+- `get_session()` provides a database session.
+
+This is known as **nested dependency injection**.
+
+```text
+authenticate_user()
+        │
+        ├──────────────┐
+        ▼              ▼
+Depends(security)  Depends(get_session)
+        │              │
+        ▼              ▼
+ Credentials     Database Session
+```
+
+### Why Does It Work?
+
+Although `authenticate_user()` is not a route handler, it is executed by **FastAPI** because it is declared as a dependency using `Depends()`.
+
+FastAPI automatically resolves all nested dependencies before calling the function.
+
+Later, we'll use it like this:
+
+```python
+@app.get("/protected")
+def protected(user: User = Depends(authenticate_user)):
+    return {"message": f"Welcome {user.username}"}
+```
+
+The dependency resolution flow is:
+
+```text
+Request
+    │
+    ▼
+protected()
+    │
+    ▼
+Depends(authenticate_user)
+    │
+    ├──────────────┐
+    ▼              ▼
+Depends(security)  Depends(get_session)
+    │              │
+    ▼              ▼
+Credentials     Database Session
+        └──────────────┘
+               │
+               ▼
+      authenticate_user()
+               │
+               ▼
+        Authenticated User
+               │
+               ▼
+        protected()
+```
+
+### Important
+
+`Depends()` works **only when FastAPI executes the function**.
+
+This works because FastAPI calls `authenticate_user()` as a dependency.
+
+```python
+@app.get("/protected")
+def protected(user: User = Depends(authenticate_user)):
+    ...
+```
+
+However, calling the function directly does **not** resolve its dependencies.
+
+```python
+user = authenticate_user()   # ❌ Incorrect
+```
+
+In this case, `credentials` and `session` would simply be `Depends` objects instead of actual values.
+
+### Expected Outcome
+
+At the end of this task, you should have:
+
+- A reusable authentication dependency.
+- Username verification.
+- Password verification.
+- Proper `401 Unauthorized` responses for invalid credentials.
+- An understanding of nested dependency injection in FastAPI.
+
+## Task 6 - Create Public and Protected Endpoints
+
+### Goal
+
+Create public and protected endpoints to understand how authentication controls access to API resources.
+
+### Update `app.py`
+
+Add the following endpoints.
+
+```python
+from fastapi import Depends
+
+from auth import authenticate_user
+from models import User
+
+
+@app.get("/public")
+def public():
+    return {
+        "message": "This is a public endpoint."
+    }
+
+
+@app.get("/protected")
+def protected(
+    user: User = Depends(authenticate_user)
+):
+    return {
+        "message": f"Welcome {user.username}!"
+    }
+```
+
+### How It Works
+
+The `/public` endpoint is accessible to everyone.
+
+The `/protected` endpoint depends on the `authenticate_user()` dependency. Before executing the endpoint, FastAPI:
+
+1. Extracts the username and password from the `Authorization` header.
+2. Verifies the credentials.
+3. Returns the authenticated user.
+4. Executes the endpoint only if authentication succeeds.
+
+### Run the Application
+
+```bash
+uv run uvicorn app:app --reload
+```
+
+### Test the APIs
+
+Open the Swagger UI.
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+#### Public Endpoint
+
+Call:
+
+```http
+GET /public
+```
+
+This endpoint is accessible without authentication.
+
+#### Protected Endpoint
+
+Call:
+
+```http
+GET /protected
+```
+
+Click **Authorize** in Swagger UI and enter the registered username and password.
+
+If the credentials are valid, the response will be:
+
+```json
+{
+  "message": "Welcome john!"
+}
+```
+
+If the credentials are invalid, the response will be:
+
+```http
+401 Unauthorized
+```
+
+### Authentication Flow
+
+```text
+Client Request
+      │
+      ▼
+Protected Endpoint
+      │
+      ▼
+authenticate_user()
+      │
+      ▼
+Verify Username & Password
+      │
+      ▼
+Authenticated?
+   ┌───────┴────────┐
+   │                │
+  Yes              No
+   │                │
+   ▼                ▼
+Execute API    401 Unauthorized
+```
+
+### Expected Outcome
+
+At the end of this task, you should have:
+
+- A public endpoint accessible to everyone.
+- A protected endpoint requiring valid credentials.
+- A working implementation of HTTP Basic Authentication.
+
