@@ -543,6 +543,127 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 | `http://127.0.0.1:8000/redoc` | ReDoc |
 | `http://127.0.0.1:8000/openapi.json` | OpenAPI Specification |
 
+---
+title: "FastAPI CLI vs Uvicorn"
+description: "Understand the difference between `fastapi dev main.py` and `uvicorn main:app`, when to use each, and why Uvicorn is preferred for production."
+---
+
+## Overview
+
+Both commands start a FastAPI application, but they serve different purposes.
+
+- **`fastapi dev main.py`** is a **development command** provided by the FastAPI CLI.
+- **`uvicorn main:app`** directly starts the **Uvicorn ASGI server** and is suitable for both development and production.
+
+## Comparison
+
+| Feature | `fastapi dev main.py` | `uvicorn main:app` |
+| --- | --- | --- |
+| Tool | FastAPI CLI | Uvicorn ASGI Server |
+| Primary Use | Development | Development & Production |
+| Auto Reload | ✅ Enabled by default | ❌ Disabled (use `--reload`) |
+| App Detection | Automatically discovers the app | App must be specified (`module:app`) |
+| Configuration | Minimal | Highly configurable |
+| Production Ready | ❌ No | ✅ Yes |
+
+## `fastapi dev main.py`
+
+Starts your application using the FastAPI CLI.
+
+```bash
+fastapi dev main.py
+```
+
+### Features
+
+- Automatically finds the `FastAPI()` application.
+- Enables auto reload by default.
+- Displays helpful startup information.
+- Designed for local development.
+
+## `uvicorn main:app`
+
+Starts the Uvicorn ASGI server directly.
+
+```bash
+uvicorn main:app
+```
+
+Where:
+
+- `main` → Python module (`main.py`)
+- `app` → FastAPI application instance
+
+## Development Mode
+
+To enable auto reload with Uvicorn:
+
+```bash
+uvicorn main:app --reload
+```
+
+Without `--reload`, code changes require restarting the server manually.
+
+## Production
+
+For production deployments:
+
+```bash
+uvicorn main:app --host 0.0.0.0 --port 8000
+```
+
+`fastapi dev` should **not** be used in production because it is intended only for development.
+
+## Execution Flow
+
+```text
+fastapi dev main.py
+        │
+        ▼
+    FastAPI CLI
+        │
+        ▼
+Discovers FastAPI app
+        │
+        ▼
+Starts Uvicorn
+        │
+        ▼
+Auto Reload Enabled
+```
+
+```text
+uvicorn main:app
+        │
+        ▼
+Starts Uvicorn
+        │
+        ▼
+Loads main.py
+        │
+        ▼
+Uses app instance
+        │
+        ▼
+Runs ASGI Application
+```
+
+## When to Use
+
+| Scenario | Recommended Command |
+| --- | --- |
+| Learning FastAPI | `fastapi dev main.py` |
+| Local Development | `fastapi dev main.py` or `uvicorn main:app --reload` |
+| Testing Production Behavior | `uvicorn main:app` |
+| Production Deployment | `uvicorn main:app` |
+
+## Summary
+
+- `fastapi dev main.py` is a **developer-friendly wrapper** around Uvicorn.
+- `uvicorn main:app` starts the **Uvicorn ASGI server directly**.
+- For development, `fastapi dev` offers a simpler experience.
+- For production, always use `uvicorn` (or another ASGI server).
+
 ## Routing
 
 A **route** maps an API endpoint to a Python function.
@@ -627,7 +748,6 @@ DELETE /deleteStudent?id=101
 
 > **Rule:** If the value uniquely identifies a resource, use a **path variable**.
 
-
 ## Query Parameters
 
 Use **query parameters** for **optional operations**, such as:
@@ -653,9 +773,7 @@ GET /students/CSE
 GET /students/page/1
 GET /students/sort/name
 ```
-
 > **Rule:** If the parameter changes **how data is retrieved** rather than **which resource is retrieved**, use a **query parameter**.
-
 
 ## Request Body
 
