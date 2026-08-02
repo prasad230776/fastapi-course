@@ -1,0 +1,113 @@
+# Module 3: Modern Python Features
+
+This module details functional programming structures, generator expressions, and custom iterators.
+
+---
+
+## 1. Comprehensions
+
+Comprehensions provide a concise way to create lists, dictionaries, sets, and generators.
+
+```python
+# 1. List Comprehension
+squares = [x**2 for x in range(10) if x % 2 == 0]  # [0, 4, 16, 36, 64]
+
+# 2. Dictionary Comprehension
+square_map = {x: x**2 for x in range(5)}  # {0: 0, 1: 1, 2: 4, 3: 9, 4: 16}
+
+# 3. Set Comprehension
+unique_lengths = {len(name) for name in ["alice", "bob", "alice"]}  # {3, 5}
+
+# 4. Generator Expression (Memory Efficient)
+lazy_squares = (x**2 for x in range(1000000))
+print(next(lazy_squares))  # 0
+print(next(lazy_squares))  # 1
+```
+
+---
+
+## 2. Lambda Functions
+
+Lambda functions are small, anonymous, single-expression functions.
+
+```python
+# Simple lambda
+multiply = lambda x, y: x * y
+print(multiply(3, 5))  # 15
+
+# Sorting with lambda
+pairs = [(1, 'one'), (2, 'two'), (3, 'three')]
+pairs.sort(key=lambda pair: pair[1])  # Sort alphabetically by name
+```
+
+---
+
+## 3. Functional Programming Essentials
+
+Python supports functional tools like `map`, `filter`, and `reduce`.
+
+```python
+from functools import reduce
+
+numbers = [1, 2, 3, 4, 5]
+
+# map: double values
+doubled = list(map(lambda x: x * 2, numbers))  # [2, 4, 6, 8, 10]
+
+# filter: keep odd numbers
+odds = list(filter(lambda x: x % 2 != 0, numbers))  # [1, 3, 5]
+
+# reduce: compute product of list
+product = reduce(lambda x, y: x * y, numbers)  # 120
+```
+
+---
+
+## 4. Iterators and Generators
+
+* **Iterators**: Objects containing state that can be looped over sequentially using `__next__()`.
+* **Generators**: Functions that use the `yield` statement to return a lazy iterator. They suspend execution state between yields.
+
+```python
+# Custom Generator Function
+def count_down(start):
+    while start > 0:
+        yield start
+        start -= 1
+
+for count in count_down(3):
+    print(count)  # 3, 2, 1
+```
+
+---
+
+## 📝 Practice Exercises
+
+### Exercise 1: Dictionary Transformation
+Given a dictionary of item names and prices `{"apple": 1.20, "banana": 0.50, "cherry": 2.50}`, write a dictionary comprehension that filters out items costing less than `1.00` and increases remaining prices by 10%.
+
+<Accordion title="Click to view solution">
+```python
+prices = {"apple": 1.20, "banana": 0.50, "cherry": 2.50}
+
+updated_prices = {item: round(price * 1.10, 2) for item, price in prices.items() if price >= 1.00}
+# Result: {'apple': 1.32, 'cherry': 2.75}
+```
+</Accordion>
+
+### Exercise 2: Custom Fibonacci Generator
+Implement a generator function `fibonacci_sequence(limit: int)` that yields Fibonacci numbers up to the specified limit.
+
+<Accordion title="Click to view solution">
+```python
+def fibonacci_sequence(limit: int):
+    a, b = 0, 1
+    while a <= limit:
+        yield a
+        a, b = b, a + b
+
+# Usage:
+# for num in fibonacci_sequence(10):
+#     print(num)  # 0, 1, 1, 2, 3, 5, 8
+```
+</Accordion>

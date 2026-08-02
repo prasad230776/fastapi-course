@@ -1,0 +1,206 @@
+# Module 10: Project Delivery & Capstone
+
+This module lays out professional project architectures, deployment workflows, and defines the complete Capstone Project.
+
+---
+
+## 1. Professional Project Directory Structures
+
+Adopt a structured layout separating route declarations, databases, services, and interface views.
+
+```text
+campus_portal/
+│
+├── .env                  # Secrets & Config
+├── requirements.txt      # Dependency list
+├── .gitignore            # Git exclusions
+│
+├── backend/              # FastAPI Application
+│   ├── __init__.py
+│   ├── database.py       # Engine & SessionLocal
+│   ├── models.py         # SQLAlchemy Tables
+│   ├── schemas.py        # Pydantic Schemas
+│   └── main.py           # Routing & App entry
+│
+└── frontend/             # Streamlit Application
+    └── app.py            # Dashboard views & HTTP calls
+```
+
+---
+
+## 2. Git & GitHub Best Practices
+
+* **Feature Branches**: Avoid committing directly to `master`/`main`. Use feature branches.
+* **Semantic Commits**: Use prefix keywords in commit descriptions (e.g. `feat: add auth`, `fix: DB pool`).
+* **Ignore Configurations**: Filter local caches and databases out of commits using `.gitignore`.
+
+### Example `.gitignore`
+```text
+# Python bytecode
+__pycache__/
+*.pyc
+
+# Local environments
+.venv/
+env/
+
+# Databases
+*.db
+```
+
+---
+
+## 🏆 Capstone Project Blueprint: Campus Project Management Portal
+
+Students build an end-to-end web portal to manage academic projects.
+
+### 1. Database Model (`backend/models.py`)
+```python
+from sqlalchemy import Column, Integer, String, Text
+from sqlalchemy.orm import declarative_base
+
+Base = declarative_base()
+
+class DbProject(Base):
+    __tablename__ = "projects"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False)
+    description = Column(Text, nullable=False)
+    technologies = Column(String, nullable=False)  # Comma-separated list
+```
+
+### 2. Validation Schemas (`backend/schemas.py`)
+```python
+from pydantic import BaseModel, Field
+
+class ProjectCreate(BaseModel):
+    title: str = Field(..., min_length=3)
+    description: str = Field(..., min_length=10)
+    technologies: str = Field(..., description="Comma-separated string of technologies")
+
+class ProjectOut(ProjectCreate):
+    id: int
+
+    class Config:
+        from_attributes = True
+```
+
+### 3. FastAPI Web Engine (`backend/main.py`)
+```python
+from fastapi import FastAPI, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from typing import List
+from .database import engine, SessionLocal, Base
+from .models import DbProject
+from .schemas import ProjectCreate, ProjectOut
+
+# Initialize tables
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI(title="Campus Project Management Portal")
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+@app.post("/projects", response_model=ProjectOut, status_code=status.HTTP_201_CREATED)
+def add_project(project: ProjectCreate, db: Session = Depends(get_db)):
+    new_project = DbProject(
+        title=project.title,
+        description=project.description,
+        technologies=project.technologies
+    )
+    db.add(new_project)
+    db.commit()
+    db.refresh(new_project)
+    return new_project
+
+@app.get("/projects", response_model=List[ProjectOut])
+def list_projects(db: Session = Depends(get_db)):
+    return db.query(DbProject).all()
+```
+
+### 4. Interactive Frontend View (`frontend/app.py`)
+```python
+import streamlit as st
+import httpx
+
+BACKEND_URL = "http://127.0.0.1:8000/projects"
+
+st.set_page_config(page_title="Project Portal", layout="wide")
+st.title("🎓 Campus Project Portal")
+
+# Sidebar for new submissions
+st.sidebar.header("Submit Project")
+with st.sidebar.form("submission_form"):
+    title = st.text_input("Project Title")
+    desc = st.text_area("Description")
+    techs = st.text_input("Technologies (e.g., Python, FastAPI)")
+    submitted = st.form_submit_handler("Submit Project")
+
+    if submitted:
+        payload = {"title": title, "description": desc, "technologies": techs}
+        try:
+            res = httpx.post(BACKEND_URL, json=payload)
+            if res.status_code == 201:
+                st.sidebar.success("Project submitted successfully!")
+            else:
+                st.sidebar.error(f"Error {res.status_code}: {res.text}")
+        except Exception as e:
+            st.sidebar.error(f"Could not connect to API: {e}")
+
+# Main view to display current projects
+st.header("💡 Active Projects")
+try:
+    response = httpx.get(BACKEND_URL)
+    if response.status_code == 200:
+        projects = response.json()
+        if not projects:
+            st.info("No projects posted yet. Use the sidebar to submit.")
+        for proj in projects:
+            with st.expander(f"**{proj['title']}**"):
+                st.write(proj["description"])
+                st.markdown(f"**Built with:** `{proj['technologies']}`")
+    else:
+        st.error("Failed to load projects.")
+except Exception as e:
+    st.error(f"Failed to connect to backend: {e}")
+```
+
+---
+
+## 📝 Practice Exercises
+
+### Exercise 1: Run the Backend Server
+Set up the `campus_portal` project environment, write the backend modules, and run the server locally on port `8000`.
+
+<Accordion title="Click to view solution">
+1. Install dependencies:
+   ```bash
+   pip install fastapi uvicorn sqlalchemy
+   ```
+2. Navigate to the project root directory and run Uvicorn:
+   ```bash
+   uvicorn backend.main:app --reload
+   ```
+3. Open `http://127.0.0.1:8000/docs` in your web browser to check the Swagger interface.
+</Accordion>
+
+### Exercise 2: Launch the Interactive Frontend
+Start the Streamlit dashboard on your local machine and verify that it loads projects successfully from your FastAPI backend database.
+
+<Accordion title="Click to view solution">
+1. Install Streamlit and HTTPX:
+   ```bash
+   pip install streamlit httpx
+   ```
+2. Run the Streamlit app:
+   ```bash
+   streamlit run frontend/app.py
+   ```
+3. Open `http://localhost:8501` to view and interact with the page.
+</Accordion>

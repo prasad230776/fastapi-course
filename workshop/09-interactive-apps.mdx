@@ -1,0 +1,128 @@
+# Module 9: Building Interactive Applications
+
+Build responsive web interfaces using Streamlit and connect them to your FastAPI backends.
+
+---
+
+## 1. Streamlit Fundamentals
+
+Streamlit lets you build interactive web applications with simple Python scripts. Every user interaction triggers a rerun of the entire script from top to bottom.
+
+```python
+import streamlit as st
+
+st.title("Interactive Dashboard")
+
+# Basic Text Input
+user_name = st.text_input("Enter your name:", "Guest")
+
+# Button Click State
+if st.button("Say Hello"):
+    st.write(f"Hello, {user_name}!")
+```
+
+---
+
+## 2. Forms & Layouts
+
+Control execution updates and group widgets using columns, sidebars, and forms.
+
+```python
+import streamlit as st
+
+# Sidebar Layout
+st.sidebar.header("Settings")
+theme = st.sidebar.selectbox("Choose Theme", ["Light", "Dark"])
+
+# Form Submission (batch inputs without refreshing until click)
+with st.form("input_form"):
+    age = st.slider("Select Age", 18, 100, 25)
+    role = st.selectbox("Role", ["Student", "Instructor"])
+    submitted = st.form_submit_handler("Submit")
+    
+    if submitted:
+        st.success(f"Profile Submitted! Age: {age}, Role: {role}")
+```
+
+---
+
+## 3. Integrating Streamlit with FastAPI
+
+Make HTTP client calls from your Streamlit frontend to interact with the FastAPI backend.
+
+```python
+import streamlit as st
+import httpx
+
+API_URL = "http://127.0.0.1:8000/items"
+
+st.title("Product Viewer")
+
+# Fetch data from backend
+if st.button("Load Products"):
+    try:
+        response = httpx.get(API_URL)
+        if response.status_code == 200:
+            products = response.json()
+            for product in products:
+                st.write(f"**{product['name']}** - ${product['price']:.2f}")
+        else:
+            st.error("Failed to load products from API.")
+    except Exception as e:
+        st.error(f"Could not connect to backend server: {e}")
+```
+
+---
+
+## 📝 Practice Exercises
+
+### Exercise 1: Form-Based Record Submitter
+Create a Streamlit application with a form to collect `title`, `price`, and `stock` inputs. When submitted, send a POST request containing these fields as JSON payloads to a local endpoint `http://127.0.0.1:8000/products`.
+
+<Accordion title="Click to view solution">
+```python
+import streamlit as st
+import httpx
+
+st.title("Submit New Product")
+
+with st.form("product_form"):
+    title = st.text_input("Product Title")
+    price = st.number_input("Price ($)", min_value=0.0, step=0.01)
+    stock = st.number_input("Initial Stock", min_value=0, step=1)
+    
+    submit_btn = st.form_submit_handler("Add Product")
+
+if submit_btn:
+    payload = {"title": title, "price": price, "stock_count": stock}
+    try:
+        res = httpx.post("http://127.0.0.1:8000/products", json=payload)
+        if res.status_code == 201:
+            st.success(f"Product '{title}' added successfully!")
+        else:
+            st.error(f"Error {res.status_code}: {res.text}")
+    except Exception as e:
+        st.error(f"Failed to reach API server: {e}")
+```
+</Accordion>
+
+### Exercise 2: Session State Counter
+Write a Streamlit counter using `st.session_state` to store and display the current click count. The counter should persist across screen refreshes.
+
+<Accordion title="Click to view solution">
+```python
+import streamlit as st
+
+st.title("Persistent Click Counter")
+
+# Initializing session state value
+if "click_count" not in st.session_state:
+    st.session_state.click_count = 0
+
+def increment_counter():
+    st.session_state.click_count += 1
+
+st.button("Click Me!", on_click=increment_counter)
+st.write(f"Button clicks recorded: **{st.session_state.click_count}**")
+```
+</Accordion>

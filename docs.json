@@ -237,7 +237,34 @@
             ]
           }
         ]
+      },
+        {
+        "tab": "Workshop",
+        "groups": [
+          {
+            "group": "Adv. Python Workshop",
+            "pages": [
+              "workshop/01-advanced-fundamentals",
+              "workshop/02-python-internals",
+              "workshop/03-modern-features",
+              "workshop/04-advanced-oop",
+              "workshop/05-professional-development",
+              "workshop/06-pydantic-validation",
+              "workshop/07-fastapi-essential",
+              "workshop/08-sqlalchemy-databas",
+              "workshop/09-interactive-apps",
+              "workshop/10-capstone-delivery"
+
+              
+
+
+
+
+            ]
+          }
+        ]
       }
+
     ],
     "global": {
       "anchors": []
