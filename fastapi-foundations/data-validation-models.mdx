@@ -337,7 +337,178 @@ FastAPI automatically filters the response using `EmployeeResponse`.
 
 ---
 
-##Understanding `model_config` and `from_attributes` in Pydantic v2
+# Complete Employee Lifecycle
+
+```mermaid
+graph LR
+
+A["Client
+
+POST /employees"]
+
+B["EmployeeCreate
+
+(Request Model)"]
+
+C["Business Logic"]
+
+D["EmployeeInternal
+
+(Application Model)"]
+
+E["Save to Database"]
+
+F["EmployeeResponse
+
+(Response Model)"]
+
+G["Client Response"]
+
+A --> B
+B --> C
+C --> D
+D --> E
+D --> F
+F --> G
+```
+
+---
+
+# Validation Tools
+
+FastAPI provides different validation helpers depending on where the data comes from.
+
+## `Field()` – Request Body Validation
+
+Used inside Pydantic models.
+
+```python
+from typing import Annotated
+from pydantic import BaseModel, Field
+
+class Student(BaseModel):
+    name: Annotated[str, Field(min_length=3, max_length=50)]
+    age: Annotated[int, Field(gt=0, lt=100)]
+```
+
+---
+
+## `Query()` – Query Parameter Validation
+
+```python
+from typing import Annotated
+from fastapi import Query
+
+limit: Annotated[int, Query(ge=1, le=100)] = 20
+```
+
+---
+
+## `Path()` – Path Parameter Validation
+
+```python
+from typing import Annotated
+from fastapi import Path
+
+employee_id: Annotated[int, Path(gt=0)]
+```
+
+---
+
+# `Annotated` (Recommended)
+
+In Pydantic v2, the recommended way to specify validation is using `Annotated`.
+
+Syntax
+
+```python
+Annotated[type, validation]
+```
+
+Example
+
+```python
+from typing import Annotated
+from pydantic import Field
+
+age: Annotated[int, Field(gt=0, lt=100)]
+```
+
+Older syntax
+
+```python
+age: int = Field(gt=0, lt=100)
+```
+
+Both work, but `Annotated` is now the recommended style.
+
+---
+
+# Common Validation Options
+
+| Option | Purpose |
+|---------|---------|
+| `gt` | Greater than |
+| `ge` | Greater than or equal |
+| `lt` | Less than |
+| `le` | Less than or equal |
+| `min_length` | Minimum string length |
+| `max_length` | Maximum string length |
+| `pattern` | Regular expression |
+| `default` | Default value |
+| `alias` | Alternate parameter name |
+| `title` | Title shown in API docs |
+| `description` | Description shown in API docs |
+| `examples` | Example values |
+
+---
+
+# Common Pydantic Types
+
+| Type | Purpose |
+|------|---------|
+| `EmailStr` | Validates email addresses |
+| `AnyUrl` | Validates URLs |
+| `UUID` | Validates UUID values |
+| `date` | Date |
+| `datetime` | Date and time |
+| `Decimal` | High-precision decimal |
+
+Example
+
+```python
+from pydantic import BaseModel, EmailStr
+
+class Student(BaseModel):
+    email: EmailStr
+```
+
+> **Note:** `EmailStr` requires the `email-validator` package.
+
+```bash
+pip install email-validator
+```
+
+---
+
+# Summary
+
+| Stage | Validation / Model | Purpose |
+|--------|--------------------|---------|
+| `GET /employees/{id}` | `Path()` | Validate path parameters |
+| `GET /employees?department=HR&limit=10` | `Query()` | Validate query parameters |
+| `POST /employees` | `EmployeeCreate` + `Field()` | Validate incoming request body |
+| Business Logic | `EmployeeInternal` | Internal application processing |
+| Response | `EmployeeResponse` | Return only safe data to clients |
+
+> **Best Practice:** As your application grows, use separate models for **Request**, **Internal Processing**, and **Response**. Each model has a single responsibility:
+>
+> - **Request Model** → validates incoming client data.
+> - **Internal Model** → represents the application's complete working object.
+> - **Response Model** → exposes only the data that clients should receive.
+
+
+## Understanding `model_config` and `from_attributes` in Pydantic v2
 
 ### What is `model_config`?
 
@@ -522,6 +693,15 @@ PostResponse.model_validate(post)
 JSON Response
 ```
 
+## Pydantic v1 vs Pydantic v2
+
+| Pydantic v1 | Pydantic v2 |
+|-------------|-------------|
+| `class Config` | `model_config = ConfigDict(...)` |
+| `orm_mode = True` | `from_attributes = True` |
+
+`from_attributes=True` replaces `orm_mode=True` in Pydantic v2.
+
 ## Summary
 
 - `model_config` stores configuration settings for a Pydantic model.
@@ -531,174 +711,3 @@ JSON Response
 - `model_validate()` is preferred over the constructor because it works with dictionaries **and** ORM objects.
 - `from_attributes=True` and `model_validate()` are commonly used together to convert SQLAlchemy objects into API response models.
 - Request models usually don't need `from_attributes=True`; response models commonly do because they are built from ORM objects.
-
-# Complete Employee Lifecycle
-
-```mermaid
-graph LR
-
-A["Client
-
-POST /employees"]
-
-B["EmployeeCreate
-
-(Request Model)"]
-
-C["Business Logic"]
-
-D["EmployeeInternal
-
-(Application Model)"]
-
-E["Save to Database"]
-
-F["EmployeeResponse
-
-(Response Model)"]
-
-G["Client Response"]
-
-A --> B
-B --> C
-C --> D
-D --> E
-D --> F
-F --> G
-```
-
----
-
-# Validation Tools
-
-FastAPI provides different validation helpers depending on where the data comes from.
-
-## `Field()` – Request Body Validation
-
-Used inside Pydantic models.
-
-```python
-from typing import Annotated
-from pydantic import BaseModel, Field
-
-class Student(BaseModel):
-    name: Annotated[str, Field(min_length=3, max_length=50)]
-    age: Annotated[int, Field(gt=0, lt=100)]
-```
-
----
-
-## `Query()` – Query Parameter Validation
-
-```python
-from typing import Annotated
-from fastapi import Query
-
-limit: Annotated[int, Query(ge=1, le=100)] = 20
-```
-
----
-
-## `Path()` – Path Parameter Validation
-
-```python
-from typing import Annotated
-from fastapi import Path
-
-employee_id: Annotated[int, Path(gt=0)]
-```
-
----
-
-# `Annotated` (Recommended)
-
-In Pydantic v2, the recommended way to specify validation is using `Annotated`.
-
-Syntax
-
-```python
-Annotated[type, validation]
-```
-
-Example
-
-```python
-from typing import Annotated
-from pydantic import Field
-
-age: Annotated[int, Field(gt=0, lt=100)]
-```
-
-Older syntax
-
-```python
-age: int = Field(gt=0, lt=100)
-```
-
-Both work, but `Annotated` is now the recommended style.
-
----
-
-# Common Validation Options
-
-| Option | Purpose |
-|---------|---------|
-| `gt` | Greater than |
-| `ge` | Greater than or equal |
-| `lt` | Less than |
-| `le` | Less than or equal |
-| `min_length` | Minimum string length |
-| `max_length` | Maximum string length |
-| `pattern` | Regular expression |
-| `default` | Default value |
-| `alias` | Alternate parameter name |
-| `title` | Title shown in API docs |
-| `description` | Description shown in API docs |
-| `examples` | Example values |
-
----
-
-# Common Pydantic Types
-
-| Type | Purpose |
-|------|---------|
-| `EmailStr` | Validates email addresses |
-| `AnyUrl` | Validates URLs |
-| `UUID` | Validates UUID values |
-| `date` | Date |
-| `datetime` | Date and time |
-| `Decimal` | High-precision decimal |
-
-Example
-
-```python
-from pydantic import BaseModel, EmailStr
-
-class Student(BaseModel):
-    email: EmailStr
-```
-
-> **Note:** `EmailStr` requires the `email-validator` package.
-
-```bash
-pip install email-validator
-```
-
----
-
-# Summary
-
-| Stage | Validation / Model | Purpose |
-|--------|--------------------|---------|
-| `GET /employees/{id}` | `Path()` | Validate path parameters |
-| `GET /employees?department=HR&limit=10` | `Query()` | Validate query parameters |
-| `POST /employees` | `EmployeeCreate` + `Field()` | Validate incoming request body |
-| Business Logic | `EmployeeInternal` | Internal application processing |
-| Response | `EmployeeResponse` | Return only safe data to clients |
-
-> **Best Practice:** As your application grows, use separate models for **Request**, **Internal Processing**, and **Response**. Each model has a single responsibility:
->
-> - **Request Model** → validates incoming client data.
-> - **Internal Model** → represents the application's complete working object.
-> - **Response Model** → exposes only the data that clients should receive.
-

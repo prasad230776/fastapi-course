@@ -1,55 +1,13 @@
 ---
 title: FastAPI Fundamentals
 description: Building Basic Applications
-icon: "api"
+icon: "webhook"
 ---
 ##  What is FastAPI?
 
-FastAPI is a modern, high-performance Python web framework for building APIs. 
+FastAPI is a modern, high-performance Python framework for building REST APIs. It uses Python type hints, provides automatic validation, and generates interactive API documentation out of the box.
 
-It is built on top of **Starlette** and **Pydantic**, leveraging Python's type hints to provide automatic request validation, interactive API documentation, and excellent developer productivity.
-
-Before learning FastAPI, it's important to understand **what an API is**, **why it exists**, and **how applications communicate over the web**.
-
-## What is an API?
-
-**API** stands for **Application Programming Interface**.
-
-An API is a set of rules that allows two software applications to communicate with each other. It acts as an intermediary between a **client** and a **server**, enabling them to exchange data and perform operations without exposing the internal implementation of either system.
-
-Every time you:
-
-- Log in to a website
-- Search for products on an e-commerce site
-- Check the weather on your phone
-- Book a cab
-- Make an online payment
-
-your application is communicating with one or more APIs.
-
-
-## Why Do We Need APIs?
-
-Modern applications are made up of multiple independent components. APIs provide a standardized way for these components to communicate.
-
-APIs are commonly used to:
-
-- Connect frontend applications to backend services.
-- Exchange data between different systems.
-- Integrate third-party services such as payment gateways and maps.
-- Build mobile and web applications using the same backend.
-- Develop scalable microservices.
-- Serve AI and Machine Learning models.
-
-Without APIs, every application would need direct access to another application's internal code or database, making systems difficult to maintain and scale.
-
-
-FastAPI is used to build the **server-side** of this communication.
-
-## Why FastAPI?
-
-FastAPI simplifies backend development by providing:
-
+### Key Features of FastAPI
 * **🚀 High Performance**: Built on top of Starlette and Pydantic, making it one of the fastest Python frameworks available, on par with Node.js and Go.
 * **✍️ Faster Coding**: Speeds up feature development by 200% to 300%.
 * **🛡️ Fewer Bugs**: Reduces developer-induced errors by about 40% through automatic validation.
@@ -90,7 +48,6 @@ FastAPI is **not built from scratch**. It combines the strengths of **Python**, 
                        │
                   Uvicorn (ASGI)
 ```
-
 
 ### Python Language Features
 
@@ -543,127 +500,6 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 | `http://127.0.0.1:8000/redoc` | ReDoc |
 | `http://127.0.0.1:8000/openapi.json` | OpenAPI Specification |
 
----
-title: "FastAPI CLI vs Uvicorn"
-description: "Understand the difference between `fastapi dev main.py` and `uvicorn main:app`, when to use each, and why Uvicorn is preferred for production."
----
-
-## Overview
-
-Both commands start a FastAPI application, but they serve different purposes.
-
-- **`fastapi dev main.py`** is a **development command** provided by the FastAPI CLI.
-- **`uvicorn main:app`** directly starts the **Uvicorn ASGI server** and is suitable for both development and production.
-
-## Comparison
-
-| Feature | `fastapi dev main.py` | `uvicorn main:app` |
-| --- | --- | --- |
-| Tool | FastAPI CLI | Uvicorn ASGI Server |
-| Primary Use | Development | Development & Production |
-| Auto Reload | ✅ Enabled by default | ❌ Disabled (use `--reload`) |
-| App Detection | Automatically discovers the app | App must be specified (`module:app`) |
-| Configuration | Minimal | Highly configurable |
-| Production Ready | ❌ No | ✅ Yes |
-
-## `fastapi dev main.py`
-
-Starts your application using the FastAPI CLI.
-
-```bash
-fastapi dev main.py
-```
-
-### Features
-
-- Automatically finds the `FastAPI()` application.
-- Enables auto reload by default.
-- Displays helpful startup information.
-- Designed for local development.
-
-## `uvicorn main:app`
-
-Starts the Uvicorn ASGI server directly.
-
-```bash
-uvicorn main:app
-```
-
-Where:
-
-- `main` → Python module (`main.py`)
-- `app` → FastAPI application instance
-
-## Development Mode
-
-To enable auto reload with Uvicorn:
-
-```bash
-uvicorn main:app --reload
-```
-
-Without `--reload`, code changes require restarting the server manually.
-
-## Production
-
-For production deployments:
-
-```bash
-uvicorn main:app --host 0.0.0.0 --port 8000
-```
-
-`fastapi dev` should **not** be used in production because it is intended only for development.
-
-## Execution Flow
-
-```text
-fastapi dev main.py
-        │
-        ▼
-    FastAPI CLI
-        │
-        ▼
-Discovers FastAPI app
-        │
-        ▼
-Starts Uvicorn
-        │
-        ▼
-Auto Reload Enabled
-```
-
-```text
-uvicorn main:app
-        │
-        ▼
-Starts Uvicorn
-        │
-        ▼
-Loads main.py
-        │
-        ▼
-Uses app instance
-        │
-        ▼
-Runs ASGI Application
-```
-
-## When to Use
-
-| Scenario | Recommended Command |
-| --- | --- |
-| Learning FastAPI | `fastapi dev main.py` |
-| Local Development | `fastapi dev main.py` or `uvicorn main:app --reload` |
-| Testing Production Behavior | `uvicorn main:app` |
-| Production Deployment | `uvicorn main:app` |
-
-## Summary
-
-- `fastapi dev main.py` is a **developer-friendly wrapper** around Uvicorn.
-- `uvicorn main:app` starts the **Uvicorn ASGI server directly**.
-- For development, `fastapi dev` offers a simpler experience.
-- For production, always use `uvicorn` (or another ASGI server).
-
 ## Routing
 
 A **route** maps an API endpoint to a Python function.
@@ -748,6 +584,7 @@ DELETE /deleteStudent?id=101
 
 > **Rule:** If the value uniquely identifies a resource, use a **path variable**.
 
+
 ## Query Parameters
 
 Use **query parameters** for **optional operations**, such as:
@@ -773,7 +610,9 @@ GET /students/CSE
 GET /students/page/1
 GET /students/sort/name
 ```
+
 > **Rule:** If the parameter changes **how data is retrieved** rather than **which resource is retrieved**, use a **query parameter**.
+
 
 ## Request Body
 
@@ -962,6 +801,211 @@ def create_student(student: Student):
 | 422 | Validation Error |
 | 500 | Internal Server Error |
 
+## Request Validation
+
+FastAPI automatically validates incoming data.
+
+```python
+from pydantic import BaseModel, Field
+
+class Student(BaseModel):
+    name: str
+    age: int = Field(gt=0)
+    course: str
+```
+
+Invalid request:
+
+```json
+{
+    "name": "Rahul",
+    "age": -5,
+    "course": "CSE"
+}
+```
+
+If validation fails, FastAPI returns a **422 Validation Error** without executing the route.
+
+## Data Validation can be applied to:
+
+- **Request Body** using `Field()`
+- **Query Parameters** using `Query()`
+- **Path Parameters** using `Path()`
+
+In **Pydantic v2**, the recommended way to specify validations is using Python's `Annotated` type.
+
+### What is `Annotated`?
+
+`Annotated` lets you combine a **data type** with **validation metadata**.
+
+**Syntax**
+
+```python
+Annotated[type, validation]
+```
+
+For example:
+
+```python
+from typing import Annotated
+from pydantic import Field
+
+age: Annotated[int, Field(gt=0, lt=100)]
+```
+
+Here:
+
+- `int` specifies the expected data type.
+- `Field(gt=0, lt=100)` specifies the validation rules.
+
+The equivalent (older) syntax is:
+
+```python
+age: int = Field(gt=0, lt=100)
+```
+
+Both styles work, but **`Annotated` is the recommended approach** in FastAPI and Pydantic v2.
+
+### 1. `Field()` – Request Body Validation
+
+`Field()` is used inside **Pydantic models** to validate request body fields.
+
+**Recommended**
+
+```python
+from typing import Annotated
+from pydantic import BaseModel, EmailStr, Field
+
+class Student(BaseModel):
+    name: Annotated[str, Field(min_length=3, max_length=50)]
+    age: Annotated[int, Field(gt=0, lt=100)]
+    email: EmailStr
+    cgpa: Annotated[float, Field(ge=0, le=10)]
+```
+
+**Alternative**
+
+```python
+class Student(BaseModel):
+    name: str = Field(min_length=3, max_length=50)
+    age: int = Field(gt=0, lt=100)
+    email: EmailStr
+    cgpa: float = Field(ge=0, le=10)
+```
+
+### 2.`Query()` – Query Parameter Validation
+
+`Query()` validates values passed as query parameters.
+
+Example request:
+
+```http
+GET /students?page=1&limit=20&dept=CSE
+```
+
+**Recommended**
+
+```python
+from typing import Annotated
+from fastapi import Query
+
+@app.get("/students")
+def get_students(
+    page: Annotated[int, Query(ge=1)] = 1,
+    limit: Annotated[int, Query(ge=1, le=100)] = 20,
+    department: Annotated[str | None, Query(alias="dept")] = None,
+):
+    ...
+```
+
+**Alternative**
+
+```python
+@app.get("/students")
+def get_students(
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=20, ge=1, le=100),
+    department: str | None = Query(default=None, alias="dept"),
+):
+    ...
+```
+
+### 3. `Path()` – Path Parameter Validation
+
+`Path()` validates values passed as path parameters.
+
+Example request:
+
+```http
+GET /students/101
+```
+
+**Recommended**
+
+```python
+from typing import Annotated
+from fastapi import Path
+
+@app.get("/students/{student_id}")
+def get_student(
+    student_id: Annotated[int, Path(gt=0)]
+):
+    ...
+```
+
+**Alternative**
+
+```python
+@app.get("/students/{student_id}")
+def get_student(
+    student_id: int = Path(gt=0)
+):
+    ...
+```
+### Common Validation Options
+
+| Option | Purpose |
+|---------|---------|
+| `gt` | Greater than |
+| `ge` | Greater than or equal |
+| `lt` | Less than |
+| `le` | Less than or equal |
+| `min_length` | Minimum string length |
+| `max_length` | Maximum string length |
+| `pattern` | Regular expression |
+| `default` | Default value |
+| `alias` | Alternate field/parameter name |
+| `title` | Display title in API docs |
+| `description` | Description in API docs |
+| `examples` | Example values |
+
+### Common Pydantic Types
+
+| Type | Purpose |
+|------|---------|
+| `EmailStr` | Validates email addresses |
+| `AnyUrl` | Validates URLs |
+| `UUID` | Validates UUID values |
+| `date` | Date |
+| `datetime` | Date and time |
+| `Decimal` | High-precision decimal |
+
+Example:
+
+```python
+from pydantic import BaseModel, EmailStr
+
+class Student(BaseModel):
+    email: EmailStr
+```
+
+If an invalid email is provided, FastAPI automatically returns a **422 Unprocessable Entity** response.
+
+> **Note:** `EmailStr` requires the `email-validator` package.
+
+```bash
+pip install email-validator
+```
 
 ## Automatic API Documentation
 
