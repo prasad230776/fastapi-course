@@ -65,7 +65,7 @@
             ]
           },
           {
-            "group": "Project Development",
+            "group": "uv",
             "pages": [
               "uv/index",
               "uv/uv-intro",
