@@ -57,17 +57,20 @@
             ]
           },
           {
-            "group": "Resources",
-            "pages": [
-              "getting-started/course-resources"
-            ]
-          },
-          {
             "group": "Dependency management",
             "pages": [
               "getting-started/virtual-environments",
               "getting-started/packages-and-pip",
               "getting-started/interactive-python"
+            ]
+          },
+          {
+            "group": "Project Development",
+            "pages": [
+              "uv/index",
+              "uv/uv-intro",
+              "uv/virtual-env",
+              "uv/complete-setup"
             ]
           }
         ]
@@ -250,8 +253,8 @@
               "workshop/04-advanced-oop",
               "workshop/05-professional-development",
               "workshop/06-pydantic-validation",
-              "workshop/07-fastapi-essential",
-              "workshop/08-sqlalchemy-databas",
+              "workshop/07-fastapi-essentials",
+              "workshop/08-sqlalchemy-database",
               "workshop/09-interactive-apps",
               "workshop/10-capstone-delivery"
 
