@@ -1,0 +1,40 @@
+---
+title: Environment & secrets
+description: Keep your API keys safe
+icon: "key"
+---
+
+## Never put secrets in your code
+
+When working with APIs or databases, you'll need:
+- API keys
+- Passwords
+- Connection strings
+
+Putting these directly in your code is dangerous - anyone can see them!
+
+## The solution
+
+Environment variables let you keep secrets separate from your code. We'll learn two approaches:
+
+<CardGroup cols={2}>
+  <Card
+    title="Environment variables"
+    icon="gear"
+    href="/tools/environment/variables"
+  >
+    What they are and how they work
+  </Card>
+  
+  <Card
+    title="Using .env files"
+    icon="file-shield"
+    href="/tools/environment/dotenv"
+  >
+    The easy way with .env files
+  </Card>
+</CardGroup>
+
+<Tip>
+  Most Python projects use `.env` files - they're simple and work great for local development.
+</Tip>

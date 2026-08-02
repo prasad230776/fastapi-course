@@ -1,0 +1,149 @@
+---
+title: Using .env files
+description: The easy way to manage secrets
+icon: "file-shield"
+---
+
+## What is a .env file?
+
+A `.env` file is a simple text file that stores your environment variables. Instead of typing `export` commands, you write them once in a file.
+
+## Basic setup
+
+### 1. Install python-dotenv
+
+```bash
+pip install python-dotenv
+```
+
+### 2. Create .env file
+
+Create a file named `.env` in your project:
+
+```
+# .env
+API_KEY=sk-1234567890abcdef
+DATABASE_URL=sqlite:///myapp.db
+DEBUG=True
+```
+
+### 3. Load in Python
+
+```python
+from dotenv import load_dotenv
+import os
+
+# Load the .env file
+load_dotenv()
+
+# Now use your variables
+api_key = os.environ.get('API_KEY')
+debug = os.environ.get('DEBUG')
+
+print(f"API Key: {api_key}")
+print(f"Debug mode: {debug}")
+```
+
+That's it! Much easier than export commands.
+
+## Critical: Add to .gitignore
+
+<Warning>
+  **Never commit .env files!** They contain secrets. Add to `.gitignore` immediately:
+  
+  ```
+  # .gitignore
+  .env
+  .venv/
+  __pycache__/
+  ```
+</Warning>
+
+## Complete example
+
+Here's a real example with an API:
+
+```python
+# app.py
+from dotenv import load_dotenv
+import os
+import requests
+
+# Load environment variables
+load_dotenv()
+
+# Get API key
+API_KEY = os.environ.get('OPENAI_API_KEY')
+
+if not API_KEY:
+    print("Please set OPENAI_API_KEY in .env file")
+    exit(1)
+
+# Use the API
+headers = {"Authorization": f"Bearer {API_KEY}"}
+# Make your API calls...
+```
+
+Your `.env` file:
+```
+# .env
+OPENAI_API_KEY=sk-your-actual-key-here
+MODEL=gpt-3.5-turbo
+MAX_TOKENS=100
+```
+
+## Show others what they need
+
+Create `.env.example` (this one you DO commit):
+
+```
+# .env.example
+OPENAI_API_KEY=your-api-key-here
+MODEL=gpt-3.5-turbo
+MAX_TOKENS=100
+```
+
+This shows other developers what variables they need without exposing your actual keys.
+
+## Rules for .env files
+
+- One variable per line
+- No spaces around `=`
+- No quotes (unless part of the value)
+- Use `#` for comments
+- Always UPPERCASE names
+
+## Common patterns
+
+```
+# API Keys
+OPENAI_API_KEY=sk-...
+GITHUB_TOKEN=ghp_...
+
+# Database
+DATABASE_URL=sqlite:///local.db
+
+# Settings
+DEBUG=True
+PORT=8000
+LOG_LEVEL=INFO
+```
+
+## Quick tips
+
+1. **Load early**: Put `load_dotenv()` at the start of your program
+2. **Use defaults**: `os.environ.get('PORT', '8000')`
+3. **Check your .gitignore**: Make sure `.env` is listed
+4. **Keep it simple**: Only put configuration that changes
+
+## What's next?
+
+You now know how to manage secrets safely! Ready for modern Python tooling?
+
+<Card
+  title="Modern Python"
+  icon="rocket"
+  href="/tools/dependencies/index"
+>
+  Next-level Python development
+</Card>

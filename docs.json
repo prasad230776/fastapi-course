@@ -73,6 +73,36 @@
         ]
       },
       {
+        "tab": "Tools",
+        "groups": [
+          {
+            "group": "Essential Tools",
+            "pages": [
+              "tools/index",
+              "tools/git/index",
+              "tools/git/version-control",
+              "tools/git/github-setup",
+              "tools/git/clone-create",
+              "tools/git/vscode-git"
+            ]
+          },
+          {
+            "group": "Environment & secrets",
+            "pages": [
+              "tools/environment/index",
+              "tools/environment/variables",
+              "tools/environment/dotenv"
+            ]
+          },
+          {
+            "group": "Code quality",
+            "pages": [
+              "tools/code-quality/index"
+            ]
+          }
+        ]
+      },
+      {
         "tab": "Python Fundamentals",
         "groups": [
           {

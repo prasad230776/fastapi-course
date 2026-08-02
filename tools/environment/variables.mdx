@@ -1,0 +1,96 @@
+---
+title: Environment variables
+description: Understanding environment config
+icon: "gear"
+---
+
+## What are environment variables?
+
+Environment variables are settings stored outside your code. Think of them as configuration that your program can read.
+
+## The problem they solve
+
+```python
+# BAD: Never hardcode sensitive data!
+api_key = "sk-1234567890abcdef"  # Everyone can see this!
+database = "production_database"  # Can't change without editing code
+```
+
+Problems:
+- Secrets visible in code
+- Can't share code safely
+- Different settings for different computers
+
+## How environment variables work
+
+Environment variables live in your system, not your code:
+
+```python
+import os
+
+# Read from environment
+api_key = os.environ.get('API_KEY')
+database = os.environ.get('DATABASE_NAME', 'default.db')
+
+print(f"Using database: {database}")
+```
+
+## Setting environment variables
+
+You can set them temporarily in your terminal:
+
+```bash
+# Mac/Linux
+export API_KEY=sk-1234567890abcdef
+python app.py
+
+# Windows
+set API_KEY=sk-1234567890abcdef
+python app.py
+```
+
+But they disappear when you close the terminal!
+
+## Reading in Python
+
+```python
+import os
+
+# Method 1: Get with default
+api_key = os.environ.get('API_KEY', 'demo-key')
+
+# Method 2: Check if exists
+if 'API_KEY' in os.environ:
+    api_key = os.environ['API_KEY']
+else:
+    print("No API key found")
+
+# Method 3: Will crash if not found
+api_key = os.environ['API_KEY']  # KeyError if missing!
+```
+
+## Common uses
+
+- **API Keys**: `OPENAI_API_KEY`, `GITHUB_TOKEN`
+- **Database URLs**: `DATABASE_URL`, `REDIS_URL`
+- **App Settings**: `DEBUG=True`, `PORT=8000`
+- **File Paths**: `LOG_DIR`, `UPLOAD_FOLDER`
+
+## Important notes
+
+- Environment variables are always strings
+- Names are UPPERCASE by convention
+- They're different on each computer
+- They don't persist between terminal sessions
+
+## What's next?
+
+Setting variables manually is tedious. Let's use `.env` files for a better workflow.
+
+<Card
+  title="Using .env files"
+  icon="file-shield"
+  href="/tools/environment/dotenv"
+>
+  Easier way to manage variables
+</Card>
