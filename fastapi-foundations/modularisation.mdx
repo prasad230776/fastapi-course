@@ -1,0 +1,977 @@
+---
+title: "Modularizing a FastAPI Application"
+description: "Learn how to organize a FastAPI application using Controllers, Services, Repositories, and Dependency Injection."
+icon: "folder-tree"
+---
+
+## Introduction
+
+So far, we have organized our application into multiple files, such as **routes** and **models**, making the project easier to navigate.
+
+However, our route functions still perform multiple responsibilities. A typical endpoint may:
+
+- Receive the HTTP request.
+- Validate the incoming data.
+- Execute business logic.
+- Read or update data.
+- Return the HTTP response.
+
+This approach works well for small applications, but as the project grows, route functions become larger, harder to maintain, and more difficult to test.
+
+To solve this problem, we separate the application into multiple layers, where each layer has a single responsibility. This design is known as the **Controller–Service–Repository (CSR) Architecture** or **Layered Architecture**.
+
+## Why Modularize?
+
+Consider the following endpoint.
+
+```http
+POST /employees
+```
+
+Creating an employee involves several responsibilities:
+
+1. Receiving the HTTP request.
+2. Validating the input.
+3. Applying business rules.
+4. Saving the employee.
+5. Returning the response.
+
+Instead of performing all these tasks inside a single function, we distribute them across dedicated layers.
+
+### Before Modularization
+
+```python
+@app.post("/employees")
+def create_employee(employee: EmployeeCreate):
+
+    new_id = max(EMPLOYEES.keys()) + 1
+
+    EMPLOYEES[new_id] = {
+        "id": new_id,
+        **employee.model_dump(),
+    }
+
+    return EMPLOYEES[new_id]
+```
+
+Although this endpoint is simple, it performs multiple responsibilities:
+
+- Handles the HTTP request.
+- Executes business logic.
+- Accesses the data store.
+- Returns the HTTP response.
+
+As more features are added, these route functions become longer and harder to maintain.
+
+### After Modularization
+
+The same request is divided into dedicated layers.
+
+```text
+Client
+   │
+   ▼
+Controller
+(HTTP Layer)
+   │
+   ▼
+Service
+(Business Logic)
+   │
+   ▼
+Repository
+(Data Access)
+   │
+   ▼
+Database
+```
+
+Each layer focuses on a single responsibility.
+
+## Layer Responsibilities
+
+| Layer | Responsibility |
+|--------|----------------|
+| Controller | Receives HTTP requests and returns HTTP responses |
+| Service | Implements business logic |
+| Repository | Reads and writes data |
+| Database | Stores application data |
+
+This design follows the **Single Responsibility Principle (SRP)**.
+
+## Benefits
+
+A layered architecture makes the application:
+
+- Easier to understand
+- Easier to maintain
+- Easier to test
+- Easier to extend
+- Easier to debug
+- Easier to reuse
+
+It also makes future changes much easier.
+
+For example:
+
+- Replacing the in-memory dictionary with PostgreSQL requires changes only in the **Repository**.
+- Adding new business rules requires changes only in the **Service**.
+- The **Controller** continues to expose the same HTTP APIs.
+
+## What We Will Build
+
+In this chapter, we will gradually refactor our Employee Management System into a modular FastAPI application.
+
+| Step | Topic |
+|------|-------|
+| Step 1 | Project Structure |
+| Step 2 | Repository Layer |
+| Step 3 | Service Layer |
+| Step 4 | Controller Layer |
+| Step 5 | Dependency Injection (`Depends`) |
+| Step 6 | Complete Request Flow |
+| Step 7 | Best Practices |
+
+By the end of this chapter, our Employee Management System will follow the same architecture used in most production FastAPI applications.
+
+## Step 1: Define the Models
+
+Before implementing the Router, Service, and Repository layers, let's define the models used by our Employee Management System.
+
+Each layer works with data in a different way, so instead of using a single model everywhere, we'll define separate models for different responsibilities.
+
+- **Request Models** validate data received from clients.
+- **Business Models** represent the application's working data.
+- **Response Models** control the data returned to clients.
+
+Keeping these models in a separate module allows every layer of the application to reuse them.
+
+### Project Structure
+
+```text
+app/
+├── models/
+│   ├── __init__.py
+│   └── employee.py
+```
+
+### Model Flow
+
+```text
+               Client
+                  │
+                  ▼
+      EmployeeCreateRequest
+         (Request Model)
+                  │
+                  ▼
+        EmployeeBusiness
+         (Business Model)
+                  │
+                  ▼
+       EmployeeResponse
+        (Response Model)
+                  │
+                  ▼
+               Client
+```
+
+### Why Different Models?
+
+Each model has a different responsibility.
+
+| Model | Used By | Purpose |
+|--------|---------|---------|
+| `EmployeeCreateRequest` | Router | Validate employee creation requests |
+| `EmployeeUpdateRequest` | Router | Validate employee update requests |
+| `EmployeeBusiness` | Service & Repository | Represents the complete employee used internally |
+| `EmployeeResponse` | Router | Controls the data returned to clients |
+
+For example, when a client creates a new employee, they only send:
+
+```json
+{
+    "name": "Alice Smith",
+    "department": "Engineering",
+    "role": "Backend Developer"
+}
+```
+
+After validation, the application creates its own business object by adding internally generated information.
+
+```text
+EmployeeBusiness
+
+id: 1
+employee_code: EMP001
+name: Alice Smith
+department: Engineering
+role: Backend Developer
+created_at: 2026-07-27
+```
+
+Before sending the response back to the client, only the required fields are exposed.
+
+```json
+{
+    "id": 1,
+    "name": "Alice Smith",
+    "department": "Engineering",
+    "role": "Backend Developer"
+}
+```
+
+This separation keeps the application secure, flexible, and easy to maintain.
+
+### Task
+
+Create the following file.
+
+```text
+app/
+├── models/
+│   └── employee.py
+```
+
+Define the Request, Business, and Response models.
+
+### Solution
+
+<Accordion title="employee.py">
+
+```python
+from datetime import datetime
+
+from pydantic import BaseModel, Field
+
+
+# -------------------------
+# Request Models
+# -------------------------
+
+class EmployeeCreateRequest(BaseModel):
+    name: str = Field(..., min_length=2)
+    department: str
+    role: str
+
+
+class EmployeeUpdateRequest(BaseModel):
+    name: str | None = None
+    department: str | None = None
+    role: str | None = None
+
+
+# -------------------------
+# Business Model
+# -------------------------
+
+class EmployeeBusiness(BaseModel):
+    id: int
+    employee_code: str
+    name: str
+    department: str
+    role: str
+    created_at: datetime
+
+
+# -------------------------
+# Response Model
+# -------------------------
+
+class EmployeeResponse(BaseModel):
+    id: int
+    name: str
+    department: str
+    role: str
+```
+
+</Accordion>
+
+### What We Have So Far
+
+Our application now has a clear separation between incoming data, internal processing, and outgoing data.
+
+```text
+Client Request
+       │
+       ▼
+EmployeeCreateRequest
+       │
+       ▼
+EmployeeBusiness
+       │
+       ▼
+EmployeeResponse
+       │
+       ▼
+Client Response
+```
+
+The **Router** will use the Request and Response models, while the **Service** and **Repository** will work with the Business model.
+
+In the next step, we'll implement the **Repository Layer**, which will be responsible for storing and retrieving `EmployeeBusiness` objects.
+
+## Step 2: Repository Layer
+
+The **Repository** is responsible for interacting with the application's data source.
+
+It acts as a bridge between the **Service Layer** and the **data source**, hiding the implementation details of how data is stored or retrieved.
+
+At this stage, our data source is an **in-memory dictionary**. Instead of creating the data inside the Repository, we'll **inject** it through the constructor. This technique is called **Constructor Injection**, one of the most common forms of **Dependency Injection (DI)**.
+
+Later in this chapter, FastAPI's `Depends()` will perform this injection automatically.
+
+### Project Structure
+
+```text
+app/
+├── database.py
+└── repositories/
+    ├── __init__.py
+    └── employee_repository.py
+```
+
+### Responsibilities
+
+The Repository is responsible for:
+
+- Reading employee data.
+- Creating new employees.
+- Updating existing employees.
+- Deleting employees.
+- Converting raw data into `EmployeeBusiness` objects.
+
+The Repository should **not**:
+
+- Validate requests.
+- Apply business rules.
+- Return HTTP responses.
+
+### Constructor Injection
+
+Instead of creating the data source itself, the Repository receives it from outside.
+
+```text
+database.py
+(Raw Data)
+      │
+      ▼
+EmployeeRepository(data)
+(Constructor Injection)
+      │
+      ▼
+EmployeeBusiness Objects
+```
+
+This keeps the Repository independent of where the data comes from.
+
+### Task
+
+Create the following files.
+
+```text
+app/
+├── database.py
+└── repositories/
+    └── employee_repository.py
+```
+
+Move the employee data into `database.py` and inject it into the Repository using the constructor.
+
+### Solution
+
+<Accordion title="database.py">
+
+```python
+EMPLOYEES = {
+    1: {
+        "id": 1,
+        "employee_code": "EMP001",
+        "name": "Alice Smith",
+        "department": "Engineering",
+        "role": "Backend Developer",
+    },
+    2: {
+        "id": 2,
+        "employee_code": "EMP002",
+        "name": "Bob Jones",
+        "department": "Product",
+        "role": "Product Manager",
+    },
+}
+```
+
+</Accordion>
+
+<Accordion title="employee_repository.py">
+
+```python
+from app.models.employee import EmployeeBusiness
+
+
+class EmployeeRepository:
+
+    def __init__(self, employees: dict[int, dict]):
+        self.employees = {
+            employee_id: EmployeeBusiness(**employee)
+            for employee_id, employee in employees.items()
+        }
+
+    def get_all(self) -> list[EmployeeBusiness]:
+        return list(self.employees.values())
+
+    def get_by_id(self, employee_id: int) -> EmployeeBusiness | None:
+        return self.employees.get(employee_id)
+
+    def create(self, employee: EmployeeBusiness) -> EmployeeBusiness:
+        self.employees[employee.id] = employee
+        return employee
+
+    def update(self, employee: EmployeeBusiness) -> EmployeeBusiness:
+        self.employees[employee.id] = employee
+        return employee
+
+    def delete(self, employee_id: int) -> None:
+        del self.employees[employee_id]
+```
+
+</Accordion>
+
+### Using the Repository
+
+For now, we manually inject the data source while creating the Repository.
+
+```python
+from app.database import EMPLOYEES
+from app.repositories.employee_repository import EmployeeRepository
+
+employee_repository = EmployeeRepository(EMPLOYEES)
+```
+
+This is **Constructor Injection** because the dependency (`EMPLOYEES`) is supplied through the constructor rather than being created inside the Repository.
+
+### What We Have So Far
+
+```text
+database.py
+      │
+      ▼
+EmployeeRepository
+      │
+Converts Raw Data
+      │
+      ▼
+EmployeeBusiness Objects
+```
+
+At this stage, the Repository depends on the data source through **Constructor Injection**. In a later step, we'll replace this manual injection with **FastAPI Dependency Injection (`Depends`)**, allowing FastAPI to create and inject the Repository automatically.
+
+## Step 3: FastAPI Dependency Injection
+
+In the previous step, we manually created the Repository by passing the data source through its constructor.
+
+```python
+employee_repository = EmployeeRepository(EMPLOYEES)
+```
+
+This is **Constructor Injection**, where the dependency is supplied from outside the class.
+
+While this works, manually creating dependencies throughout the application becomes repetitive as the number of layers grows.
+
+FastAPI solves this problem using **Dependency Injection** with `Depends()`. Instead of creating objects ourselves, we describe **how to create them**, and FastAPI automatically creates and injects them whenever they are needed.
+
+### Dependency Flow
+
+```text
+EMPLOYEES
+      │
+      ▼
+get_employee_repository()
+      │
+      ▼
+EmployeeRepository
+      │
+      ▼
+Service
+      │
+      ▼
+Router
+```
+
+### Task
+
+Create a dependency provider that constructs and returns an `EmployeeRepository`.
+
+### Solution
+
+<Accordion title="dependencies.py">
+
+```python
+from app.database import EMPLOYEES
+from app.repositories.employee_repository import EmployeeRepository
+
+
+def get_employee_repository() -> EmployeeRepository:
+    return EmployeeRepository(EMPLOYEES)
+```
+
+</Accordion>
+
+### Using the Dependency
+
+Instead of creating the Repository manually:
+
+```python
+employee_repository = EmployeeRepository(EMPLOYEES)
+```
+
+we can now ask FastAPI to provide it.
+
+```python
+from typing import Annotated
+
+from fastapi import Depends
+
+from app.repositories.employee_repository import EmployeeRepository
+from app.dependencies import get_employee_repository
+
+
+RepositoryDep = Annotated[
+    EmployeeRepository,
+    Depends(get_employee_repository),
+]
+```
+
+`RepositoryDep` is now a reusable dependency that can be injected into the Service layer.
+
+### What We Have So Far
+
+```text
+database.py
+      │
+      ▼
+get_employee_repository()
+      │
+      ▼
+EmployeeRepository
+```
+
+The Repository is no longer created manually throughout the application. Instead, FastAPI knows how to construct it whenever it is required.
+
+In the next step, we'll build the **Service Layer**, which will receive the `EmployeeRepository` through dependency injection and implement the application's business logic.
+
+## Step 4: Service Layer
+
+The **Service** layer contains the application's **business logic**.
+
+It acts as an intermediary between the **Router** and the **Repository**. Instead of directly accessing the Repository, the Router delegates the request to the Service, which applies business rules and coordinates data operations.
+
+### Project Structure
+
+```text
+app/
+└── services/
+    ├── __init__.py
+    └── employee_service.py
+```
+
+### Responsibilities
+
+The Service is responsible for:
+
+- Implementing business rules.
+- Coordinating Repository operations.
+- Creating Business Models from Request Models.
+- Returning Business Models to the Router.
+
+The Service should **not**:
+
+- Handle HTTP requests or responses.
+- Read or write data directly.
+- Know how the data is stored.
+
+### Service Flow
+
+```text
+Router
+   │
+   ▼
+EmployeeService
+   │
+   ▼
+EmployeeRepository
+```
+
+### Constructor Injection
+
+The Service depends on the Repository. Instead of creating it internally, it receives the Repository through its constructor.
+
+```text
+EmployeeRepository
+        │
+        ▼
+EmployeeService(repository)
+```
+
+This keeps the Service loosely coupled to the Repository.
+
+### Task
+
+Create the following file.
+
+```text
+app/
+└── services/
+    └── employee_service.py
+```
+
+Implement the Service methods by using the Repository.
+
+### Solution
+
+<Accordion title="employee_service.py">
+
+```python
+from datetime import UTC, datetime
+
+from app.models.employee import (
+    EmployeeBusiness,
+    EmployeeCreateRequest,
+    EmployeeUpdateRequest,
+)
+from app.repositories.employee_repository import EmployeeRepository
+
+
+class EmployeeService:
+
+    def __init__(self, repository: EmployeeRepository):
+        self.repository = repository
+
+    def get_all(self) -> list[EmployeeBusiness]:
+        return self.repository.get_all()
+
+    def get_by_id(self, employee_id: int) -> EmployeeBusiness | None:
+        return self.repository.get_by_id(employee_id)
+
+    def create(
+        self,
+        request: EmployeeCreateRequest,
+    ) -> EmployeeBusiness:
+
+        employees = self.repository.get_all()
+
+        next_id = max(
+            (employee.id for employee in employees),
+            default=0,
+        ) + 1
+
+        employee = EmployeeBusiness(
+            id=next_id,
+            employee_code=f"EMP{next_id:03}",
+            name=request.name,
+            department=request.department,
+            role=request.role,
+            created_at=datetime.now(UTC),
+        )
+
+        return self.repository.create(employee)
+
+    def update(
+        self,
+        employee_id: int,
+        request: EmployeeUpdateRequest,
+    ) -> EmployeeBusiness | None:
+
+        employee = self.repository.get_by_id(employee_id)
+
+        if employee is None:
+            return None
+
+        update_data = request.model_dump(exclude_unset=True)
+
+        for field, value in update_data.items():
+            setattr(employee, field, value)
+
+        return self.repository.update(employee)
+
+    def delete(self, employee_id: int) -> None:
+        self.repository.delete(employee_id)
+```
+
+</Accordion>
+
+### Register the Dependency
+
+Create a dependency provider for the Service.
+
+<Accordion title="dependencies.py">
+
+```python
+from typing import Annotated
+
+from fastapi import Depends
+
+from app.database import EMPLOYEES
+from app.repositories.employee_repository import EmployeeRepository
+from app.services.employee_service import EmployeeService
+
+
+def get_employee_repository() -> EmployeeRepository:
+    return EmployeeRepository(EMPLOYEES)
+
+
+RepositoryDep = Annotated[
+    EmployeeRepository,
+    Depends(get_employee_repository),
+]
+
+
+def get_employee_service(
+    repository: RepositoryDep,
+) -> EmployeeService:
+    return EmployeeService(repository)
+
+
+ServiceDep = Annotated[
+    EmployeeService,
+    Depends(get_employee_service),
+]
+```
+
+</Accordion>
+
+### What We Have So Far
+
+```text
+database.py
+      │
+      ▼
+EmployeeRepository
+      │
+      ▼
+EmployeeService
+```
+
+The Service now contains the application's business logic while delegating all data access to the Repository.
+
+Notice that:
+
+- The Service works with **Request Models** and **Business Models**.
+- The Repository works only with **Business Models**.
+- Neither layer knows anything about HTTP requests or responses.
+
+In the next step, we'll build the **Router Layer**, which will receive HTTP requests, validate them using the Request Models, delegate the work to the Service, and return Response Models to the client.
+
+## Step 5: Router Layer
+
+The **Router** is the entry point of every HTTP request.
+
+Its responsibility is to receive requests, validate the incoming data, delegate the work to the Service, and return the appropriate response.
+
+The Router should **not** contain business logic or data access code.
+
+### Project Structure
+
+```text
+app/
+└── routers/
+    ├── __init__.py
+    └── employee_router.py
+```
+
+### Responsibilities
+
+The Router is responsible for:
+
+- Defining API endpoints.
+- Receiving HTTP requests.
+- Validating Request Models.
+- Calling the Service.
+- Returning Response Models.
+
+The Router should **not**:
+
+- Generate employee IDs.
+- Apply business rules.
+- Access the data source directly.
+
+### Request Flow
+
+```text
+Client
+   │
+HTTP Request
+   │
+   ▼
+Employee Router
+   │
+   ▼
+Employee Service
+```
+
+### Task
+
+Create the following file.
+
+```text
+app/
+└── routers/
+    └── employee_router.py
+```
+
+Implement the Employee APIs by delegating all business operations to the Service.
+
+### Solution
+
+<Accordion title="employee_router.py">
+
+```python
+from fastapi import APIRouter, HTTPException, status
+
+from app.dependencies import ServiceDep
+from app.models.employee import (
+    EmployeeCreateRequest,
+    EmployeeResponse,
+    EmployeeUpdateRequest,
+)
+
+router = APIRouter(
+    prefix="/employees",
+    tags=["Employees"],
+)
+
+
+@router.get(
+    "/",
+    response_model=list[EmployeeResponse],
+)
+def get_employees(
+    service: ServiceDep,
+):
+    return service.get_all()
+
+
+@router.get(
+    "/{employee_id}",
+    response_model=EmployeeResponse,
+)
+def get_employee(
+    employee_id: int,
+    service: ServiceDep,
+):
+    employee = service.get_by_id(employee_id)
+
+    if employee is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Employee not found.",
+        )
+
+    return employee
+
+
+@router.post(
+    "/",
+    response_model=EmployeeResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_employee(
+    request: EmployeeCreateRequest,
+    service: ServiceDep,
+):
+    return service.create(request)
+
+
+@router.put(
+    "/{employee_id}",
+    response_model=EmployeeResponse,
+)
+def update_employee(
+    employee_id: int,
+    request: EmployeeUpdateRequest,
+    service: ServiceDep,
+):
+    employee = service.update(
+        employee_id,
+        request,
+    )
+
+    if employee is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Employee not found.",
+        )
+
+    return employee
+
+
+@router.delete(
+    "/{employee_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def delete_employee(
+    employee_id: int,
+    service: ServiceDep,
+):
+    employee = service.get_by_id(employee_id)
+
+    if employee is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Employee not found.",
+        )
+
+    service.delete(employee_id)
+```
+
+</Accordion>
+
+### Register the Router
+
+Finally, register the Router with the FastAPI application.
+
+<Accordion title="main.py">
+
+```python
+from fastapi import FastAPI
+
+from app.routers.employee_router import router as employee_router
+
+app = FastAPI(
+    title="Employee Management System",
+)
+
+app.include_router(employee_router)
+```
+
+</Accordion>
+
+### What We Have So Far
+
+```text
+Client
+   │
+   ▼
+Employee Router
+   │
+   ▼
+Employee Service
+   │
+   ▼
+Employee Repository
+   │
+   ▼
+Database
+```
+
+The application is now organized into four independent layers:
+
+- **Router** handles HTTP requests and responses.
+- **Service** implements business logic.
+- **Repository** manages data access.
+- **Database** stores the application's data.
+
+Each layer has a single responsibility, making the application easier to understand, test, maintain, and extend.
+
+In the next step, we'll trace the complete request lifecycle and see how FastAPI automatically creates and injects the required dependencies using `Depends()`.
+
