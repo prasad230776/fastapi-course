@@ -6,159 +6,307 @@ icon: "clock-rotate-left"
 
 ## The problem Git solves
 
-Imagine working on a Python project. You've probably done this:
-- `my_script.py`
-- `my_script_v2.py`
-- `my_script_v2_final.py`
-- `my_script_v2_final_ACTUALLY_FINAL.py`
-- `my_script_backup_before_breaking_everything.py`
+## Why Do We Need Version Control?
 
-Git solves this mess by tracking changes properly.
+Imagine developing a project without Git.
 
-## How Git works
+To keep different versions, you might create folders like:
 
-Think of Git as taking snapshots of your code:
-
-1. **You write code** - Make changes to your files
-2. **You save a snapshot** - Called a "commit" in Git
-3. **Git remembers everything** - Every snapshot, who made it, when, and why
-
-```python
-# Monday: Your code works
-def calculate_price(amount):
-    return amount * 1.20  # 20% markup
-
-# Tuesday: Boss wants 25% markup
-def calculate_price(amount):
-    return amount * 1.25  # Changed from 20% to 25%
-
-# Wednesday: "Actually, can we go back to 20%?"
-# With Git: Easy! Just go back to Monday's version
-# Without Git: Hope you still have that file somewhere...
+```text
+StudentApp/
+StudentApp_Final/
+StudentApp_Final_v2/
+StudentApp_Final_Latest/
+StudentApp_Final_Final/
 ```
 
-## Key concepts (all you need)
+After some time, it becomes difficult to answer questions like:
 
-**Repository (repo)**: A project tracked by Git
-- Your `python-for-ai` folder can be a repository
+- Which version is the latest?
+- Which version introduced a bug?
+- How can I restore an earlier working version?
 
-**Staging**: Choosing which changes to save
-- Like selecting items to put in a box before shipping
+A **Version Control System (VCS)** solves these problems by maintaining the complete history of your project.
 
-**Commit**: A saved snapshot of your code
-- Like saving in a video game - you can always go back
+## What is Version Control?
 
-**Push**: Upload your commits to GitHub
-- Backs up your code online
+Version Control is a system that records changes made to files over time.
 
-**Pull**: Download changes from GitHub
-- Get updates when working with others
+It helps you:
 
-**Clone**: Copy a project from GitHub
-- How you get AI projects to try
+- Track changes
+- Restore previous versions
+- Compare versions
+- Collaborate with others
+- Maintain the complete history of a project
 
-## First: Install Git
+Instead of creating multiple copies of a project manually, a Version Control System manages the history automatically.
 
-Check if you have Git:
-```bash
-git --version
+## Types of Version Control
+
+### Local Version Control
+
+History is stored only on your computer.
+
+**Advantages**
+
+- Fast
+- Simple
+
+**Limitations**
+
+- No collaboration
+- History is lost if the computer fails
+
+### Centralized Version Control
+
+A central server stores the project history.
+
+**Advantages**
+
+- Easy collaboration
+- Single source of truth
+
+**Limitations**
+
+- Requires network connectivity
+- Server failure affects everyone
+
+**Examples**
+
+- SVN
+- CVS
+
+### Distributed Version Control
+
+Every developer has a complete copy of the repository.
+
+**Advantages**
+
+- Works offline
+- Full history on every machine
+- Faster operations
+- Better collaboration
+
+**Git** is a Distributed Version Control System (DVCS).
+
+## What is Git?
+
+Git is a **Distributed Version Control System** that tracks changes by storing snapshots of your project.
+
+Git allows you to:
+
+- Track changes
+- Save versions (commits)
+- Restore previous versions
+- Create branches
+- Merge changes
+- Collaborate with others
+
+Git runs on your local computer and can be used without GitHub.
+
+## What is GitHub?
+
+GitHub is a cloud platform that hosts Git repositories.
+
+| Git | GitHub |
+|------|---------|
+| Version Control System | Repository Hosting Platform |
+| Installed on your computer | Cloud service |
+| Works offline | Requires internet |
+| Creates commits | Stores and shares repositories |
+
+Other Git hosting platforms include:
+
+- GitLab
+- Bitbucket
+- Azure DevOps
+
+## Project
+
+A project is simply a folder containing your source code.
+
+```text
+StudentApp/
+│
+├── app.py
+├── login.py
+├── README.md
+└── requirements.txt
 ```
 
-If you see a version number, you're good! If not, install Git:
+Initially, Git does not track this folder.
 
-<Tabs>
-  <Tab title="Windows">
-    1. Download from [git-scm.com](https://git-scm.com/download/win)
-    2. Run the installer
-    3. Keep all default settings
-    4. Restart VS Code after installation
-  </Tab>
-  
-  <Tab title="macOS">
-    Visit [git-scm.com/downloads/mac](https://git-scm.com/downloads/mac) for installation options.
-    
-    **Easiest method (recommended):**
-    ```bash
-    # If you have Homebrew installed
-    brew install git
-    ```
-    
-    **Alternative:** Install Xcode Command Line Tools (includes Git):
-    ```bash
-    git --version
-    ```
-    macOS will prompt to install if Git is not found. Click "Install" and wait a few minutes.
-  </Tab>
-  
-  <Tab title="Linux">
-    ```bash
-    # Ubuntu/Debian
-    sudo apt update
-    sudo apt install git
-    
-    # Fedora
-    sudo dnf install git
-    
-    # Arch
-    sudo pacman -S git
-    ```
-  </Tab>
-</Tabs>
+## Working Directory
 
-## The simplest Git workflow
+The **Working Directory** is your project folder where you create, edit, rename, and delete files.
 
-Here's literally all you need to know for now:
+```text
+StudentApp/
+│
+├── app.py
+├── login.py
+└── README.md
+```
 
-<Note>
-  These are terminal commands, not Python code! Run them in VS Code's terminal.
-</Note>
+These are the files you work with every day.
+
+## Repository
+
+A **Repository (Repo)** is Git's database that stores the history and metadata of your project.
+
+There are two types of repositories.
+
+### Local Repository
+
+The repository stored on your computer.
+
+Created using:
 
 ```bash
-# 0. First time only - initialize Git in your project
 git init
-
-# 1. Save your changes locally
-git add .
-git commit -m "Add price calculation function"
-
-# 2. Upload to GitHub (after connecting to GitHub - see next pages)
-git push
-
-# That's it! Your code is saved and backed up
 ```
 
-<Warning>
-  If you see "fatal: not a git repository", you need to run `git init` first. This only needs to be done once per project.
-</Warning>
+Stored inside the hidden folder:
 
-You can run these commands:
-- **One by one**: Type each command and press Enter
-- **All together**: Copy and paste all three lines - the terminal runs them in sequence
+```text
+.git/
+```
 
-## Common questions
+The Local Repository stores:
 
-<AccordionGroup>
-  <Accordion title="Do I need to use the terminal?">
-    No! VS Code has buttons for all Git operations. We'll show you both ways, but you can stick to clicking buttons if you prefer.
-  </Accordion>
+- Commit history
+- Branches
+- Tags
+- Repository configuration
+- Other Git metadata
 
-  <Accordion title="What if I mess up?">
-    Git is very forgiving. Every commit is saved forever, so you can always go back. It's actually harder to lose work with Git than without it.
-  </Accordion>
+### Remote Repository
 
-  <Accordion title="Is Git the same as GitHub?">
-    No. Git is the tool on your computer. GitHub is a website that stores Git projects. You can use Git without GitHub, but GitHub makes sharing easier.
-  </Accordion>
-</AccordionGroup>
+A copy of the Local Repository hosted on a server such as:
 
-## What's next?
+- GitHub
+- GitLab
+- Bitbucket
 
-Let's create your GitHub account so you have somewhere to store your code.
+It is mainly used for:
 
-<Card
-  title="GitHub setup"
-  icon="github"
-  href="/tools/git/github-setup"
+- Backup
+- Collaboration
+- Sharing code
+
+## Creating a Local Repository
+
+Suppose your project is:
+
+```text
+StudentApp/
+│
+├── app.py
+└── login.py
+```
+
+Initialize Git:
+
+```bash
+git init
+```
+
+Git creates a hidden folder.
+
+```text
+StudentApp/
+│
+├── app.py
+├── login.py
+└── .git/
+```
+
+The `.git` folder is your **Local Repository**.
+
+> **Note**
 >
-  Create your account in 5 minutes
-</Card>
+> `git init` only creates an empty Git repository. It does **not** copy your project files into the repository or create any commits.
+
+## Before and After `git init`
+
+### Before
+
+```text
+Working Directory
+-----------------
+app.py
+login.py
+```
+
+Only your project files exist.
+
+### After
+
+```text
+Working Directory
+-----------------
+app.py
+login.py
+
+Repository (.git)
+-----------------
+Empty
+```
+
+The repository now exists, but it contains:
+
+- No commits
+- No version history
+- No tracked snapshots
+
+Your files are still only in the **Working Directory**.
+
+## Local Repository vs Remote Repository
+
+```text
+                   git push
+Local Repository -------------> Remote Repository
+      (.git)                        (GitHub)
+
+                   git pull
+Local Repository <------------- Remote Repository
+```
+
+- The **Local Repository** stores your project's history on your computer.
+- The **Remote Repository** is a shared copy used for collaboration and backup.
+- GitHub stores a copy of your Local Repository, not your Working Directory.
+
+## Common Git Commands
+
+| Command | Purpose |
+|---------|---------|
+| `git init` | Create a new local repository |
+| `git status` | Show the current state of your project |
+| `git add` | Stage files for the next commit |
+| `git commit` | Save a new version of the project |
+| `git log` | View commit history |
+| `git push` | Upload commits to the remote repository |
+| `git pull` | Download and merge changes from the remote repository |
+
+## Summary
+
+| Term | Description |
+|------|-------------|
+| Version Control | Maintains the history of files |
+| Git | Distributed Version Control System |
+| GitHub | Cloud platform for hosting Git repositories |
+| Project | Folder containing source code |
+| Working Directory | Editable project files |
+| Repository | Git database storing project history and metadata |
+| Local Repository | `.git` folder on your computer |
+| Remote Repository | Repository hosted on GitHub or similar platforms |
+
+## Key Takeaways
+
+- Git is a **Version Control System**, while GitHub is a **repository hosting platform**.
+- A project starts as a normal folder.
+- Running `git init` creates a hidden `.git` folder called the **Local Repository**.
+- After `git init`, the repository exists but is still **empty**.
+- Your project files remain in the **Working Directory** until they are staged and committed.
+- The **Remote Repository** is simply a copy of your **Local Repository** hosted online.

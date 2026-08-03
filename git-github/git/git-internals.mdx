@@ -1,0 +1,373 @@
+---
+title: "Git Workflow"
+description: "Three concepts that explain how Git tracks and saves changes"
+icon: "repeat"
+---
+
+## Introduction
+
+To use Git effectively, you only need to understand three concepts:
+
+- Working Directory
+- Staging Area (Index)
+- Repository
+
+These three concepts explain how Git tracks and saves changes.
+
+## Understanding the Repository
+
+After running:
+
+```bash
+git init
+```
+
+Git creates a hidden folder named:
+
+```text
+.git/
+```
+
+The `.git` folder is called the **Local Repository**.
+
+It stores Git's database, including:
+
+- Commit history
+- Staging Area (Index)
+- Branches
+- HEAD (latest commit reference)
+- Repository configuration
+
+Your source code is **not** stored directly inside `.git`. It remains in your project folder (Working Directory).
+
+## The Three States of a File
+
+After the first commit, a file can exist in three different states.
+
+```text
+                    Stored inside .git
+             ┌──────────────────────────┐
+             │                          │
+Working      │   Staging Area (Index)   │
+Directory    │          │               │
+             │          ▼               │
+             │   Latest Commit (HEAD)   │
+             └──────────────────────────┘
+```
+
+| State | Description |
+|--------|-------------|
+| Working Directory | Editable project files |
+| Staging Area (Index) | Snapshot selected for the next commit |
+| Latest Commit (HEAD) | Most recently committed version |
+
+> **Note**
+>
+> Both the **Staging Area** and the **Latest Commit** are physically stored inside the **Repository (`.git`)**.
+
+## How These States Evolve
+
+### Before `git init`
+
+```text
+StudentApp/
+│
+├── app.py
+└── login.py
+```
+
+Only one copy of your files exists.
+
+```text
+Working Directory
+-----------------
+app.py
+login.py
+```
+
+No repository exists.
+
+### After `git init`
+
+```bash
+git init
+```
+
+```text
+Working Directory
+-----------------
+app.py
+login.py
+
+Repository (.git)
+-----------------
+Empty
+```
+
+The repository exists, but:
+
+- No commits
+- No history
+- No staged files
+
+Your files still exist only in the Working Directory.
+
+### After `git add`
+
+```bash
+git add app.py
+```
+
+```text
+Working Directory
+-----------------
+app.py
+
+Staging Area
+------------
+Snapshot of app.py
+
+Latest Commit
+-------------
+Empty
+```
+
+The file is ready to be committed.
+
+### After the First Commit
+
+```bash
+git commit -m "Initial commit"
+```
+
+```text
+Working Directory
+-----------------
+app.py
+
+Staging Area
+------------
+app.py
+
+Latest Commit
+-------------
+app.py
+```
+
+From now on, these three states may be different.
+
+## Why Do We Need the Staging Area?
+
+Suppose you modified three files.
+
+```text
+app.py
+login.py
+README.md
+```
+
+Only `login.py` is complete.
+
+You can choose only that file.
+
+```bash
+git add login.py
+git commit -m "Implemented Login"
+```
+
+Only `login.py` becomes part of the commit.
+
+The Staging Area lets you choose exactly what should go into the next commit.
+
+## What Does `git status` Do?
+
+`git status` compares two things.
+
+### Comparison 1
+
+```text
+Working Directory
+        │
+        ▼
+Staging Area
+```
+
+If they differ, Git reports:
+
+```text
+Changes not staged for commit
+```
+
+### Comparison 2
+
+```text
+Staging Area
+      │
+      ▼
+Latest Commit
+```
+
+If they differ, Git reports:
+
+```text
+Changes to be committed
+```
+
+> `git status` only compares these states. It does not modify or store anything.
+
+## What Happens During `git add`?
+
+Assume the latest commit contains:
+
+```python
+print("Hello")
+```
+
+You edit the file.
+
+```python
+print("Hello Git")
+```
+
+Current state:
+
+```text
+Working Directory
+-----------------
+print("Hello Git")
+
+Staging Area
+------------
+print("Hello")
+
+Latest Commit
+-------------
+print("Hello")
+```
+
+Run:
+
+```bash
+git add app.py
+```
+
+Now:
+
+```text
+Working Directory
+-----------------
+print("Hello Git")
+
+Staging Area
+------------
+print("Hello Git")
+
+Latest Commit
+-------------
+print("Hello")
+```
+
+The Staging Area is updated.
+
+## What Happens During `git commit`?
+
+Run:
+
+```bash
+git commit -m "Updated Greeting"
+```
+
+Now:
+
+```text
+Working Directory
+-----------------
+print("Hello Git")
+
+Staging Area
+------------
+print("Hello Git")
+
+Latest Commit
+-------------
+print("Hello Git")
+```
+
+Git creates a new commit and updates the latest committed version.
+
+## What Happens During `git push`?
+
+```bash
+git push
+```
+
+Git uploads your **Local Repository** to the **Remote Repository**.
+
+```text
+Local Repository (.git)
+          │
+          ▼
+Remote Repository (GitHub)
+```
+
+GitHub stores the same repository and reconstructs your files when you browse them in the browser.
+
+## Complete Git Workflow
+
+```text
+Edit Files
+     │
+     ▼
+Working Directory
+     │
+git status
+     │
+     ▼
+git add
+     │
+     ▼
+Staging Area
+     │
+git commit
+     │
+     ▼
+Latest Commit
+     │
+git push
+     │
+     ▼
+GitHub
+```
+
+## Common Git Commands
+
+| Command | Purpose |
+|---------|---------|
+| `git status` | Show modified and staged files |
+| `git add <file>` | Stage selected files |
+| `git add .` | Stage all modified files |
+| `git commit -m "message"` | Save staged changes as a commit |
+| `git log` | View commit history |
+| `git diff` | View unstaged changes |
+| `git diff --staged` | View staged changes |
+| `git push` | Upload commits to GitHub |
+| `git pull` | Download and merge remote changes |
+| `git fetch` | Download remote changes without merging |
+
+## Key Takeaways
+
+- The **Working Directory** contains the files you edit.
+- The **Repository (`.git`)** stores Git's complete database.
+- The **Staging Area (Index)** is part of the Repository.
+- The **Latest Commit (HEAD)** is also stored inside the Repository.
+- `git add` updates the Staging Area.
+- `git commit` creates a new commit from the staged files.
+- `git status` compares the Working Directory, Staging Area, and Latest Commit.
+- `git push` uploads your Local Repository to GitHub.
+
+## Remember
+
+- **Working Directory** → Files you edit.
+- **Staging Area (Index)** → Files selected for the next commit.
+- **Latest Commit (HEAD)** → Most recently committed version.
+- **Repository (`.git`)** → Git's database containing the Staging Area, commit history, branches, and other metadata.

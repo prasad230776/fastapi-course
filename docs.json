@@ -84,6 +84,7 @@
             "pages": [
               "git-github/git/index",
               "git-github/git/version-control",
+              "git-github/git/git-internals",
               "git-github/git/github-setup",
               "git-github/git/clone-create",
               "git-github/git/vscode-git"
