@@ -244,18 +244,6 @@
         ]
       },
       {
-        "tab": "Other Concepts",
-        "groups": [
-          {
-            "group": "Miscellaneous Concepts",
-            "pages": [
-              "miscellaneous/middleware",
-              "miscellaneous/cors-csrf"
-            ]
-          }
-        ]
-      },
-      {
         "tab": "Deployment",
         "groups": [
           {
@@ -285,12 +273,6 @@
               "workshop/08-sqlalchemy-database",
               "workshop/09-interactive-apps",
               "workshop/10-capstone-delivery"
-
-              
-
-
-
-
             ]
           }
         ]
