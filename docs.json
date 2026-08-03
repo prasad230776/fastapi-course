@@ -227,6 +227,21 @@
         ]
       },
       {
+        "tab": "Frontend",
+        "groups": [
+            {
+            "group": "Streamlit Fundamentals",
+            "pages": [
+              "streamlit/intro",
+              "streamlit/displaying-content",
+              "streamlit/widgets",
+              "streamlit/data-handling",
+              "streamlit/streamlit-app"
+            ]
+          }
+        ]
+      },
+      {
         "tab": "Other Concepts",
         "groups": [
           {
