@@ -112,8 +112,7 @@
               "python-fundamentals/pydantic",
               "python-fundamentals/async-programming",
               "python-fundamentals/dependency-management",
-              "python-fundamentals/project-structure",
-              "python-fundamentals/environment-variables"
+              "python-fundamentals/project-structure"
             ]
           }
         ]
@@ -139,7 +138,8 @@
               "fastapi-foundations/annotated-deep",
               "fastapi-foundations/emp-mgmt-all-concepts",
               "fastapi-foundations/api-documentation",
-              "fastapi-foundations/modularisation"
+              "fastapi-foundations/modularisation",
+              "fastapi-foundations/environment-variables"
             ]
           }
         ]

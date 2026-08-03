@@ -1,0 +1,77 @@
+---
+title: Environment Variables & Configuration
+description: Store configurations in .env files, secure database credentials, and manage settings with pydantic-settings
+icon: "file-shield"
+---
+
+## 1. Environment Variables (.env)
+
+An **environment variable** is a dynamic-named value that can affect the way running processes will behave on a computer. In backend development, we use them to store:
+- API Keys and secrets
+- Database connection strings (URLs)
+- Application ports and modes (e.g., debug vs. production)
+
+### The `.env` File
+Instead of hardcoding configurations in our code, we save them in a local text file named `.env`:
+
+```env
+# .env
+DATABASE_URL=postgresql://user:pass@localhost:5432/mydb
+SECRET_KEY=supersecretjwttokenkey
+DEBUG=True
+PORT=8000
+```
+
+> [!CAUTION]
+> **Never commit your `.env` file to Git!** It contains sensitive credentials. Always add `.env` to your `.gitignore` file. Instead, commit a `.env.example` file that lists the keys but leaves the values blank.
+
+---
+
+## 2. Managing Settings with Pydantic Settings
+
+While you can access environment variables using Python's built-in `os.environ.get()`, it does not validate data types or check if required fields are missing.
+
+The industry-standard way to manage configuration in FastAPI is using **`pydantic-settings`**.
+
+### Installation
+```bash
+pip install pydantic-settings
+# or with uv
+uv pip install pydantic-settings
+```
+
+### Creating a Settings Config
+Inherit from `pydantic_settings.BaseSettings`. Pydantic will automatically load fields from environment variables (case-insensitive) and validate their types.
+
+```python
+# app/config.py
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+class Settings(BaseSettings):
+    # Automatically loaded from env or defaults to local
+    DATABASE_URL: str = "sqlite:///./local.db"
+    SECRET_KEY: str
+    DEBUG: bool = False
+    PORT: int = 8000
+
+    # Configures settings behaviour to load from a .env file
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+# Instantiate settings
+settings = Settings()
+```
+
+### Accessing Settings in Your App
+Now, import `settings` anywhere in your application:
+
+```python
+# app/main.py
+from fastapi import FastAPI
+from app.config import settings
+
+app = FastAPI(debug=settings.DEBUG)
+
+@app.get("/")
+def read_root():
+    return {"status": "ok", "db": settings.DATABASE_URL}
+```
