@@ -1,0 +1,598 @@
+---
+title: "SQL and ORM"
+description: "Learn how SQL and Object-Relational Mapping (ORM) work together to interact with relational databases."
+icon: "database"
+---
+
+# Database Integration & SQL Fundamentals Reference Guide
+
+This comprehensive reference document summarizes the core database and SQL concepts covered in the `database-integration` course module. The concepts are illustrated using the **Employee Management System** project database.
+
+## 1. Introduction to Databases and SQL
+
+A **database** is an organized collection of data stored electronically to allow efficient storage, retrieval, updating, and management of information.
+
+### SQL vs. NoSQL Databases
+Databases are broadly classified into two categories:
+
+| Feature | Relational Databases (SQL) | Non-Relational Databases (NoSQL) |
+| :--- | :--- | :--- |
+| **Data Model** | Organized into tables (rows and columns). | Stored as documents, key-value pairs, column families, or graphs. |
+| **Schema** | Fixed, predefined schema. | Flexible, dynamic schema. |
+| **Querying** | Structured Query Language (SQL). | Database-specific API/query languages. |
+| **Use Cases** | Best for structured, relational data (e.g., banking). | Best for unstructured, rapidly changing, or high-volume data. |
+| **Examples** | SQLite, PostgreSQL, MySQL, MS SQL Server, Oracle. | MongoDB (Document), Redis (Key-Value), Neo4j (Graph). |
+
+### What is SQL?
+**SQL (Structured Query Language)** is a **declarative language** used to communicate with relational databases. Instead of specifying *how* to access the data, developers specify *what* data they want, and the database engine determines the most efficient retrieval plan.
+
+
+## 2. Relational Database Concepts
+
+Relational databases structure data as a collection of linked tables.
+
+### Key Database Terminology
+*   **Table:** A collection of related data organized in rows (records) and columns (fields/attributes).
+*   **Row / Record:** A single horizontal entry in a table representing a complete entity instance (e.g., one employee's profile).
+*   **Column / Attribute:** A vertical entity property shared by all records (e.g., `salary`).
+*   **Field:** The intersection of a row and a column containing a single **datum** (value).
+*   **Schema:** The structural blueprint of the database defining tables, columns, types, constraints, and relationships.
+
+### Keys
+*   **Primary Key (PK):** A column (or set of columns) that uniquely identifies each row in a table. It cannot contain `NULL` values, and each table can have only one PK.
+*   **Foreign Key (FK):** A column in one table that references the Primary Key of another table, establishing a link/relationship between them.
+
+### Table Relationships
+1.  **One-to-One (1:1):** One record in Table A relates to exactly one record in Table B (e.g., `Employee ↔ Passport`).
+2.  **One-to-Many (1:N):** One record in Table A relates to multiple records in Table B (e.g., `Department ↔ Employees`). This is the primary relationship used in the course project.
+3.  **Many-to-Many (M:N):** Many records in Table A relate to many records in Table B (e.g., `Students ↔ Courses`). This is implemented using a **junction (or bridge) table**.
+
+### Constraints
+Constraints are rules enforced on data columns to ensure data accuracy, reliability, and integrity:
+
+*   `PRIMARY KEY`: Enforces uniqueness and non-nullability.
+*   `FOREIGN KEY`: Enforces referential integrity between related tables.
+*   `NOT NULL`: Prevents a column from accepting empty/NULL values.
+*   `UNIQUE`: Ensures all values in a column are distinct.
+*   `CHECK`: Validates that values satisfy a specific logical condition (e.g., `salary > 0`).
+*   `DEFAULT`: Inserts a predefined default value if none is provided.
+
+
+## 3. SQLite Data Types & Tools
+
+SQLite is a lightweight, zero-configuration, serverless relational database engine that stores the entire database in a single file on disk.
+
+### SQLite Storage Classes (Data Types)
+SQLite utilizes a flexible system called **Type Affinity** (which allows storing compatible values of other types in a declared column, e.g., storing `50000` in a `REAL` column). It supports five core storage classes:
+
+1.  **`INTEGER`**: Signed whole numbers (e.g., `employee_id`, `age`).
+2.  **`REAL`**: Decimal floating-point numbers (e.g., `salary`, `rating`).
+3.  **`TEXT`**: Character string data (e.g., `employee_name`, `email`).
+4.  **`BLOB`**: Binary Large Object data, stored exactly as input (e.g., images, files). *Note: In practice, files are usually stored on disk with their file path stored as text in the database.*
+5.  **`NULL`**: Represents a missing, unknown, or non-applicable value.
+
+### Common SQLite CLI Commands
+To manage SQLite from the command prompt (`sqlite3 database.db`):
+
+| Command | Description |
+| :--- | :--- |
+| `.help` | Show all CLI commands and documentation |
+| `.tables` | List all tables in the active database |
+| `.schema` | Print the SQL schema of the database/tables |
+| `.headers on` | Enable column headers in SELECT results |
+| `.mode table` | Render SELECT output in a clean ASCII table format |
+| `.quit` | Exit the SQLite terminal |
+
+
+## 4. SQL Command Categorization
+
+SQL commands are grouped into five major categories based on their purpose:
+
+```
+                  ┌─────────────────────── SQL COMMANDS ───────────────────────┐
+                  │                                                             │
+        ┌─────────┴─────────┐         ┌─────────┴─────────┐           ┌─────────┴─────────┐
+        ▼                   ▼         ▼                   ▼           ▼                   ▼
+    DQL (Query)        DDL (Structure)  DML (Data)     DCL (Permissions)  TCL (Transactions)
+   [e.g., SELECT]      [e.g., CREATE]  [e.g., INSERT]    [e.g., GRANT]      [e.g., COMMIT]
+```
+
+1.  **DQL (Data Query Language):** Used to retrieve data.
+    *   *Commands:* `SELECT`
+2.  **DDL (Data Definition Language):** Defines, alters, or destroys database structures.
+    *   *Commands:* `CREATE`, `ALTER`, `DROP`, `TRUNCATE` (Note: SQLite does not support `TRUNCATE`)
+3.  **DML (Data Manipulation Language):** Inserts, updates, or deletes records.
+    *   *Commands:* `INSERT`, `UPDATE`, `DELETE`
+4.  **DCL (Data Control Language):** Manages user access control and permissions.
+    *   *Commands:* `GRANT`, `REVOKE` (Note: SQLite does not support DCL because it lacks built-in multi-user management)
+5.  **TCL (Transaction Control Language):** Manages database transactions.
+    *   *Commands:* `BEGIN`, `COMMIT`, `ROLLBACK`, `SAVEPOINT`
+
+
+## 5. Data Definition Language (DDL)
+
+DDL statements modify the database **schema** rather than the individual row contents.
+
+### Creating Tables (`CREATE TABLE`)
+Defines a new table structure, columns, types, and constraints:
+```sql
+CREATE TABLE department (
+    department_id INTEGER PRIMARY KEY,
+    department_name TEXT NOT NULL
+);
+
+CREATE TABLE employee (
+    employee_id INTEGER PRIMARY KEY,
+    employee_name TEXT NOT NULL,
+    salary REAL NOT NULL,
+    department_id INTEGER NOT NULL,
+    FOREIGN KEY (department_id) REFERENCES department(department_id)
+);
+```
+
+### Altering Tables (`ALTER TABLE`)
+Modifies the structure of an existing table:
+*   **Add a Column:**
+    ```sql
+    ALTER TABLE employee ADD COLUMN phone TEXT;
+    ```
+*   **Rename a Column:**
+    ```sql
+    ALTER TABLE employee RENAME COLUMN city TO work_city;
+    ```
+*   **Rename a Table:**
+    ```sql
+    ALTER TABLE employee RENAME TO employees;
+    ```
+
+### Dropping Tables (`DROP TABLE`)
+Permanently deletes a table and all its contents:
+```sql
+DROP TABLE IF EXISTS project;
+```
+
+> [!NOTE]
+> SQLite does not natively support `TRUNCATE TABLE`. To empty all rows from a table while keeping its structure, use `DELETE FROM table_name;`.
+
+
+## 6. Data Manipulation Language (DML)
+
+DML commands allow you to insert, update, and delete rows in a table.
+
+### Inserting Data (`INSERT`)
+Adds new rows to a table:
+*   **All Columns (Implicit Column Order):**
+    ```sql
+    INSERT INTO department VALUES (6, 'Research');
+    ```
+*   **Selected Columns (Recommended):**
+    ```sql
+    INSERT INTO employee (employee_id, employee_name, salary, department_id)
+    VALUES (127, 'Pallavi Rao', 58000.0, 1);
+    ```
+*   **Multiple Rows:**
+    ```sql
+    INSERT INTO department VALUES (7, 'Admin'), (8, 'Sales');
+    ```
+
+### Updating Data (`UPDATE`)
+Modifies existing columns in matching rows:
+```sql
+UPDATE employee
+SET salary = salary + 5000, city = 'Bengaluru'
+WHERE designation = 'Software Engineer';
+```
+
+### Deleting Data (`DELETE`)
+Removes matching rows from a table:
+```sql
+DELETE FROM employee
+WHERE joining_date < '2020-01-01';
+```
+
+> [!WARNING]
+> Running an `UPDATE` or `DELETE` statement without a `WHERE` clause will modify or delete **every single row** in the target table.
+
+
+## 7. Data Query Language (DQL)
+
+DQL is focused entirely on the `SELECT` statement to retrieve and format data.
+
+### SELECT Fundamentals
+*   **All Columns:** `SELECT * FROM employee;`
+*   **Specific Columns:** `SELECT employee_name, salary FROM employee;`
+*   **Remove Duplicates (`DISTINCT`):** `SELECT DISTINCT city FROM employee;`
+*   **Aliases (`AS`):** Rename columns in output for readability: `SELECT salary * 12 AS annual_salary FROM employee;`
+*   **String Concatenation (`||`):** `SELECT employee_name || ' - ' || designation AS details FROM employee;`
+*   **Built-in Scalar Functions:**
+    *   `UPPER(str)`, `LOWER(str)`: Change case of text.
+    *   `LENGTH(str)`: Returns character count.
+    *   `ROUND(val, [dec_places])`: Rounds numeric values.
+    *   `DATE('now')`: Returns the current date.
+*   **Limiting & Offsetting Output:**
+    *   `LIMIT n`: Restricts output to `n` rows.
+    *   `OFFSET m`: Skips the first `m` rows before returning.
+
+### Filtering (`WHERE` Clause)
+Applies logical filters to rows before grouping or returning:
+*   **Comparison Operators:** `=`, `!=`, `<>`, `>`, `<`, `>=`, `<=`
+*   **Logical Operators:**
+    *   `AND`: Both conditions must be true.
+    *   `OR`: At least one condition must be true.
+    *   `NOT`: Inverts the boolean result of a condition.
+*   **Special Operators:**
+    *   `BETWEEN low AND high`: Matches values within an inclusive range.
+    *   `IN (val1, val2, ...)`: Matches any value in a defined list.
+    *   `LIKE`: Pattern matching using wildcards:
+        *   `%`: Matches zero or more characters (e.g., `'A%'` starts with 'A').
+        *   `_`: Matches exactly one character (e.g., `'_a%'` has 'a' as the second character).
+    *   `IS NULL` / `IS NOT NULL`: Checks for missing or defined values.
+
+### Sorting (`ORDER BY` Clause)
+Sorts results based on one or more columns:
+*   `ASC`: Ascending order (default).
+*   `DESC`: Descending order.
+*   *Multi-column Sorting:* `ORDER BY department_id ASC, salary DESC;` (Sorts by department first, and breaks ties by sorting salary highest-to-lowest).
+
+### Summarizing Data (Aggregate Functions)
+Perform calculations across multiple rows to return a single value:
+*   `COUNT(*)` or `COUNT(column)`: Counts records (or non-NULL column values).
+*   `SUM(column)`: Calculates total sum of numeric values.
+*   `AVG(column)`: Computes average numeric value.
+*   `MIN(column)` / `MAX(column)`: Finds minimum / maximum values (works on numbers, text, and dates).
+
+### Grouping (`GROUP BY` and `HAVING`)
+*   **`GROUP BY`:** Summarizes rows with identical values in specified columns into single summary rows.
+*   **`HAVING`:** Filters groups *after* aggregation has occurred (cannot be done with `WHERE`).
+
+```sql
+SELECT department_id, AVG(salary) AS avg_sal
+FROM employee
+GROUP BY department_id
+HAVING AVG(salary) > 80000;
+```
+
+#### Comparison: WHERE vs. HAVING
+| Feature | `WHERE` | `HAVING` |
+| :--- | :--- | :--- |
+| **Application** | Filters individual rows. | Filters summarized groups. |
+| **Execution Phase** | Applied before `GROUP BY`. | Applied after `GROUP BY`. |
+| **Aggregations** | Cannot contain aggregate functions (e.g., `WHERE SUM(salary) > X` is invalid). | Can use aggregate functions (e.g., `HAVING SUM(salary) > X`). |
+
+### SELECT Structure and Execution Order
+
+Understanding the difference between how a query is written (Syntax Order) and how the database processes it (Execution Order) is vital for writing bug-free SQL queries.
+
+```
+       SYNTAX ORDER                      EXECUTION ORDER
+    ┌────────────────┐                 ┌────────────────┐
+  1 │ SELECT         │               1 │ FROM           │ (Locate table)
+  2 │ DISTINCT       │               2 │ WHERE          │ (Filter rows)
+  3 │ FROM           │               3 │ GROUP BY       │ (Group rows)
+  4 │ WHERE          │               4 │ HAVING         │ (Filter groups)
+  5 │ GROUP BY       │               5 │ SELECT         │ (Retrieve columns)
+  6 │ HAVING         │               6 │ DISTINCT       │ (De-duplicate)
+  7 │ ORDER BY       │               7 │ ORDER BY       │ (Sort output)
+  8 │ LIMIT          │               8 │ LIMIT          │ (Limit rows)
+  9 │ OFFSET         │               9 │ OFFSET         │ (Skip rows)
+    └────────────────┘                 └────────────────┘
+```
+
+
+## 8. Working with Joins
+
+Joins combine columns from two or more tables based on a shared related column.
+
+### Join Types
+*   **`INNER JOIN` (or shorthand `JOIN`):** Returns only rows where there is a match in **both** tables.
+*   **`LEFT JOIN`:** Returns all rows from the left table, and matching rows from the right table. Non-matching right columns result in `NULL`.
+*   **`RIGHT JOIN`:** Returns all rows from the right table, and matching rows from the left table. *(Not supported natively in SQLite; simulated by reversing table order in a `LEFT JOIN`)*.
+*   **`FULL OUTER JOIN`:** Returns all matching and non-matching rows from both tables. *(Not supported natively in SQLite)*.
+*   **`CROSS JOIN`:** Returns the Cartesian product (every combination of rows) of both tables.
+*   **`SELF JOIN`:** Joining a table with itself (requires unique table aliases, e.g., matching employees to their managers in the same table).
+
+### Join Syntax: Explicit vs. Implicit
+*   **Explicit JOIN (Recommended):** Uses the `JOIN` and `ON` keywords. Clean and standard.
+    ```sql
+    SELECT e.employee_name, d.department_name
+    FROM employee e
+    INNER JOIN department d ON e.department_id = d.department_id;
+    ```
+*   **Implicit JOIN (Legacy Style):** Uses a comma-separated list of tables and places the join condition in the `WHERE` clause.
+    ```sql
+    SELECT e.employee_name, d.department_name
+    FROM employee e, department d
+    WHERE e.department_id = d.department_id;
+    ```
+
+
+## 9. Advanced SQL Concepts
+
+### Database Normalization
+Normalization organizes database columns and tables to **eliminate redundancy** (duplicate data) and **prevent anomalies** (insert, update, delete discrepancies).
+
+1.  **First Normal Form (1NF):** Eliminate repeating groups. Ensure all values in a column are atomic (a single cell cannot contain list-like values, e.g., comma-separated phone numbers).
+2.  **Second Normal Form (2NF):** Must be in 1NF. Every non-key column must depend on the *entire* primary key (removes partial dependencies, primarily relevant to tables with composite PKs).
+3.  **Third Normal Form (3NF):** Must be in 2NF. Non-key columns must not depend on other non-key columns (removes transitive dependencies, e.g., storing a department name inside an employee table when department ID is already present).
+
+### ACID Properties
+Transactions (units of work containing one or more SQL statements) must satisfy the ACID contract to guarantee reliability:
+*   **Atomicity:** "All or nothing." If any statement fails, the entire transaction is rolled back (`ROLLBACK`). If all succeed, changes save permanently (`COMMIT`).
+*   **Consistency:** The database transitions from one valid schema-compliant state to another.
+*   **Isolation:** Transactions executing concurrently do not interfere with each other.
+*   **Durability:** Once committed, transaction data is guaranteed to survive system crashes.
+
+### Indexes
+An index is a database data structure (typically a B-Tree) that speeds up data retrieval.
+*   *Pros:* Significantly improves performance for `WHERE`, `JOIN`, `ORDER BY`, and `GROUP BY` operations.
+*   *Cons:* Consumes disk space and slows down write operations (`INSERT`, `UPDATE`, `DELETE`) because the index must be rebuilt.
+*   *Types:* Single-Column, Composite (multi-column), and Unique indexes.
+*   *Syntax:*
+    ```sql
+    CREATE INDEX idx_employee_name ON employee(employee_name);
+    ```
+
+### Views
+A **view** is a virtual table representing the result of a saved SQL query. It does not store physical data itself:
+```sql
+CREATE VIEW employee_details AS
+SELECT e.employee_name, e.designation, d.department_name
+FROM employee e
+JOIN department d ON e.department_id = d.department_id;
+
+-- Query the view like a standard table
+SELECT * FROM employee_details;
+```
+
+### Stored Procedures
+Pre-compiled collections of SQL queries saved on the database server. They allow reusable business logic and reduce network traffic.
+> [!NOTE]
+> SQLite does not support Stored Procedures. They are supported in enterprise databases like PostgreSQL, MySQL, and SQL Server.
+
+### Triggers
+An automated database script that fires automatically in response to specific table events (`BEFORE` or `AFTER` an `INSERT`, `UPDATE`, or `DELETE` occurs):
+```sql
+CREATE TRIGGER update_employee_timestamp
+AFTER UPDATE ON employee
+BEGIN
+    UPDATE employee
+    SET updated_at = CURRENT_TIMESTAMP
+    WHERE employee_id = NEW.employee_id;
+END;
+```
+# SQLAlchemy ORM Essentials
+
+A concise reference guide explaining Object-Relational Mapping (ORM) using Python's **SQLAlchemy** library. It demonstrates how to map Python classes to database tables, execute CRUD operations, write queries, and model relationships.
+
+
+## 1. What is an ORM?
+
+An **ORM (Object-Relational Mapper)** is a library that acts as a translator between two worlds:
+*   **Python World:** Deals with classes, objects, attributes, and lists.
+*   **Database World:** Deals with tables, rows, columns, and SQL syntax.
+
+| Database Concepts | Python (ORM) Concepts |
+| :--- | :--- |
+| Table | Class |
+| Row / Record | Object Instance |
+| Column / Attribute | Class Attribute |
+
+
+## 2. SQLAlchemy Core Workflow & Building Blocks
+
+Every SQLAlchemy application sets up the database connection and operations in a structured pipeline:
+
+```
+Database URL (Connection details)
+      │
+      ▼
+Engine (Manages connections/pools) -> create_engine()
+      │
+      ▼
+DeclarativeBase (Registry for models) -> class Base(DeclarativeBase)
+      │
+      ▼
+Metadata (Stores schemas) & Create Tables -> Base.metadata.create_all()
+      │
+      ▼
+Session Factory & Session (Workspace for CRUD) -> sessionmaker() -> Session
+```
+
+### Initial Configuration Example
+```python
+from sqlalchemy import create_engine
+from sqlalchemy.orm import DeclarativeBase, sessionmaker
+
+DATABASE_URL = "sqlite:///students.db"
+
+# 1. Engine
+engine = create_engine(DATABASE_URL)
+
+# 2. Declarative Base
+class Base(DeclarativeBase):
+    pass
+
+# 3. Session Factory
+SessionLocal = sessionmaker(bind=engine)
+```
+
+
+## 3. Defining Models & Column Configuration
+
+Models represent tables. We use type annotations with `Mapped` and configure columns using `mapped_column()`.
+
+```python
+from datetime import datetime
+from decimal import Decimal
+from sqlalchemy import String, Numeric, DateTime
+from sqlalchemy.orm import Mapped, mapped_column
+
+class Student(Base):
+    __tablename__ = "students"  # Database table name
+
+    # Columns
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(100), nullable=False)
+    age: Mapped[int] = mapped_column(default=18)
+    email: Mapped[str] = mapped_column(String(100), unique=True, index=True)
+    fee: Mapped[Decimal] = mapped_column(Numeric(10, 2))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+```
+
+### Type Mapping & Constraints
+*   `Mapped[Python_Type]`: Defines the Python type. SQLAlchemy infers standard DB types (e.g., `int` -> `Integer`, `str` -> `String`).
+*   `mapped_column(SQLAlchemy_Type)`: Explicitly defines column configuration (e.g., `String(100)`, `Numeric(10,2)`).
+*   **Constraints:** `primary_key=True`, `nullable=False`, `default=val`, `unique=True`, `index=True` (for search performance).
+
+
+## 4. Basic CRUD Operations
+
+Database transactions are managed inside a **Session**.
+
+### Create (Insert)
+```python
+session = SessionLocal()
+
+new_student = Student(name="John Doe", age=20, email="john@example.com")
+session.add(new_student)  # Start tracking
+session.commit()          # Save to database
+```
+
+### Read (Select)
+*   **Get by Primary Key:**
+    ```python
+    student = session.get(Student, 1)  # Returns object or None
+    ```
+*   **Get All Matching Rows:**
+    ```python
+    from sqlalchemy import select
+
+    stmt = select(Student).where(Student.age >= 21)
+    result = session.execute(stmt)        # Execute query
+    students = result.scalars().all()     # Convert result to Python list
+    ```
+
+### Update
+*   **Object-Based Update (Recommended):**
+    ```python
+    student = session.get(Student, 1)
+    student.age = 22       # Modify attribute directly
+    session.commit()       # Saves changes
+    ```
+*   **Direct Query Update (Bulk):**
+    ```python
+    from sqlalchemy import update
+    
+    stmt = update(Student).where(Student.id == 1).values(age=22)
+    session.execute(stmt)
+    session.commit()
+    ```
+
+### Delete
+```python
+# Object-Based Delete
+student = session.get(Student, 1)
+session.delete(student)
+session.commit()
+```
+
+
+## 5. Writing Select Queries (SQL vs. SQLAlchemy ORM)
+
+Below is a syntax map of how common SQL queries translate into SQLAlchemy:
+
+| Feature | SQL | SQLAlchemy ORM Query |
+| :--- | :--- | :--- |
+| **All Rows** | `SELECT * FROM students;` | `select(Student)` |
+| **Where Filter** | `WHERE age >= 21` | `.where(Student.age >= 21)` |
+| **Logical AND** | `WHERE city = 'A' AND marks >= 80` | `.where(Student.city == 'A', Student.marks >= 80)` |
+| **Logical OR** | `WHERE city = 'A' OR city = 'B'` | `or_(Student.city == 'A', Student.city == 'B')` |
+| **IN List** | `WHERE city IN ('Delhi', 'Mumbai')` | `.where(Student.city.in_(['Delhi', 'Mumbai']))` |
+| **BETWEEN** | `WHERE marks BETWEEN 80 AND 90` | `.where(Student.marks.between(80, 90))` |
+| **Pattern Match** | `WHERE name LIKE 'K%'` | `.where(Student.name.like('K%'))` |
+| **Case-Insensitive**| `WHERE LOWER(name) LIKE '%ra%'` | `.where(Student.name.ilike('%ra%'))` |
+| **Sorting** | `ORDER BY marks DESC` | `.order_by(Student.marks.desc())` |
+| **Pagination** | `LIMIT 5 OFFSET 10` | `.limit(5).offset(10)` |
+
+### Result Extraction Methods
+*   `execute(stmt)`: Runs the statement. Returns a raw `Result` object.
+*   `scalars()`: Extracts the main model objects (removes database wrapping).
+*   `all()`: Fetches all matched records as a Python list.
+*   `first()`: Returns the first record, or `None` if empty.
+*   `one()`: Returns exactly one record (raises an error if 0 or 2+ matched).
+*   `one_or_none()`: Returns one record or `None` (raises error if 2+ matched).
+
+
+## 6. Table Relationships
+
+Relationships link Python classes together, allowing easy navigation (e.g., `student.course`).
+
+### One-to-Many / Many-to-One (1:N)
+A course has many students; each student has one course.
+```python
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import relationship
+
+class Course(Base):
+    __tablename__ = "courses"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str]
+    
+    # Backref mapping (returns a Python list)
+    students: Mapped[list["Student"]] = relationship(back_populates="course")
+
+class Student(Base):
+    __tablename__ = "students"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str]
+    course_id: Mapped[int] = mapped_column(ForeignKey("courses.id"))
+    
+    # Python object relationship (returns a single Course object)
+    course: Mapped["Course"] = relationship(back_populates="students")
+```
+
+### One-to-One (1:1)
+An employee has exactly one parking space.
+```python
+class Employee(Base):
+    __tablename__ = "employees"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    
+    # uselist=False forces it to return a single object, not a list
+    parking_space: Mapped["ParkingSpace"] = relationship(back_populates="employee", uselist=False)
+
+class ParkingSpace(Base):
+    __tablename__ = "parking_spaces"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    employee_id: Mapped[int] = mapped_column(ForeignKey("employees.id"), unique=True) # unique=True prevents multiple links
+    
+    employee: Mapped["Employee"] = relationship(back_populates="parking_space")
+```
+
+### Many-to-Many (M:N)
+Students enroll in many courses; courses have many students. Requires an **Association Table**.
+```python
+from sqlalchemy import Table, Column
+
+# Association/Junction Table (Database-level only)
+student_courses = Table(
+    "student_courses",
+    Base.metadata,
+    Column("student_id", ForeignKey("students.id"), primary_key=True),
+    Column("course_id", ForeignKey("courses.id"), primary_key=True),
+)
+
+class Student(Base):
+    __tablename__ = "students"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    
+    # Map relationship via secondary association table
+    courses: Mapped[list["Course"]] = relationship(secondary=student_courses, back_populates="students")
+
+class Course(Base):
+    __tablename__ = "courses"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    
+    students: Mapped[list["Student"]] = relationship(secondary=student_courses, back_populates="courses")
+```
+

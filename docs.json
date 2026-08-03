@@ -82,7 +82,6 @@
           {
             "group": "Essential Tools",
             "pages": [
-              "git-github/index",
               "git-github/git/index",
               "git-github/git/version-control",
               "git-github/git/github-setup",
@@ -93,7 +92,7 @@
         ]
       },
       {
-        "tab": "Python Fundamentals",
+        "tab": "Python",
         "groups": [
           {
             "group": "Python Foundations",
@@ -105,8 +104,13 @@
               "python-fundamentals/modules-packages",
               "python-fundamentals/oop-classes",
               "python-fundamentals/exception-handling",
+              "python-fundamentals/working-with-data"
+            ]
+          },
+           {
+            "group": "Python Advanced",
+            "pages": [
               "python-fundamentals/context-mgmt",
-              "python-fundamentals/working-with-data",
               "python-fundamentals/dotenv",
               "python-fundamentals/di",
               "python-fundamentals/type-hinting",
@@ -119,10 +123,10 @@
         ]
       },
       {
-        "tab": "FastAPI Foundations",
+        "tab": "FastAPI",
         "groups": [
           {
-            "group": "Web & Routing",
+            "group": "Foundations",
             "pages": [
               "fastapi-foundations/index",
               "fastapi-foundations/fundamentals",
@@ -131,16 +135,22 @@
               "fastapi-foundations/request-handling",
               "fastapi-foundations/response-handling",
               "fastapi-foundations/data-validation-models",
-              "fastapi-foundations/local-crud",
+              "fastapi-foundations/local-crud","fastapi-foundations/api-documentation"
+            ]
+          },
+          {
+            "group": "Advanced",
+            "pages": [
               "fastapi-foundations/apirouter",
               "fastapi-foundations/exception-handling",
               "fastapi-foundations/dependency-injection",
               "fastapi-foundations/dependency-emp-app",
               "fastapi-foundations/annotated-deep",
               "fastapi-foundations/emp-mgmt-all-concepts",
-              "fastapi-foundations/api-documentation",
               "fastapi-foundations/modularisation",
-              "fastapi-foundations/environment-variables"
+              "fastapi-foundations/environment-variables",
+              "fastapi-foundations/sql-orm",
+              "fastapi-foundations/jwt-auth"
             ]
           }
         ]
