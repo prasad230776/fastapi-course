@@ -1,0 +1,91 @@
+---
+title: User Input Widgets
+description: Capture clicks, selections, text, files, and slider values in Streamlit
+icon: "sliders"
+---
+
+Widgets let users interact with your app and provide data to your Python code.
+
+## Buttons
+
+Use a button when you want an action to happen after a click.
+
+```python
+import streamlit as st
+
+if st.button("Click me"):
+    st.write("Button clicked")
+```
+
+## Text input and text area
+
+Use text fields for short and longer free-form input.
+
+```python
+import streamlit as st
+
+name = st.text_input("Your name", placeholder="Amit Patel")
+notes = st.text_area("Notes", height=120)
+```
+
+## Selectbox, radio, and checkbox
+
+These widgets are useful for choosing one option or toggling a simple setting.
+
+```python
+import streamlit as st
+
+city = st.selectbox("Choose city", ["Mumbai", "Delhi", "Bengaluru"])
+gender = st.radio("Gender", ["Male", "Female", "Other"])
+agree = st.checkbox("I agree")
+```
+
+## Multiselect
+
+Use multiselect when users should be able to choose more than one value.
+
+```python
+import streamlit as st
+
+skills = st.multiselect("Select skills", ["Python", "SQL", "Machine Learning"])
+```
+
+## Number input and slider
+
+These widgets are ideal for numeric inputs.
+
+```python
+import streamlit as st
+
+age = st.number_input("Age", min_value=0, max_value=120, value=25)
+rating = st.slider("Rating", min_value=1, max_value=10, value=5)
+```
+
+## File uploader
+
+Allow users to upload CSVs, images, or other files.
+
+```python
+import streamlit as st
+
+uploaded_file = st.file_uploader("Upload a file", type=["csv", "png", "jpg"])
+```
+
+## Date and time inputs
+
+Use date and time widgets for scheduling and filtering.
+
+```python
+import streamlit as st
+
+birthday = st.date_input("Select birthday")
+meeting_time = st.time_input("Select time")
+```
+
+## What's next?
+
+The next step is to organize your app with sidebars, columns, tabs, and forms.
+
+<Card title="Layouts and Interactivity" icon="arrow-right" href="/streamlit/layout">
+  Learn to structure your app visually and manage state
+</Card>

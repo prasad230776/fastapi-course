@@ -1,0 +1,89 @@
+---
+title: Displaying Content
+description: Render text, markdown, tables, dataframes, images, and status messages in Streamlit
+icon: "eye"
+---
+
+Streamlit makes it easy to present text, data, and media in a polished way.
+
+## Text and Markdown
+
+Use `st.write()` for flexible output, and `st.markdown()` for richer formatting.
+
+```python
+import streamlit as st
+
+st.write("This is a simple message")
+st.markdown("Use *italic* text or **bold** text")
+```
+
+## Headers and formatted text
+
+Use headings to structure your app.
+
+```python
+import streamlit as st
+
+st.title("Main Title")
+st.header("Section Heading")
+st.subheader("Sub-section")
+```
+
+## Tables and DataFrames
+
+Display tables with `st.dataframe()` for interactive output or `st.table()` for a static view.
+
+```python
+import streamlit as st
+import pandas as pd
+
+sales = pd.DataFrame({
+    "Product": ["Phone", "Laptop", "Headphones"],
+    "Price": [45000, 75000, 4500]
+})
+
+st.dataframe(sales)
+st.table(sales.head(2))
+```
+
+## Images
+
+Use `st.image()` to display local files or remote URLs.
+
+```python
+import streamlit as st
+
+st.image("https://streamlit.io/images/brand/streamlit-logo-secondary-colormark.png")
+```
+
+## Code and JSON
+
+You can show code samples or raw JSON values directly in the app.
+
+```python
+import streamlit as st
+
+st.code("print('Hello from Streamlit')", language="python")
+st.json({"status": "ok", "items": [1, 2, 3]})
+```
+
+## Status messages
+
+Use status helpers to communicate app state.
+
+```python
+import streamlit as st
+
+st.success("Data loaded successfully")
+st.info("Waiting for input")
+st.warning("This may take a moment")
+st.error("Something went wrong")
+```
+
+## What's next?
+
+The next step is to collect input from users with widgets.
+
+<Card title="User Input Widgets" icon="arrow-right" href="/streamlit/widgets">
+  Learn to read buttons, text fields, sliders, and file uploads
+</Card>

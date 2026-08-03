@@ -1,0 +1,128 @@
+---
+title: Working with Data
+description: Load CSV files, explore dataframes, and create simple charts in Streamlit
+icon: "table"
+---
+
+Streamlit is a great fit for data apps because it works naturally with Pandas, NumPy, and Matplotlib.
+
+## Reading CSV files
+
+Use Pandas to load data from a local file or an uploaded file.
+
+```python
+import streamlit as st
+import pandas as pd
+
+@st.cache_data
+def load_data():
+    return pd.read_csv("data/sales.csv")
+
+sales = load_data()
+st.dataframe(sales.head())
+```
+
+## Displaying Pandas DataFrames
+
+DataFrames are one of the easiest ways to show tabular data in Streamlit.
+
+```python
+import streamlit as st
+import pandas as pd
+
+sales = pd.DataFrame({
+    "Month": ["Jan", "Feb", "Mar"],
+    "Sales": [120, 180, 150]
+})
+
+st.subheader("Sales Overview")
+st.dataframe(sales)
+```
+
+## Filtering and searching data
+
+You can combine widgets with Pandas to build simple search and filter tools.
+
+```python
+import streamlit as st
+import pandas as pd
+
+sales = pd.DataFrame({
+    "Product": ["Phone", "Laptop", "Headphones"],
+    "Region": ["North", "South", "North"],
+    "Sales": [100, 200, 50]
+})
+
+search = st.text_input("Search product")
+region = st.selectbox("Region", ["All", "North", "South"])
+
+filtered = sales[sales["Product"].str.contains(search, case=False, na=False)]
+if region != "All":
+    filtered = filtered[filtered["Region"] == region]
+
+st.dataframe(filtered)
+```
+
+## Basic NumPy operations
+
+NumPy is useful for simple calculations and arrays.
+
+```python
+import streamlit as st
+import numpy as np
+
+values = np.array([1, 2, 3, 4, 5])
+st.write("Sum:", values.sum())
+st.write("Mean:", values.mean())
+st.write("Sorted:", np.sort(values))
+```
+
+## Creating charts with Matplotlib
+
+You can render charts inside your Streamlit app using Matplotlib.
+
+```python
+import streamlit as st
+import pandas as pd
+import matplotlib.pyplot as plt
+
+sales = pd.DataFrame({
+    "Month": ["Jan", "Feb", "Mar", "Apr"],
+    "Sales": [120, 180, 150, 220]
+})
+
+fig, ax = plt.subplots()
+ax.plot(sales["Month"], sales["Sales"], marker="o")
+ax.set_title("Monthly Sales")
+
+st.pyplot(fig)
+```
+
+## Interactive data exploration
+
+Combine controls and tabular output to create a simple exploration experience.
+
+```python
+import streamlit as st
+import pandas as pd
+
+sales = pd.DataFrame({
+    "Product": ["Phone", "Laptop", "Headphones"],
+    "Sales": [100, 200, 50],
+    "Rating": [4, 5, 3]
+})
+
+show_only_top = st.checkbox("Show top rated only")
+if show_only_top:
+    sales = sales[sales["Rating"] >= 4]
+
+st.dataframe(sales)
+```
+
+## What's next?
+
+You can now move on to performance topics such as caching and multipage apps.
+
+<Card title="Caching" icon="arrow-right" href="/streamlit/caching">
+  Learn to speed up your app with cached functions
+</Card>

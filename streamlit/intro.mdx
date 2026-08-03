@@ -1,0 +1,76 @@
+---
+title: Introduction
+description: Learn what Streamlit is, how it works, and how to build your first app
+icon: "computer"
+---
+
+Streamlit helps you turn Python scripts into interactive web apps without writing HTML, CSS, or JavaScript.
+
+## What is Streamlit?
+
+Streamlit is an open-source Python library for building dashboards, data tools, and AI demos. It is especially useful when you want to share a notebook-like workflow with non-technical users.
+
+You can use it to create:
+- AI chat interfaces
+- Data dashboards
+- Simple internal business tools
+- Prototype applications for machine learning projects
+
+## Streamlit architecture
+
+Streamlit follows a simple client-server model:
+1. Your Python script runs on the server.
+2. The browser shows the interface.
+3. When a user interacts with a widget, the browser sends a new event to the server.
+4. Streamlit reruns the script to refresh the page with the latest values.
+
+## Execution flow
+
+Streamlit uses a rerun model. Every time a user clicks a button, types in a field, or changes a slider, the script runs again from top to bottom. This makes the app feel reactive and keeps the UI in sync.
+
+```python
+import streamlit as st
+
+st.title("Hello Streamlit")
+name = st.text_input("Your name")
+
+if name:
+    st.write(f"Hello, {name}!")
+```
+
+## Creating and running an application
+
+Create a file such as `app.py` and run it from your terminal:
+
+```bash
+streamlit run app.py
+```
+
+This starts a local server, usually at `http://localhost:8501`, and opens your app in the browser.
+
+## Project structure
+
+A simple Streamlit project often contains:
+- `app.py` for the main app logic
+- `data/` for CSV or JSON files
+- `images/` for local media files
+- `pages/` for multipage apps
+
+## A practical learning path
+
+The Streamlit module is organized into five beginner-friendly sections:
+
+<CardGroup cols={2}>
+  <Card title="Displaying content" icon="eye" href="/streamlit/displaying-content">
+    Render text, tables, images, and status messages
+  </Card>
+  <Card title="User input widgets" icon="sliders" href="/streamlit/widgets">
+    Collect text, selections, files, and dates
+  </Card>
+  <Card title="Layouts and interactivity" icon="grip" href="/streamlit/layout">
+    Organize your app with sidebars, tabs, and forms
+  </Card>
+  <Card title="Working with data" icon="table" href="/streamlit/data-handling">
+    Load CSV files, filter rows, and visualize data
+  </Card>
+</CardGroup>

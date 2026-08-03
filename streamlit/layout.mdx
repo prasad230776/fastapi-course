@@ -1,0 +1,135 @@
+---
+title: Layouts and Interactivity
+description: Organize your app with sidebars, columns, tabs, forms, and stateful widgets
+icon: "grip"
+---
+
+Streamlit gives you several layout tools to make your app easier to read and more interactive.
+
+## Sidebar
+
+Use the sidebar for filters, navigation, or configuration controls.
+
+```python
+import streamlit as st
+
+st.sidebar.title("Settings")
+mode = st.sidebar.selectbox("View", ["Overview", "Details"])
+```
+
+## Columns
+
+Split content across multiple columns.
+
+```python
+import streamlit as st
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.header("Left")
+    st.button("Button A")
+
+with col2:
+    st.header("Right")
+    st.button("Button B")
+```
+
+## Containers and expanders
+
+Use containers and expanders to group related content and keep the page tidy.
+
+```python
+import streamlit as st
+
+with st.container():
+    st.write("This content is grouped together")
+
+with st.expander("Advanced settings"):
+    st.slider("Timeout", 1, 30, 10)
+```
+
+## Tabs
+
+Tabs help you show multiple views without clutter.
+
+```python
+import streamlit as st
+
+tab1, tab2 = st.tabs(["Overview", "Raw Data"])
+
+with tab1:
+    st.write("Summary metrics")
+
+with tab2:
+    st.write("Detailed records")
+```
+
+## Forms
+
+Forms group several inputs together and submit them at once.
+
+```python
+import streamlit as st
+
+with st.form("profile_form"):
+    name = st.text_input("Name")
+    role = st.selectbox("Role", ["Developer", "Analyst", "Manager"])
+    submitted = st.form_submit_button("Save")
+```
+
+## Session State
+
+Use `st.session_state` to keep values between reruns.
+
+```python
+import streamlit as st
+
+if "count" not in st.session_state:
+    st.session_state.count = 0
+
+if st.button("Increment"):
+    st.session_state.count += 1
+
+st.write(st.session_state.count)
+```
+
+## Callbacks
+
+Callbacks run when a widget changes value.
+
+```python
+import streamlit as st
+
+
+def update_name():
+    st.session_state.display_name = st.session_state.input_name
+
+st.text_input("Name", key="input_name", on_change=update_name)
+st.write(st.session_state.get("display_name", ""))
+```
+
+## Progress bars and spinners
+
+Show loading state while work is happening.
+
+```python
+import streamlit as st
+import time
+
+with st.spinner("Loading data..."):
+    time.sleep(1)
+
+progress_bar = st.progress(0)
+for percent in range(100):
+    progress_bar.progress(percent + 1)
+    time.sleep(0.01)
+```
+
+## What's next?
+
+The next step is to work with real datasets in your app.
+
+<Card title="Working with Data" icon="arrow-right" href="/streamlit/data-handling">
+  Learn to read CSV files, filter rows, and create charts
+</Card>

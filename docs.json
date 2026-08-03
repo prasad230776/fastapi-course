@@ -152,6 +152,16 @@
               "fastapi-foundations/sql-orm",
               "fastapi-foundations/jwt-auth"
             ]
+          },
+            {
+            "group": "Streamlit Fundamentals",
+            "pages": [
+              "streamlit/intro",
+              "streamlit/displaying-content",
+              "streamlit/widgets",
+              "streamlit/data-handling",
+              "streamlit/streamlit-app"
+            ]
           }
         ]
       },

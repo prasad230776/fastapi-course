@@ -1,0 +1,332 @@
+---
+title: Streamlit APP-1 
+description: Student Performance Analytics Dashboard
+icon: "project"
+---
+
+In this capstone, you will build a complete Streamlit application by
+combining all the concepts covered in this chapter. Follow the steps
+below and run the application after completing each step.
+
+------------------------------------------------------------------------
+
+## Step 1: Create the Project
+
+Create a new project folder.
+
+``` text
+student_dashboard/
+│
+├── app.py
+├── students.csv
+└── requirements.txt
+```
+
+Install Streamlit.
+
+``` bash
+pip install streamlit pandas numpy matplotlib
+```
+
+Run the application.
+
+``` bash
+streamlit run app.py
+```
+
+------------------------------------------------------------------------
+
+## Step 2: Create the Basic Application
+
+``` python
+import streamlit as st
+
+st.set_page_config(page_title="Student Dashboard", layout="wide")
+
+st.title("📊 Student Performance Analytics Dashboard")
+st.write("Upload a CSV file to analyze student performance.")
+```
+
+------------------------------------------------------------------------
+
+## Step 3: Create the Sidebar
+
+``` python
+st.sidebar.title("Filters")
+
+department = st.sidebar.selectbox(
+    "Department",
+    ["All", "CSE", "ECE", "MECH"]
+)
+
+semester = st.sidebar.selectbox(
+    "Semester",
+    ["All", 1, 2, 3, 4]
+)
+```
+
+------------------------------------------------------------------------
+
+## Step 4: Upload a CSV File
+
+``` python
+import pandas as pd
+
+uploaded_file = st.file_uploader(
+    "Upload Student CSV",
+    type="csv"
+)
+
+if uploaded_file:
+    df = pd.read_csv(uploaded_file)
+
+    st.success("File uploaded successfully.")
+    st.dataframe(df)
+else:
+    st.info("Please upload a CSV file.")
+```
+
+------------------------------------------------------------------------
+
+## Step 5: Display Dataset Information
+
+``` python
+if uploaded_file:
+
+    col1, col2, col3 = st.columns(3)
+
+    col1.metric("Rows", len(df))
+    col2.metric("Columns", len(df.columns))
+    col3.metric("Average Marks", round(df["Marks"].mean(), 2))
+```
+
+------------------------------------------------------------------------
+
+## Step 6: Create Filters
+
+``` python
+if uploaded_file:
+
+    with st.sidebar.form("filter_form"):
+
+        dept = st.selectbox(
+            "Department",
+            ["All"] + sorted(df["Department"].unique().tolist())
+        )
+
+        subject = st.selectbox(
+            "Subject",
+            ["All"] + sorted(df["Subject"].unique().tolist())
+        )
+
+        search = st.text_input("Search Student")
+
+        submit = st.form_submit_button("Apply Filters")
+```
+
+------------------------------------------------------------------------
+
+## Step 7: Filter the Data
+
+``` python
+filtered_df = df.copy()
+
+if dept != "All":
+    filtered_df = filtered_df[
+        filtered_df["Department"] == dept
+    ]
+
+if subject != "All":
+    filtered_df = filtered_df[
+        filtered_df["Subject"] == subject
+    ]
+
+if search:
+    filtered_df = filtered_df[
+        filtered_df["Name"].str.contains(search, case=False)
+    ]
+
+st.dataframe(filtered_df)
+```
+
+------------------------------------------------------------------------
+
+## Step 8: Use Session State
+
+``` python
+if "visits" not in st.session_state:
+    st.session_state.visits = 0
+
+st.session_state.visits += 1
+
+st.sidebar.write(
+    f"Dashboard Opened: {st.session_state.visits} times"
+)
+```
+
+------------------------------------------------------------------------
+
+## Step 9: Organize the Layout
+
+``` python
+tab1, tab2, tab3 = st.tabs(
+    [
+        "Dataset",
+        "Reports",
+        "Charts"
+    ]
+)
+
+with tab1:
+    st.dataframe(filtered_df)
+
+with tab2:
+    st.write("Summary Report")
+
+with tab3:
+    st.write("Visualizations")
+```
+
+------------------------------------------------------------------------
+
+## Step 10: Display Summary Report
+
+``` python
+col1, col2, col3, col4 = st.columns(4)
+
+col1.metric("Students", len(filtered_df))
+col2.metric("Highest", filtered_df["Marks"].max())
+col3.metric("Lowest", filtered_df["Marks"].min())
+col4.metric("Average", round(filtered_df["Marks"].mean(), 2))
+```
+
+------------------------------------------------------------------------
+
+## Step 11: Create Charts
+
+``` python
+import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots()
+
+filtered_df.groupby("Department")["Marks"].mean().plot(
+    kind="bar",
+    ax=ax
+)
+
+ax.set_ylabel("Average Marks")
+
+st.pyplot(fig)
+```
+
+## Grade Distribution
+
+``` python
+fig, ax = plt.subplots()
+
+filtered_df["Marks"].plot(
+    kind="hist",
+    bins=10,
+    ax=ax
+)
+
+st.pyplot(fig)
+```
+
+------------------------------------------------------------------------
+
+## Step 12: Add Progress Indicators
+
+``` python
+import time
+
+with st.spinner("Generating report..."):
+    time.sleep(2)
+
+st.success("Report Generated Successfully")
+```
+
+------------------------------------------------------------------------
+
+## Step 13: Download the Report
+
+``` python
+csv = filtered_df.to_csv(index=False)
+
+st.download_button(
+    label="Download Filtered CSV",
+    data=csv,
+    file_name="students_report.csv",
+    mime="text/csv"
+)
+```
+
+------------------------------------------------------------------------
+
+## Step 14: Final Dashboard Layout
+
+``` text
+------------------------------------------------------
+Student Performance Analytics Dashboard
+------------------------------------------------------
+
+Sidebar
+    • Upload CSV
+    • Department Filter
+    • Subject Filter
+    • Search Student
+
+KPIs
+Students | Average | Highest | Lowest
+
+Tabs
+• Dataset
+• Reports
+• Charts
+
+Charts
+• Average Marks by Department
+• Grade Distribution
+• Subject-wise Performance
+
+Download Report
+```
+
+------------------------------------------------------------------------
+
+## Sample Dataset (`students.csv`)
+
+``` csv
+RollNo,Name,Department,Semester,Subject,Marks
+101,Sai Kiran,CSE,4,Python,88
+102,Sravani Reddy,CSE,4,Python,75
+103,Venkatesh Kumar,ECE,4,Python,91
+104,Harika Devi,CSE,4,AI,82
+105,Naveen Kumar,ECE,4,AI,95
+106,Keerthana,MECH,3,Python,69
+107,Sandeep Reddy,CSE,3,AI,90
+108,Lakshmi Priya,ECE,2,Maths,74
+109,Rohith Varma,CSE,4,Maths,86
+110,Bhavya Sri,MECH,2,Physics,72
+```
+
+------------------------------------------------------------------------
+
+## Concepts Covered
+
+-   Streamlit application structure
+-   Streamlit execution flow
+-   Displaying text and DataFrames
+-   Sidebar
+-   User input widgets
+-   Forms
+-   Columns and containers
+-   Tabs
+-   Session State
+-   Status messages
+-   Pandas for CSV handling
+-   NumPy for basic calculations
+-   Matplotlib visualizations
+-   Interactive filtering
+-   Dashboard development
+-   Report download
