@@ -150,6 +150,7 @@
               "fastapi-foundations/emp-mgmt-all-concepts",
               "fastapi-foundations/modularisation",
               "fastapi-foundations/environment-variables",
+              "fastapi-foundations/middleware",
               "fastapi-foundations/sql-orm",
               "fastapi-foundations/jwt-auth"
             ]
@@ -221,7 +222,8 @@
               "auth/basic-auth",
               "auth/session-based",
               "auth/jwt-auth",
-              "auth/role-based-auth"
+              "auth/role-based-auth",
+              "auth/cors-csrf"
             ]
           }
         ]

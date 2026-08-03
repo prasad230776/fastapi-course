@@ -1,0 +1,182 @@
+---
+title: "CORS and CSRF in FastAPI"
+
+description: "CORS controls cross-origin access from browsers, while CSRF protects authenticated users from forged requests made using session cookies."
+---
+## Introduction
+
+CORS (Cross-Origin Resource Sharing) and CSRF (Cross-Site Request Forgery) are two common web security mechanisms that solve different problems.
+
+- **CORS** controls which browser origins can access your API.
+- **CSRF** prevents malicious websites from performing actions on behalf of authenticated users.
+
+## CORS (Cross-Origin Resource Sharing)
+
+### What is CORS?
+
+CORS is a **browser security mechanism** that allows or blocks JavaScript running on one origin from accessing resources on another origin.
+
+An origin is identified by:
+
+- Protocol
+- Domain
+- Port
+
+Example:
+
+```text
+Frontend
+https://myapp.com
+
+Backend
+https://api.myapp.com
+```
+
+Since the origins are different, the browser checks whether the API allows access.
+
+### How CORS Works
+
+```text
+Browser
+    │
+    ▼
+Send Request
+    │
+    ▼
+API Server
+    │
+    ▼
+Returns CORS Headers
+    │
+    ▼
+Browser Checks Policy
+    │
+    ├──────────────┐
+    │              │
+ Allowed      Not Allowed
+    │              │
+    ▼              ▼
+Return Data   Block Response
+```
+
+> The request usually reaches the server. The browser blocks JavaScript from accessing the response if the origin is not allowed.
+
+### Does CORS Affect Postman or curl?
+
+No.
+
+CORS is enforced **only by web browsers**.
+
+The following clients ignore CORS:
+
+- Postman
+- curl
+- Python (`requests`)
+- Java (`HttpClient`)
+- Other backend applications
+
+### Does CORS Secure My API?
+
+No.
+
+CORS is **not** an authentication or authorization mechanism.
+
+Your API should still use:
+
+- Authentication
+- Authorization
+
+to protect resources.
+
+### CORS in FastAPI
+
+FastAPI provides built-in support using `CORSMiddleware`.
+
+```python
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://myapp.com"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+```
+
+## CSRF (Cross-Site Request Forgery)
+
+### What is CSRF?
+
+CSRF is an attack where a malicious website tricks a user's browser into sending requests to another website where the user is already authenticated.
+
+The attack succeeds because browsers automatically send **cookies**.
+
+### How CSRF Works
+
+```text
+User Logs In
+      │
+      ▼
+Browser Stores Session Cookie
+      │
+      ▼
+Visits Malicious Website
+      │
+      ▼
+Browser Automatically Sends Cookie
+      │
+      ▼
+Server Receives Valid Session
+```
+
+### How is CSRF Prevented?
+
+The most common solution is a **CSRF Token**.
+
+The client sends:
+
+```http
+Cookie: session_id=ABC123
+X-CSRF-Token: XYZ999
+```
+
+The server validates both the session cookie and the CSRF token before processing the request.
+
+### Do JWT Applications Need CSRF Protection?
+
+Usually **No**.
+
+JWTs are typically sent in the `Authorization` header.
+
+```http
+Authorization: Bearer <JWT>
+```
+
+Browsers do **not** automatically send this header, making CSRF attacks much more difficult.
+
+> If JWTs are stored in cookies, CSRF protection is still recommended.
+
+### CSRF in FastAPI
+
+FastAPI does **not** provide built-in CSRF protection.
+
+If your application uses **session-based authentication**, you should implement CSRF protection yourself or use a third-party library.
+
+## CORS vs CSRF
+
+| Feature | CORS | CSRF |
+|---------|------|------|
+| Purpose | Controls browser access to APIs | Prevents forged requests |
+| Implemented By | Browser | Server |
+| FastAPI Support | ✅ `CORSMiddleware` | ❌ Not built-in |
+| Mainly Used With | Browser-based applications | Session-based authentication |
+
+## Key Points
+
+- CORS is enforced by the **browser**, not the server.
+- Postman, curl, and backend applications ignore CORS.
+- CORS does not secure your API.
+- CSRF is mainly a concern for **session-based authentication**.
+- FastAPI provides built-in CORS support but not CSRF protection.
+- JWT authentication using the `Authorization` header generally does not require CSRF protection.
