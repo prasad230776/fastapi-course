@@ -1,0 +1,200 @@
+---
+title: Packing and Unpacking
+description: Learn how to group multiple values together and extract them efficiently
+icon: "box-open"
+---
+
+Packing and unpacking are incredibly convenient features in Python that allow you to group multiple values into a single collection, or extract values from a collection directly into individual variables.
+
+---
+
+## Tuple Packing
+
+**Packing** happens when you assign multiple values to a single variable without any brackets. Python automatically groups these values into a **tuple**.
+
+```python
+# Packing three values into a single tuple
+person = "Alice", 25, "Engineer"
+
+print(person)        # ('Alice', 25, 'Engineer')
+print(type(person))  # <class 'tuple'>
+```
+
+---
+
+## Basic Unpacking
+
+**Unpacking** is the reverse process. It extracts elements from a collection (tuple, list, set, or string) and assigns them to multiple variables in a single line.
+
+```python
+person = ("Alice", 25, "Engineer")
+
+# Unpacking the tuple into three separate variables
+name, age, profession = person
+
+print(name)        # Alice
+print(age)         # 25
+print(profession)  # Engineer
+```
+
+### Precaution: Variable Count Must Match
+When doing basic unpacking, the number of variables on the left **must exactly match** the number of elements in the collection on the right.
+
+```python
+numbers = (1, 2, 3)
+
+# ERROR: Too many variables (expects 4 elements, got 3)
+a, b, c, d = numbers  # ValueError: not enough values to unpack
+
+# ERROR: Too few variables (expects 2 variables, got 3 elements)
+x, y = numbers        # ValueError: too many values to unpack
+```
+
+---
+
+## Extended Unpacking with `*` (Starred Expression)
+
+What if you only want to extract a few elements and group the rest together? Python lets you use the asterisk `*` operator to capture multiple elements.
+
+```python
+numbers = [1, 2, 3, 4, 5]
+
+# Capture the first element, and pack the rest into a list
+first, *rest = numbers
+print(first)  # 1
+print(rest)   # [2, 3, 4, 5]
+```
+
+You can place the `*` variable anywhere:
+
+```python
+# Capture the last element, pack the rest
+*body, last = [10, 20, 30, 40]
+print(body)  # [10, 20, 30]
+print(last)  # 40
+
+# Capture the first and last, pack the middle
+first, *middle, last = "Python"
+print(first)   # 'P'
+print(middle)  # ['y', 't', 'h', 'o']
+print(last)    # 'n'
+```
+
+<Warning>
+  **Rule:** You can only use **one** starred expression (`*`) in a single assignment. Otherwise, Python won't know how to divide the elements, raising a `SyntaxError`.
+</Warning>
+
+---
+
+## Dictionary Unpacking with `**`
+
+For dictionaries, you can use the double asterisk `**` operator to unpack key-value pairs. This is commonly used to merge multiple dictionaries together.
+
+```python
+default_settings = {"theme": "light", "notifications": True}
+user_settings = {"theme": "dark", "font_size": 14}
+
+# Merge dictionaries (user settings will override defaults)
+merged_settings = {**default_settings, **user_settings}
+print(merged_settings)
+# Output: {'theme': 'dark', 'notifications': True, 'font_size': 14}
+```
+
+---
+
+## Unpacking in Loops
+
+Unpacking makes iterating over complex data structures clean and readable.
+
+### 1. Iterating over list of tuples/lists
+```python
+pairs = [(1, "one"), (2, "two"), (3, "three")]
+
+for number, name in pairs:
+    print(f"{number} is spelled {name}")
+```
+
+### 2. Using `enumerate()`
+The built-in `enumerate()` function returns pairs of `(index, item)`, which you can unpack in the loop header:
+```python
+fruits = ["apple", "banana", "cherry"]
+
+for index, fruit in enumerate(fruits):
+    print(f"Index {index}: {fruit}")
+```
+
+### 3. Iterating over dictionary `.items()`
+```python
+ages = {"Alice": 25, "Bob": 30}
+
+for name, age in ages.items():
+    print(f"{name} is {age} years old")
+```
+
+---
+
+## Key Rules & Common Mistakes
+
+<AccordionGroup>
+  <Accordion title="ValueError: too many values to unpack">
+    Happens when the number of elements on the right is greater than the number of variables on the left.
+    ```python
+    # Wrong
+    a, b = (1, 2, 3)  # ValueError!
+    
+    # Fix: Use * to capture the rest
+    a, b, *rest = (1, 2, 3)
+    ```
+  </Accordion>
+  <Accordion title="ValueError: not enough values to unpack">
+    Happens when the number of variables on the left is greater than the number of elements on the right.
+    ```python
+    # Wrong
+    a, b, c = (1, 2)  # ValueError!
+    ```
+  </Accordion>
+  <Accordion title="SyntaxError: two starred expressions in assignment">
+    You cannot have more than one `*` variable on the left side.
+    ```python
+    # Wrong
+    *a, b, *c = [1, 2, 3, 4]  # SyntaxError!
+    ```
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Practice & Exercises
+
+To reinforce what you've learned in this section (Tuple packing, basic unpacking, starred expression unpacking, and loop unpacking), practice with these interactive notebooks:
+
+<CardGroup cols={2}>
+  <Card
+    title="Follow-Along Practice"
+    icon="laptop-code"
+  >
+    Practice packing values, basic unpacking, starred unpacking (`*`), and loop/dictionary merging.
+
+    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/python%20material/python4ai/public/notebooks/basics_exercises/Packing_Unpacking_Practice.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/python4ai/blob/master/public/notebooks/basics_exercises/Packing_Unpacking_Practice.ipynb) | <a href="/public/notebooks/basics_exercises/Packing_Unpacking_Practice.ipynb" download>📥 Download</a>
+  </Card>
+  <Card
+    title="Practice Exercises"
+    icon="pen-to-square"
+  >
+    Test your knowledge with hands-on exercises on coordinate unpacking,Starred Marks partitioning, and configuration dictionary merging.
+
+    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/python%20material/python4ai/public/notebooks/basics_exercises/Packing_Unpacking_Exercises.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/python4ai/blob/master/public/notebooks/basics_exercises/Packing_Unpacking_Exercises.ipynb) | <a href="/public/notebooks/basics_exercises/Packing_Unpacking_Exercises.ipynb" download>📥 Download</a>
+  </Card>
+</CardGroup>
+
+## What's next?
+
+Congratulations! You've completed Python Basics. Ready to start building programs?
+
+<Card
+  title="Building Programs"
+  icon="graduation-cap"
+  href="/functions"
+>
+  Learn about functions
+</Card>

@@ -101,6 +101,7 @@
               "python-fundamentals/python-basics",
               "python-fundamentals/data-structures",
               "python-fundamentals/functions",
+              "python-fundamentals/packing-unpacking",
               "python-fundamentals/modules-packages",
               "python-fundamentals/oop-classes",
               "python-fundamentals/exception-handling",
