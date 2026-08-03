@@ -1,0 +1,302 @@
+# Detailed FastAPI JWT Authentication & Authorization Guide
+
+This reference guide focuses on **JSON Web Tokens (JWT)** as a stateless authentication mechanism in FastAPI. It details the architecture of JWT, contrasts it with other approaches, and provides a step-by-step implementation guide including code blocks for user management, token operations, and role-based access control.
+
+---
+
+## 1. FastAPI Authentication Landscape (Options Overview)
+
+Before implementing JWT, it is helpful to recognize the available authentication models:
+
+*   **HTTP Basic Authentication:** Credentials (username/password) are sent with *every single request* in the header.
+    *   *Best for:* Internal service-to-service communication or simple development setups.
+    *   *Drawback:* High risk if headers are intercepted; repetitive database lookups.
+*   **Session-Based Authentication (Stateful):** The server issues a Session ID stored in a database and sets a client cookie.
+    *   *Best for:* Traditional server-rendered web applications.
+    *   *Drawback:* Requires server-side storage (memory/database lookup per request), limiting scalability across distributed server nodes.
+*   **JWT Token-Based Authentication (Stateless - Recommended for APIs):** The server issues a signed token to the client. The client stores it and attaches it to subsequent requests.
+    *   *Best for:* Modern REST APIs, single-page applications (SPAs), microservices, and mobile apps.
+    *   *Advantage:* Stateless. The server does not query a session database to verify user identity—it simply decodes and verifies the token's digital signature using a secret key.
+
+---
+
+## 2. Deep Dive: What is a JWT?
+
+A **JSON Web Token (JWT)** is a compact, URL-safe string containing claims (user statements) that can be verified and trusted because it is digitally signed.
+
+A JWT consists of three parts separated by periods (`.`):
+```
+Header.Payload.Signature
+```
+
+```
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjMiLCJyb2xlIjoiYWRtaW4ifQ.signature_bytes
+```
+
+1.  **Header:** Defines token metadata (typically the signing algorithm, e.g., `HS256`, and token type, `JWT`).
+2.  **Payload:** Contains **claims** about the user (e.g., user ID `sub`, name, roles, and expiration time `exp`).
+    > [!WARNING]
+    > The Payload is only **Base64URL encoded**, not encrypted. Anyone can decode a JWT and view its contents. **Never store sensitive data (like passwords or API keys) in the payload.**
+3.  **Signature:** Created by hashing the encoded Header, encoded Payload, and a server-only `SECRET_KEY` using the designated algorithm. It prevents tampering: if even one character of the header or payload changes, the signature becomes invalid.
+
+---
+
+## 3. JWT Authentication Lifecycle
+
+```
+CLIENT                                                   SERVER
+  │                                                        │
+  ├─────── 1. Login Request (Username/Password) ─────────>┤
+  │                                                        │ ── Validate credentials
+  │                                                        │ ── Generate JWT payload
+  │                                                        │ ── Sign JWT with Secret Key
+  │<────── 2. Return Signed JWT (Access Token) ────────────┤
+  │                                                        │
+  │                                                        │
+  │   --- Subsequent Requests (Protected Endpoints) ---    │
+  │                                                        │
+  ├─────── 3. Send HTTP Request with Header ──────────────>┤
+  │          Authorization: Bearer <access_token>          │ ── Extract Bearer Token
+  │                                                        │ ── Decode & Validate Signature
+  │                                                        │ ── Check Expiry ('exp')
+  │                                                        │ ── Retrieve User Identity ('sub')
+  │<────── 4. Send Response (Data or 401 Unauthorized) ────┤
+  │                                                        │
+```
+
+---
+
+## 4. Step-by-Step JWT Implementation in FastAPI
+
+This section details how to implement JWT authentication and Role-Based Access Control (RBAC) using **SQLModel** (or SQLAlchemy) in FastAPI.
+
+### Step 1: Install Dependencies
+First, ensure you have the required python packages.
+```bash
+pip install fastapi uvicorn sqlmodel pyjwt passlib[bcrypt] python-multipart
+```
+*   `pyjwt` handles JWT encoding and decoding.
+*   `passlib[bcrypt]` provides password hashing algorithms.
+*   `python-multipart` allows FastAPI to receive credentials via form submissions if using OAuth2 compatibility utilities.
+
+---
+
+### Step 2: Database and User Model Setup
+Create `models.py` defining the `User` schema.
+```python
+# models.py
+from sqlmodel import SQLModel, Field
+
+class User(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    username: str = Field(index=True, unique=True, nullable=False)
+    password: str = Field(nullable=False)  # Stores hashed password
+    role: str = Field(default="user")      # Used for Authorization (user, admin)
+
+class RegisterRequest(SQLModel):
+    username: str
+    password: str
+
+class LoginRequest(SQLModel):
+    username: str
+    password: str
+```
+
+---
+
+### Step 3: Password Encryption Logic
+Create utility functions to hash passwords on registration and verify them during login.
+```python
+# security.py
+from passlib.context import CryptContext
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def hash_password(password: str) -> str:
+    return pwd_context.hash(password)
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)
+```
+
+---
+
+### Step 4: Token Generation Module
+Define the engine that generates access tokens. It encodes payloads with a signature and set expiry limits.
+```python
+# jwt_handler.py
+from datetime import datetime, timedelta, timezone
+import jwt
+
+SECRET_KEY = "your-extremely-secure-random-secret-key-do-not-share"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+def create_access_token(data: dict) -> str:
+    payload = data.copy()
+    # Calculate expiry time
+    expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    payload.update({"exp": expire})
+    
+    # Encode signs the token with SECRET_KEY
+    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+```
+
+---
+
+### Step 5: User Registration & Login Router
+Build routes that handle registration (hashing the password) and login (matching credentials and issuing a JWT).
+```python
+# app.py (Part 1 - Authentication Routes)
+from fastapi import FastAPI, Depends, HTTPException, status
+from sqlmodel import Session, select
+from database import engine, get_session
+from models import User, RegisterRequest, LoginRequest
+from security import hash_password, verify_password
+from jwt_handler import create_access_token
+
+app = FastAPI()
+
+@app.post("/register", status_code=status.HTTP_201_CREATED)
+def register(request: RegisterRequest, session: Session = Depends(get_session)):
+    # 1. Check duplicate username
+    existing_user = session.exec(select(User).where(User.username == request.username)).first()
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Username already exists.")
+    
+    # 2. Hash password and save User
+    new_user = User(
+        username=request.username,
+        password=hash_password(request.password),
+        role="user"  # Default role
+    )
+    session.add(new_user)
+    session.commit()
+    return {"message": "User registered successfully."}
+
+@app.post("/login")
+def login(request: LoginRequest, session: Session = Depends(get_session)):
+    # 1. Verify user exists
+    user = session.exec(select(User).where(User.username == request.username)).first()
+    if not user or not verify_password(request.password, user.password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid username or password."
+        )
+    
+    # 2. Issue access token carrying user identity ('sub') and role
+    access_token = create_access_token(
+        data={
+            "sub": str(user.id),
+            "username": user.username,
+            "role": user.role
+        }
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+```
+
+---
+
+### Step 6: Bearer Token Validation Dependency
+Write the dependency function to secure individual endpoints. It validates the Bearer token in the incoming `Authorization` header and returns the current user record.
+```python
+# app.py (Part 2 - Authentication Dependency)
+import jwt
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from sqlmodel import Session
+from database import get_session
+from models import User
+from jwt_handler import SECRET_KEY, ALGORITHM
+
+# HTTPBearer automatically inspects the request header for Authorization: Bearer <Token>
+bearer_scheme = HTTPBearer()
+
+def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
+    session: Session = Depends(get_session)
+) -> User:
+    token = credentials.credentials
+    try:
+        # decode() verifies signature authenticity and enforces expiration checks ('exp')
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: str | None = payload.get("sub")
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Token payload is missing user identification.")
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has expired. Please log in again."
+        )
+    except jwt.PyJWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication token."
+        )
+        
+    # Retrieve user from Database
+    user = session.get(User, int(user_id))
+    if not user:
+        raise HTTPException(status_code=401, detail="Authenticated user no longer exists.")
+    return user
+```
+
+---
+
+### Step 7: Role-Based Access Control (RBAC)
+To enforce authorization based on user roles, use a dependency factory. This lets you write clean, dynamic requirements directly in route definitions.
+```python
+# app.py (Part 3 - Role-Based Authorization Dependency)
+from fastapi import Depends, HTTPException, status
+
+def require_roles(*allowed_roles: str):
+    """
+    Dependency factory that verifies the authenticated user has one of the allowed roles.
+    """
+    def authorize(user: User = Depends(get_current_user)) -> User:
+        if user.role not in allowed_roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Access denied. Insufficient role permissions."
+            )
+        return user
+    return authorize
+```
+
+### Route Protection Examples
+Apply the authentication and role checks to API endpoints:
+```python
+# app.py (Part 4 - Protected API Routes)
+
+# 1. Endpoint requiring ONLY basic authentication
+@app.get("/users/me")
+def read_current_user(current_user: User = Depends(get_current_user)):
+    return {
+        "id": current_user.id,
+        "username": current_user.username,
+        "role": current_user.role
+    }
+
+# 2. Endpoint restricted to 'admin' role
+@app.get("/admin/system-logs")
+def view_admin_logs(admin_user: User = Depends(require_roles("admin"))):
+    return {"message": "Welcome Admin. Access to logs granted."}
+
+# 3. Endpoint restricted to both 'author' and 'admin' roles
+@app.post("/posts/create")
+def create_blog_post(creator: User = Depends(require_roles("author", "admin"))):
+    return {"message": f"Post created successfully by {creator.username}."}
+```
+
+---
+
+## 5. Testing Protected Endpoints in Swagger UI
+
+FastAPI's built-in Interactive Docs support direct JWT authentication testing:
+
+1.  Open the documentation page at `http://127.0.0.1:8000/docs`.
+2.  Use the `/login` endpoint with valid credentials to obtain a token.
+3.  Copy the `access_token` string value from the JSON response.
+4.  Scroll to the top of the docs page and click the green **Authorize** lock button.
+5.  Paste your token in the Value input field and click **Authorize**.
+6.  You can now call protected routes (like `/users/me`) directly from the browser; FastAPI will automatically attach the authorization header for subsequent operations.
