@@ -2,7 +2,6 @@
 
 A concise reference guide explaining Object-Relational Mapping (ORM) using Python's **SQLAlchemy** library. It demonstrates how to map Python classes to database tables, execute CRUD operations, write queries, and model relationships.
 
----
 
 ## 1. What is an ORM?
 
@@ -16,7 +15,6 @@ An **ORM (Object-Relational Mapper)** is a library that acts as a translator bet
 | Row / Record | Object Instance |
 | Column / Attribute | Class Attribute |
 
----
 
 ## 2. SQLAlchemy Core Workflow & Building Blocks
 
@@ -56,7 +54,6 @@ class Base(DeclarativeBase):
 SessionLocal = sessionmaker(bind=engine)
 ```
 
----
 
 ## 3. Defining Models & Column Configuration
 
@@ -85,7 +82,6 @@ class Student(Base):
 *   `mapped_column(SQLAlchemy_Type)`: Explicitly defines column configuration (e.g., `String(100)`, `Numeric(10,2)`).
 *   **Constraints:** `primary_key=True`, `nullable=False`, `default=val`, `unique=True`, `index=True` (for search performance).
 
----
 
 ## 4. Basic CRUD Operations
 
@@ -138,7 +134,6 @@ session.delete(student)
 session.commit()
 ```
 
----
 
 ## 5. Writing Select Queries (SQL vs. SQLAlchemy ORM)
 
@@ -149,7 +144,7 @@ Below is a syntax map of how common SQL queries translate into SQLAlchemy:
 | **All Rows** | `SELECT * FROM students;` | `select(Student)` |
 | **Where Filter** | `WHERE age >= 21` | `.where(Student.age >= 21)` |
 | **Logical AND** | `WHERE city = 'A' AND marks >= 80` | `.where(Student.city == 'A', Student.marks >= 80)` |
-| **Logical OR** | `WHERE city = 'A' OR city = 'B'` | `from sqlalchemy import or_`<br>`.where(or_(Student.city == 'A', Student.city == 'B'))` |
+| **Logical OR** | `WHERE city = 'A' OR city = 'B'` | `or_(Student.city == 'A', Student.city == 'B')` |
 | **IN List** | `WHERE city IN ('Delhi', 'Mumbai')` | `.where(Student.city.in_(['Delhi', 'Mumbai']))` |
 | **BETWEEN** | `WHERE marks BETWEEN 80 AND 90` | `.where(Student.marks.between(80, 90))` |
 | **Pattern Match** | `WHERE name LIKE 'K%'` | `.where(Student.name.like('K%'))` |
@@ -165,7 +160,6 @@ Below is a syntax map of how common SQL queries translate into SQLAlchemy:
 *   `one()`: Returns exactly one record (raises an error if 0 or 2+ matched).
 *   `one_or_none()`: Returns one record or `None` (raises error if 2+ matched).
 
----
 
 ## 6. Table Relationships
 

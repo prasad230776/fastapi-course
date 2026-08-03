@@ -2,8 +2,6 @@
 
 This comprehensive reference document summarizes the core database and SQL concepts covered in the `database-integration` course module. The concepts are illustrated using the **Employee Management System** project database.
 
----
-
 ## 1. Introduction to Databases and SQL
 
 A **database** is an organized collection of data stored electronically to allow efficient storage, retrieval, updating, and management of information.
@@ -22,7 +20,6 @@ Databases are broadly classified into two categories:
 ### What is SQL?
 **SQL (Structured Query Language)** is a **declarative language** used to communicate with relational databases. Instead of specifying *how* to access the data, developers specify *what* data they want, and the database engine determines the most efficient retrieval plan.
 
----
 
 ## 2. Relational Database Concepts
 
@@ -54,7 +51,6 @@ Constraints are rules enforced on data columns to ensure data accuracy, reliabil
 *   `CHECK`: Validates that values satisfy a specific logical condition (e.g., `salary > 0`).
 *   `DEFAULT`: Inserts a predefined default value if none is provided.
 
----
 
 ## 3. SQLite Data Types & Tools
 
@@ -81,7 +77,6 @@ To manage SQLite from the command prompt (`sqlite3 database.db`):
 | `.mode table` | Render SELECT output in a clean ASCII table format |
 | `.quit` | Exit the SQLite terminal |
 
----
 
 ## 4. SQL Command Categorization
 
@@ -107,7 +102,6 @@ SQL commands are grouped into five major categories based on their purpose:
 5.  **TCL (Transaction Control Language):** Manages database transactions.
     *   *Commands:* `BEGIN`, `COMMIT`, `ROLLBACK`, `SAVEPOINT`
 
----
 
 ## 5. Data Definition Language (DDL)
 
@@ -154,7 +148,6 @@ DROP TABLE IF EXISTS project;
 > [!NOTE]
 > SQLite does not natively support `TRUNCATE TABLE`. To empty all rows from a table while keeping its structure, use `DELETE FROM table_name;`.
 
----
 
 ## 6. Data Manipulation Language (DML)
 
@@ -194,7 +187,6 @@ WHERE joining_date < '2020-01-01';
 > [!WARNING]
 > Running an `UPDATE` or `DELETE` statement without a `WHERE` clause will modify or delete **every single row** in the target table.
 
----
 
 ## 7. Data Query Language (DQL)
 
@@ -261,8 +253,6 @@ HAVING AVG(salary) > 80000;
 | **Execution Phase** | Applied before `GROUP BY`. | Applied after `GROUP BY`. |
 | **Aggregations** | Cannot contain aggregate functions (e.g., `WHERE SUM(salary) > X` is invalid). | Can use aggregate functions (e.g., `HAVING SUM(salary) > X`). |
 
----
-
 ### SELECT Structure and Execution Order
 
 Understanding the difference between how a query is written (Syntax Order) and how the database processes it (Execution Order) is vital for writing bug-free SQL queries.
@@ -282,7 +272,6 @@ Understanding the difference between how a query is written (Syntax Order) and h
     └────────────────┘                 └────────────────┘
 ```
 
----
 
 ## 8. Working with Joins
 
@@ -310,7 +299,6 @@ Joins combine columns from two or more tables based on a shared related column.
     WHERE e.department_id = d.department_id;
     ```
 
----
 
 ## 9. Advanced SQL Concepts
 
