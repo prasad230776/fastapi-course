@@ -53,7 +53,8 @@
               "getting-started/vscode-setup",
               "getting-started/vscode-workspace",
               "getting-started/first-python-file",
-              "getting-started/ipynb-notebooks"
+              "getting-started/ipynb-notebooks",
+              "getting-started/formatting-ruff"
             ]
           },
           {
@@ -76,31 +77,17 @@
         ]
       },
       {
-        "tab": "Tools",
+        "tab": "Git & GitHub",
         "groups": [
           {
             "group": "Essential Tools",
             "pages": [
-              "tools/index",
-              "tools/git/index",
-              "tools/git/version-control",
-              "tools/git/github-setup",
-              "tools/git/clone-create",
-              "tools/git/vscode-git"
-            ]
-          },
-          {
-            "group": "Environment & secrets",
-            "pages": [
-              "tools/environment/index",
-              "tools/environment/variables",
-              "tools/environment/dotenv"
-            ]
-          },
-          {
-            "group": "Code quality",
-            "pages": [
-              "tools/code-quality/index"
+              "git-github/index",
+              "git-github/git/index",
+              "git-github/git/version-control",
+              "git-github/git/github-setup",
+              "git-github/git/clone-create",
+              "git-github/git/vscode-git"
             ]
           }
         ]
@@ -117,8 +104,10 @@
               "python-fundamentals/modules-packages",
               "python-fundamentals/oop-classes",
               "python-fundamentals/exception-handling",
-              "python-fundamentals/working-with-data",
               "python-fundamentals/context-mgmt",
+              "python-fundamentals/working-with-data",
+              "python-fundamentals/dotenv",
+              "python-fundamentals/di",
               "python-fundamentals/type-hinting",
               "python-fundamentals/pydantic",
               "python-fundamentals/async-programming",

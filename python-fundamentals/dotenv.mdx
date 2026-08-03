@@ -1,0 +1,382 @@
+---
+title: Using `.env` Files
+description: Manage environment variables and secrets the right way
+icon: "file-shield"
+---
+
+## Why do we need environment variables?
+
+Imagine you have a Python application that needs:
+
+- An API key for OpenAI
+- A database connection string
+- A secret key for authentication
+- A port number
+- A debug mode flag
+
+You **should not hardcode** these values directly in your source code.
+
+❌ Bad:
+
+```python
+API_KEY = "sk-1234567890abcdef"
+DATABASE_URL = "sqlite:///myapp.db"
+DEBUG = True
+```
+
+Why is this bad?
+
+- Secrets become visible in your source code.
+- They may accidentally be committed to GitHub.
+- Every developer needs to edit the source code.
+- Different environments (development, testing, production) require different values.
+
+Instead, Python applications read these values from **environment variables**.
+
+## What are environment variables?
+
+Environment variables are **key-value pairs maintained by the operating system**.
+
+They are available to every program running in that environment.
+
+Think of them as **configuration values provided from outside your application.**
+
+```
+Environment
+──────────────────────────────
+API_KEY=sk-xxxxxxxx
+DATABASE_URL=...
+DEBUG=True
+PORT=8000
+──────────────────────────────
+
+        ↓
+
+Python Application
+```
+
+Instead of storing configuration inside your code, your application simply asks the operating system for the value.
+
+```python
+import os
+
+api_key = os.environ.get("API_KEY")
+```
+
+Your code never knows where the value came from—it simply requests it.
+
+## Creating environment variables manually
+
+### macOS / Linux
+
+```bash
+export API_KEY="sk-123456"
+export DEBUG=True
+```
+
+Now Python can access them.
+
+```python
+import os
+
+print(os.environ.get("API_KEY"))
+print(os.environ.get("DEBUG"))
+```
+
+These variables exist only for the current terminal session.
+
+Once the terminal is closed, they disappear.
+
+## Viewing environment variables
+
+List all variables:
+
+```bash
+printenv
+```
+
+or
+
+```bash
+env
+```
+
+View a specific variable:
+
+```bash
+echo $API_KEY
+```
+
+## The problem with manual environment variables
+
+Although `export` works, it becomes difficult to manage.
+
+Imagine setting ten variables every time you open a terminal.
+
+```bash
+export API_KEY=...
+export DATABASE_URL=...
+export SECRET_KEY=...
+export PORT=8000
+export DEBUG=True
+```
+
+Problems include:
+
+- Easy to forget one variable
+- Time-consuming
+- Difficult for teammates
+- Different values for different projects
+
+A better solution is using a **`.env` file**.
+
+## What is a `.env` file?
+
+A `.env` file is simply a **text file that stores environment variables**.
+
+Instead of typing multiple `export` commands, you write them once.
+
+Example:
+
+```text
+# .env
+
+API_KEY=sk-1234567890abcdef
+DATABASE_URL=sqlite:///myapp.db
+DEBUG=True
+PORT=8000
+```
+
+The file is easy to edit, easy to maintain, and easy to share as a template.
+
+## How does Python read a `.env` file?
+
+Python cannot read `.env` files automatically.
+
+We use the **python-dotenv** package.
+
+### Install
+
+```bash
+pip install python-dotenv
+```
+
+## Loading the `.env` file
+
+```python
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+```
+
+Once loaded, every value behaves exactly like a normal environment variable.
+
+```python
+import os
+
+api_key = os.environ.get("API_KEY")
+database = os.environ.get("DATABASE_URL")
+debug = os.environ.get("DEBUG")
+port = os.environ.get("PORT")
+
+print(api_key)
+print(database)
+print(debug)
+print(port)
+```
+
+## Accessing variables safely
+
+Instead of
+
+```python
+os.environ["PORT"]
+```
+
+prefer
+
+```python
+port = os.environ.get("PORT")
+```
+
+You can even provide a default value.
+
+```python
+port = os.environ.get("PORT", "8000")
+```
+
+This prevents your application from crashing if the variable is missing.
+
+## Project structure
+
+```text
+project/
+│
+├── .env
+├── .gitignore
+├── app.py
+└── requirements.txt
+```
+
+The `.env` file normally lives in the project root.
+
+## Complete example
+
+**.env**
+
+```text
+OPENAI_API_KEY=sk-your-key
+MODEL=gpt-4.1
+MAX_TOKENS=200
+```
+
+**app.py**
+
+```python
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+API_KEY = os.environ.get("OPENAI_API_KEY")
+MODEL = os.environ.get("MODEL")
+MAX_TOKENS = os.environ.get("MAX_TOKENS")
+
+print(API_KEY)
+print(MODEL)
+print(MAX_TOKENS)
+```
+
+## Critical: Never commit `.env`
+
+<Warning>
+
+**Never commit `.env` files to Git!**
+
+A `.env` file usually contains:
+
+- API keys
+- Database passwords
+- Secret keys
+- Access tokens
+
+Add `.env` to `.gitignore`.
+
+```gitignore
+.env
+.venv/
+__pycache__/
+```
+
+</Warning>
+
+## Sharing projects safely
+
+Instead of sharing your real `.env`, create a template named **`.env.example`**.
+
+```text
+OPENAI_API_KEY=your-api-key
+DATABASE_URL=sqlite:///database.db
+DEBUG=True
+PORT=8000
+```
+
+Other developers can copy it.
+
+```bash
+cp .env.example .env
+```
+
+Then replace the placeholder values with their own.
+
+## Best practices
+
+✅ Use UPPERCASE names
+
+```text
+DATABASE_URL
+API_KEY
+SECRET_KEY
+```
+
+✅ One variable per line
+
+```text
+PORT=8000
+DEBUG=True
+```
+
+✅ No spaces around `=`
+
+```text
+PORT=8000
+```
+
+❌ Avoid
+
+```text
+PORT = 8000
+```
+
+✅ Use comments
+
+```text
+# Database
+DATABASE_URL=sqlite:///db.sqlite3
+```
+
+## Common environment variables
+
+```text
+# API Keys
+OPENAI_API_KEY=...
+GITHUB_TOKEN=...
+
+# Database
+DATABASE_URL=sqlite:///local.db
+
+# Application Settings
+DEBUG=True
+PORT=8000
+
+# Authentication
+SECRET_KEY=super-secret-key
+
+# Logging
+LOG_LEVEL=INFO
+```
+
+## Complete workflow
+
+```text
+Create .env
+      │
+      ▼
+Install python-dotenv
+      │
+      ▼
+Call load_dotenv()
+      │
+      ▼
+Read variables using os.environ.get()
+      │
+      ▼
+Use them in your application
+```
+
+## Quick tips
+
+1. Call `load_dotenv()` at the beginning of your application.
+2. Use `os.environ.get()` instead of hardcoding values.
+3. Never commit `.env` to GitHub.
+4. Share `.env.example` instead.
+5. Keep configuration outside your source code.
+
+## Summary
+
+Environment variables provide configuration **outside your application**, making your code more secure, flexible, and portable.
+
+A `.env` file is a convenient way to store these variables during development, and the **python-dotenv** package loads them automatically into your application's environment.
+
+Using `.env` files is a standard practice in modern Python development, including **FastAPI**, **Flask**, **Django**, and many other frameworks.

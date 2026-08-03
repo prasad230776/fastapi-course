@@ -1,0 +1,184 @@
+---
+title: Dependency Injection
+description: Supplying dependencies from outside an object
+icon: "merge"
+---
+
+## What is Dependency Injection?
+
+**Dependency Injection (DI)** is a design pattern where an object **receives its dependencies from an external source** instead of creating them itself.
+
+A **dependency** is any object another object requires to perform its work.
+
+Examples:
+
+- Database
+- Repository
+- Logger
+- Email Service
+- Configuration
+
+## Without Dependency Injection
+
+The object creates its own dependency.
+
+```python
+class Engine:
+    pass
+
+class Car:
+    def __init__(self):
+        self.engine = Engine()      # Tight coupling
+```
+
+**Problems**
+
+- Tight coupling
+- Hard to test
+- Difficult to replace dependencies
+
+## With Dependency Injection
+
+The dependency is supplied from outside.
+
+```python
+class Engine:
+    pass
+
+class Car:
+    def __init__(self, engine):
+        self.engine = engine
+```
+
+Usage:
+
+```python
+engine = Engine()
+car = Car(engine)
+```
+
+Now `Car` only uses the engine—it doesn't create it.
+
+## Real-world Example: Repository & Service
+
+### Without DI
+
+```python
+class StudentRepository:
+    def get_all(self):
+        return ["Alice", "Bob"]
+
+
+class StudentService:
+    def __init__(self):
+        self.repo = StudentRepository()
+
+    def list_students(self):
+        return self.repo.get_all()
+```
+
+### With DI
+
+```python
+class StudentRepository:
+    def get_all(self):
+        return ["Alice", "Bob"]
+
+
+class StudentService:
+    def __init__(self, repository):
+        self.repo = repository
+
+    def list_students(self):
+        return self.repo.get_all()
+```
+
+Usage:
+
+```python
+repo = StudentRepository()
+service = StudentService(repo)
+
+print(service.list_students())
+```
+
+Later, we can replace the repository without changing the service.
+
+```python
+service = StudentService(MockStudentRepository())
+```
+
+## Benefits
+
+- Loose coupling
+- Easier testing
+- Better maintainability
+- Easily replace implementations
+- More reusable code
+
+## Types of Dependency Injection
+
+### Constructor Injection (Most Common)
+
+```python
+class UserService:
+    def __init__(self, database):
+        self.database = database
+```
+
+### Setter Injection
+
+```python
+service.set_database(database)
+```
+
+### Method Injection
+
+```python
+service.get_user(database)
+```
+
+## FastAPI Example
+
+FastAPI automatically performs dependency injection.
+
+```python
+from fastapi import Depends
+
+def get_repository():
+    return StudentRepository()
+
+@app.get("/students")
+def get_students(
+    repo = Depends(get_repository)
+):
+    return repo.get_all()
+```
+
+A more realistic example using a service:
+
+```python
+def get_repository():
+    return StudentRepository()
+
+def get_service(
+    repo = Depends(get_repository)
+):
+    return StudentService(repo)
+
+@app.get("/students")
+def get_students(
+    service = Depends(get_service)
+):
+    return service.list_students()
+```
+
+## Summary
+
+Dependency Injection is a technique where:
+
+- Objects **receive** their dependencies instead of creating them.
+- Components remain **loosely coupled**.
+- Dependencies can be replaced easily.
+- Testing becomes much simpler.
+- Frameworks like **FastAPI**, **Spring Boot**, and **ASP.NET Core** automate dependency injection.
