@@ -1,0 +1,1694 @@
+---
+title: 04-Functional Programming
+description: Learn how Python treats functions as first-class objects and explore functional programming techniques for writing clean, reusable, and expressive code.
+---
+
+# Functional Programming
+
+Functional programming is a programming paradigm where functions are treated as first-class objects. Python provides several functional programming features that help write concise, reusable, and expressive code.
+
+## Topics Covered
+
+In this module, you'll learn:
+
+1. Functions as Objects
+2. Functions as First-Class Objects
+3. Passing Functions as Arguments
+4. Returning Functions
+5. Higher-Order Functions
+6. Anonymous (Lambda) Functions
+7. `map()`
+8. `filter()`
+9. `reduce()`
+10. Functional Programming Best Practices
+
+By the end of this module, you'll be able to treat functions as data, write reusable higher-order functions, use lambda expressions effectively, and apply Python's built-in functional programming utilities.
+
+## Functions as Objects
+
+In Python, **everything is an object**, including functions.
+
+This means a function can be:
+
+- Assigned to a variable
+- Passed as an argument
+- Returned from another function
+- Stored in a collection
+
+Let's begin by assigning a function to another variable.
+
+```python
+def greet():
+    print("Hello!")
+
+message = greet
+
+message()
+```
+
+<Accordion title="Show Output">
+
+```text
+Hello!
+```
+
+</Accordion>
+
+Notice that we assigned the function itself, **not its return value**.
+
+```python
+message = greet
+```
+
+If we write
+
+```python
+message = greet()
+```
+
+the function executes immediately and the return value is assigned to `message`.
+
+## Function References
+
+Both variables refer to the same function object.
+
+```python
+def greet():
+    print("Hello!")
+
+message = greet
+
+print(greet is message)
+```
+
+<Accordion title="Show Output">
+
+```text
+True
+```
+
+</Accordion>
+
+The `is` operator confirms that both variables reference the same function object.
+
+### Exercise 1
+
+Assign a function named `welcome()` to another variable and invoke it.
+
+**Sample Input**
+
+```python
+welcome()
+```
+
+**Expected Output**
+
+```text
+Welcome
+```
+
+<Accordion title="Solution">
+
+```python
+def welcome():
+    print("Welcome")
+
+func = welcome
+
+func()
+```
+
+</Accordion>
+
+### Exercise 2
+
+Create a function named `display()` and assign it to another variable named `show`. Invoke both variables.
+
+**Sample Input**
+
+```python
+display()
+show()
+```
+
+**Expected Output**
+
+```text
+Python
+Python
+```
+
+<Accordion title="Solution">
+
+```python
+def display():
+    print("Python")
+
+show = display
+
+display()
+show()
+```
+
+</Accordion>
+
+## Functions as First-Class Objects
+
+A programming language is said to support **first-class functions** if functions can be treated just like any other object.
+
+Since Python functions are objects, they can:
+
+- Be assigned to variables
+- Be stored in collections
+- Be passed as arguments
+- Be returned from functions
+
+For example, functions can even be stored inside a list.
+
+```python
+def add():
+    print("Add")
+
+def subtract():
+    print("Subtract")
+
+operations = [add, subtract]
+
+operations[0]()
+operations[1]()
+```
+
+<Accordion title="Show Output">
+
+```text
+Add
+Subtract
+```
+
+</Accordion>
+
+Functions can also be stored in dictionaries.
+
+```python
+def greet():
+    print("Hello")
+
+def bye():
+    print("Good Bye")
+
+messages = {
+    "hello": greet,
+    "bye": bye
+}
+
+messages["hello"]()
+messages["bye"]()
+```
+
+<Accordion title="Show Output">
+
+```text
+Hello
+Good Bye
+```
+
+</Accordion>
+
+### Exercise 1
+
+Store two functions in a list and invoke each function.
+
+**Sample Input**
+
+```python
+operations[0]()
+operations[1]()
+```
+
+**Expected Output**
+
+```text
+Start
+Stop
+```
+
+<Accordion title="Solution">
+
+```python
+def start():
+    print("Start")
+
+def stop():
+    print("Stop")
+
+operations = [start, stop]
+
+operations[0]()
+operations[1]()
+```
+
+</Accordion>
+
+### Exercise 2
+
+Store functions inside a dictionary and invoke them using keys.
+
+**Sample Input**
+
+```python
+actions["open"]()
+```
+
+**Expected Output**
+
+```text
+Open File
+```
+
+<Accordion title="Solution">
+
+```python
+def open_file():
+    print("Open File")
+
+def close_file():
+    print("Close File")
+
+actions = {
+    "open": open_file,
+    "close": close_file
+}
+
+actions["open"]()
+```
+
+</Accordion>
+
+## Passing Functions as Arguments
+
+Since functions are objects, they can be passed as arguments to other functions.
+
+```python
+def greet():
+    print("Hello!")
+
+def execute(task):
+    task()
+
+execute(greet)
+```
+
+<Accordion title="Show Output">
+
+```text
+Hello!
+```
+
+</Accordion>
+
+Notice that we pass the function **without parentheses**.
+
+```python
+execute(greet)
+```
+
+If we write
+
+```python
+execute(greet())
+```
+
+the function executes first, and its return value is passed instead.
+
+Passing functions as arguments makes code more flexible and reusable.
+
+### Exercise 1
+
+Create a function `welcome()` and pass it to another function named `run()`.
+
+**Sample Input**
+
+```python
+run(welcome)
+```
+
+**Expected Output**
+
+```text
+Welcome
+```
+
+<Accordion title="Solution">
+
+```python
+def welcome():
+    print("Welcome")
+
+def run(task):
+    task()
+
+run(welcome)
+```
+
+</Accordion>
+
+### Exercise 2
+
+Create two greeting functions and execute each by passing it to another function.
+
+**Sample Input**
+
+```python
+execute(hello)
+execute(goodbye)
+```
+
+**Expected Output**
+
+```text
+Hello
+Good Bye
+```
+
+<Accordion title="Solution">
+
+```python
+def hello():
+    print("Hello")
+
+def goodbye():
+    print("Good Bye")
+
+def execute(task):
+    task()
+
+execute(hello)
+execute(goodbye)
+```
+
+</Accordion>
+
+## Returning Functions
+
+Functions can also return other functions.
+
+```python
+def outer():
+
+    def inner():
+        print("Hello!")
+
+    return inner
+
+greet = outer()
+
+greet()
+```
+
+<Accordion title="Show Output">
+
+```text
+Hello!
+```
+
+</Accordion>
+
+The returned function can be stored in a variable and executed later.
+
+This capability forms the foundation for **higher-order functions**, **closures**, and **decorators**.
+
+### Exercise 1
+
+Create a function that returns another function displaying `"Python"`.
+
+**Sample Input**
+
+```python
+func = outer()
+
+func()
+```
+
+**Expected Output**
+
+```text
+Python
+```
+
+<Accordion title="Solution">
+
+```python
+def outer():
+
+    def inner():
+        print("Python")
+
+    return inner
+
+func = outer()
+
+func()
+```
+
+</Accordion>
+
+### Exercise 2
+
+Create a function that returns another function displaying `"Functional Programming"`.
+
+**Sample Input**
+
+```python
+func = create()
+
+func()
+```
+
+**Expected Output**
+
+```text
+Functional Programming
+```
+
+<Accordion title="Solution">
+
+```python
+def create():
+
+    def display():
+        print("Functional Programming")
+
+    return display
+
+func = create()
+
+func()
+```
+
+</Accordion>
+## Higher-Order Functions
+
+A **higher-order function** is a function that does at least one of the following:
+
+- Accepts one or more functions as arguments.
+- Returns a function.
+
+Since Python functions are first-class objects, creating higher-order functions is straightforward.
+
+### Accepting a Function as an Argument
+
+```python
+def greet():
+    print("Hello!")
+
+def execute(task):
+    print("Starting...")
+    task()
+    print("Completed.")
+
+execute(greet)
+```
+
+<Accordion title="Show Output">
+
+```text
+Starting...
+Hello!
+Completed.
+```
+
+</Accordion>
+
+Here, `execute()` is a higher-order function because it accepts another function as an argument.
+
+### Returning a Function
+
+A higher-order function can also return another function.
+
+```python
+def greeting():
+
+    def greet():
+        print("Hello!")
+
+    return greet
+
+message = greeting()
+
+message()
+```
+
+<Accordion title="Show Output">
+
+```text
+Hello!
+```
+
+</Accordion>
+
+### Why Higher-Order Functions?
+
+Higher-order functions help:
+
+- Eliminate duplicate code.
+- Improve code reusability.
+- Separate behavior from implementation.
+- Build flexible and extensible programs.
+
+They are widely used in Python libraries and frameworks.
+
+### Exercise 1
+
+Create a higher-order function that accepts a function and executes it.
+
+**Sample Input**
+
+```python
+run(display)
+```
+
+**Expected Output**
+
+```text
+Python
+```
+
+<Accordion title="Solution">
+
+```python
+def display():
+    print("Python")
+
+def run(task):
+    task()
+
+run(display)
+```
+
+</Accordion>
+
+### Exercise 2
+
+Create a higher-order function that returns a function displaying `"Welcome"`.
+
+**Sample Input**
+
+```python
+message = create()
+
+message()
+```
+
+**Expected Output**
+
+```text
+Welcome
+```
+
+<Accordion title="Solution">
+
+```python
+def create():
+
+    def welcome():
+        print("Welcome")
+
+    return welcome
+
+message = create()
+
+message()
+```
+
+</Accordion>
+
+## Anonymous (Lambda) Functions
+
+Sometimes a function is needed only once.
+
+Instead of defining a function using `def`, Python provides **lambda functions**, also known as **anonymous functions**.
+
+### Using a Regular Function
+
+```python
+def square(number):
+    return number ** 2
+
+print(square(5))
+```
+
+<Accordion title="Show Output">
+
+```text
+25
+```
+
+</Accordion>
+
+### Using a Lambda Function
+
+```python
+square = lambda number: number ** 2
+
+print(square(5))
+```
+
+<Accordion title="Show Output">
+
+```text
+25
+```
+
+</Accordion>
+
+The general syntax is:
+
+```python
+lambda parameters: expression
+```
+
+A lambda function:
+
+- Can have any number of parameters.
+- Contains only one expression.
+- Automatically returns the result of the expression.
+
+### Multiple Parameters
+
+```python
+multiply = lambda a, b: a * b
+
+print(multiply(10, 20))
+```
+
+<Accordion title="Show Output">
+
+```text
+200
+```
+
+</Accordion>
+
+### Using Conditional Expressions
+
+```python
+maximum = lambda a, b: a if a > b else b
+
+print(maximum(10, 25))
+```
+
+<Accordion title="Show Output">
+
+```text
+25
+```
+
+</Accordion>
+
+### When Should You Use Lambda Functions?
+
+Lambda functions are useful when:
+
+- The function is short.
+- The function is used only once.
+- Passing functions to `map()`, `filter()`, or `sorted()`.
+
+For complex logic, prefer a normal function using `def`.
+
+### Exercise 1
+
+Create a lambda function that returns the cube of a number.
+
+**Sample Input**
+
+```python
+cube(3)
+```
+
+**Expected Output**
+
+```text
+27
+```
+
+<Accordion title="Solution">
+
+```python
+cube = lambda number: number ** 3
+
+print(cube(3))
+```
+
+</Accordion>
+
+### Exercise 2
+
+Create a lambda function that returns the smaller of two numbers.
+
+**Sample Input**
+
+```python
+minimum(12, 5)
+```
+
+**Expected Output**
+
+```text
+5
+```
+
+<Accordion title="Solution">
+
+```python
+minimum = lambda a, b: a if a < b else b
+
+print(minimum(12, 5))
+```
+
+</Accordion>
+
+## Lambda Functions with Built-in Functions
+
+Lambda functions become particularly useful when combined with Python's built-in functional programming functions.
+
+The three most commonly used functions are:
+
+- `map()`
+- `filter()`
+- `reduce()`
+
+These functions allow data to be transformed, filtered, and aggregated without writing explicit loops.
+
+In the following sections, you'll learn how each of these functions works and when to use them.
+
+## Higher-Order Functions
+
+A **higher-order function** is a function that either:
+
+- Accepts one or more functions as arguments.
+- Returns a function.
+
+Higher-order functions make code more flexible and reusable by separating behavior from implementation.
+
+### Passing Functions as Arguments
+
+```python
+def send_email(name):
+    print(f"Email sent to {name}")
+
+def notify(customer, action):
+    action(customer)
+
+notify("Alice", send_email)
+```
+
+<Accordion title="Show Output">
+
+```text
+Email sent to Alice
+```
+
+</Accordion>
+
+The `notify()` function is a higher-order function because it accepts another function as an argument.
+
+### Returning Functions
+
+```python
+def get_discount(discount):
+
+    def apply(price):
+        return price - (price * discount / 100)
+
+    return apply
+
+festival_offer = get_discount(20)
+
+print(festival_offer(1000))
+```
+
+<Accordion title="Show Output">
+
+```text
+800.0
+```
+
+</Accordion>
+
+Higher-order functions are widely used in web frameworks, event handling, decorators, and callback functions.
+
+### Exercise 1
+
+Create a higher-order function that accepts a greeting function and a person's name.
+
+**Sample Input**
+
+```python
+notify("John", greet)
+```
+
+**Expected Output**
+
+```text
+Welcome John
+```
+
+<Accordion title="Solution">
+
+```python
+def greet(name):
+    print(f"Welcome {name}")
+
+def notify(name, action):
+    action(name)
+
+notify("John", greet)
+```
+
+</Accordion>
+
+### Exercise 2
+
+Create a function that returns another function to calculate a discount.
+
+**Sample Input**
+
+```python
+discount = create_discount(15)
+
+print(discount(1000))
+```
+
+**Expected Output**
+
+```text
+850.0
+```
+
+<Accordion title="Solution">
+
+```python
+def create_discount(percent):
+
+    def apply(price):
+        return price - (price * percent / 100)
+
+    return apply
+
+discount = create_discount(15)
+
+print(discount(1000))
+```
+
+</Accordion>
+
+## Anonymous (Lambda) Functions
+
+A **lambda function** is a small anonymous function consisting of a single expression.
+
+Instead of writing
+
+```python
+def square(number):
+    return number ** 2
+```
+
+we can write
+
+```python
+square = lambda number: number ** 2
+
+print(square(5))
+```
+
+<Accordion title="Show Output">
+
+```text
+25
+```
+
+</Accordion>
+
+### Multiple Parameters
+
+```python
+total = lambda price, quantity: price * quantity
+
+print(total(250, 4))
+```
+
+<Accordion title="Show Output">
+
+```text
+1000
+```
+
+</Accordion>
+
+### Conditional Expression
+
+```python
+status = lambda marks: "Pass" if marks >= 40 else "Fail"
+
+print(status(72))
+```
+
+<Accordion title="Show Output">
+
+```text
+Pass
+```
+
+</Accordion>
+
+### When Should You Use Lambda Functions?
+
+Use lambda functions when:
+
+- The function is small.
+- It is used only once.
+- It is passed to another function such as `map()`, `filter()`, or `sorted()`.
+
+For complex logic, prefer a regular function.
+
+### Exercise 1
+
+Create a lambda function that calculates the area of a rectangle.
+
+**Sample Input**
+
+```python
+area(20, 15)
+```
+
+**Expected Output**
+
+```text
+300
+```
+
+<Accordion title="Solution">
+
+```python
+area = lambda length, width: length * width
+
+print(area(20, 15))
+```
+
+</Accordion>
+
+### Exercise 2
+
+Create a lambda function that returns `"Eligible"` if age is at least 18; otherwise, return `"Not Eligible"`.
+
+**Sample Input**
+
+```python
+check(16)
+```
+
+**Expected Output**
+
+```text
+Not Eligible
+```
+
+<Accordion title="Solution">
+
+```python
+check = lambda age: "Eligible" if age >= 18 else "Not Eligible"
+
+print(check(16))
+```
+
+</Accordion>
+
+## The `map()` Function
+
+The `map()` function applies a function to every element of an iterable and returns an iterator.
+
+### Traditional Approach
+
+Suppose we want to apply a **10% discount** to all product prices.
+
+```python
+prices = [500, 1200, 800, 1500]
+
+discounted = []
+
+for price in prices:
+    discounted.append(price * 0.9)
+
+print(discounted)
+```
+
+<Accordion title="Show Output">
+
+```text
+[450.0, 1080.0, 720.0, 1350.0]
+```
+
+</Accordion>
+
+### Using `map()`
+
+```python
+prices = [500, 1200, 800, 1500]
+
+discounted = list(
+    map(lambda price: price * 0.9, prices)
+)
+
+print(discounted)
+```
+
+<Accordion title="Show Output">
+
+```text
+[450.0, 1080.0, 720.0, 1350.0]
+```
+
+</Accordion>
+
+### Another Example
+
+Convert employee names to uppercase.
+
+```python
+employees = [
+    "Alice",
+    "Bob",
+    "Charlie"
+]
+
+result = list(
+    map(lambda name: name.upper(), employees)
+)
+
+print(result)
+```
+
+<Accordion title="Show Output">
+
+```text
+['ALICE', 'BOB', 'CHARLIE']
+```
+
+</Accordion>
+
+### Exercise 1
+
+Convert all city names to title case.
+
+**Sample Input**
+
+```python
+cities = ["hyderabad", "chennai", "mumbai"]
+```
+
+**Expected Output**
+
+```text
+['Hyderabad', 'Chennai', 'Mumbai']
+```
+
+<Accordion title="Solution">
+
+```python
+cities = ["hyderabad", "chennai", "mumbai"]
+
+result = list(
+    map(lambda city: city.title(), cities)
+)
+
+print(result)
+```
+
+</Accordion>
+
+### Exercise 2
+
+Add **18% GST** to every product price.
+
+**Sample Input**
+
+```python
+prices = [100, 250, 500]
+```
+
+**Expected Output**
+
+```text
+[118.0, 295.0, 590.0]
+```
+
+<Accordion title="Solution">
+
+```python
+prices = [100, 250, 500]
+
+result = list(
+    map(lambda price: price * 1.18, prices)
+)
+
+print(result)
+```
+
+</Accordion>
+
+## The `filter()` Function
+
+The `filter()` function selects only those elements that satisfy a condition.
+
+### Traditional Approach
+
+Suppose we want to display only students who passed.
+
+```python
+marks = [35, 82, 65, 28, 91, 42]
+
+passed = []
+
+for mark in marks:
+    if mark >= 40:
+        passed.append(mark)
+
+print(passed)
+```
+
+<Accordion title="Show Output">
+
+```text
+[82, 65, 91, 42]
+```
+
+</Accordion>
+
+### Using `filter()`
+
+```python
+marks = [35, 82, 65, 28, 91, 42]
+
+passed = list(
+    filter(lambda mark: mark >= 40, marks)
+)
+
+print(passed)
+```
+
+<Accordion title="Show Output">
+
+```text
+[82, 65, 91, 42]
+```
+
+</Accordion>
+
+### Another Example
+
+Filter premium products costing more than ₹1000.
+
+```python
+prices = [450, 1200, 350, 2500, 800]
+
+premium = list(
+    filter(lambda price: price >= 1000, prices)
+)
+
+print(premium)
+```
+
+<Accordion title="Show Output">
+
+```text
+[1200, 2500]
+```
+
+</Accordion>
+
+### Exercise 1
+
+Filter employees earning more than ₹50,000.
+
+**Sample Input**
+
+```python
+salaries = [30000, 55000, 48000, 72000]
+```
+
+**Expected Output**
+
+```text
+[55000, 72000]
+```
+
+<Accordion title="Solution">
+
+```python
+salaries = [30000, 55000, 48000, 72000]
+
+result = list(
+    filter(lambda salary: salary > 50000, salaries)
+)
+
+print(result)
+```
+
+</Accordion>
+
+### Exercise 2
+
+Filter words having more than five characters.
+
+**Sample Input**
+
+```python
+words = ["cat", "python", "java", "database"]
+```
+
+**Expected Output**
+
+```text
+['python', 'database']
+```
+
+<Accordion title="Solution">
+
+```python
+words = ["cat", "python", "java", "database"]
+
+result = list(
+    filter(lambda word: len(word) > 5, words)
+)
+
+print(result)
+```
+
+</Accordion>
+
+## The `reduce()` Function
+
+The `reduce()` function repeatedly applies a function to the elements of an iterable and reduces them to a **single value**.
+
+Unlike `map()` and `filter()`, which return iterators, `reduce()` produces a single result.
+
+The `reduce()` function is available in the `functools` module.
+
+```python
+from functools import reduce
+```
+
+### Traditional Approach
+
+Suppose we want to calculate the total amount of items in a shopping cart.
+
+```python
+cart = [450, 1200, 350, 800]
+
+total = 0
+
+for price in cart:
+    total += price
+
+print(total)
+```
+
+<Accordion title="Show Output">
+
+```text
+2800
+```
+
+</Accordion>
+
+### Using `reduce()`
+
+```python
+from functools import reduce
+
+cart = [450, 1200, 350, 800]
+
+total = reduce(
+    lambda x, y: x + y,
+    cart
+)
+
+print(total)
+```
+
+<Accordion title="Show Output">
+
+```text
+2800
+```
+
+</Accordion>
+
+### Another Example
+
+Find the highest employee salary.
+
+```python
+from functools import reduce
+
+salaries = [25000, 42000, 51000, 39000]
+
+highest = reduce(
+    lambda x, y: x if x > y else y,
+    salaries
+)
+
+print(highest)
+```
+
+<Accordion title="Show Output">
+
+```text
+51000
+```
+
+</Accordion>
+
+### Exercise 1
+
+Calculate the total quantity of products sold.
+
+**Sample Input**
+
+```python
+quantities = [5, 8, 12, 10]
+```
+
+**Expected Output**
+
+```text
+35
+```
+
+<Accordion title="Solution">
+
+```python
+from functools import reduce
+
+quantities = [5, 8, 12, 10]
+
+total = reduce(
+    lambda x, y: x + y,
+    quantities
+)
+
+print(total)
+```
+
+</Accordion>
+
+### Exercise 2
+
+Find the minimum salary.
+
+**Sample Input**
+
+```python
+salaries = [45000, 28000, 52000, 36000]
+```
+
+**Expected Output**
+
+```text
+28000
+```
+
+<Accordion title="Solution">
+
+```python
+from functools import reduce
+
+salaries = [45000, 28000, 52000, 36000]
+
+minimum = reduce(
+    lambda x, y: x if x < y else y,
+    salaries
+)
+
+print(minimum)
+```
+
+</Accordion>
+
+## Combining `map()`, `filter()`, and `reduce()`
+
+In real-world applications, these functions are often combined to process data in multiple stages.
+
+Suppose a company wants to:
+
+1. Increase every employee's salary by **10%**.
+2. Consider only employees earning more than **₹50,000** after the increment.
+3. Calculate the total payroll of those employees.
+
+```python
+from functools import reduce
+
+salaries = [35000, 48000, 55000, 62000, 40000]
+
+updated = map(
+    lambda salary: salary * 1.10,
+    salaries
+)
+
+high_salary = filter(
+    lambda salary: salary > 50000,
+    updated
+)
+
+payroll = reduce(
+    lambda total, salary: total + salary,
+    high_salary
+)
+
+print(payroll)
+```
+
+<Accordion title="Show Output">
+
+```text
+181500.0
+```
+
+</Accordion>
+
+### Processing Pipeline
+
+```text
+Employee Salaries
+        │
+        ▼
+map()
+Increase by 10%
+        │
+        ▼
+filter()
+Salary > ₹50,000
+        │
+        ▼
+reduce()
+Total Payroll
+```
+
+Each function performs a specific task:
+
+- **`map()`** transforms every element.
+- **`filter()`** selects only the required elements.
+- **`reduce()`** combines all elements into a single result.
+
+## Comprehensive Exercise 1
+
+Given the marks of students,
+
+```python
+marks = [35, 82, 61, 28, 90, 75]
+```
+
+Perform the following operations:
+
+1. Add **5 grace marks** to every student.
+2. Keep only students scoring **40 or above**.
+3. Calculate the **total marks**.
+
+**Expected Output**
+
+```text
+328
+```
+
+<Accordion title="Solution">
+
+```python
+from functools import reduce
+
+marks = [35, 82, 61, 28, 90, 75]
+
+updated_marks = map(
+    lambda mark: min(mark + 5, 100),
+    marks
+)
+
+passed_students = filter(
+    lambda mark: mark >= 40,
+    updated_marks
+)
+
+total_marks = reduce(
+    lambda x, y: x + y,
+    passed_students
+)
+
+print(total_marks)
+```
+
+</Accordion>
+
+## Comprehensive Exercise 2
+
+Given the prices of products,
+
+```python
+prices = [500, 1200, 350, 2500, 800]
+```
+
+Perform the following operations:
+
+1. Apply a **10% discount** to every product.
+2. Keep only products costing more than **₹1000** after the discount.
+3. Calculate the **final bill**.
+
+**Expected Output**
+
+```text
+3330.0
+```
+
+<Accordion title="Solution">
+
+```python
+from functools import reduce
+
+prices = [500, 1200, 350, 2500, 800]
+
+discounted_prices = map(
+    lambda price: price * 0.90,
+    prices
+)
+
+premium_products = filter(
+    lambda price: price > 1000,
+    discounted_prices
+)
+
+final_bill = reduce(
+    lambda x, y: x + y,
+    premium_products
+)
+
+print(final_bill)
+```
+
+</Accordion>
+
+## Comprehensive Exercise 3
+
+Given the employee names,
+
+```python
+employees = [
+    "alice",
+    "bob",
+    "charlie",
+    "david",
+    "franklin"
+]
+```
+
+Perform the following operations:
+
+1. Convert all names to uppercase.
+2. Keep only names having more than **5** characters.
+3. Join them into a comma-separated string.
+
+**Expected Output**
+
+```text
+CHARLIE, FRANKLIN
+```
+
+<Accordion title="Solution">
+
+```python
+from functools import reduce
+
+employees = [
+    "alice",
+    "bob",
+    "charlie",
+    "david",
+    "franklin"
+]
+
+uppercase_names = map(
+    lambda name: name.upper(),
+    employees
+)
+
+filtered_names = filter(
+    lambda name: len(name) > 5,
+    uppercase_names
+)
+
+result = reduce(
+    lambda x, y: x + ", " + y,
+    filtered_names
+)
+
+print(result)
+```
+
+</Accordion>
+
+## Choosing the Right Function
+
+| Function | Purpose | Returns |
+|----------|---------|---------|
+| `map()` | Transform every element | Iterator |
+| `filter()` | Select elements matching a condition | Iterator |
+| `reduce()` | Combine elements into a single value | Single Value |
+
+## Functional Programming Best Practices
+
+- Use regular functions (`def`) for complex logic.
+- Use lambda functions for short, simple operations.
+- Use `map()` to transform every element.
+- Use `filter()` to select elements based on a condition.
+- Use `reduce()` to aggregate values into a single result.
+- Prefer list comprehensions over `map()` and `filter()` for simple transformations when they improve readability.
+- Choose the approach that makes your code easiest to read and maintain.
+
+> **Note:** In modern Python, list comprehensions are often preferred over `map()` and `filter()` for simple transformations because they are generally more readable. However, `map()`, `filter()`, and `reduce()` remain valuable tools when building functional pipelines or working with existing functions.
+
+## Summary
+
+In this module, you learned how Python supports functional programming by treating functions as first-class objects.
+
+### Key Concepts Covered
+
+- Functions as Objects
+- Functions as First-Class Objects
+- Passing Functions as Arguments
+- Returning Functions
+- Higher-Order Functions
+- Anonymous (Lambda) Functions
+- `map()`
+- `filter()`
+- `reduce()`
+- Combining `map()`, `filter()`, and `reduce()`
+- Functional Programming Best Practices
+
+Functional programming encourages writing reusable, expressive, and modular code. By combining higher-order functions, lambda expressions, and Python's built-in functional programming utilities, you can solve data-processing problems in a clean, concise, and maintainable way.

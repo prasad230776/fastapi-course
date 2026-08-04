@@ -1,0 +1,1653 @@
+---
+title: FastAPI Foundations
+description: Learn the fundamentals of building modern REST APIs using FastAPI.
+icon: "rocket"
+---
+
+# FastAPI Foundations
+
+FastAPI is a modern Python web framework for building high-performance REST APIs. It combines Python's type annotations, Pydantic models, and automatic API documentation to simplify backend development.
+
+Before learning FastAPI, it's important to understand how modern web applications communicate and why REST APIs have become the standard for backend development.
+
+## Topics Covered
+
+In this module, you'll learn:
+
+1. Client and Server
+2. Backend Development
+3. APIs and REST APIs
+4. Quick Start
+5. HTTP Fundamentals
+6. FastAPI Fundamentals
+7. Routing and Request Handling
+8. Request Validation
+9. Response Models
+10. Exception Handling
+11. Building REST APIs
+12. Best Practices
+
+By the end of this module, you'll understand how web applications communicate and build your own REST APIs using FastAPI.
+
+## Client and Server
+
+Most modern applications follow the **Client-Server Architecture**.
+
+The **client** requests a service.
+
+The **server** processes the request and returns a response.
+
+```text
+        Request
+Client ----------> Server
+       <----------
+        Response
+```
+
+### Examples of Clients
+
+- Web Browser
+- React Application
+- Angular Application
+- Vue Application
+- Flutter Application
+- Android Application
+- iOS Application
+- Postman
+
+### Examples of Servers
+
+- FastAPI
+- Django
+- Flask
+- Express.js
+- Spring Boot
+
+### Exercise 1
+
+Identify whether each of the following is a Client or a Server.
+
+| Component | Client or Server? |
+|-----------|-------------------|
+| Chrome Browser | ? |
+| FastAPI | ? |
+| Flutter App | ? |
+| Django | ? |
+
+<Accordion title="Solution">
+
+| Component | Type |
+|-----------|------|
+| Chrome Browser | Client |
+| FastAPI | Server |
+| Flutter App | Client |
+| Django | Server |
+
+</Accordion>
+
+### Exercise 2
+
+Give any three examples of client applications.
+
+<Accordion title="Solution">
+
+Possible answers:
+
+- Chrome
+- Edge
+- React
+- Flutter
+- Android
+- iOS
+- Postman
+
+</Accordion>
+
+## Backend Development
+
+The backend is responsible for processing requests and managing application data.
+
+Its responsibilities include:
+
+- Business Logic
+- Authentication
+- Authorization
+- Data Validation
+- Database Operations
+- Sending Responses
+
+A typical web application looks like this.
+
+```text
+Frontend
+    │
+HTTP Request
+    ▼
+Backend
+    │
+Business Logic
+    │
+Database
+    │
+HTTP Response
+    ▼
+Frontend
+```
+
+Examples of backend-powered applications:
+
+- Amazon
+- Flipkart
+- Gmail
+- Instagram
+- Netflix
+- WhatsApp
+
+### Exercise 1
+
+List any four responsibilities of a backend application.
+
+<Accordion title="Solution">
+
+Possible answers:
+
+- Authentication
+- Authorization
+- Business Logic
+- Database Operations
+- Data Validation
+- Sending Responses
+
+</Accordion>
+
+### Exercise 2
+
+Which component is responsible for storing and retrieving data?
+
+<Accordion title="Solution">
+
+Backend (through a Database)
+
+</Accordion>
+
+## Backend Returning HTML vs REST API
+
+Backend applications are commonly developed in two different ways.
+
+### Backend Returning HTML
+
+The backend generates the complete user interface.
+
+```text
+Browser
+    │
+ GET /
+    ▼
+Backend
+    │
+HTML Page
+    ▼
+Browser
+```
+
+Examples:
+
+- Django Templates
+- Flask + Jinja
+- PHP
+- ASP.NET MVC
+
+### Backend Returning REST APIs
+
+The backend returns only data, typically in JSON format.
+
+The frontend is responsible for rendering the user interface.
+
+```text
+React
+
+Angular
+
+Vue
+
+Flutter
+
+Android
+
+iOS
+      │
+ HTTP Request
+      ▼
+ FastAPI
+      │
+JSON Response
+      ▼
+Frontend
+```
+
+### Comparison
+
+| Backend Returning HTML | Backend Returning REST APIs |
+|-------------------------|-----------------------------|
+| Returns HTML pages | Returns JSON data |
+| Backend generates UI | Frontend generates UI |
+| Tight coupling | Loose coupling |
+| Mostly websites | Websites, Mobile Apps, Desktop Apps |
+| One frontend | Multiple frontends can reuse the same backend |
+
+### Why REST APIs?
+
+A single backend can serve multiple clients.
+
+```text
+             React
+               │
+Android App ───┤
+               │
+Flutter App ───┤
+               │
+Desktop App ───┤
+               │
+          FastAPI
+               │
+           Database
+```
+
+This makes applications:
+
+- Reusable
+- Scalable
+- Platform Independent
+
+### Exercise 1
+
+Which backend approach is generally used for React applications?
+
+<Accordion title="Solution">
+
+Backend Returning REST APIs
+
+</Accordion>
+
+### Exercise 2
+
+Which backend approach is commonly used by traditional websites like WordPress?
+
+<Accordion title="Solution">
+
+Backend Returning HTML
+
+</Accordion>
+
+## What is an API?
+
+An **Application Programming Interface (API)** is a set of rules that allows two software applications to communicate.
+
+Examples:
+
+- React ↔ FastAPI
+- Flutter ↔ FastAPI
+- Python ↔ Weather API
+- Python ↔ Payment Gateway
+- Python ↔ OpenAI API
+
+Applications exchange information through **requests** and **responses**.
+
+```text
+Client
+   │
+API Request
+   ▼
+Server
+   │
+API Response
+   ▼
+Client
+```
+
+### Exercise 1
+
+Give two real-world examples where APIs are used.
+
+<Accordion title="Solution">
+
+Examples:
+
+- Google Maps API
+- OpenAI API
+- Weather API
+- Payment Gateway API
+
+</Accordion>
+
+### Exercise 2
+
+Who initiates an API request?
+
+<Accordion title="Solution">
+
+The Client.
+
+</Accordion>
+
+## What is a REST API?
+
+A **REST API (Representational State Transfer API)** is an API that follows REST principles and communicates using the HTTP protocol.
+
+Instead of exposing functions, REST APIs expose **resources**.
+
+Examples:
+
+```text
+/students
+
+/books
+
+/courses
+
+/orders
+```
+
+Clients perform different operations using HTTP methods.
+
+```text
+GET     /students
+
+POST    /students
+
+PUT     /students/101
+
+PATCH   /students/101
+
+DELETE  /students/101
+```
+
+### Characteristics of REST APIs
+
+- Stateless
+- Resource-Oriented
+- Client-Server Based
+- Cacheable
+- Uniform Interface
+
+### Exercise 1
+
+Is the following a resource?
+
+```text
+/students
+```
+
+<Accordion title="Solution">
+
+Yes.
+
+It represents the **Students** resource.
+
+</Accordion>
+
+### Exercise 2
+
+Write suitable endpoints for the following resources.
+
+- Employees
+- Products
+
+<Accordion title="Solution">
+
+```text
+/employees
+
+/products
+```
+
+</Accordion>
+
+## Quick Start
+
+Let's build our first FastAPI application.
+
+### Step 1: Create a Project
+
+```bash
+uv init student-api
+
+cd student-api
+```
+
+### Step 2: Install FastAPI
+
+```bash
+uv add fastapi uvicorn
+```
+
+### Step 3: Project Structure
+
+```text
+student-api/
+
+├── .venv/
+├── pyproject.toml
+├── uv.lock
+├── README.md
+└── main.py
+```
+
+### Step 4: Create `main.py`
+
+```python
+from fastapi import FastAPI
+
+app = FastAPI()
+
+
+@app.get("/")
+def home():
+    return {
+        "message": "Welcome to FastAPI!"
+    }
+```
+
+### Step 5: Run the Application
+
+```bash
+uv run uvicorn main:app --reload
+```
+
+<Accordion title="Show Output">
+
+```text
+INFO:     Uvicorn running on http://127.0.0.1:8000
+INFO:     Application startup complete.
+```
+
+</Accordion>
+
+### Step 6: Open the Application
+
+```text
+http://127.0.0.1:8000
+```
+
+<Accordion title="Show Output">
+
+```json
+{
+    "message": "Welcome to FastAPI!"
+}
+```
+
+</Accordion>
+
+### Step 7: Interactive API Documentation
+
+FastAPI automatically generates interactive API documentation.
+
+Swagger UI
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+ReDoc
+
+```text
+http://127.0.0.1:8000/redoc
+```
+
+### Exercise 1
+
+Create a FastAPI application that returns:
+
+```json
+{
+    "message": "Hello FastAPI!"
+}
+```
+
+<Accordion title="Solution">
+
+```python
+from fastapi import FastAPI
+
+app = FastAPI()
+
+
+@app.get("/")
+def home():
+    return {
+        "message": "Hello FastAPI!"
+    }
+```
+
+</Accordion>
+
+### Exercise 2
+
+Run the application and verify that the following pages are accessible.
+
+```text
+http://127.0.0.1:8000
+
+http://127.0.0.1:8000/docs
+
+http://127.0.0.1:8000/redoc
+```
+
+<Accordion title="Solution">
+
+```bash
+uv run uvicorn main:app --reload
+```
+
+Then open the URLs in your browser.
+
+</Accordion>
+
+## HTTP Fundamentals
+
+REST APIs communicate using the **HTTP (HyperText Transfer Protocol)**.
+
+HTTP defines how clients and servers exchange information through requests and responses.
+
+## URL (Uniform Resource Locator)
+
+A **URL** identifies the location of a resource on a server.
+
+Example:
+
+```text
+http://127.0.0.1:8000/students/101?active=true
+```
+
+A URL consists of several parts.
+
+| Part | Example | Description |
+|------|---------|-------------|
+| Protocol | `http` | Communication protocol |
+| Host | `127.0.0.1` | Server address |
+| Port | `8000` | Port number |
+| Path | `/students/101` | Resource path |
+| Query Parameter | `active=true` | Additional information |
+
+## Endpoint
+
+An **Endpoint** is a combination of an HTTP method and a URL path that performs a specific operation.
+
+Examples:
+
+```text
+GET /students
+
+GET /students/101
+
+POST /students
+```
+
+In FastAPI,
+
+```python
+@app.get("/students")
+def get_students():
+    return []
+```
+
+creates the endpoint
+
+```text
+GET /students
+```
+
+## URL vs Endpoint
+
+| URL | Endpoint |
+|------|----------|
+| Complete address of a resource | HTTP Method + Path |
+| `http://localhost:8000/students` | `GET /students` |
+
+## HTTP Request
+
+An HTTP Request is the complete message sent by a client.
+
+Example
+
+```http
+POST /students HTTP/1.1
+Host: localhost:8000
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer <access-token>
+User-Agent: PostmanRuntime/7.39.0
+
+{
+    "name": "Alice",
+    "age": 20,
+    "course": "Python"
+}
+```
+
+### Parts of an HTTP Request
+
+| Part | Purpose |
+|------|---------|
+| POST | HTTP Method |
+| `/students` | Endpoint |
+| Host | Server Address |
+| Content-Type | Format of the request body |
+| Accept | Expected response format |
+| Authorization | Authentication information |
+| User-Agent | Client application |
+| Body | Data sent to the server |
+
+## HTTP Response
+
+After processing the request, the server returns an HTTP Response.
+
+Example
+
+```http
+HTTP/1.1 201 Created
+Content-Type: application/json
+
+{
+    "id": 101,
+    "name": "Alice",
+    "age": 20,
+    "course": "Python"
+}
+```
+
+### Parts of an HTTP Response
+
+| Part | Purpose |
+|------|---------|
+| 201 | Status Code |
+| Headers | Metadata |
+| Body | Response Data |
+
+## HTTP Methods
+
+REST APIs commonly use the following methods.
+
+| Method | Purpose |
+|---------|---------|
+| GET | Retrieve data |
+| POST | Create data |
+| PUT | Update a resource |
+| PATCH | Partially update a resource |
+| DELETE | Delete a resource |
+
+Example:
+
+```text
+GET      /students
+
+GET      /students/101
+
+POST     /students
+
+PUT      /students/101
+
+PATCH    /students/101
+
+DELETE   /students/101
+```
+
+## HTTP Status Codes
+
+Every response contains a status code describing the result.
+
+| Status Code | Meaning |
+|-------------|---------|
+| 200 | OK |
+| 201 | Created |
+| 204 | No Content |
+| 400 | Bad Request |
+| 401 | Unauthorized |
+| 403 | Forbidden |
+| 404 | Not Found |
+| 422 | Validation Error |
+| 500 | Internal Server Error |
+
+## Testing REST APIs
+
+REST APIs can be tested using several tools.
+
+| Tool | Purpose |
+|------|---------|
+| Browser | Test simple GET requests |
+| Swagger UI | Interactive API documentation |
+| ReDoc | Read-only API documentation |
+| Postman | API Testing |
+| Bruno | Open-source API Client |
+| Insomnia | Lightweight API Client |
+| curl | Command-line testing |
+| VS Code REST Client | Test APIs from VS Code |
+
+## FastAPI Fundamentals
+
+A FastAPI application begins by creating an instance of the `FastAPI` class.
+
+```python
+from fastapi import FastAPI
+
+app = FastAPI()
+```
+
+The `app` object represents the entire web application.
+
+Every API endpoint is registered with this object.
+
+## Creating Your First Route
+
+```python
+from fastapi import FastAPI
+
+app = FastAPI()
+
+
+@app.get("/")
+def home():
+    return {
+        "message": "Welcome to FastAPI!"
+    }
+```
+
+Open
+
+```text
+http://127.0.0.1:8000
+```
+
+<Accordion title="Show Output">
+
+```json
+{
+    "message": "Welcome to FastAPI!"
+}
+```
+
+</Accordion>
+
+## Routing
+
+A **Route** maps an incoming HTTP request to a Python function.
+
+```python
+@app.get("/hello")
+def hello():
+    return {
+        "message": "Hello World"
+    }
+```
+
+Every route consists of:
+
+- HTTP Method
+- URL Path
+- Python Function
+
+## HTTP Method Decorators
+
+FastAPI provides decorators for common HTTP methods.
+
+```python
+@app.get("/students")
+```
+
+```python
+@app.post("/students")
+```
+
+```python
+@app.put("/students/{id}")
+```
+
+```python
+@app.patch("/students/{id}")
+```
+
+```python
+@app.delete("/students/{id}")
+```
+
+## Path Parameters
+
+Path parameters allow values to be passed as part of the URL.
+
+```python
+@app.get("/students/{student_id}")
+def get_student(student_id: int):
+    return {
+        "student_id": student_id
+    }
+```
+
+Open
+
+```text
+http://127.0.0.1:8000/students/101
+```
+
+<Accordion title="Show Output">
+
+```json
+{
+    "student_id": 101
+}
+```
+
+</Accordion>
+
+### Exercise 1
+
+Create an endpoint that returns the given employee id.
+
+**Sample URL**
+
+```text
+/employees/15
+```
+
+**Expected Output**
+
+```json
+{
+    "employee_id": 15
+}
+```
+
+<Accordion title="Solution">
+
+```python
+@app.get("/employees/{employee_id}")
+def get_employee(employee_id: int):
+    return {
+        "employee_id": employee_id
+    }
+```
+
+</Accordion>
+
+## Query Parameters
+
+Query parameters are optional values appended to a URL.
+
+```python
+@app.get("/students")
+def get_students(active: bool):
+    return {
+        "active": active
+    }
+```
+
+Open
+
+```text
+/students?active=true
+```
+
+<Accordion title="Show Output">
+
+```json
+{
+    "active": true
+}
+```
+
+</Accordion>
+
+### Exercise 2
+
+Create a route that accepts a query parameter named `course`.
+
+**Sample URL**
+
+```text
+/students?course=Python
+```
+
+**Expected Output**
+
+```json
+{
+    "course": "Python"
+}
+```
+
+<Accordion title="Solution">
+
+```python
+@app.get("/students")
+def get_students(course: str):
+    return {
+        "course": course
+    }
+```
+
+</Accordion>
+
+## Request Body
+
+Data sent using POST, PUT and PATCH requests is called the **Request Body**.
+
+FastAPI uses Pydantic models to validate request data.
+
+```python
+from pydantic import BaseModel
+
+class Student(BaseModel):
+
+    name: str
+    age: int
+
+
+@app.post("/students")
+def create_student(student: Student):
+    return student
+```
+
+Request Body
+
+```json
+{
+    "name": "Alice",
+    "age": 20
+}
+```
+
+<Accordion title="Show Output">
+
+```json
+{
+    "name": "Alice",
+    "age": 20
+}
+```
+
+</Accordion>
+
+## Request Validation
+
+FastAPI automatically validates incoming request data.
+
+If invalid data is provided,
+
+```json
+{
+    "name": "Alice",
+    "age": "twenty"
+}
+```
+
+FastAPI returns
+
+<Accordion title="Show Output">
+
+```text
+422 Unprocessable Entity
+```
+
+</Accordion>
+
+No additional validation code is required because FastAPI uses Pydantic internally.
+
+## Exercise 1
+
+Create a `Book` model with:
+
+- title
+- author
+- price
+
+Create a POST endpoint that returns the received data.
+
+<Accordion title="Solution">
+
+```python
+from pydantic import BaseModel
+
+class Book(BaseModel):
+
+    title: str
+    author: str
+    price: float
+
+
+@app.post("/books")
+def create_book(book: Book):
+    return book
+```
+
+</Accordion>
+
+## Exercise 2
+
+Send an invalid value for `price` and observe the validation error.
+
+<Accordion title="Solution">
+
+```json
+{
+    "title": "Python",
+    "author": "John",
+    "price": "abc"
+}
+```
+
+FastAPI automatically returns a **422 Validation Error**.
+
+</Accordion>
+
+## Response Models
+
+So far, our APIs have returned Python objects directly.
+
+FastAPI also allows us to define the **structure of the response** using **response models**.
+
+A response model ensures that the returned data:
+
+- Has the expected structure
+- Contains the correct data types
+- Automatically generates API documentation
+
+### Example
+
+```python
+from fastapi import FastAPI
+from pydantic import BaseModel
+
+app = FastAPI()
+
+
+class Student(BaseModel):
+
+    id: int
+    name: str
+    age: int
+
+
+@app.get(
+    "/student",
+    response_model=Student
+)
+def get_student():
+
+    return {
+        "id": 101,
+        "name": "Alice",
+        "age": 20
+    }
+```
+
+<Accordion title="Show Output">
+
+```json
+{
+    "id": 101,
+    "name": "Alice",
+    "age": 20
+}
+```
+
+</Accordion>
+
+### Returning Multiple Objects
+
+```python
+@app.get(
+    "/students",
+    response_model=list[Student]
+)
+def get_students():
+
+    return [
+        {
+            "id": 101,
+            "name": "Alice",
+            "age": 20
+        },
+        {
+            "id": 102,
+            "name": "Bob",
+            "age": 21
+        }
+    ]
+```
+
+<Accordion title="Show Output">
+
+```json
+[
+    {
+        "id": 101,
+        "name": "Alice",
+        "age": 20
+    },
+    {
+        "id": 102,
+        "name": "Bob",
+        "age": 21
+    }
+]
+```
+
+</Accordion>
+
+### Exercise 1
+
+Create an `Employee` model and return a single employee.
+
+<Accordion title="Solution">
+
+```python
+from pydantic import BaseModel
+
+class Employee(BaseModel):
+
+    id: int
+    name: str
+
+
+@app.get(
+    "/employee",
+    response_model=Employee
+)
+def get_employee():
+
+    return {
+        "id": 1,
+        "name": "Rahul"
+    }
+```
+
+</Accordion>
+
+### Exercise 2
+
+Return a list of books using `response_model`.
+
+<Accordion title="Solution">
+
+```python
+from pydantic import BaseModel
+
+class Book(BaseModel):
+
+    title: str
+    price: float
+
+
+@app.get(
+    "/books",
+    response_model=list[Book]
+)
+def get_books():
+
+    return [
+        {
+            "title": "Python",
+            "price": 499
+        }
+    ]
+```
+
+</Accordion>
+
+## Basic Exception Handling
+
+Sometimes a request cannot be processed successfully.
+
+Instead of returning invalid data, we should return an appropriate HTTP error.
+
+FastAPI provides the `HTTPException` class for this purpose.
+
+### Example
+
+```python
+from fastapi import HTTPException
+
+students = [
+    {
+        "id": 1,
+        "name": "Alice"
+    }
+]
+
+
+@app.get("/students/{student_id}")
+def get_student(student_id: int):
+
+    for student in students:
+
+        if student["id"] == student_id:
+            return student
+
+    raise HTTPException(
+        status_code=404,
+        detail="Student not found"
+    )
+```
+
+Request
+
+```text
+/students/10
+```
+
+<Accordion title="Show Output">
+
+```json
+{
+    "detail": "Student not found"
+}
+```
+
+</Accordion>
+
+### Common Exceptions
+
+| Status Code | Meaning |
+|-------------|---------|
+| 400 | Bad Request |
+| 401 | Unauthorized |
+| 403 | Forbidden |
+| 404 | Not Found |
+| 422 | Validation Error |
+| 500 | Internal Server Error |
+
+### Exercise 1
+
+Retrieve an employee by ID.
+
+Requirements:
+
+- Search for the employee in the given list.
+- Return the employee if found.
+- Raise a `404 Not Found` exception if the employee does not exist.
+
+```python
+employees = [
+    {"id": 1, "name": "Rahul"},
+    {"id": 2, "name": "Priya"},
+    {"id": 3, "name": "Arjun"}
+]
+```
+
+<Accordion title="Solution">
+
+```python
+from fastapi import HTTPException
+
+employees = [
+    {"id": 1, "name": "Rahul"},
+    {"id": 2, "name": "Priya"},
+    {"id": 3, "name": "Arjun"}
+]
+
+@app.get("/employees/{employee_id}")
+def get_employee(employee_id: int):
+
+    for employee in employees:
+        if employee["id"] == employee_id:
+            return employee
+
+    raise HTTPException(
+        status_code=404,
+        detail="Employee not found"
+    )
+```
+
+</Accordion>
+
+### Exercise 2
+
+Raise a `400` exception if age is less than 18.
+
+<Accordion title="Solution">
+
+```python
+from fastapi import HTTPException
+
+
+@app.post("/students")
+def create_student(age: int):
+
+    if age < 18:
+
+        raise HTTPException(
+            status_code=400,
+            detail="Age must be at least 18"
+        )
+
+    return {
+        "message": "Student Created"
+    }
+```
+
+</Accordion>
+## Request Validation
+
+FastAPI automatically validates incoming request data using type annotations and Pydantic.
+
+| Function | Used For |
+|----------|----------|
+| `Path()` | Path Parameters |
+| `Query()` | Query Parameters |
+| `Body()` | Request Body |
+| `Field()` | Model Attributes |
+
+### Path Parameters
+
+**Required**
+
+```python
+student_id: Annotated[int, Path()]
+```
+
+**With Validation**
+
+```python
+student_id: Annotated[int, Path(gt=0)]
+```
+
+### Exercise
+
+Create an endpoint to retrieve a product by its ID.
+
+Requirements:
+
+- Endpoint: `/products/{product_id}`
+- `product_id` must be greater than `0`.
+
+<Accordion title="Solution">
+
+```python
+@app.get("/products/{product_id}")
+def get_product(product_id: Annotated[int, Path(gt=0)]):
+    return {"product_id": product_id}
+```
+
+</Accordion>
+
+### Query Parameters
+
+**Required**
+
+```python
+course: Annotated[str, Query()]
+```
+
+**Optional with Default**
+
+```python
+page: Annotated[int, Query()] = 1
+```
+
+**With Validation**
+
+```python
+page: Annotated[int, Query(ge=1)] = 1
+```
+
+### Exercise
+
+Create an endpoint to list books.
+
+Requirements:
+
+- Accept an optional query parameter `page`.
+- Default value should be `1`.
+
+Example
+
+```text
+/books?page=2
+```
+
+<Accordion title="Solution">
+
+```python
+@app.get("/books")
+def get_books(page: Annotated[int, Query()] = 1):
+    return {"page": page}
+```
+
+</Accordion>
+
+### Request Body
+
+```python
+@app.post("/students")
+def create_student(student: Annotated[Student, Body()]):
+    return student
+```
+
+### Exercise
+
+Create a `Book` model with the following attributes.
+
+- `title`
+- `price`
+
+Create a POST endpoint that returns the received object.
+
+<Accordion title="Solution">
+
+```python
+class Book(BaseModel):
+    title: Annotated[str, Field()]
+    price: Annotated[float, Field()]
+
+@app.post("/books")
+def create_book(book: Annotated[Book, Body()]):
+    return book
+```
+
+</Accordion>
+
+### Model Attributes
+
+**Required**
+
+```python
+name: Annotated[str, Field()]
+```
+
+**Required with Validation**
+
+```python
+name: Annotated[str, Field(min_length=3)]
+
+age: Annotated[int, Field(ge=18, le=60)]
+```
+
+**Optional with Default**
+
+```python
+city: Annotated[str, Field()] = "Hyderabad"
+```
+
+**Optional Nullable**
+
+```python
+email: Annotated[EmailStr | None, Field()] = None
+```
+
+### Exercise
+
+Modify the `Book` model.
+
+Requirements:
+
+- `title` should have a minimum length of `3`.
+- `price` should be greater than `0`.
+
+<Accordion title="Solution">
+
+```python
+class Book(BaseModel):
+    title: Annotated[str, Field(min_length=3)]
+    price: Annotated[float, Field(gt=0)]
+```
+
+</Accordion>
+
+## Default Values
+
+A value is considered **required** if no default value is assigned.
+
+Assigning a value using `=` makes it **optional**.
+
+| Requirement | Example |
+|-------------|---------|
+| Required Path Parameter | `id: Annotated[int, Path()]` |
+| Required Query Parameter | `course: Annotated[str, Query()]` |
+| Optional Query Parameter | `page: Annotated[int, Query()] = 1` |
+| Required Body Attribute | `name: Annotated[str, Field()]` |
+| Optional Body Attribute | `city: Annotated[str, Field()] = "Hyderabad"` |
+| Optional Nullable Attribute | `email: Annotated[EmailStr \| None, Field()] = None` |
+
+### Exercise
+
+Create an `Employee` model.
+
+Requirements:
+
+- `name` → required
+- `department` → default `"IT"`
+- `salary` → default `25000`
+
+<Accordion title="Solution">
+
+```python
+class Employee(BaseModel):
+    name: Annotated[str, Field()]
+    department: Annotated[str, Field()] = "IT"
+    salary: Annotated[float, Field()] = 25000
+```
+
+</Accordion>
+
+### Exercise
+
+Add optional contact details to the `Employee` model.
+
+Requirements:
+
+- `email`
+- `phone`
+
+Both should be optional.
+
+<Accordion title="Solution">
+
+```python
+class Employee(BaseModel):
+    name: Annotated[str, Field()]
+    email: Annotated[EmailStr | None, Field()] = None
+    phone: Annotated[str | None, Field()] = None
+```
+
+</Accordion>
+
+## Common Validation Rules
+
+| Function | Common Rules |
+|----------|--------------|
+| `Path()` | `gt`, `ge`, `lt`, `le`, `title`, `description`, `examples` |
+| `Query()` | `gt`, `ge`, `lt`, `le`, `min_length`, `max_length`, `pattern`, `title`, `description`, `examples` |
+| `Field()` | `gt`, `ge`, `lt`, `le`, `min_length`, `max_length`, `pattern`, `title`, `description`, `examples` |
+
+## Validation Errors
+
+FastAPI automatically validates:
+
+- Path Parameters
+- Query Parameters
+- Request Body
+- Model Attributes
+- Data Types
+
+If validation fails, FastAPI automatically returns:
+
+```text
+422 Unprocessable Entity
+```
+
+## Key Points
+
+- Use `Path()` for path parameters.
+- Use `Query()` for query parameters.
+- Use `Body()` for request bodies.
+- Use `Field()` for model attributes.
+- Use `Annotated` to combine type hints with validation metadata.
+- A value is **required** if no default value is assigned.
+- A value becomes **optional** when a default value (including `None`) is assigned.
+- FastAPI automatically performs type conversion and request validation.
+
+## Mini Project - Student Management REST API
+
+Let's combine everything we've learned so far.
+
+We'll build a simple Student Management API using an in-memory list.
+
+### Features
+
+- Get all students
+- Get a student by ID
+- Add a student
+- Update a student
+- Delete a student
+
+The data will be stored in a Python list.
+
+```python
+students = [
+    {
+        "id": 1,
+        "name": "Alice",
+        "age": 20
+    },
+    {
+        "id": 2,
+        "name": "Bob",
+        "age": 21
+    }
+]
+```
+
+In the next module, we'll replace this list with a database using SQLAlchemy ORM.
+
+## Best Practices
+
+- Use meaningful endpoint names.
+- Follow REST naming conventions.
+- Use Pydantic models for request and response data.
+- Return appropriate HTTP status codes.
+- Raise `HTTPException` for invalid requests.
+- Keep route functions simple and focused.
+- Test APIs using Swagger UI or Postman.
+
+## Summary
+
+In this module, you learned how to build REST APIs using FastAPI.
+
+### Key Concepts Covered
+
+- Client and Server
+- Backend Development
+- APIs and REST APIs
+- HTTP Fundamentals
+- FastAPI Fundamentals
+- Routing
+- Path Parameters
+- Query Parameters
+- Request Body
+- Request Validation
+- Response Models
+- Basic Exception Handling
+- Building REST APIs
+- Best Practices
+
+You now have a solid understanding of FastAPI fundamentals. In the next module, you'll learn how to organize larger applications using **APIRouter**, integrate a database with **SQLAlchemy ORM**, apply **Dependency Injection**, and build a modular FastAPI application.

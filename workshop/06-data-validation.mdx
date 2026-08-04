@@ -1,0 +1,1475 @@
+---
+title: Data Modeling with Pydantic
+description: Learn how to build robust, type-safe data models using Pydantic for validation, serialization, and modern Python applications.
+icon: "shield-check"
+---
+
+# Data Modeling with Pydantic
+
+Applications constantly exchange and process data. Whether the data comes from user input, configuration files, APIs, or databases, ensuring that it is valid and correctly typed is essential.
+
+Pydantic is a modern Python library that simplifies data modeling and validation using Python's type annotations. It automatically validates data, converts compatible types, and produces meaningful validation errors.
+
+## Topics Covered
+
+In this module, you'll learn:
+
+1. Why Pydantic?
+2. Creating Data Models
+3. Type Validation
+4. Default Values
+5. Optional Fields
+6. Field Validation
+7. Using `Annotated`
+8. Nested Models
+9. Serialization
+10. Deserialization
+11. Type-safe Programming
+12. Integrating Pydantic with Applications
+13. Best Practices
+
+By the end of this module, you'll be able to create robust, type-safe data models, validate incoming data, serialize and deserialize models, and integrate Pydantic into modern Python applications.
+
+## Why Pydantic?
+
+Suppose we want to represent a student.
+
+Using a dictionary,
+
+```python
+student = {
+    "name": "Alice",
+    "age": "20"
+}
+
+print(student)
+```
+
+Although `age` should be an integer, Python accepts it as a string.
+
+As applications grow, manually validating every field becomes repetitive and error-prone.
+
+Pydantic solves this problem by automatically:
+
+- Validating input data
+- Converting compatible data types
+- Producing informative validation errors
+- Creating easy-to-use data models
+
+Instead of working with dictionaries, we work with **models**.
+
+## Installing Pydantic
+
+Using **uv**
+
+```bash
+uv add pydantic
+```
+
+Using **pip**
+
+```bash
+pip install pydantic
+```
+
+Import the base model.
+
+```python
+from pydantic import BaseModel
+```
+
+Every Pydantic model inherits from `BaseModel`.
+
+## Creating Your First Model
+
+A Pydantic model looks similar to a regular Python class.
+
+```python
+from pydantic import BaseModel
+
+class Student(BaseModel):
+
+    name: str
+    age: int
+```
+
+Creating an object.
+
+```python
+student = Student(
+    name="Alice",
+    age=20
+)
+
+print(student)
+```
+
+<Accordion title="Show Output">
+
+```text
+name='Alice' age=20
+```
+
+</Accordion>
+
+Notice that we didn't define an `__init__()` method.
+
+Pydantic automatically creates the constructor based on the declared fields.
+
+### Accessing Fields
+
+Fields are accessed just like attributes of a regular Python object.
+
+```python
+student = Student(
+    name="Alice",
+    age=20
+)
+
+print(student.name)
+print(student.age)
+```
+
+<Accordion title="Show Output">
+
+```text
+Alice
+20
+```
+
+</Accordion>
+
+### Exercise 1
+
+Create a `Book` model with the following fields:
+
+- `title`
+- `author`
+- `price`
+
+**Sample Input**
+
+```python
+book = Book(
+    title="Python Essentials",
+    author="John",
+    price=499.0
+)
+```
+
+**Expected Output**
+
+```text
+Python Essentials
+John
+499.0
+```
+
+<Accordion title="Solution">
+
+```python
+from pydantic import BaseModel
+
+class Book(BaseModel):
+
+    title: str
+    author: str
+    price: float
+
+book = Book(
+    title="Python Essentials",
+    author="John",
+    price=499.0
+)
+
+print(book.title)
+print(book.author)
+print(book.price)
+```
+
+</Accordion>
+
+### Exercise 2
+
+Create an `Employee` model with the following fields:
+
+- `id`
+- `name`
+- `department`
+
+**Sample Input**
+
+```python
+employee = Employee(
+    id=101,
+    name="Rahul",
+    department="IT"
+)
+```
+
+**Expected Output**
+
+```text
+101
+Rahul
+IT
+```
+
+<Accordion title="Solution">
+
+```python
+from pydantic import BaseModel
+
+class Employee(BaseModel):
+
+    id: int
+    name: str
+    department: str
+
+employee = Employee(
+    id=101,
+    name="Rahul",
+    department="IT"
+)
+
+print(employee.id)
+print(employee.name)
+print(employee.department)
+```
+
+</Accordion>
+
+## Type Validation
+
+One of Pydantic's biggest advantages is automatic type validation.
+
+```python
+from pydantic import BaseModel
+
+class Student(BaseModel):
+
+    name: str
+    age: int
+
+student = Student(
+    name="Alice",
+    age="20"
+)
+
+print(student)
+```
+
+<Accordion title="Show Output">
+
+```text
+name='Alice' age=20
+```
+
+</Accordion>
+
+Pydantic automatically converts compatible values whenever possible.
+
+If conversion is not possible, a validation error is raised.
+
+```python
+student = Student(
+    name="Alice",
+    age="twenty"
+)
+```
+
+<Accordion title="Show Output">
+
+```text
+ValidationError
+```
+
+</Accordion>
+
+### Exercise 1
+
+Create a `Product` model with the following fields:
+
+- `name`
+- `price`
+
+Pass the price as a string.
+
+Observe the result.
+
+<Accordion title="Solution">
+
+```python
+from pydantic import BaseModel
+
+class Product(BaseModel):
+
+    name: str
+    price: float
+
+product = Product(
+    name="Laptop",
+    price="49999"
+)
+
+print(product)
+```
+
+</Accordion>
+
+### Exercise 2
+
+Create a `Student` model with an integer field `age`.
+
+Pass `"abc"` as the value.
+
+Observe the validation error.
+
+<Accordion title="Solution">
+
+```python
+from pydantic import BaseModel
+
+class Student(BaseModel):
+
+    age: int
+
+Student(age="abc")
+```
+
+</Accordion>
+
+## Default Values
+
+Fields can have default values.
+
+```python
+from pydantic import BaseModel
+
+class Student(BaseModel):
+
+    name: str
+    course: str = "Python"
+```
+
+```python
+student = Student(
+    name="Alice"
+)
+
+print(student)
+```
+
+<Accordion title="Show Output">
+
+```text
+name='Alice' course='Python'
+```
+
+</Accordion>
+
+### Exercise 1
+
+Create an `Employee` model with a default country of `"India"`.
+
+**Expected Output**
+
+```text
+name='Rahul' country='India'
+```
+
+<Accordion title="Solution">
+
+```python
+from pydantic import BaseModel
+
+class Employee(BaseModel):
+
+    name: str
+    country: str = "India"
+
+employee = Employee(
+    name="Rahul"
+)
+
+print(employee)
+```
+
+</Accordion>
+
+### Exercise 2
+
+Create a `Product` model with a default quantity of `1`.
+
+<Accordion title="Solution">
+
+```python
+from pydantic import BaseModel
+
+class Product(BaseModel):
+
+    name: str
+    quantity: int = 1
+
+product = Product(
+    name="Keyboard"
+)
+
+print(product)
+```
+
+</Accordion>
+
+## Optional Fields
+
+Some fields are optional.
+
+Modern Python uses the union operator (`|`) to indicate optional values.
+
+```python
+from pydantic import BaseModel
+
+class Student(BaseModel):
+
+    name: str
+    email: str | None = None
+```
+
+```python
+student = Student(
+    name="Alice"
+)
+
+print(student)
+```
+
+<Accordion title="Show Output">
+
+```text
+name='Alice' email=None
+```
+
+</Accordion>
+
+Providing the optional value.
+
+```python
+student = Student(
+    name="Alice",
+    email="alice@example.com"
+)
+
+print(student)
+```
+
+<Accordion title="Show Output">
+
+```text
+name='Alice' email='alice@example.com'
+```
+
+</Accordion>
+
+### Exercise 1
+
+Create a `Book` model with an optional ISBN field.
+
+<Accordion title="Solution">
+
+```python
+from pydantic import BaseModel
+
+class Book(BaseModel):
+
+    title: str
+    isbn: str | None = None
+
+book = Book(
+    title="Python Essentials"
+)
+
+print(book)
+```
+
+</Accordion>
+
+### Exercise 2
+
+Create an `Employee` model with an optional phone number.
+
+<Accordion title="Solution">
+
+```python
+from pydantic import BaseModel
+
+class Employee(BaseModel):
+
+    name: str
+    phone: str | None = None
+
+employee = Employee(
+    name="Rahul"
+)
+
+print(employee)
+```
+
+</Accordion>
+## Field Validation
+
+Pydantic allows you to define validation rules for individual fields using the `Field()` function.
+
+Some commonly used validation constraints are:
+
+| Constraint | Description |
+|------------|-------------|
+| `gt` | Greater than |
+| `ge` | Greater than or equal to |
+| `lt` | Less than |
+| `le` | Less than or equal to |
+| `min_length` | Minimum string length |
+| `max_length` | Maximum string length |
+| `pattern` | Regular expression |
+
+### Example
+
+```python
+from pydantic import BaseModel, Field
+
+class Student(BaseModel):
+
+    name: str = Field(min_length=3, max_length=30)
+    age: int = Field(ge=18, le=60)
+
+student = Student(
+    name="Alice",
+    age=22
+)
+
+print(student)
+```
+
+<Accordion title="Show Output">
+
+```text
+name='Alice' age=22
+```
+
+</Accordion>
+
+Providing invalid data raises a validation error.
+
+```python
+Student(
+    name="Al",
+    age=16
+)
+```
+
+<Accordion title="Show Output">
+
+```text
+ValidationError
+```
+
+</Accordion>
+
+### Exercise 1
+
+Create a `Product` model.
+
+Requirements:
+
+- Name should contain at least **3** characters.
+- Price should be greater than **0**.
+
+**Sample Input**
+
+```python
+product = Product(
+    name="Laptop",
+    price=45000
+)
+```
+
+**Expected Output**
+
+```text
+name='Laptop' price=45000.0
+```
+
+<Accordion title="Solution">
+
+```python
+from pydantic import BaseModel, Field
+
+class Product(BaseModel):
+
+    name: str = Field(min_length=3)
+    price: float = Field(gt=0)
+
+product = Product(
+    name="Laptop",
+    price=45000
+)
+
+print(product)
+```
+
+</Accordion>
+
+### Exercise 2
+
+Create an `Employee` model.
+
+Requirements:
+
+- Age between **18** and **60**.
+
+<Accordion title="Solution">
+
+```python
+from pydantic import BaseModel, Field
+
+class Employee(BaseModel):
+
+    name: str
+    age: int = Field(ge=18, le=60)
+
+employee = Employee(
+    name="Rahul",
+    age=30
+)
+
+print(employee)
+```
+
+</Accordion>
+
+## Using `Annotated` (Recommended)
+
+Pydantic v2 recommends using `Annotated` to separate type information from validation metadata.
+
+Instead of
+
+```python
+name: str = Field(min_length=3)
+```
+
+the modern approach is
+
+```python
+from typing import Annotated
+from pydantic import Field
+
+name: Annotated[
+    str,
+    Field(min_length=3)
+]
+```
+
+This keeps the type declaration clean and improves compatibility with IDEs and type checkers.
+
+### Example
+
+```python
+from typing import Annotated
+from pydantic import BaseModel, Field
+
+class Product(BaseModel):
+
+    name: Annotated[
+        str,
+        Field(min_length=3, max_length=50)
+    ]
+
+    price: Annotated[
+        float,
+        Field(gt=0)
+    ]
+
+product = Product(
+    name="Keyboard",
+    price=999
+)
+
+print(product)
+```
+
+<Accordion title="Show Output">
+
+```text
+name='Keyboard' price=999.0
+```
+
+</Accordion>
+
+### Why Prefer `Annotated`?
+
+- Keeps the type separate from validation rules.
+- Recommended in Pydantic v2.
+- Extensively used in FastAPI.
+- Improves readability.
+
+### Exercise 1
+
+Create a `Book` model.
+
+Requirements:
+
+- Title should contain at least **3** characters.
+- Price should be greater than **0**.
+
+**Sample Input**
+
+```python
+book = Book(
+    title="Python",
+    price=499
+)
+```
+
+**Expected Output**
+
+```text
+title='Python' price=499.0
+```
+
+<Accordion title="Solution">
+
+```python
+from typing import Annotated
+from pydantic import BaseModel, Field
+
+class Book(BaseModel):
+
+    title: Annotated[
+        str,
+        Field(min_length=3)
+    ]
+
+    price: Annotated[
+        float,
+        Field(gt=0)
+    ]
+
+book = Book(
+    title="Python",
+    price=499
+)
+
+print(book)
+```
+
+</Accordion>
+
+### Exercise 2
+
+Create a `Student` model.
+
+Requirements:
+
+- Age between **18** and **30**.
+
+<Accordion title="Solution">
+
+```python
+from typing import Annotated
+from pydantic import BaseModel, Field
+
+class Student(BaseModel):
+
+    name: str
+
+    age: Annotated[
+        int,
+        Field(ge=18, le=30)
+    ]
+
+student = Student(
+    name="Alice",
+    age=22
+)
+
+print(student)
+```
+
+</Accordion>
+
+## Nested Models
+
+Real-world data often contains other objects.
+
+Pydantic allows one model to contain another model.
+
+```python
+from pydantic import BaseModel
+
+class Address(BaseModel):
+
+    city: str
+    state: str
+
+
+class Student(BaseModel):
+
+    name: str
+    address: Address
+
+
+student = Student(
+    name="Alice",
+    address={
+        "city": "Hyderabad",
+        "state": "Telangana"
+    }
+)
+
+print(student)
+```
+
+<Accordion title="Show Output">
+
+```text
+name='Alice' address=Address(city='Hyderabad', state='Telangana')
+```
+
+</Accordion>
+
+Notice that Pydantic automatically converts the dictionary into an `Address` object.
+
+### Exercise 1
+
+Create a `Company` model and use it inside an `Employee` model.
+
+**Sample Input**
+
+```python
+employee = Employee(
+    name="Rahul",
+    company={
+        "name": "OpenAI",
+        "location": "San Francisco"
+    }
+)
+```
+
+<Accordion title="Solution">
+
+```python
+from pydantic import BaseModel
+
+class Company(BaseModel):
+
+    name: str
+    location: str
+
+
+class Employee(BaseModel):
+
+    name: str
+    company: Company
+
+employee = Employee(
+    name="Rahul",
+    company={
+        "name": "OpenAI",
+        "location": "San Francisco"
+    }
+)
+
+print(employee)
+```
+
+</Accordion>
+
+### Exercise 2
+
+Create a `Course` model inside a `Student` model.
+
+<Accordion title="Solution">
+
+```python
+from pydantic import BaseModel
+
+class Course(BaseModel):
+
+    title: str
+    duration: int
+
+
+class Student(BaseModel):
+
+    name: str
+    course: Course
+
+student = Student(
+    name="Alice",
+    course={
+        "title": "Python",
+        "duration": 30
+    }
+)
+
+print(student)
+```
+
+</Accordion>
+
+## Collections of Models
+
+A field can also contain multiple nested models.
+
+```python
+from pydantic import BaseModel
+
+class Book(BaseModel):
+
+    title: str
+
+
+class Library(BaseModel):
+
+    books: list[Book]
+
+
+library = Library(
+    books=[
+        {"title": "Python"},
+        {"title": "FastAPI"}
+    ]
+)
+
+print(library)
+```
+
+<Accordion title="Show Output">
+
+```text
+books=[Book(title='Python'), Book(title='FastAPI')]
+```
+
+</Accordion>
+
+### Exercise 1
+
+Create a `Department` model containing multiple employees.
+
+<Accordion title="Solution">
+
+```python
+from pydantic import BaseModel
+
+class Employee(BaseModel):
+
+    name: str
+
+
+class Department(BaseModel):
+
+    employees: list[Employee]
+
+department = Department(
+    employees=[
+        {"name": "Alice"},
+        {"name": "Bob"}
+    ]
+)
+
+print(department)
+```
+
+</Accordion>
+
+### Exercise 2
+
+Create an `Order` model containing multiple products.
+
+<Accordion title="Solution">
+
+```python
+from pydantic import BaseModel
+
+class Product(BaseModel):
+
+    name: str
+
+
+class Order(BaseModel):
+
+    products: list[Product]
+
+order = Order(
+    products=[
+        {"name": "Laptop"},
+        {"name": "Mouse"}
+    ]
+)
+
+print(order)
+```
+
+</Accordion>
+## Serialization
+
+Serialization is the process of converting a Python object into a format that can be stored or transmitted.
+
+Pydantic provides the `model_dump()` method to convert a model into a Python dictionary.
+
+### Example
+
+```python
+from pydantic import BaseModel
+
+class Student(BaseModel):
+
+    name: str
+    age: int
+
+student = Student(
+    name="Alice",
+    age=20
+)
+
+print(student.model_dump())
+```
+
+<Accordion title="Show Output">
+
+```text
+{'name': 'Alice', 'age': 20}
+```
+
+</Accordion>
+
+### Converting to JSON
+
+Use `model_dump_json()` to generate a JSON string.
+
+```python
+student = Student(
+    name="Alice",
+    age=20
+)
+
+print(student.model_dump_json(indent=4))
+```
+
+<Accordion title="Show Output">
+
+```json
+{
+    "name": "Alice",
+    "age": 20
+}
+```
+
+</Accordion>
+
+### Exercise 1
+
+Create an `Employee` model and convert it into a dictionary.
+
+<Accordion title="Solution">
+
+```python
+from pydantic import BaseModel
+
+class Employee(BaseModel):
+
+    id: int
+    name: str
+
+employee = Employee(
+    id=101,
+    name="Rahul"
+)
+
+print(employee.model_dump())
+```
+
+</Accordion>
+
+### Exercise 2
+
+Convert a `Book` model into JSON.
+
+<Accordion title="Solution">
+
+```python
+from pydantic import BaseModel
+
+class Book(BaseModel):
+
+    title: str
+    price: float
+
+book = Book(
+    title="Python",
+    price=499
+)
+
+print(book.model_dump_json(indent=4))
+```
+
+</Accordion>
+
+## Deserialization
+
+Deserialization is the process of creating a model from external data.
+
+### Creating a Model from a Dictionary
+
+Use `model_validate()`.
+
+```python
+from pydantic import BaseModel
+
+class Student(BaseModel):
+
+    name: str
+    age: int
+
+data = {
+    "name": "Alice",
+    "age": "20"
+}
+
+student = Student.model_validate(data)
+
+print(student)
+```
+
+<Accordion title="Show Output">
+
+```text
+name='Alice' age=20
+```
+
+</Accordion>
+
+### Creating a Model from JSON
+
+Use `model_validate_json()`.
+
+```python
+from pydantic import BaseModel
+
+class Student(BaseModel):
+
+    name: str
+    age: int
+
+data = """
+{
+    "name":"Alice",
+    "age":20
+}
+"""
+
+student = Student.model_validate_json(data)
+
+print(student)
+```
+
+<Accordion title="Show Output">
+
+```text
+name='Alice' age=20
+```
+
+</Accordion>
+
+### Exercise 1
+
+Create an `Employee` model from a dictionary.
+
+<Accordion title="Solution">
+
+```python
+from pydantic import BaseModel
+
+class Employee(BaseModel):
+
+    id: int
+    name: str
+
+employee = Employee.model_validate(
+    {
+        "id":101,
+        "name":"Rahul"
+    }
+)
+
+print(employee)
+```
+
+</Accordion>
+
+### Exercise 2
+
+Create a `Book` model from a JSON string.
+
+<Accordion title="Solution">
+
+```python
+from pydantic import BaseModel
+
+class Book(BaseModel):
+
+    title: str
+    price: float
+
+book = Book.model_validate_json(
+"""
+{
+    "title":"Python",
+    "price":499
+}
+"""
+)
+
+print(book)
+```
+
+</Accordion>
+
+## Type-safe Programming
+
+Pydantic encourages type-safe programming by ensuring that data always conforms to the expected model.
+
+Instead of working with dictionaries,
+
+```python
+student = {
+    "name":"Alice",
+    "age":20
+}
+```
+
+we work with objects.
+
+```python
+student = Student(
+    name="Alice",
+    age=20
+)
+
+print(student.name)
+```
+
+This provides several benefits:
+
+- Better code completion in IDEs.
+- Early error detection.
+- Improved readability.
+- Self-documenting code.
+- Easier refactoring.
+
+### Example
+
+```python
+from pydantic import BaseModel
+
+class Product(BaseModel):
+
+    name: str
+    price: float
+
+product = Product(
+    name="Keyboard",
+    price=999
+)
+
+print(product.price)
+```
+
+<Accordion title="Show Output">
+
+```text
+999.0
+```
+
+</Accordion>
+
+### Exercise 1
+
+Create a `Customer` model and access its fields using dot notation.
+
+<Accordion title="Solution">
+
+```python
+from pydantic import BaseModel
+
+class Customer(BaseModel):
+
+    name: str
+    city: str
+
+customer = Customer(
+    name="Alice",
+    city="Hyderabad"
+)
+
+print(customer.name)
+print(customer.city)
+```
+
+</Accordion>
+
+### Exercise 2
+
+Create an `Order` model and display the product name.
+
+<Accordion title="Solution">
+
+```python
+from pydantic import BaseModel
+
+class Order(BaseModel):
+
+    product: str
+    quantity: int
+
+order = Order(
+    product="Laptop",
+    quantity=2
+)
+
+print(order.product)
+```
+
+</Accordion>
+
+## Integrating Pydantic with Applications
+
+Pydantic models are widely used in modern Python applications.
+
+Common use cases include:
+
+- Validating user input.
+- Reading configuration.
+- Working with APIs.
+- Processing JSON data.
+- Request and response models in FastAPI.
+
+### Example
+
+Suppose an application receives user information.
+
+```python
+from pydantic import BaseModel
+
+class User(BaseModel):
+
+    name: str
+    email: str
+
+data = {
+    "name":"Alice",
+    "email":"alice@example.com"
+}
+
+user = User.model_validate(data)
+
+print(user)
+```
+
+<Accordion title="Show Output">
+
+```text
+name='Alice' email='alice@example.com'
+```
+
+</Accordion>
+
+Instead of manually validating every field, Pydantic performs the validation automatically.
+
+This makes applications simpler, safer, and easier to maintain.
+
+### Exercise 1
+
+Create a `LoginRequest` model and validate a dictionary.
+
+<Accordion title="Solution">
+
+```python
+from pydantic import BaseModel
+
+class LoginRequest(BaseModel):
+
+    username: str
+    password: str
+
+request = LoginRequest.model_validate(
+    {
+        "username":"admin",
+        "password":"secret"
+    }
+)
+
+print(request)
+```
+
+</Accordion>
+
+### Exercise 2
+
+Create a `RegistrationRequest` model and validate incoming data.
+
+<Accordion title="Solution">
+
+```python
+from pydantic import BaseModel
+
+class RegistrationRequest(BaseModel):
+
+    name: str
+    email: str
+
+request = RegistrationRequest.model_validate(
+    {
+        "name":"Alice",
+        "email":"alice@example.com"
+    }
+)
+
+print(request)
+```
+
+</Accordion>
+
+## Best Practices
+
+- Prefer `Annotated` with `Field()` for validation.
+- Use meaningful model names.
+- Group related fields into nested models.
+- Reuse models whenever possible.
+- Keep validation rules close to the fields.
+- Prefer Pydantic models over plain dictionaries for structured data.
+- Use `model_dump()` and `model_dump_json()` for serialization.
+- Use `model_validate()` and `model_validate_json()` for deserialization.
+- Design models that accurately represent your application's data.
+
+## Summary
+
+In this module, you learned how Pydantic simplifies data modeling and validation in modern Python applications.
+
+### Key Concepts Covered
+
+- Why Pydantic?
+- Creating Data Models
+- Type Validation
+- Default Values
+- Optional Fields
+- Field Validation
+- Using `Annotated`
+- Nested Models
+- Collections of Models
+- Serialization
+- Deserialization
+- Type-safe Programming
+- Integrating Pydantic with Applications
+- Best Practices
+
+Pydantic combines Python's type annotations with automatic validation, making it easy to build reliable, maintainable, and type-safe applications. It has become a fundamental library in the modern Python ecosystem and is extensively used in frameworks such as FastAPI.

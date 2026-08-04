@@ -1,0 +1,1235 @@
+---
+title: "09-Introduction to SQLAlchemy ORM"
+description: "Understand why ORMs exist, how SQLAlchemy works, and the overall workflow before building your first ORM application."
+---
+
+# Learning Objectives
+
+By the end of this chapter, you will be able to:
+
+- Understand why ORMs are used.
+- Explain what Object Relational Mapping (ORM) is.
+- Understand the overall SQLAlchemy workflow.
+- Identify the major SQLAlchemy components.
+- Explain how Python objects are stored and retrieved from a database.
+
+## Working Without an ORM
+
+A relational database understands only **SQL**.
+
+Whenever an application needs to store, retrieve, update, or delete data, the application must send SQL statements to the database.
+
+For example, to retrieve all students:
+
+```sql
+SELECT * FROM students;
+```
+
+To insert a new student:
+
+```sql
+INSERT INTO students (name, age)
+VALUES ('Rahul', 22);
+```
+
+As applications grow, writing and maintaining SQL for every database operation becomes repetitive and difficult.
+
+## Working With an ORM
+
+With an ORM, we work with Python classes and objects instead of writing SQL for most database operations.
+
+To insert a new student:
+
+```python
+student = Student(name="Rahul", age=22)
+
+session.add(student)
+session.commit()
+```
+
+To retrieve all students:
+
+```python
+students = session.scalars(select(Student)).all()
+```
+
+Notice that we never wrote an SQL query.
+
+SQLAlchemy automatically generates the required SQL, sends it to the database, retrieves the results, and converts them back into Python objects.
+
+This allows us to focus on writing Python instead of manually writing SQL.
+
+## What is an ORM?
+
+**ORM (Object Relational Mapping)** is a technique that maps Python objects to database tables.
+
+It allows us to work with:
+
+| Python | Database |
+|---------|----------|
+| Class | Table |
+| Object | Row |
+| Attribute | Column |
+
+Think of an ORM as a translator between Python and a relational database.
+
+```
+Python Objects
+      ↓
+     ORM
+      ↓
+SQL Queries
+      ↓
+Database
+```
+
+Throughout this workshop, we'll use **SQLAlchemy ORM**, one of the most popular ORM libraries in Python.
+
+## The Big Picture
+
+Before learning the individual components, let's understand the complete workflow.
+
+### Writing Data (INSERT / UPDATE / DELETE)
+
+```
+Create Engine
+      ↓
+Create Session
+      ↓
+Create Python Object
+      ↓
+Session Tracks Changes
+      ↓
+SQLAlchemy Generates SQL
+      ↓
+Database Executes SQL
+      ↓
+Data Stored
+```
+
+### Reading Data (SELECT)
+
+```
+Create Engine
+      ↓
+Create Session
+      ↓
+Build Python Query
+      ↓
+SQLAlchemy Generates SQL
+      ↓
+Database Executes SQL
+      ↓
+Database Returns Rows
+      ↓
+SQLAlchemy Maps Rows to Python Objects
+      ↓
+Python Receives Objects
+```
+
+Notice the important role of SQLAlchemy.
+
+- We write Python code.
+- SQLAlchemy converts it into SQL.
+- The database executes the SQL.
+- SQLAlchemy converts the returned rows back into Python objects.
+
+We'll learn each step of this workflow throughout this module.
+
+# Understanding the Components
+
+Now let's understand the responsibility of each component.
+
+## Engine
+
+The **Engine** is the starting point of every SQLAlchemy application.
+
+It knows:
+
+- Which database to connect to.
+- How to establish the connection.
+- How to send SQL statements.
+
+```
+Application
+      ↓
+Engine
+      ↓
+Database
+```
+
+Think of the Engine as the **gateway** to the database.
+
+## Session
+
+The **Session** is used to interact with the database.
+
+It allows us to:
+
+- Add new objects
+- Retrieve objects
+- Update objects
+- Delete objects
+- Commit or rollback transactions
+
+```
+Application
+      ↓
+Session
+      ↓
+Engine
+      ↓
+Database
+```
+
+Think of the Session as your **conversation with the database**.
+
+## ORM Model
+
+An ORM model is a Python class that represents a database table.
+
+```python
+class Student(Base):
+    ...
+```
+
+Each object created from this class represents one row in the table.
+
+```
+Python Class
+      ↓
+Python Object
+      ↓
+Database Row
+```
+
+## SQLAlchemy
+
+SQLAlchemy acts as the translator.
+
+When we write Python code,
+
+```python
+select(Student)
+```
+
+SQLAlchemy generates SQL.
+
+```sql
+SELECT * FROM students;
+```
+
+When the database returns rows,
+
+```
+id | name | age
+```
+
+SQLAlchemy converts them into Python objects.
+
+```
+Student(id=1, name="Rahul", age=22)
+```
+
+## Database
+
+The database stores the data and executes SQL statements.
+
+It understands SQL, not Python objects.
+
+## Putting Everything Together
+
+```
+                Python Application
+                       │
+                       ▼
+                 Create Engine
+                       │
+                       ▼
+                 Create Session
+                       │
+            ┌──────────┴──────────┐
+            │                     │
+            ▼                     ▼
+     Create Python Object    Build Python Query
+            │                     │
+            └──────────┬──────────┘
+                       ▼
+                 SQLAlchemy ORM
+                       │
+             Generates SQL
+                       │
+                       ▼
+                   Database
+                       │
+          Executes SQL & Returns Rows
+                       │
+                       ▼
+                 SQLAlchemy ORM
+                       │
+        Maps Rows to Python Objects
+                       │
+                       ▼
+                Python Application
+```
+
+## Summary
+
+In this chapter, you learned:
+
+- Why ORMs are needed.
+- What Object Relational Mapping (ORM) is.
+- How SQLAlchemy translates Python code into SQL.
+- The complete workflow for reading and writing data.
+- The role of the Engine, Session, ORM Model, SQLAlchemy, and the Database.
+
+In the next chapter, we'll start building this workflow by creating our first **Engine**, connecting to a database, defining our first ORM model, and creating our first table.
+
+--------------------------------------
+
+# Building Your First SQLAlchemy ORM Application 
+
+## Learning Objectives
+
+By the end of this chapter, you will be able to:
+
+- Create a SQLAlchemy project.
+- Connect to a SQLite database.
+- Define an ORM model.
+- Create database tables.
+- Create a Session.
+- Insert data into the database.
+
+# Project Setup
+
+Create a new project.
+
+```bash
+mkdir sqlalchemy-demo
+cd sqlalchemy-demo
+```
+
+Initialize the project.
+
+```bash
+uv init
+```
+
+Install SQLAlchemy.
+
+```bash
+uv add sqlalchemy
+```
+
+Project structure
+
+```text
+sqlalchemy-demo/
+│
+├── .venv/
+├── pyproject.toml
+├── uv.lock
+└── main.py
+```
+
+Throughout this chapter, we'll gradually build the same `main.py`.
+
+---
+
+# Step 1 — Create the Engine
+
+Every SQLAlchemy application starts by creating an **Engine**.
+
+The Engine knows **which database** to connect to.
+
+Import `create_engine`.
+
+```python
+from sqlalchemy import create_engine
+```
+
+Create a Database URL.
+
+```python
+DATABASE_URL = "sqlite:///students.db"
+```
+
+Create the Engine.
+
+```python
+engine = create_engine(DATABASE_URL)
+```
+
+### Workflow
+
+```text
+Application
+      │
+      ▼
+Create Engine
+      │
+      ▼
+Database
+```
+
+At this stage,
+
+- Engine is created.
+- No database operations have happened yet.
+
+Current application
+
+```python
+from sqlalchemy import create_engine
+
+DATABASE_URL = "sqlite:///students.db"
+
+engine = create_engine(DATABASE_URL)
+```
+
+---
+
+# Step 2 — Create the Declarative Base
+
+Every ORM model inherits from a common Base class.
+
+Import `DeclarativeBase`.
+
+```python
+from sqlalchemy.orm import DeclarativeBase
+```
+
+Create the Base class.
+
+```python
+class Base(DeclarativeBase):
+    pass
+```
+
+### Workflow
+
+```text
+Base
+ │
+ ├── Student
+ ├── Employee
+ └── Department
+```
+
+SQLAlchemy uses the Base class to keep track of all ORM models.
+
+Current application
+
+```python
+from sqlalchemy import create_engine
+from sqlalchemy.orm import DeclarativeBase
+
+DATABASE_URL = "sqlite:///students.db"
+
+engine = create_engine(DATABASE_URL)
+
+
+class Base(DeclarativeBase):
+    pass
+```
+
+---
+
+# Step 3 — Create an ORM Model
+
+An ORM model represents a database table.
+
+Import the required modules.
+
+```python
+from sqlalchemy import String
+from sqlalchemy.orm import Mapped, mapped_column
+```
+
+Create the model.
+
+```python
+class Student(Base):
+    __tablename__ = "students"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(100))
+    age: Mapped[int]
+```
+
+### Mapping
+
+| Python | Database |
+|---------|----------|
+| Class | Table |
+| Object | Row |
+| Attribute | Column |
+
+SQL Equivalent
+
+```sql
+CREATE TABLE students (
+    id INTEGER PRIMARY KEY,
+    name VARCHAR(100),
+    age INTEGER
+);
+```
+
+Current application
+
+```python
+from sqlalchemy import String, create_engine
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+
+
+DATABASE_URL = "sqlite:///students.db"
+
+engine = create_engine(DATABASE_URL)
+
+
+class Base(DeclarativeBase):
+    pass
+
+
+class Student(Base):
+    __tablename__ = "students"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(100))
+    age: Mapped[int]
+```
+
+---
+
+# Step 4 — Create Database Tables
+
+Create all tables.
+
+```python
+Base.metadata.create_all(engine)
+```
+
+### What happens?
+
+```text
+Engine
+      │
+      ▼
+Connect to SQLite
+      │
+      ▼
+students.db exists?
+      │
+ ┌────┴────┐
+ │         │
+No        Yes
+ │         │
+ ▼         ▼
+Create     Open
+Database   Database
+      │
+      ▼
+Read ORM Models
+      │
+      ▼
+Generate CREATE TABLE SQL
+      │
+      ▼
+Create Tables
+```
+
+> **Note:** For SQLite, the database file is created automatically if it doesn't already exist. SQLAlchemy then creates the tables. For databases like PostgreSQL or MySQL, the database must already exist before connecting.
+
+Current application
+
+```python
+Base.metadata.create_all(engine)
+```
+
+---
+
+# Step 5 — Create a Session
+
+A Session is used to interact with the database.
+
+Import `Session`.
+
+```python
+from sqlalchemy.orm import Session
+```
+
+Create the Session.
+
+```python
+with Session(engine) as session:
+    pass
+```
+
+### Workflow
+
+```text
+Application
+      │
+      ▼
+Session
+      │
+      ▼
+Engine
+      │
+      ▼
+Database
+```
+
+Think of the Session as your **conversation with the database**.
+
+---
+
+# Step 6 — Insert a Record
+
+Create a Python object.
+
+```python
+student = Student(
+    name="Rahul",
+    age=22,
+)
+```
+
+Add the object to the Session.
+
+```python
+session.add(student)
+```
+
+Save the changes.
+
+```python
+session.commit()
+```
+
+Refresh the object.
+
+```python
+session.refresh(student)
+```
+
+Display the generated ID.
+
+```python
+print(student.id)
+```
+
+### Workflow
+
+```text
+Create Python Object
+      │
+      ▼
+Session.add()
+      │
+      ▼
+Session.commit()
+      │
+      ▼
+SQLAlchemy Generates INSERT
+      │
+      ▼
+Database Stores Row
+      │
+      ▼
+Session.refresh()
+      │
+      ▼
+Updated Python Object
+```
+
+Generated SQL
+
+```sql
+INSERT INTO students (name, age)
+VALUES ('Rahul', 22);
+```
+
+---
+
+# Complete Application
+
+```python
+from sqlalchemy import String, create_engine
+from sqlalchemy.orm import (
+    DeclarativeBase,
+    Mapped,
+    Session,
+    mapped_column,
+)
+
+
+DATABASE_URL = "sqlite:///students.db"
+
+engine = create_engine(DATABASE_URL)
+
+
+class Base(DeclarativeBase):
+    pass
+
+
+class Student(Base):
+    __tablename__ = "students"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(100))
+    age: Mapped[int]
+
+
+Base.metadata.create_all(engine)
+
+
+with Session(engine) as session:
+
+    student = Student(
+        name="Rahul",
+        age=22,
+    )
+
+    session.add(student)
+    session.commit()
+    session.refresh(student)
+
+    print(student.id)
+```
+
+Run the application.
+
+```bash
+uv run main.py
+```
+
+Output
+
+```text
+1
+```
+
+Open `students.db` using the SQLite extension.
+
+You should see:
+
+| id | name | age |
+|----|------|-----|
+| 1 | Rahul | 22 |
+
+# Summary
+
+Congratulations! 🎉
+
+You have built your first SQLAlchemy ORM application.
+
+You learned how to:
+
+- Create an Engine.
+- Create a Declarative Base.
+- Define an ORM Model.
+- Create database tables.
+- Create a Session.
+- Insert data into the database.
+
+# CRUD Operations with SQLAlchemy ORM
+
+CRUD stands for:
+
+- **C** – Create (INSERT)
+- **R** – Read (SELECT)
+- **U** – Update (UPDATE)
+- **D** – Delete (DELETE)
+
+These are the four fundamental database operations performed using SQLAlchemy ORM.
+
+## Create (INSERT)
+
+### SQL
+
+```sql
+INSERT INTO students (name, age)
+VALUES ('Rahul', 22);
+```
+
+### SQLAlchemy ORM
+
+```python
+session.add(Student(name="Rahul", age=22))
+session.commit()
+```
+
+If you need the auto-generated values (such as the primary key), refresh the object.
+
+```python
+student = Student(name="Rahul", age=22)
+
+session.add(student)
+session.commit()
+session.refresh(student)
+
+print(student.id)
+```
+
+### Workflow
+
+```text
+Create Object
+      ↓
+session.add()
+      ↓
+session.commit()
+      ↓
+Database Row Created
+```
+
+## Read (SELECT)
+
+### Retrieve All Records
+
+#### SQL
+
+```sql
+SELECT * FROM students;
+```
+
+#### SQLAlchemy ORM
+
+```python
+students = session.scalars(select(Student)).all()
+```
+
+### Retrieve by Primary Key
+
+#### SQL
+
+```sql
+SELECT *
+FROM students
+WHERE id = 1;
+```
+
+#### SQLAlchemy ORM
+
+```python
+student = session.get(Student, 1)
+```
+
+### Retrieve the First Record
+
+#### SQL
+
+```sql
+SELECT *
+FROM students
+LIMIT 1;
+```
+
+#### SQLAlchemy ORM
+
+```python
+student = session.scalars(select(Student)).first()
+```
+
+### Workflow
+
+```text
+Build Query
+      ↓
+Execute Query
+      ↓
+Retrieve Objects
+```
+
+## Update (UPDATE)
+
+### Step 1 – Retrieve the Object
+
+```python
+student = session.get(Student, 1)
+```
+
+### Step 2 – Modify the Object
+
+```python
+student.age = 25
+```
+
+### Step 3 – Save the Changes
+
+```python
+session.commit()
+```
+
+### Complete Example
+
+#### SQL
+
+```sql
+UPDATE students
+SET age = 25
+WHERE id = 1;
+```
+
+#### SQLAlchemy ORM
+
+```python
+student = session.get(Student, 1)
+student.age = 25
+session.commit()
+```
+
+### Workflow
+
+```text
+Retrieve Object
+      ↓
+Modify Object
+      ↓
+session.commit()
+      ↓
+Database Updated
+```
+
+## Delete (DELETE)
+
+### Step 1 – Retrieve the Object
+
+```python
+student = session.get(Student, 1)
+```
+
+### Step 2 – Delete the Object
+
+```python
+session.delete(student)
+```
+
+### Step 3 – Save the Changes
+
+```python
+session.commit()
+```
+
+### Complete Example
+
+#### SQL
+
+```sql
+DELETE FROM students
+WHERE id = 1;
+```
+
+#### SQLAlchemy ORM
+
+```python
+student = session.get(Student, 1)
+session.delete(student)
+session.commit()
+```
+
+### Workflow
+
+```text
+Retrieve Object
+      ↓
+session.delete()
+      ↓
+session.commit()
+      ↓
+Row Deleted
+```
+
+## CRUD Summary
+
+| Operation | SQL | SQLAlchemy ORM |
+|-----------|-----|----------------|
+| Create | `INSERT` | `session.add()` + `session.commit()` |
+| Read | `SELECT` | `session.scalars(select(Student)).all()` |
+| Read by ID | `SELECT ... WHERE id = ?` | `session.get(Student, id)` |
+| Update | `UPDATE` | Modify object + `session.commit()` |
+| Delete | `DELETE` | `session.delete()` + `session.commit()` |
+
+## Complete CRUD Example
+
+```python
+### Create
+session.add(Student(name="Rahul", age=22))
+session.commit()
+
+###Read
+students = session.scalars(select(Student)).all()
+
+### Update
+student = session.get(Student, 1)
+student.age = 25
+session.commit()
+
+### Delete
+student = session.get(Student, 1)
+session.delete(student)
+session.commit()
+```
+
+## SQL SELECT vs SQLAlchemy ORM
+
+| SQL | SQLAlchemy ORM |
+|------|----------------|
+| `SELECT * FROM students;` | `select(Student)` |
+| `SELECT * FROM students;` *(Execute & Fetch All)* | `session.scalars(select(Student)).all()` |
+| `SELECT * FROM students LIMIT 1;` | `session.scalars(select(Student)).first()` |
+| `SELECT * FROM students WHERE id = 1;` | `session.get(Student, 1)` |
+| `SELECT * FROM students WHERE age > 20;` | `select(Student).where(Student.age > 20)` |
+| `SELECT * FROM students WHERE age > 20;` *(Execute & Fetch All)* | `session.scalars(select(Student).where(Student.age > 20)).all()` |
+| `SELECT * FROM students WHERE age > 20 AND city = 'Hyderabad';` | `select(Student).where(Student.age > 20, Student.city == "Hyderabad")` |
+| `SELECT * FROM students WHERE age > 20 OR city = 'Hyderabad';` | `select(Student).where(or_(Student.age > 20, Student.city == "Hyderabad"))` |
+| `SELECT * FROM students ORDER BY name;` | `select(Student).order_by(Student.name)` |
+| `SELECT * FROM students ORDER BY age DESC;` | `select(Student).order_by(Student.age.desc())` |
+| `SELECT * FROM students LIMIT 5;` | `select(Student).limit(5)` |
+| `SELECT * FROM students LIMIT 5 OFFSET 10;` | `select(Student).limit(5).offset(10)` |
+| `SELECT DISTINCT city FROM students;` | `select(Student.city).distinct()` |
+| `SELECT COUNT(*) FROM students;` | `select(func.count(Student.id))` |
+| `SELECT SUM(marks) FROM students;` | `select(func.sum(Student.marks))` |
+| `SELECT AVG(marks) FROM students;` | `select(func.avg(Student.marks))` |
+| `SELECT MIN(age) FROM students;` | `select(func.min(Student.age))` |
+| `SELECT MAX(age) FROM students;` | `select(func.max(Student.age))` |
+| `SELECT city, COUNT(*) FROM students GROUP BY city;` | `select(Student.city, func.count()).group_by(Student.city)` |
+| `SELECT city, COUNT(*) FROM students GROUP BY city HAVING COUNT(*) > 5;` | `select(Student.city, func.count()).group_by(Student.city).having(func.count() > 5)` |
+| `SELECT * FROM students WHERE name LIKE 'R%';` | `select(Student).where(Student.name.like("R%"))` |
+| `SELECT * FROM students WHERE age BETWEEN 20 AND 25;` | `select(Student).where(Student.age.between(20, 25))` |
+| `SELECT * FROM students WHERE city IN ('Hyderabad', 'Bangalore');` | `select(Student).where(Student.city.in_(["Hyderabad", "Bangalore"]))` |
+| `SELECT * FROM students WHERE phone IS NULL;` | `select(Student).where(Student.phone.is_(None))` |
+| `SELECT * FROM students WHERE phone IS NOT NULL;` | `select(Student).where(Student.phone.is_not(None))` |
+| `SELECT * FROM students JOIN departments ON students.department_id = departments.id;` | `select(Student).join(Department)` |
+| `SELECT * FROM students LEFT JOIN departments ON students.department_id = departments.id;` | `select(Student).outerjoin(Department)` |
+| `SELECT * FROM students ORDER BY age DESC LIMIT 5;` | `select(Student).order_by(Student.age.desc()).limit(5)` |
+
+
+# Retrieving Results in SQLAlchemy
+
+After building a query using `select()`, you need to decide **how you want to retrieve the results**.
+
+SQLAlchemy provides different methods depending on whether you expect **one object**, **multiple objects**, or **a single value**.
+
+## Result Retrieval Methods
+
+| Method | Returns | Use When |
+|---------|----------|----------|
+| `all()` | List of objects | Retrieve all matching records. |
+| `first()` | First object or `None` | Retrieve only the first matching record. |
+| `one()` | Exactly one object | Expect exactly one record. Raises an exception if none or multiple records are found. |
+| `one_or_none()` | One object or `None` | Expect at most one record. Raises an exception if multiple records are found. |
+| `get()` | Object or `None` | Retrieve a record by its primary key. |
+| `scalar()` | Single scalar value | Retrieve a single value such as `COUNT`, `SUM`, `AVG`, etc. |
+| `scalars()` | ScalarResult | Retrieve ORM objects (or the first selected column) from a query. Usually followed by `all()`, `first()`, or `one()`. |
+
+## `all()`
+
+Returns all matching records.
+
+```python
+students = session.scalars(select(Student)).all()
+```
+
+Result
+
+```python
+[
+    Student(...),
+    Student(...),
+    Student(...)
+]
+```
+
+Use when you want **every matching record**.
+
+## `first()`
+
+Returns only the first matching record.
+
+```python
+student = session.scalars(select(Student)).first()
+```
+
+Result
+
+```python
+Student(...)
+```
+
+or
+
+```python
+None
+```
+
+Use when only the **first matching record** is required.
+
+## `one()`
+
+Returns exactly one record.
+
+```python
+student = session.scalars(
+    select(Student).where(Student.id == 1)
+).one()
+```
+
+Raises an exception if:
+
+- No record is found.
+- More than one record is found.
+
+Use when you are **certain** exactly one record exists.
+
+## `one_or_none()`
+
+Returns one record or `None`.
+
+```python
+student = session.scalars(
+    select(Student).where(Student.id == 1)
+).one_or_none()
+```
+
+Returns
+
+- One object
+- `None`
+
+Raises an exception if multiple records are found.
+
+Use when the record may or may not exist.
+
+## `get()`
+
+Retrieves a record using its **primary key**.
+
+```python
+student = session.get(Student, 1)
+```
+
+Returns
+
+```python
+Student(...)
+```
+
+or
+
+```python
+None
+```
+
+Use `get()` **only** when searching by the primary key.
+
+## `scalar()`
+
+Returns a single value.
+
+Example:
+
+```python
+count = session.scalar(
+    select(func.count(Student.id))
+)
+```
+
+Result
+
+```python
+25
+```
+
+Commonly used with:
+
+- `COUNT()`
+- `SUM()`
+- `AVG()`
+- `MIN()`
+- `MAX()`
+
+## `scalars()`
+
+Returns ORM objects (or the first selected column) from a query.
+
+Example
+
+```python
+students = session.scalars(select(Student)).all()
+```
+
+Equivalent to
+
+```python
+result = session.execute(select(Student))
+students = result.scalars().all()
+```
+
+Use `scalars()` when retrieving ORM objects.
+
+## Quick Reference
+
+| Requirement | Method |
+|------------|--------|
+| All matching records | `.all()` |
+| First matching record | `.first()` |
+| Exactly one record | `.one()` |
+| Zero or one record | `.one_or_none()` |
+| Find by primary key | `session.get()` |
+| Single value (COUNT, SUM, AVG...) | `session.scalar()` |
+| ORM objects | `session.scalars()` |
+
+## Choosing the Right Method
+
+```
+Need all matching records?
+        │
+       Yes
+        │
+        ▼
+      all()
+
+Need only the first record?
+        │
+       Yes
+        │
+        ▼
+     first()
+
+Searching by primary key?
+        │
+       Yes
+        │
+        ▼
+   session.get()
+
+Expect exactly one record?
+        │
+       Yes
+        │
+        ▼
+      one()
+
+Expect zero or one record?
+        │
+       Yes
+        │
+        ▼
+   one_or_none()
+
+Need a single value (COUNT, SUM...)?
+        │
+       Yes
+        │
+        ▼
+     scalar()
+
+Need ORM objects from a SELECT query?
+        │
+       Yes
+        │
+        ▼
+    scalars()
+```

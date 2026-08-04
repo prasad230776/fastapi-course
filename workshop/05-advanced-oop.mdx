@@ -1,0 +1,1188 @@
+---
+title: 05-Advanced Oops
+description: Learn advanced object-oriented programming concepts in Python, including class members, magic methods, abstract base classes, and multiple inheritance.
+---
+
+# Object-Oriented Programming
+
+Object-oriented programming (OOP) is a programming paradigm that organizes code around objects. Python provides powerful OOP features that make it easier to build reusable, maintainable, and extensible applications.
+
+## Topics Covered
+
+In this module, you'll learn:
+
+1. OOP Refresher
+2. Class Members vs Instance Members
+3. Class Methods
+4. Static Methods
+5. Magic (Dunder) Methods
+6. Abstract Base Classes (ABC)
+7. Multiple Inheritance
+8. Method Resolution Order (MRO)
+9. Best Practices
+
+By the end of this module, you'll understand how Python objects work internally, customize object behavior, design reusable class hierarchies, and apply advanced OOP concepts effectively.
+
+## OOP Refresher
+
+Before exploring advanced concepts, let's quickly revisit the fundamentals of object-oriented programming.
+
+### What is OOP?
+
+Object-Oriented Programming (OOP) is a programming paradigm that organizes code around **objects**.
+
+An object combines:
+
+- **Attributes** (data)
+- **Methods** (behavior)
+
+### Class and Object
+
+A **class** is a blueprint for creating objects.
+
+An **object** is an instance of a class.
+
+```python
+class Student:
+
+    def __init__(self, name):
+        self.name = name
+
+    def introduce(self):
+        print(f"My name is {self.name}")
+
+student = Student("Alice")
+
+student.introduce()
+```
+
+<Accordion title="Show Output">
+
+```text
+My name is Alice
+```
+
+</Accordion>
+
+### The Four Pillars of OOP
+
+Python supports four fundamental principles of OOP.
+
+| Principle | Purpose |
+|-----------|---------|
+| Encapsulation | Bundle data and methods together |
+| Abstraction | Hide implementation details |
+| Inheritance | Reuse existing classes |
+| Polymorphism | One interface, multiple implementations |
+
+In this module, we'll build upon these fundamentals and explore advanced OOP concepts.
+
+## Class Members vs Instance Members
+
+A class can contain both **instance members** and **class members**.
+
+### Instance Members
+
+Instance members belong to individual objects.
+
+Each object maintains its own copy.
+
+```python
+class Student:
+
+    def __init__(self, name):
+        self.name = name
+
+student1 = Student("Alice")
+student2 = Student("Bob")
+
+print(student1.name)
+print(student2.name)
+```
+
+<Accordion title="Show Output">
+
+```text
+Alice
+Bob
+```
+
+</Accordion>
+
+Changing one object's attribute does not affect another object.
+
+```python
+student1.name = "Charlie"
+
+print(student1.name)
+print(student2.name)
+```
+
+<Accordion title="Show Output">
+
+```text
+Charlie
+Bob
+```
+
+</Accordion>
+
+### Class Members
+
+Class members are shared by all objects of a class.
+
+```python
+class Student:
+
+    college = "ABC College"
+
+    def __init__(self, name):
+        self.name = name
+
+student1 = Student("Alice")
+student2 = Student("Bob")
+
+print(student1.college)
+print(student2.college)
+```
+
+<Accordion title="Show Output">
+
+```text
+ABC College
+ABC College
+```
+
+</Accordion>
+
+Updating the class member affects every object.
+
+```python
+Student.college = "XYZ College"
+
+print(student1.college)
+print(student2.college)
+```
+
+<Accordion title="Show Output">
+
+```text
+XYZ College
+XYZ College
+```
+
+</Accordion>
+
+### When Should You Use Class Members?
+
+Use class members when a value is shared by every object.
+
+Examples include:
+
+- Company name
+- College name
+- Tax rate
+- Currency
+- Number of objects created
+
+### Exercise 1
+
+Create an `Employee` class with an instance member `name` and a class member `company`.
+
+**Sample Input**
+
+```python
+employee = Employee("Rahul")
+```
+
+**Expected Output**
+
+```text
+Rahul
+OpenAI
+```
+
+<Accordion title="Solution">
+
+```python
+class Employee:
+
+    company = "OpenAI"
+
+    def __init__(self, name):
+        self.name = name
+
+employee = Employee("Rahul")
+
+print(employee.name)
+print(employee.company)
+```
+
+</Accordion>
+
+### Exercise 2
+
+Create two students and demonstrate that changing an instance member affects only one object.
+
+**Sample Input**
+
+```python
+student1.name = "Alice"
+
+student2.name = "Bob"
+```
+
+**Expected Output**
+
+```text
+Alice
+Bob
+```
+
+<Accordion title="Solution">
+
+```python
+class Student:
+
+    def __init__(self, name):
+        self.name = name
+
+student1 = Student("Alice")
+student2 = Student("Bob")
+
+student1.name = "Alice"
+
+print(student1.name)
+print(student2.name)
+```
+
+</Accordion>
+
+## Class Methods
+
+A **class method** operates on the class itself rather than individual objects.
+
+A class method is declared using the `@classmethod` decorator.
+
+Its first parameter is `cls`, which refers to the class.
+
+```python
+class Student:
+
+    college = "ABC College"
+
+    @classmethod
+    def display_college(cls):
+        print(cls.college)
+
+Student.display_college()
+```
+
+<Accordion title="Show Output">
+
+```text
+ABC College
+```
+
+</Accordion>
+
+Class methods are commonly used to:
+
+- Access or modify class members.
+- Create alternative constructors.
+- Perform operations related to the class.
+
+### Alternative Constructor
+
+```python
+class Student:
+
+    def __init__(self, name):
+        self.name = name
+
+    @classmethod
+    def from_uppercase(cls, name):
+        return cls(name.title())
+
+student = Student.from_uppercase("alice")
+
+print(student.name)
+```
+
+<Accordion title="Show Output">
+
+```text
+Alice
+```
+
+</Accordion>
+
+### Exercise 1
+
+Create a class method that displays the company name.
+
+**Sample Input**
+
+```python
+Employee.display_company()
+```
+
+**Expected Output**
+
+```text
+OpenAI
+```
+
+<Accordion title="Solution">
+
+```python
+class Employee:
+
+    company = "OpenAI"
+
+    @classmethod
+    def display_company(cls):
+        print(cls.company)
+
+Employee.display_company()
+```
+
+</Accordion>
+
+### Exercise 2
+
+Create an alternative constructor that converts a name to title case.
+
+**Sample Input**
+
+```python
+Student.from_title("john")
+```
+
+**Expected Output**
+
+```text
+John
+```
+
+<Accordion title="Solution">
+
+```python
+class Student:
+
+    def __init__(self, name):
+        self.name = name
+
+    @classmethod
+    def from_title(cls, name):
+        return cls(name.title())
+
+student = Student.from_title("john")
+
+print(student.name)
+```
+
+</Accordion>
+
+## Static Methods
+
+A **static method** belongs to the class but does not access either the class (`cls`) or the object (`self`).
+
+Static methods are declared using the `@staticmethod` decorator.
+
+They are commonly used for utility functions related to the class.
+
+```python
+class Student:
+
+    @staticmethod
+    def is_eligible(age):
+        return age >= 18
+
+print(Student.is_eligible(20))
+```
+
+<Accordion title="Show Output">
+
+```text
+True
+```
+
+</Accordion>
+
+Another example.
+
+```python
+class Calculator:
+
+    @staticmethod
+    def square(number):
+        return number ** 2
+
+print(Calculator.square(6))
+```
+
+<Accordion title="Show Output">
+
+```text
+36
+```
+
+</Accordion>
+
+### When Should You Use Static Methods?
+
+Use a static method when:
+
+- The function is related to the class.
+- It does not use `self`.
+- It does not use `cls`.
+
+### Exercise 1
+
+Create a static method that checks whether a number is even.
+
+**Sample Input**
+
+```python
+Utility.is_even(10)
+```
+
+**Expected Output**
+
+```text
+True
+```
+
+<Accordion title="Solution">
+
+```python
+class Utility:
+
+    @staticmethod
+    def is_even(number):
+        return number % 2 == 0
+
+print(Utility.is_even(10))
+```
+
+</Accordion>
+
+### Exercise 2
+
+Create a static method that converts Celsius to Fahrenheit.
+
+**Sample Input**
+
+```python
+Converter.to_fahrenheit(25)
+```
+
+**Expected Output**
+
+```text
+77.0
+```
+
+<Accordion title="Solution">
+
+```python
+class Converter:
+
+    @staticmethod
+    def to_fahrenheit(celsius):
+        return (celsius * 9 / 5) + 32
+
+print(Converter.to_fahrenheit(25))
+```
+
+</Accordion>
+
+## Magic (Dunder) Methods
+
+Magic methods, also known as **dunder methods** (double underscore methods), are special methods that allow you to customize the behavior of Python objects.
+
+They are automatically invoked by Python in response to certain operations such as printing an object, comparing objects, or using operators.
+
+Some commonly used magic methods are:
+
+| Method | Purpose |
+|---------|---------|
+| `__init__()` | Initialize an object |
+| `__str__()` | User-friendly string representation |
+| `__repr__()` | Developer-friendly object representation |
+| `__len__()` | Return the length of an object |
+| `__eq__()` | Compare two objects |
+| `__add__()` | Customize the `+` operator |
+
+## The `__str__()` Method
+
+By default, printing an object displays its memory location.
+
+```python
+class Student:
+
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+student = Student("Alice", 20)
+
+print(student)
+```
+
+<Accordion title="Show Output">
+
+```text
+<__main__.Student object at 0x...>
+```
+
+</Accordion>
+
+The `__str__()` method provides a readable string representation.
+
+```python
+class Student:
+
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+    def __str__(self):
+        return f"Student(Name={self.name}, Age={self.age})"
+
+student = Student("Alice", 20)
+
+print(student)
+```
+
+<Accordion title="Show Output">
+
+```text
+Student(Name=Alice, Age=20)
+```
+
+</Accordion>
+
+### Exercise 1
+
+Implement `__str__()` for a `Book` class.
+
+**Sample Input**
+
+```python
+book = Book("Python Basics", 450)
+print(book)
+```
+
+**Expected Output**
+
+```text
+Book(Title=Python Basics, Price=450)
+```
+
+<Accordion title="Solution">
+
+```python
+class Book:
+
+    def __init__(self, title, price):
+        self.title = title
+        self.price = price
+
+    def __str__(self):
+        return f"Book(Title={self.title}, Price={self.price})"
+
+book = Book("Python Basics", 450)
+
+print(book)
+```
+
+</Accordion>
+
+### Exercise 2
+
+Implement `__str__()` for an `Employee` class.
+
+**Sample Input**
+
+```python
+employee = Employee("Rahul", "Developer")
+
+print(employee)
+```
+
+**Expected Output**
+
+```text
+Employee(Name=Rahul, Role=Developer)
+```
+
+<Accordion title="Solution">
+
+```python
+class Employee:
+
+    def __init__(self, name, role):
+        self.name = name
+        self.role = role
+
+    def __str__(self):
+        return f"Employee(Name={self.name}, Role={self.role})"
+
+employee = Employee("Rahul", "Developer")
+
+print(employee)
+```
+
+</Accordion>
+
+## The `__repr__()` Method
+
+The `__repr__()` method returns an official string representation of an object.
+
+It is mainly intended for developers and debugging.
+
+```python
+class Student:
+
+    def __init__(self, name):
+        self.name = name
+
+    def __repr__(self):
+        return f"Student('{self.name}')"
+
+student = Student("Alice")
+
+print(repr(student))
+```
+
+<Accordion title="Show Output">
+
+```text
+Student('Alice')
+```
+
+</Accordion>
+
+### Exercise 1
+
+Implement `__repr__()` for a `Product` class.
+
+**Sample Input**
+
+```python
+product = Product("Laptop")
+
+repr(product)
+```
+
+**Expected Output**
+
+```text
+Product('Laptop')
+```
+
+<Accordion title="Solution">
+
+```python
+class Product:
+
+    def __init__(self, name):
+        self.name = name
+
+    def __repr__(self):
+        return f"Product('{self.name}')"
+
+product = Product("Laptop")
+
+print(repr(product))
+```
+
+</Accordion>
+
+### Exercise 2
+
+Implement `__repr__()` for a `Course` class.
+
+**Sample Input**
+
+```python
+course = Course("Python")
+
+repr(course)
+```
+
+**Expected Output**
+
+```text
+Course('Python')
+```
+
+<Accordion title="Solution">
+
+```python
+class Course:
+
+    def __init__(self, title):
+        self.title = title
+
+    def __repr__(self):
+        return f"Course('{self.title}')"
+
+course = Course("Python")
+
+print(repr(course))
+```
+
+</Accordion>
+
+## Operator Overloading
+
+Magic methods can also customize the behavior of Python operators.
+
+### The `__len__()` Method
+
+The `len()` function internally calls `__len__()`.
+
+```python
+class ShoppingCart:
+
+    def __init__(self):
+        self.items = [
+            "Laptop",
+            "Mouse",
+            "Keyboard"
+        ]
+
+    def __len__(self):
+        return len(self.items)
+
+cart = ShoppingCart()
+
+print(len(cart))
+```
+
+<Accordion title="Show Output">
+
+```text
+3
+```
+
+</Accordion>
+
+### The `__eq__()` Method
+
+The `==` operator internally calls `__eq__()`.
+
+```python
+class Employee:
+
+    def __init__(self, employee_id):
+        self.employee_id = employee_id
+
+    def __eq__(self, other):
+        return self.employee_id == other.employee_id
+
+employee1 = Employee(101)
+employee2 = Employee(101)
+
+print(employee1 == employee2)
+```
+
+<Accordion title="Show Output">
+
+```text
+True
+```
+
+</Accordion>
+
+### The `__add__()` Method
+
+The `+` operator internally calls `__add__()`.
+
+```python
+class BankAccount:
+
+    def __init__(self, balance):
+        self.balance = balance
+
+    def __add__(self, other):
+        return self.balance + other.balance
+
+account1 = BankAccount(5000)
+account2 = BankAccount(7000)
+
+print(account1 + account2)
+```
+
+<Accordion title="Show Output">
+
+```text
+12000
+```
+
+</Accordion>
+
+### Exercise 1
+
+Implement `__len__()` for a `Library` class that returns the number of books.
+
+**Sample Input**
+
+```python
+library = Library()
+
+len(library)
+```
+
+**Expected Output**
+
+```text
+4
+```
+
+<Accordion title="Solution">
+
+```python
+class Library:
+
+    def __init__(self):
+        self.books = [
+            "Python",
+            "Java",
+            "C++",
+            "SQL"
+        ]
+
+    def __len__(self):
+        return len(self.books)
+
+library = Library()
+
+print(len(library))
+```
+
+</Accordion>
+
+### Exercise 2
+
+Implement `__add__()` for a `Wallet` class to combine balances.
+
+**Sample Input**
+
+```python
+wallet1 + wallet2
+```
+
+**Expected Output**
+
+```text
+1500
+```
+
+<Accordion title="Solution">
+
+```python
+class Wallet:
+
+    def __init__(self, amount):
+        self.amount = amount
+
+    def __add__(self, other):
+        return self.amount + other.amount
+
+wallet1 = Wallet(500)
+wallet2 = Wallet(1000)
+
+print(wallet1 + wallet2)
+```
+
+</Accordion>
+
+## Abstract Base Classes (ABC)
+
+An **Abstract Base Class (ABC)** defines a common interface that derived classes must implement.
+
+Python provides the `abc` module to create abstract classes.
+
+```python
+from abc import ABC, abstractmethod
+```
+
+### Why Use ABC?
+
+- Enforces a common interface.
+- Prevents incomplete implementations.
+- Encourages consistent class design.
+
+### Example
+
+```python
+from abc import ABC, abstractmethod
+
+class Payment(ABC):
+
+    @abstractmethod
+    def pay(self, amount):
+        pass
+
+
+class CreditCard(Payment):
+
+    def pay(self, amount):
+        print(f"Paid ₹{amount} using Credit Card")
+
+
+payment = CreditCard()
+
+payment.pay(2500)
+```
+
+<Accordion title="Show Output">
+
+```text
+Paid ₹2500 using Credit Card
+```
+
+</Accordion>
+
+### Exercise 1
+
+Create an abstract class `Vehicle` with an abstract method `start()`.
+
+Implement it in a `Car` class.
+
+<Accordion title="Solution">
+
+```python
+from abc import ABC, abstractmethod
+
+class Vehicle(ABC):
+
+    @abstractmethod
+    def start(self):
+        pass
+
+
+class Car(Vehicle):
+
+    def start(self):
+        print("Car Started")
+
+car = Car()
+
+car.start()
+```
+
+</Accordion>
+
+### Exercise 2
+
+Create an abstract class `Shape` with an abstract method `area()`.
+
+Implement it in a `Rectangle` class.
+
+<Accordion title="Solution">
+
+```python
+from abc import ABC, abstractmethod
+
+class Shape(ABC):
+
+    @abstractmethod
+    def area(self):
+        pass
+
+
+class Rectangle(Shape):
+
+    def area(self):
+        return 20 * 10
+
+rectangle = Rectangle()
+
+print(rectangle.area())
+```
+
+</Accordion>
+
+## Multiple Inheritance
+
+Python allows a class to inherit from more than one base class.
+
+```python
+class Camera:
+
+    def capture(self):
+        print("Capturing Photo")
+
+
+class Phone:
+
+    def call(self):
+        print("Calling")
+
+
+class SmartPhone(Camera, Phone):
+    pass
+
+
+phone = SmartPhone()
+
+phone.capture()
+phone.call()
+```
+
+<Accordion title="Show Output">
+
+```text
+Capturing Photo
+Calling
+```
+
+</Accordion>
+
+## Method Resolution Order (MRO)
+
+When multiple parent classes define the same method, Python follows the **Method Resolution Order (MRO)** to determine which method to invoke.
+
+```python
+class A:
+
+    def show(self):
+        print("Class A")
+
+
+class B(A):
+
+    def show(self):
+        print("Class B")
+
+
+class C(A):
+
+    def show(self):
+        print("Class C")
+
+
+class D(B, C):
+    pass
+
+
+obj = D()
+
+obj.show()
+```
+
+<Accordion title="Show Output">
+
+```text
+Class B
+```
+
+</Accordion>
+
+View the MRO using:
+
+```python
+print(D.__mro__)
+```
+
+<Accordion title="Show Output">
+
+```text
+(<class '__main__.D'>,
+ <class '__main__.B'>,
+ <class '__main__.C'>,
+ <class '__main__.A'>,
+ <class 'object'>)
+```
+
+</Accordion>
+
+### Exercise 1
+
+Create a class that inherits from two parent classes and invoke methods from both.
+
+<Accordion title="Solution">
+
+```python
+class Printer:
+
+    def print_document(self):
+        print("Printing")
+
+
+class Scanner:
+
+    def scan_document(self):
+        print("Scanning")
+
+
+class MultiFunctionPrinter(Printer, Scanner):
+    pass
+
+
+device = MultiFunctionPrinter()
+
+device.print_document()
+device.scan_document()
+```
+
+</Accordion>
+
+### Exercise 2
+
+Print the MRO of a class that inherits from two parent classes.
+
+<Accordion title="Solution">
+
+```python
+class A:
+    pass
+
+class B(A):
+    pass
+
+class C(A):
+    pass
+
+class D(B, C):
+    pass
+
+print(D.__mro__)
+```
+
+</Accordion>
+
+## Best Practices
+
+- Prefer **instance members** for object-specific data.
+- Use **class members** for shared information.
+- Use **class methods** to work with class-level data.
+- Use **static methods** for utility functions.
+- Override only the magic methods you actually need.
+- Use abstract base classes to define common interfaces.
+- Keep inheritance hierarchies simple and easy to understand.
+- Avoid deep multiple inheritance unless necessary.
+
+## Summary
+
+In this module, you learned advanced object-oriented programming concepts in Python.
+
+### Key Concepts Covered
+
+- OOP Refresher
+- Class Members vs Instance Members
+- Class Methods
+- Static Methods
+- Magic (Dunder) Methods
+- Operator Overloading
+- Abstract Base Classes (ABC)
+- Multiple Inheritance
+- Method Resolution Order (MRO)
+- Best Practices
+
+These concepts help you design reusable, maintainable, and extensible applications while taking advantage of Python's powerful object-oriented features.

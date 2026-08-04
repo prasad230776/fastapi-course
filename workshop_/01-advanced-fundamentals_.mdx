@@ -1,10 +1,9 @@
 ---
-title: 01-Advanced Fundamentals
+title: 01-Advanced Python Fundamentals
 description: Learn advanced Python features that help you write cleaner, more expressive, and Pythonic code.
 ---
 
 # Advanced Python Fundamentals
-
 These features are part of modern Python and are widely used in professional applications and popular frameworks such as **FastAPI**, **Flask**, **Django**, **NumPy**, **Pandas**, and many other third-party libraries.
 
 ## Topics Covered
@@ -62,16 +61,12 @@ print(text[-2])
 
 Output
 
-<Accordion title="Show Output">
-
 ```text
 A
 a
 n
 o
 ```
-
-</Accordion>
 
 ### Extracting a Portion of a String
 
@@ -84,14 +79,10 @@ print(text[9:15])
 
 Output
 
-<Accordion title="Show Output">
-
 ```text
 Advanced
 Python
 ```
-
-</Accordion>
 
 ### Omitting Start or Stop
 
@@ -104,14 +95,10 @@ print(text[9:])
 
 Output
 
-<Accordion title="Show Output">
-
 ```text
 Advanced
 Python
 ```
-
-</Accordion>
 
 ### Using Step
 
@@ -124,14 +111,10 @@ print(text[1::2])
 
 Output
 
-<Accordion title="Show Output">
-
 ```text
 Pormig
 rgamn
 ```
-
-</Accordion>
 
 ### Reversing a String
 
@@ -145,13 +128,9 @@ print(text[::-1])
 
 Output
 
-<Accordion title="Show Output">
-
 ```text
 nohtyP
 ```
-
-</Accordion>
 
 ### Practical Example
 
@@ -165,13 +144,9 @@ print(filename[-3:])
 
 Output
 
-<Accordion title="Show Output">
-
 ```text
 pdf
 ```
-
-</Accordion>
 
 ### Exercise 1
 
@@ -242,13 +217,9 @@ print(username or "Guest")
 
 Output
 
-<Accordion title="Show Output">
-
 ```text
 Guest
 ```
-
-</Accordion>
 
 If a username exists,
 
@@ -260,13 +231,9 @@ print(username or "Guest")
 
 Output
 
-<Accordion title="Show Output">
-
 ```text
 Alice
 ```
-
-</Accordion>
 
 ### Using `and`
 
@@ -447,14 +414,10 @@ print(second)
 
 Output
 
-<Accordion title="Show Output">
-
 ```text
 World
 Hello
 ```
-
-</Accordion>
 
 ### Exercise 1
 
@@ -509,13 +472,9 @@ else:
 
 Output
 
-<Accordion title="Show Output">
-
 ```text
 3 is a divisor.
 ```
-
-</Accordion>
 
 If a divisor is found, the loop terminates using `break`, so the `else` block is skipped.
 
@@ -538,13 +497,9 @@ else:
 
 Output
 
-<Accordion title="Show Output">
-
 ```text
 Prime
 ```
-
-</Accordion>
 
 This is one of the most common real-world uses of `for-else`.
 
@@ -566,8 +521,6 @@ else:
 
 Output
 
-<Accordion title="Show Output">
-
 ```text
 1
 2
@@ -576,8 +529,6 @@ Output
 5
 Loop Finished
 ```
-
-</Accordion>
 
 ---
 
@@ -644,14 +595,10 @@ introduce("Alice", "Hyderabad")
 
 Output
 
-<Accordion title="Show Output">
-
 ```text
 My name is Alice.
 I live in Hyderabad.
 ```
-
-</Accordion>
 
 Here,
 
@@ -666,14 +613,10 @@ introduce("Hyderabad", "Alice")
 
 Output
 
-<Accordion title="Show Output">
-
 ```text
 My name is Hyderabad.
 I live in Alice.
 ```
-
-</Accordion>
 
 ### Exercise 1
 
@@ -722,14 +665,10 @@ introduce(city="Hyderabad", name="Alice")
 
 Output
 
-<Accordion title="Show Output">
-
 ```text
 My name is Alice.
 I live in Hyderabad.
 ```
-
-</Accordion>
 
 Since parameter names are used, the order no longer matters.
 
@@ -788,15 +727,11 @@ introduce("Alice", city="Hyderabad", profession="Developer")
 
 Output
 
-<Accordion title="Show Output">
-
 ```text
 Alice
 Hyderabad
 Developer
 ```
-
-</Accordion>
 
 ### Rule
 
@@ -1052,14 +987,10 @@ display("Python", "Java", "C++")
 
 Output
 
-<Accordion title="Show Output">
-
 ```text
 ('Python',)
 ('Python', 'Java', 'C++')
 ```
-
-</Accordion>
 
 A practical example:
 
@@ -1079,15 +1010,11 @@ print(total(10, 20, 30, 40))
 
 Output
 
-<Accordion title="Show Output">
-
 ```text
 30
 60
 100
 ```
-
-</Accordion>
 
 ### Exercise 1
 
@@ -1135,13 +1062,9 @@ display(name="Alice", city="Hyderabad")
 
 Output
 
-<Accordion title="Show Output">
-
 ```text
 {'name': 'Alice', 'city': 'Hyderabad'}
 ```
-
-</Accordion>
 
 Access individual values.
 
@@ -1159,15 +1082,11 @@ display(
 
 Output
 
-<Accordion title="Show Output">
-
 ```text
 name: Alice
 city: Hyderabad
 course: Python
 ```
-
-</Accordion>
 
 ### Exercise 1
 
@@ -1356,15 +1275,11 @@ print(last)
 
 Output
 
-<Accordion title="Show Output">
-
 ```text
 P
 ['Y', 'T', 'H', 'O']
 N
 ```
-
-</Accordion>
 
 This is useful when only the first and last elements are important.
 
@@ -1438,16 +1353,12 @@ register(
 
 Output
 
-<Accordion title="Show Output">
-
 ```text
 Username : Alice
 Courses  : ('Python', 'FastAPI')
 Active   : False
 Details  : {'city': 'Hyderabad', 'experience': 2}
 ```
-
-</Accordion>
 
 This pattern is commonly used in Python libraries and frameworks.
 

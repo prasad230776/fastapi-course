@@ -257,19 +257,7 @@
           }
         ]
       },
-      {
-        "tab": "Practice",
-        "groups": [
-          {
-            "group": "Practice Notebooks",
-            "pages": [
-              "practice/basics",
-              "practice/advanced",
-              "practice/data-analysis"
-            ]
-          }
-        ]
-      },
+      
         {
         "tab": "Workshop",
         "groups": [
@@ -278,14 +266,13 @@
             "pages": [
               "workshop/01-advanced-fundamentals",
               "workshop/02-python-internals",
-              "workshop/03-modern-features",
-              "workshop/04-advanced-oop",
-              "workshop/05-professional-development",
-              "workshop/06-pydantic-validation",
-              "workshop/07-fastapi-essentials",
-              "workshop/08-sqlalchemy-database",
-              "workshop/09-interactive-apps",
-              "workshop/10-capstone-delivery"
+              "workshop/03-comprehensions",
+              "workshop/04-functional-concepts",
+              "workshop/05-advanced-oop",
+              "workshop/06-data-validation",
+              "workshop/07-project-essentials",
+              "workshop/08-advanced-oop",
+              "workshop/09-sql-orm"
             ]
           }
         ]

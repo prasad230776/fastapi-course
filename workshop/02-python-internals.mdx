@@ -1,170 +1,1523 @@
-# Module 2: Python Internals
+---
+title: 02-Python Internals
+description: Understand how Python manages objects, memory, mutability, and variable scope.
+---
 
-Explore how Python handles objects, execution scopes, function wrappers, and clean resource allocation.
+# Python Internals
+
+Python is an object-oriented language where everything is treated as an object. Understanding how Python stores objects, manages memory, and resolves variables will help you write more predictable, efficient, and bug-free code.
+
+## Topics Covered
+
+In this module, you'll learn:
+
+1. Mutability and Immutability
+   - Objects and Object Identity
+   - Mutable vs Immutable Objects
+   - Assignment vs Modification
+   - Mutable Default Argument Pitfall
+
+2. Variable Scope
+   - Local Scope
+   - Global Scope
+   - The `global` Keyword
+   - Nested Functions
+   - The `nonlocal` Keyword
+   - LEGB Rule
+
+3. Closures
+
+4. Decorators
+
+5. Context Managers
+
+By the end of this module, you'll understand how Python stores objects, resolves variable names, and manages execution behind the scenes.
 
 ---
 
-## 1. Mutability and References
+# Mutability and Immutability
 
-Every variable in Python holds a reference to an object in memory.
-* **Mutable objects** (lists, dicts, sets) can be altered in place.
-* **Immutable objects** (ints, floats, strings, tuples) cannot be altered. Modifying them creates a new object in memory.
+## Objects and Object Identity
+
+Everything in Python is an object.
+
+Variables do **not** store values directly. Instead, they store **references to objects**.
+
+Python provides the `id()` function to view the unique identity of an object.
 
 ```python
-# Mutable side effect example
-def append_to(element, target=[]):  # Dangerous default value!
-    target.append(element)
-    return target
+language = "Python"
 
-print(append_to(1))  # [1]
-print(append_to(2))  # [1, 2] -- The default list persists in memory!
+print(id(language))
+```
+
+<Accordion title="Show Output">
+
+```text
+140521723456784
+```
+
+</Accordion>
+
+Assigning another variable doesn't create a new object.
+
+```python
+language = "Python"
+another = language
+
+print(id(language))
+print(id(another))
+```
+
+<Accordion title="Show Output">
+
+```text
+140521723456784
+140521723456784
+```
+
+</Accordion>
+
+Both variables refer to the same object.
+
+### Exercise 1
+
+Display the memory address of the string `"FastAPI"`.
+
+**Sample Input**
+
+```python
+text = "FastAPI"
+```
+
+**Expected Output**
+
+```text
+Displays the object's memory address.
+```
+
+<Accordion title="Solution">
+
+```python
+text = "FastAPI"
+
+print(id(text))
+```
+
+</Accordion>
+
+---
+
+### Exercise 2
+
+Assign the same string to two variables and verify whether they reference the same object.
+
+**Sample Input**
+
+```python
+language = "Python"
+```
+
+**Expected Output**
+
+```text
+Both ids should be identical.
+```
+
+<Accordion title="Solution">
+
+```python
+language = "Python"
+another = language
+
+print(id(language))
+print(id(another))
+```
+
+</Accordion>
+
+---
+
+## Immutable Objects
+
+An immutable object **cannot be modified** after it is created.
+
+Instead, Python creates a new object whenever its value changes.
+
+Strings are immutable.
+
+```python
+text = "Python"
+
+print(id(text))
+
+text += " 3"
+
+print(id(text))
+```
+
+<Accordion title="Show Output">
+
+```text
+140521723456784
+140521723457040
+```
+
+</Accordion>
+
+Notice that the memory address changes because a **new string object** is created.
+
+Common immutable types include:
+
+- int
+- float
+- bool
+- str
+- tuple
+- frozenset
+
+---
+
+## Mutable Objects
+
+Mutable objects **can be modified without creating a new object**.
+
+```python
+numbers = [10, 20]
+
+print(id(numbers))
+
+numbers.append(30)
+
+print(id(numbers))
+```
+
+<Accordion title="Show Output">
+
+```text
+140521715623424
+140521715623424
+```
+
+</Accordion>
+
+The memory address remains the same because the existing object is modified.
+
+Common mutable types include:
+
+- list
+- dict
+- set
+
+---
+
+## Assignment vs Modification
+
+Assignment creates another reference to the same object.
+
+```python
+numbers = [10, 20]
+
+copy = numbers
+
+copy.append(30)
+
+print(numbers)
+```
+
+<Accordion title="Show Output">
+
+```text
+[10, 20, 30]
+```
+
+</Accordion>
+
+Both variables reference the same list.
+
+### Exercise 1
+
+Create a list, assign it to another variable, modify one variable, and observe the result.
+
+**Sample Input**
+
+```python
+numbers = [1, 2]
+```
+
+**Expected Output**
+
+```text
+Both variables display the modified list.
+```
+
+<Accordion title="Solution">
+
+```python
+numbers = [1, 2]
+
+another = numbers
+
+another.append(3)
+
+print(numbers)
+print(another)
+```
+
+</Accordion>
+
+---
+
+### Exercise 2
+
+Modify a string and observe whether its memory address changes.
+
+**Sample Input**
+
+```python
+text = "Python"
+```
+
+**Expected Output**
+
+```text
+The object id changes.
+```
+
+<Accordion title="Solution">
+
+```python
+text = "Python"
+
+print(id(text))
+
+text += " Programming"
+
+print(id(text))
+```
+
+</Accordion>
+
+---
+
+## Mutable Default Argument Pitfall
+
+One common mistake is using mutable objects as default parameter values.
+
+```python
+def add_item(item, items=[]):
+    items.append(item)
+    return items
+
+print(add_item("Python"))
+print(add_item("FastAPI"))
+```
+
+<Accordion title="Show Output">
+
+```text
+['Python']
+['Python', 'FastAPI']
+```
+
+</Accordion>
+
+The default list is created only once and reused in every function call.
+
+### Correct Approach
+
+Use `None` as the default value.
+
+```python
+def add_item(item, items=None):
+    if items is None:
+        items = []
+
+    items.append(item)
+
+    return items
+
+print(add_item("Python"))
+print(add_item("FastAPI"))
+```
+
+<Accordion title="Show Output">
+
+```text
+['Python']
+['FastAPI']
+```
+
+</Accordion>
+
+### Exercise 1
+
+Create a function that stores names using a mutable default argument and observe the output.
+
+**Sample Input**
+
+```python
+add_name("Alice")
+add_name("Bob")
+```
+
+**Expected Output**
+
+```text
+The second call contains both names.
+```
+
+<Accordion title="Solution">
+
+```python
+def add_name(name, names=[]):
+    names.append(name)
+    return names
+
+print(add_name("Alice"))
+print(add_name("Bob"))
+```
+
+</Accordion>
+
+---
+
+### Exercise 2
+
+Fix the previous function using `None`.
+
+**Sample Input**
+
+```python
+add_name("Alice")
+add_name("Bob")
+```
+
+**Expected Output**
+
+```text
+Each call returns an independent list.
+```
+
+<Accordion title="Solution">
+
+```python
+def add_name(name, names=None):
+    if names is None:
+        names = []
+
+    names.append(name)
+
+    return names
+
+print(add_name("Alice"))
+print(add_name("Bob"))
+```
+
+</Accordion>
+
+---
+
+# Variable Scope
+
+Variables are only accessible within the region where they are defined. This visibility is known as **scope**.
+
+Python resolves variable names using the **LEGB Rule**, but before learning the rule, let's understand the different scopes.
+
+## Local Scope
+
+A variable created inside a function is called a **local variable**.
+
+```python
+def greet():
+    message = "Hello"
+
+    print(message)
+
+greet()
+```
+
+<Accordion title="Show Output">
+
+```text
+Hello
+```
+
+</Accordion>
+
+Trying to access a local variable outside the function results in an error.
+
+```python
+# print(message)
 ```
 
 ---
 
-## 2. Scoping and the LEGB Rule
+## Global Scope
 
-Python resolves names using four nested scopes:
-1. **L**ocal: Names assigned within a function.
-2. **E**nclosing: Names in local scope of enclosing functions (nonlocal).
-3. **G**lobal: Names assigned at the top-level of a module.
-4. **B**uilt-in: Names preassigned by Python (e.g., `open`, `range`).
+Variables created outside all functions belong to the global scope.
 
 ```python
-x = "global"
+language = "Python"
 
+def display():
+    print(language)
+
+display()
+```
+
+<Accordion title="Show Output">
+
+```text
+Python
+```
+
+</Accordion>
+
+A function can read global variables without any special keyword.
+
+### Exercise 1
+
+Create a global variable called `course` and display it inside a function.
+
+**Sample Input**
+
+```python
+course = "Python"
+```
+
+**Expected Output**
+
+```text
+Python
+```
+
+<Accordion title="Solution">
+
+```python
+course = "Python"
+
+def display():
+    print(course)
+
+display()
+```
+
+</Accordion>
+
+---
+
+### Exercise 2
+
+Create a local variable inside a function and try to access it outside the function.
+
+**Sample Input**
+
+```python
+message = "Hello"
+```
+
+**Expected Output**
+
+```text
+NameError
+```
+
+<Accordion title="Solution">
+
+```python
+def greet():
+    message = "Hello"
+
+greet()
+
+print(message)
+```
+
+</Accordion>
+## The `global` Keyword
+
+A function can **read** a global variable without any special keyword.
+
+However, to **modify** a global variable inside a function, Python requires the `global` keyword.
+
+### Reading a Global Variable
+
+```python
+count = 10
+
+def display():
+    print(count)
+
+display()
+```
+
+<Accordion title="Show Output">
+
+```text
+10
+```
+
+</Accordion>
+
+---
+
+### Modifying a Global Variable
+
+```python
+count = 10
+
+def increment():
+    global count
+    count += 1
+
+increment()
+
+print(count)
+```
+
+<Accordion title="Show Output">
+
+```text
+11
+```
+
+</Accordion>
+
+Without the `global` keyword, Python assumes `count` is a local variable and raises an error.
+
+---
+
+### Exercise 1
+
+Increment a global variable named `visits`.
+
+**Sample Input**
+
+```python
+visits = 0
+```
+
+**Expected Output**
+
+```text
+1
+```
+
+<Accordion title="Solution">
+
+```python
+visits = 0
+
+def update():
+    global visits
+    visits += 1
+
+update()
+
+print(visits)
+```
+
+</Accordion>
+
+---
+
+### Exercise 2
+
+Create a global variable named `language` and display it inside a function.
+
+**Sample Input**
+
+```python
+language = "Python"
+```
+
+**Expected Output**
+
+```text
+Python
+```
+
+<Accordion title="Solution">
+
+```python
+language = "Python"
+
+def display():
+    print(language)
+
+display()
+```
+
+</Accordion>
+
+---
+
+## Nested Scope
+
+Python allows functions to be defined inside other functions.
+
+```python
 def outer():
-    x = "enclosing"
+    message = "Hello"
+
     def inner():
-        nonlocal x
-        x = "modified enclosing"
+        print(message)
+
     inner()
-    print(x)  # Prints: "modified enclosing"
 
 outer()
 ```
 
----
+<Accordion title="Show Output">
 
-## 3. Closures
-
-A **closure** is a nested function that retains access to variables from its enclosing scope even after the outer function has finished executing.
-
-```python
-def make_multiplier(factor: int):
-    def multiply(number: int) -> int:
-        return number * factor
-    return multiply
-
-double = make_multiplier(2)
-print(double(5))  # 10
+```text
+Hello
 ```
 
----
+</Accordion>
 
-## 4. Decorators
-
-Decorators dynamically wrap another function to extend its behavior without editing the source code.
-
-```python
-import functools
-import time
-
-def timer_decorator(func):
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        start = time.perf_counter()
-        result = func(*args, **kwargs)
-        duration = time.perf_counter() - start
-        print(f"{func.__name__} executed in {duration:.4f}s")
-        return result
-    return wrapper
-
-@timer_decorator
-def process():
-    time.sleep(0.5)
-
-process()
-```
+The inner function can access variables defined in the outer function.
 
 ---
 
-## 5. Context Managers
+## The `nonlocal` Keyword
 
-Context managers clean up system resources (like file streams or database connections) using the `with` statement.
+If the inner function needs to modify a variable from the enclosing function, use the `nonlocal` keyword.
 
 ```python
-from contextlib import contextmanager
-
-# 1. Class-based Context Manager
-class FileOpener:
-    def __init__(self, filename, mode):
-        self.filename = filename
-        self.mode = mode
-
-    def __enter__(self):
-        self.file = open(self.filename, self.mode)
-        return self.file
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.file.close()
-
-# 2. Generator-based Context Manager
-@contextmanager
-def db_session():
-    print("Connecting to Database...")
-    try:
-        yield "DB_CONNECTION_OBJECT"
-    finally:
-        print("Closing Database Connection.")
-```
-
----
-
-## 📝 Practice Exercises
-
-### Exercise 1: State Retention Closure
-Write a closure-based counter function `create_counter()` that returns a function. Calling the returned function increments and returns the count value.
-
-<Accordion title="Click to view solution">
-```python
-def create_counter():
+def outer():
     count = 0
-    def increment():
+
+    def inner():
         nonlocal count
         count += 1
-        return count
-    return increment
+        print(count)
 
-# Usage:
-# counter = create_counter()
-# print(counter())  # 1
-# print(counter())  # 2
+    inner()
+
+outer()
 ```
+
+<Accordion title="Show Output">
+
+```text
+1
+```
+
 </Accordion>
 
-### Exercise 2: Authorization Decorator
-Write a decorator `@require_role(role: str)` that checks a global variable `current_user_role` and raises a `PermissionError` if the user's role does not match the required role.
+Without `nonlocal`, Python treats `count` as a new local variable.
 
-<Accordion title="Click to view solution">
+---
+
+### Exercise 1
+
+Create a nested function that prints a message from the outer function.
+
+**Sample Input**
+
 ```python
-import functools
-
-current_user_role = "guest"
-
-def require_role(role: str):
-    def decorator(func):
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            if current_user_role != role:
-                raise PermissionError(f"Access Denied: Requires {role} role.")
-            return func(*args, **kwargs)
-        return wrapper
-    return decorator
-
-# Usage:
-# @require_role("admin")
-# def delete_system():
-#     print("System deleted.")
+message = "Welcome"
 ```
+
+**Expected Output**
+
+```text
+Welcome
+```
+
+<Accordion title="Solution">
+
+```python
+def outer():
+    message = "Welcome"
+
+    def inner():
+        print(message)
+
+    inner()
+
+outer()
+```
+
 </Accordion>
+
+---
+
+### Exercise 2
+
+Increment a variable from the outer function using `nonlocal`.
+
+**Sample Input**
+
+```python
+count = 0
+```
+
+**Expected Output**
+
+```text
+1
+```
+
+<Accordion title="Solution">
+
+```python
+def outer():
+    count = 0
+
+    def inner():
+        nonlocal count
+        count += 1
+        print(count)
+
+    inner()
+
+outer()
+```
+
+</Accordion>
+
+---
+
+# LEGB Rule
+
+Whenever Python encounters a variable, it searches for it in the following order:
+
+| Scope | Description |
+|--------|-------------|
+| **L** | Local |
+| **E** | Enclosing |
+| **G** | Global |
+| **B** | Built-in |
+
+Python stops searching as soon as it finds the variable.
+
+### Local Scope
+
+```python
+message = "Global"
+
+def display():
+    message = "Local"
+    print(message)
+
+display()
+```
+
+<Accordion title="Show Output">
+
+```text
+Local
+```
+
+</Accordion>
+
+Python first checks the **Local** scope.
+
+---
+
+### Enclosing Scope
+
+```python
+def outer():
+    message = "Outer"
+
+    def inner():
+        print(message)
+
+    inner()
+
+outer()
+```
+
+<Accordion title="Show Output">
+
+```text
+Outer
+```
+
+</Accordion>
+
+If the variable isn't found locally, Python checks the enclosing function.
+
+---
+
+### Global Scope
+
+```python
+message = "Global"
+
+def display():
+    print(message)
+
+display()
+```
+
+<Accordion title="Show Output">
+
+```text
+Global
+```
+
+</Accordion>
+
+If Python doesn't find the variable in the local or enclosing scope, it searches the global scope.
+
+---
+
+### Built-in Scope
+
+Finally, Python searches its built-in names.
+
+```python
+print(len("Python"))
+```
+
+<Accordion title="Show Output">
+
+```text
+6
+```
+
+</Accordion>
+
+`len()` is a built-in function.
+
+---
+
+### Remembering LEGB
+
+Python searches variables in this order:
+
+```text
+Local
+   ↓
+Enclosing
+   ↓
+Global
+   ↓
+Built-in
+```
+
+Once a variable is found, Python stops searching.
+
+---
+
+### Exercise 1
+
+Which scope is used to find `message`?
+
+```python
+message = "Python"
+
+def display():
+    print(message)
+
+display()
+```
+
+**Expected Output**
+
+```text
+Python
+```
+
+<Accordion title="Solution">
+
+The variable is found in the **Global** scope.
+
+</Accordion>
+
+---
+
+### Exercise 2
+
+Predict the output.
+
+```python
+message = "Global"
+
+def outer():
+    message = "Outer"
+
+    def inner():
+        message = "Inner"
+        print(message)
+
+    inner()
+
+outer()
+```
+
+**Expected Output**
+
+```text
+Inner
+```
+
+<Accordion title="Solution">
+
+Python finds `message` in the **Local** scope of the `inner()` function, so it prints:
+
+```text
+Inner
+```
+
+</Accordion>
+
+## Scope Recap
+
+Before learning closures, let's quickly recap variable scope.
+
+- **Local** variables belong to the current function.
+- **Global** variables belong to the entire program.
+- **Enclosing** variables belong to an outer function.
+- The `global` keyword modifies global variables.
+- The `nonlocal` keyword modifies variables in the enclosing function.
+- Python resolves variable names using the **LEGB Rule**.
+
+Closures build directly on the concept of **nested functions** and the **enclosing scope**.
+
+---
+
+# Closures
+
+A **closure** is a function that remembers the variables from its enclosing scope even after the outer function has finished executing.
+
+Closures are useful for preserving state without using global variables.
+
+## Nested Functions
+
+Python allows defining one function inside another function.
+
+```python
+def outer():
+    message = "Hello"
+
+    def inner():
+        print(message)
+
+    inner()
+
+outer()
+```
+
+<Accordion title="Show Output">
+
+```text
+Hello
+```
+
+</Accordion>
+
+The inner function can access variables from the outer function.
+
+---
+
+## Returning a Function
+
+A function can also return another function.
+
+```python
+def outer():
+    message = "Hello"
+
+    def inner():
+        print(message)
+
+    return inner
+
+greet = outer()
+
+greet()
+```
+
+<Accordion title="Show Output">
+
+```text
+Hello
+```
+
+</Accordion>
+
+Although `outer()` has already finished executing, `inner()` still remembers the value of `message`.
+
+This behavior is called a **closure**.
+
+---
+
+## Practical Example
+
+Suppose we want to greet users in different languages.
+
+```python
+def greeting(language):
+
+    def greet(name):
+        print(f"{language}, {name}!")
+
+    return greet
+
+english = greeting("Hello")
+spanish = greeting("Hola")
+
+english("Alice")
+spanish("Bob")
+```
+
+<Accordion title="Show Output">
+
+```text
+Hello, Alice!
+Hola, Bob!
+```
+
+</Accordion>
+
+Each returned function remembers its own value of `language`.
+
+---
+
+### Exercise 1
+
+Create a closure that remembers a greeting message.
+
+**Sample Input**
+
+```python
+welcome = create_greeting("Welcome")
+welcome("Alice")
+```
+
+**Expected Output**
+
+```text
+Welcome Alice
+```
+
+<Accordion title="Solution">
+
+```python
+def create_greeting(message):
+
+    def greet(name):
+        print(message, name)
+
+    return greet
+
+welcome = create_greeting("Welcome")
+
+welcome("Alice")
+```
+
+</Accordion>
+
+---
+
+### Exercise 2
+
+Create a closure that remembers a multiplication factor.
+
+**Sample Input**
+
+```python
+double = multiplier(2)
+
+double(10)
+```
+
+**Expected Output**
+
+```text
+20
+```
+
+<Accordion title="Solution">
+
+```python
+def multiplier(factor):
+
+    def multiply(number):
+        return factor * number
+
+    return multiply
+
+double = multiplier(2)
+
+print(double(10))
+```
+
+</Accordion>
+
+---
+
+# Decorators
+
+A decorator allows us to **add extra functionality to a function without modifying the function itself**.
+
+Decorators are commonly used for logging, authentication, validation, caching, and timing functions.
+
+## A Simple Decorator
+
+```python
+def logger(func):
+
+    def wrapper():
+        print("Function started")
+
+        func()
+
+        print("Function finished")
+
+    return wrapper
+
+
+@logger
+def greet():
+    print("Hello!")
+
+greet()
+```
+
+<Accordion title="Show Output">
+
+```text
+Function started
+Hello!
+Function finished
+```
+
+</Accordion>
+
+The `@logger` line automatically wraps the `greet()` function with additional behavior.
+
+---
+
+## Decorator with Parameters
+
+Functions often accept arguments.
+
+```python
+def logger(func):
+
+    def wrapper(name):
+        print("Starting...")
+
+        func(name)
+
+        print("Completed.")
+
+    return wrapper
+
+
+@logger
+def greet(name):
+    print(f"Hello {name}")
+
+greet("Alice")
+```
+
+<Accordion title="Show Output">
+
+```text
+Starting...
+Hello Alice
+Completed.
+```
+
+</Accordion>
+
+---
+
+## Practical Example
+
+Count how many times a function is executed.
+
+```python
+def counter(func):
+
+    count = 0
+
+    def wrapper():
+
+        nonlocal count
+
+        count += 1
+
+        print(f"Called {count} time(s).")
+
+        func()
+
+    return wrapper
+
+
+@counter
+def hello():
+    print("Hello")
+
+hello()
+hello()
+hello()
+```
+
+<Accordion title="Show Output">
+
+```text
+Called 1 time(s).
+Hello
+Called 2 time(s).
+Hello
+Called 3 time(s).
+Hello
+```
+
+</Accordion>
+
+---
+
+### Exercise 1
+
+Create a decorator that prints `"Starting"` before executing a function.
+
+**Sample Input**
+
+```python
+greet()
+```
+
+**Expected Output**
+
+```text
+Starting
+Hello
+```
+
+<Accordion title="Solution">
+
+```python
+def start(func):
+
+    def wrapper():
+        print("Starting")
+
+        func()
+
+    return wrapper
+
+
+@start
+def greet():
+    print("Hello")
+
+greet()
+```
+
+</Accordion>
+
+---
+
+### Exercise 2
+
+Create a decorator that prints `"Finished"` after executing a function.
+
+**Sample Input**
+
+```python
+greet()
+```
+
+**Expected Output**
+
+```text
+Hello
+Finished
+```
+
+<Accordion title="Solution">
+
+```python
+def finish(func):
+
+    def wrapper():
+        func()
+
+        print("Finished")
+
+    return wrapper
+
+
+@finish
+def greet():
+    print("Hello")
+
+greet()
+```
+
+</Accordion>
+
+---
+
+# Context Managers
+
+Whenever we open external resources such as files or database connections, they should be closed properly.
+
+Python provides the **with** statement to handle this automatically.
+
+---
+
+## Without a Context Manager
+
+```python
+file = open("sample.txt", "r")
+
+content = file.read()
+
+print(content)
+
+file.close()
+```
+
+If an exception occurs before `close()`, the file may remain open.
+
+---
+
+## Using a Context Manager
+
+```python
+with open("sample.txt", "r") as file:
+
+    content = file.read()
+
+    print(content)
+```
+
+The file is automatically closed after leaving the `with` block.
+
+---
+
+## Custom Context Manager
+
+A context manager implements two special methods.
+
+- `__enter__()`
+- `__exit__()`
+
+```python
+class Database:
+
+    def __enter__(self):
+        print("Connection Opened")
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        print("Connection Closed")
+
+
+with Database():
+    print("Executing Queries")
+```
+
+<Accordion title="Show Output">
+
+```text
+Connection Opened
+Executing Queries
+Connection Closed
+```
+
+</Accordion>
+
+---
+
+### Exercise 1
+
+Open a file using the `with` statement and display its contents.
+
+**Sample Input**
+
+```python
+sample.txt
+```
+
+**Expected Output**
+
+```text
+Displays the file contents.
+```
+
+<Accordion title="Solution">
+
+```python
+with open("sample.txt", "r") as file:
+    print(file.read())
+```
+
+</Accordion>
+
+---
+
+### Exercise 2
+
+Create a context manager that prints `"Start"` on entry and `"End"` on exit.
+
+**Sample Input**
+
+```python
+with Demo():
+    print("Inside")
+```
+
+**Expected Output**
+
+```text
+Start
+Inside
+End
+```
+
+<Accordion title="Solution">
+
+```python
+class Demo:
+
+    def __enter__(self):
+        print("Start")
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        print("End")
+
+
+with Demo():
+    print("Inside")
+```
+
+</Accordion>
+
+---
+
+# Summary
+
+In this module, you learned how Python works internally and how it manages objects, variables, and program execution.
+
+## Key Concepts Covered
+
+- Objects and Object Identity
+- Mutable and Immutable Objects
+- Assignment vs Modification
+- Mutable Default Argument Pitfall
+- Local Scope
+- Global Scope
+- The `global` Keyword
+- Nested Scope
+- The `nonlocal` Keyword
+- LEGB Rule
+- Closures
+- Decorators
+- Context Managers
+- The `with` Statement
+- Custom Context Managers using `__enter__()` and `__exit__()`
+
+These concepts explain much of Python's behavior behind the scenes and form the foundation for understanding advanced Python features and modern frameworks.

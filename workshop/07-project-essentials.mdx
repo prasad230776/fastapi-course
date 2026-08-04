@@ -1,0 +1,1166 @@
+---
+title: Python Project Essentials
+description: Learn the essential tools and practices for building modern Python projects, including dependency management, configuration, JSON handling, REST APIs, and dependency injection.
+icon: "rocket"
+---
+
+# Python Project Essentials
+
+Developing a Python application involves much more than writing code. Modern Python projects require proper project organization, dependency management, configuration handling, and communication with external services.
+
+In this module, you'll learn the essential tools and practices used in professional Python development.
+
+## Topics Covered
+
+In this module, you'll learn:
+
+1. Project Structure
+2. Virtual Environments
+3. Dependency Management with `uv`
+4. Environment Variables and Configuration
+5. Working with JSON Data
+6. Consuming REST APIs
+7. Dependency Injection Concepts
+8. Best Practices
+
+By the end of this module, you'll be able to organize Python projects, manage dependencies efficiently, configure applications securely, exchange JSON data, consume REST APIs, and understand the fundamentals of dependency injection.
+
+## Project Structure
+
+A well-organized project is easier to understand, maintain, and extend.
+
+A typical Python project might look like this.
+
+```text
+student-management/
+
+├── .venv/
+├── .env
+├── pyproject.toml
+├── main.py
+├── README.md
+├── app/
+│   ├── __init__.py
+│   ├── models.py
+│   ├── services.py
+│   └── utils.py
+└── data/
+```
+
+### Common Files
+
+| File | Purpose |
+|------|---------|
+| `pyproject.toml` | Project configuration and dependencies |
+| `.venv` | Virtual environment |
+| `.env` | Environment variables |
+| `README.md` | Project documentation |
+| `main.py` | Application entry point |
+
+As your project grows, organizing code into separate modules and packages improves readability and maintainability.
+
+### Exercise 1
+
+Create the following project structure.
+
+**Expected Structure**
+
+```text
+library-system/
+
+├── app/
+├── data/
+├── .venv/
+├── .env
+├── pyproject.toml
+└── main.py
+```
+
+<Accordion title="Solution">
+
+Create the folders and files using your preferred editor or the terminal.
+
+</Accordion>
+
+### Exercise 2
+
+Identify the purpose of each file.
+
+| File | Purpose |
+|------|---------|
+| `.env` | ? |
+| `.venv` | ? |
+| `pyproject.toml` | ? |
+| `README.md` | ? |
+
+<Accordion title="Solution">
+
+| File | Purpose |
+|------|---------|
+| `.env` | Stores configuration values and secrets |
+| `.venv` | Isolated Python environment |
+| `pyproject.toml` | Project metadata and dependencies |
+| `README.md` | Project documentation |
+
+</Accordion>
+
+## Virtual Environments
+
+A **virtual environment** is an isolated Python environment for a project.
+
+It allows each project to have its own:
+
+- Python packages
+- Package versions
+- Dependencies
+
+Without virtual environments, installing a package for one project affects every project on your system.
+
+### Creating a Virtual Environment
+
+Using the built-in `venv` module.
+
+```bash
+python -m venv .venv
+```
+
+Activate it.
+
+**Windows**
+
+```bash
+.venv\Scripts\activate
+```
+
+**macOS / Linux**
+
+```bash
+source .venv/bin/activate
+```
+
+Deactivate the environment.
+
+```bash
+deactivate
+```
+
+### Why Use Virtual Environments?
+
+- Prevent dependency conflicts.
+- Keep projects isolated.
+- Make projects reproducible.
+- Simplify dependency management.
+
+### Exercise 1
+
+Create and activate a virtual environment for a new project.
+
+<Accordion title="Solution">
+
+```bash
+python -m venv .venv
+
+source .venv/bin/activate
+```
+
+(macOS/Linux)
+
+or
+
+```bash
+.venv\Scripts\activate
+```
+
+(Windows)
+
+</Accordion>
+
+### Exercise 2
+
+Deactivate the virtual environment.
+
+**Expected Command**
+
+```bash
+deactivate
+```
+
+<Accordion title="Solution">
+
+```bash
+deactivate
+```
+
+</Accordion>
+
+## Dependency Management with `uv`
+
+`uv` is a modern Python package and project manager.
+
+It is significantly faster than traditional tools such as `pip` because it is implemented in Rust.
+
+### Installing `uv`
+
+```bash
+pip install uv
+```
+
+Verify the installation.
+
+```bash
+uv --version
+```
+
+### Creating a Project
+
+```bash
+uv init student-management
+```
+
+This creates a new project with a standard structure.
+
+### Adding a Package
+
+```bash
+uv add requests
+```
+
+The dependency is automatically added to the project configuration.
+
+### Installing Dependencies
+
+```bash
+uv sync
+```
+
+This installs all dependencies listed in `pyproject.toml`.
+
+### Removing a Package
+
+```bash
+uv remove requests
+```
+
+### Running Python
+
+```bash
+uv run main.py
+```
+
+### Why Use `uv`?
+
+- Fast dependency resolution.
+- Modern project management.
+- Automatic virtual environment creation.
+- Reproducible builds.
+- Simple dependency synchronization.
+
+### Exercise 1
+
+Create a new project named **student-management** using `uv`.
+
+**Expected Command**
+
+```bash
+uv init student-management
+```
+
+<Accordion title="Solution">
+
+```bash
+uv init student-management
+```
+
+</Accordion>
+
+### Exercise 2
+
+Add the `requests` package and synchronize the project.
+
+**Expected Commands**
+
+```bash
+uv add requests
+
+uv sync
+```
+
+<Accordion title="Solution">
+
+```bash
+uv add requests
+
+uv sync
+```
+
+</Accordion>
+
+## Environment Variables
+
+Environment variables allow you to store configuration values outside your source code.
+
+They are commonly used to store:
+
+- API Keys
+- Database URLs
+- Secret Keys
+- Application Settings
+
+Instead of writing sensitive information directly in your code,
+
+```python
+API_KEY = "my-secret-key"
+```
+
+store it in a `.env` file.
+
+```text
+API_KEY=my-secret-key
+DATABASE_URL=sqlite:///students.db
+DEBUG=True
+```
+
+This keeps sensitive information separate from your application.
+
+## Reading Environment Variables
+
+Install the package.
+
+```bash
+uv add python-dotenv
+```
+
+Create a `.env` file.
+
+```text
+API_KEY=my-secret-key
+```
+
+Read the value.
+
+```python
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+api_key = os.getenv("API_KEY")
+
+print(api_key)
+```
+
+<Accordion title="Show Output">
+
+```text
+my-secret-key
+```
+
+</Accordion>
+
+## Providing Default Values
+
+Use a default value when an environment variable is missing.
+
+```python
+import os
+
+host = os.getenv("HOST", "localhost")
+
+print(host)
+```
+
+<Accordion title="Show Output">
+
+```text
+localhost
+```
+
+</Accordion>
+
+## Why Use Environment Variables?
+
+- Keep secrets out of source code.
+- Use different configurations for development and production.
+- Improve application security.
+- Simplify deployment.
+
+### Exercise 1
+
+Create a `.env` file containing:
+
+- `APP_NAME`
+- `PORT`
+
+Read and display both values.
+
+**Expected Output**
+
+```text
+Student Management System
+8000
+```
+
+<Accordion title="Solution">
+
+```text
+APP_NAME=Student Management System
+PORT=8000
+```
+
+```python
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+print(os.getenv("APP_NAME"))
+print(os.getenv("PORT"))
+```
+
+</Accordion>
+
+### Exercise 2
+
+Read an environment variable named `HOST`.
+
+If it doesn't exist, display `"localhost"`.
+
+**Expected Output**
+
+```text
+localhost
+```
+
+<Accordion title="Solution">
+
+```python
+import os
+
+host = os.getenv("HOST", "localhost")
+
+print(host)
+```
+
+</Accordion>
+
+## Configuration Management
+
+As projects grow, configuration values increase.
+
+Instead of scattering configuration throughout the application, place them in one location.
+
+Example project.
+
+```text
+project/
+
+├── .env
+├── config.py
+└── main.py
+```
+
+**config.py**
+
+```python
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+APP_NAME = os.getenv("APP_NAME")
+DATABASE_URL = os.getenv("DATABASE_URL")
+DEBUG = os.getenv("DEBUG")
+```
+
+**main.py**
+
+```python
+import config
+
+print(config.APP_NAME)
+print(config.DATABASE_URL)
+```
+
+This approach centralizes application configuration and makes maintenance easier.
+
+### Best Practices
+
+- Never hardcode secrets.
+- Use `.env` for local development.
+- Keep configuration in one module.
+- Add `.env` to `.gitignore`.
+
+### Exercise 1
+
+Create a `config.py` file that loads:
+
+- `APP_NAME`
+- `DEBUG`
+
+<Accordion title="Solution">
+
+```python
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+APP_NAME = os.getenv("APP_NAME")
+DEBUG = os.getenv("DEBUG")
+```
+
+</Accordion>
+
+### Exercise 2
+
+Use `config.py` in another Python file to display the application name.
+
+<Accordion title="Solution">
+
+```python
+import config
+
+print(config.APP_NAME)
+```
+
+</Accordion>
+
+## Working with JSON Data
+
+JSON (JavaScript Object Notation) is the most widely used format for exchanging data between applications.
+
+A JSON document consists of key-value pairs.
+
+Example JSON.
+
+```json
+{
+    "name": "Alice",
+    "age": 20,
+    "course": "Python"
+}
+```
+
+Python provides the built-in `json` module for working with JSON.
+
+```python
+import json
+```
+
+## Converting Python Objects to JSON
+
+Use `json.dumps()`.
+
+```python
+import json
+
+student = {
+    "name": "Alice",
+    "age": 20,
+    "course": "Python"
+}
+
+json_data = json.dumps(student, indent=4)
+
+print(json_data)
+```
+
+<Accordion title="Show Output">
+
+```json
+{
+    "name": "Alice",
+    "age": 20,
+    "course": "Python"
+}
+```
+
+</Accordion>
+
+## Converting JSON to Python Objects
+
+Use `json.loads()`.
+
+```python
+import json
+
+data = '''
+{
+    "name": "Alice",
+    "age": 20
+}
+'''
+
+student = json.loads(data)
+
+print(student["name"])
+print(student["age"])
+```
+
+<Accordion title="Show Output">
+
+```text
+Alice
+20
+```
+
+</Accordion>
+
+## Reading JSON from a File
+
+Suppose `student.json` contains
+
+```json
+{
+    "name": "Alice",
+    "course": "Python"
+}
+```
+
+Read the file.
+
+```python
+import json
+
+with open("student.json") as file:
+    student = json.load(file)
+
+print(student)
+```
+
+<Accordion title="Show Output">
+
+```text
+{'name': 'Alice', 'course': 'Python'}
+```
+
+</Accordion>
+
+## Writing JSON to a File
+
+```python
+import json
+
+student = {
+    "name": "Alice",
+    "course": "Python"
+}
+
+with open("student.json", "w") as file:
+    json.dump(student, file, indent=4)
+```
+
+This creates a formatted JSON file.
+
+### Exercise 1
+
+Convert the following dictionary into JSON.
+
+```python
+employee = {
+    "name": "Rahul",
+    "department": "IT"
+}
+```
+
+<Accordion title="Solution">
+
+```python
+import json
+
+employee = {
+    "name": "Rahul",
+    "department": "IT"
+}
+
+print(json.dumps(employee, indent=4))
+```
+
+</Accordion>
+
+### Exercise 2
+
+Read the following JSON string and display the employee name.
+
+```json
+{
+    "name": "Rahul",
+    "salary": 50000
+}
+```
+
+**Expected Output**
+
+```text
+Rahul
+```
+
+<Accordion title="Solution">
+
+```python
+import json
+
+data = '''
+{
+    "name": "Rahul",
+    "salary": 50000
+}
+'''
+
+employee = json.loads(data)
+
+print(employee["name"])
+```
+
+</Accordion>
+## Consuming REST APIs
+
+Modern applications frequently communicate with external services using **REST APIs**.
+
+Some common examples include:
+
+- Weather applications
+- Payment gateways
+- AI services
+- Maps and location services
+- Social media platforms
+
+Python provides several libraries for consuming REST APIs. One of the most popular is **requests**.
+
+Install it using `uv`.
+
+```bash
+uv add requests
+```
+
+## Making a GET Request
+
+Let's fetch sample user information from the JSONPlaceholder API.
+
+```python
+import requests
+
+url = "https://jsonplaceholder.typicode.com/users/1"
+
+response = requests.get(url)
+
+print(response.status_code)
+```
+
+<Accordion title="Show Output">
+
+```text
+200
+```
+
+</Accordion>
+
+A status code of **200** indicates that the request was successful.
+
+## Reading JSON Response
+
+Most REST APIs return JSON.
+
+```python
+import requests
+
+url = "https://jsonplaceholder.typicode.com/users/1"
+
+response = requests.get(url)
+
+user = response.json()
+
+print(user["name"])
+print(user["email"])
+```
+
+<Accordion title="Show Output">
+
+```text
+Leanne Graham
+Sincere@april.biz
+```
+
+</Accordion>
+
+## Sending Query Parameters
+
+Query parameters provide additional information to the server.
+
+```python
+import requests
+
+url = "https://jsonplaceholder.typicode.com/comments"
+
+params = {
+    "postId": 1
+}
+
+response = requests.get(
+    url,
+    params=params
+)
+
+print(response.status_code)
+```
+
+<Accordion title="Show Output">
+
+```text
+200
+```
+
+</Accordion>
+
+The generated URL becomes
+
+```text
+https://jsonplaceholder.typicode.com/comments?postId=1
+```
+
+## Sending Headers
+
+Headers provide additional metadata such as API keys.
+
+```python
+headers = {
+    "Authorization": "Bearer YOUR_API_KEY"
+}
+
+response = requests.get(
+    url,
+    headers=headers
+)
+```
+
+Many real-world APIs require authentication through headers.
+
+## Making a POST Request
+
+```python
+import requests
+
+url = "https://jsonplaceholder.typicode.com/posts"
+
+data = {
+    "title": "Python",
+    "body": "Learning REST APIs",
+    "userId": 1
+}
+
+response = requests.post(
+    url,
+    json=data
+)
+
+print(response.status_code)
+```
+
+<Accordion title="Show Output">
+
+```text
+201
+```
+
+</Accordion>
+
+Status code **201** indicates that a new resource was created.
+
+## Common HTTP Methods
+
+| Method | Purpose |
+|---------|----------|
+| GET | Retrieve data |
+| POST | Create data |
+| PUT | Update an entire resource |
+| PATCH | Update part of a resource |
+| DELETE | Remove a resource |
+
+### Exercise 1
+
+Fetch user **5** from JSONPlaceholder and display the user's name.
+
+**Expected Output**
+
+```text
+Chelsey Dietrich
+```
+
+<Accordion title="Solution">
+
+```python
+import requests
+
+response = requests.get(
+    "https://jsonplaceholder.typicode.com/users/5"
+)
+
+user = response.json()
+
+print(user["name"])
+```
+
+</Accordion>
+
+### Exercise 2
+
+Create a new post using the JSONPlaceholder API.
+
+**Expected Output**
+
+```text
+201
+```
+
+<Accordion title="Solution">
+
+```python
+import requests
+
+response = requests.post(
+    "https://jsonplaceholder.typicode.com/posts",
+    json={
+        "title": "Python",
+        "body": "Learning APIs",
+        "userId": 1
+    }
+)
+
+print(response.status_code)
+```
+
+</Accordion>
+
+## Dependency Injection Concepts
+
+As applications grow, classes often depend on other classes.
+
+For example, an application may have:
+
+- Database Service
+- Email Service
+- Notification Service
+- Authentication Service
+
+If one class creates its own dependencies, the code becomes tightly coupled.
+
+### Without Dependency Injection
+
+```python
+class EmailService:
+
+    def send(self):
+        print("Email Sent")
+
+
+class NotificationService:
+
+    def __init__(self):
+        self.email = EmailService()
+
+    def notify(self):
+        self.email.send()
+
+
+notification = NotificationService()
+
+notification.notify()
+```
+
+<Accordion title="Show Output">
+
+```text
+Email Sent
+```
+
+</Accordion>
+
+Here, `NotificationService` directly creates an `EmailService`.
+
+Replacing the email service later becomes difficult.
+
+## With Dependency Injection
+
+Instead of creating the dependency inside the class, pass it from outside.
+
+```python
+class EmailService:
+
+    def send(self):
+        print("Email Sent")
+
+
+class NotificationService:
+
+    def __init__(self, service):
+        self.service = service
+
+    def notify(self):
+        self.service.send()
+
+
+email = EmailService()
+
+notification = NotificationService(email)
+
+notification.notify()
+```
+
+<Accordion title="Show Output">
+
+```text
+Email Sent
+```
+
+</Accordion>
+
+The dependency is now injected from outside.
+
+This makes the code:
+
+- Easier to test
+- Easier to maintain
+- More reusable
+- Less tightly coupled
+
+## Another Example
+
+```python
+class SMSService:
+
+    def send(self):
+        print("SMS Sent")
+
+
+sms = SMSService()
+
+notification = NotificationService(sms)
+
+notification.notify()
+```
+
+<Accordion title="Show Output">
+
+```text
+SMS Sent
+```
+
+</Accordion>
+
+Notice that **NotificationService** did not change.
+
+Only the dependency changed.
+
+This is the primary advantage of Dependency Injection.
+
+### Exercise 1
+
+Create a `PaymentService` class and inject it into an `OrderService`.
+
+**Expected Output**
+
+```text
+Payment Successful
+```
+
+<Accordion title="Solution">
+
+```python
+class PaymentService:
+
+    def pay(self):
+        print("Payment Successful")
+
+
+class OrderService:
+
+    def __init__(self, payment):
+        self.payment = payment
+
+    def checkout(self):
+        self.payment.pay()
+
+
+payment = PaymentService()
+
+order = OrderService(payment)
+
+order.checkout()
+```
+
+</Accordion>
+
+### Exercise 2
+
+Create both `EmailService` and `SMSService` and inject each into `NotificationService`.
+
+**Expected Output**
+
+```text
+Email Sent
+SMS Sent
+```
+
+<Accordion title="Solution">
+
+```python
+class EmailService:
+
+    def send(self):
+        print("Email Sent")
+
+
+class SMSService:
+
+    def send(self):
+        print("SMS Sent")
+
+
+class NotificationService:
+
+    def __init__(self, service):
+        self.service = service
+
+    def notify(self):
+        self.service.send()
+
+
+NotificationService(
+    EmailService()
+).notify()
+
+NotificationService(
+    SMSService()
+).notify()
+```
+
+</Accordion>
+
+## Best Practices
+
+- Organize projects into logical modules and packages.
+- Use virtual environments for every project.
+- Manage dependencies with `uv`.
+- Store secrets in environment variables.
+- Keep configuration separate from source code.
+- Use JSON for data exchange.
+- Handle API responses and errors gracefully.
+- Prefer dependency injection over creating dependencies inside classes.
+
+## Summary
+
+In this module, you learned the essential tools and practices used in modern Python projects.
+
+### Key Concepts Covered
+
+- Project Structure
+- Virtual Environments
+- Dependency Management with `uv`
+- Environment Variables
+- Configuration Management
+- Working with JSON
+- Consuming REST APIs
+- Dependency Injection Concepts
+- Best Practices
+
+These concepts form the foundation of professional Python development and are widely used in frameworks such as FastAPI, Django, and Flask.
