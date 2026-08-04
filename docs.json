@@ -271,7 +271,7 @@
               "workshop/05-advanced-oop",
               "workshop/06-data-validation",
               "workshop/07-project-essentials",
-              "workshop/08-advanced-oop",
+              "workshop/08-fastapi-essentials",
               "workshop/09-sql-orm"
             ]
           }
