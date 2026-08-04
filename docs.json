@@ -257,6 +257,19 @@
           }
         ]
       },
+      {
+        "tab": "Practice",
+        "groups": [
+          {
+            "group": "Practice Notebooks",
+            "pages": [
+              "practice/basics",
+              "practice/advanced",
+              "practice/data-analysis"
+            ]
+          }
+        ]
+      },
         {
         "tab": "Workshop",
         "groups": [
