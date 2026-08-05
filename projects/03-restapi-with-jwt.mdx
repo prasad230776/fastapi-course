@@ -1,0 +1,1522 @@
+---
+title: 03-JWT Authentication with FastAPI
+description: Learn how to implement JWT-based authentication in FastAPI by building user registration, login, and protected REST APIs using password hashing and JSON Web Tokens.
+---
+
+# JWT Authentication with FastAPI
+
+**Objective**
+In this module, you will build a complete JWT-based authentication system using FastAPI. By the end of this module, you will be able to:
+
+- Create a User model using SQLAlchemy ORM.
+- Securely hash and verify user passwords.
+- Generate and validate JWT access tokens.
+- Implement user registration and login APIs.
+- Authenticate users using JWT.
+- Protect REST APIs using authentication dependencies.
+- Implement role-based authorization.
+
+## Architecture
+
+```text
+                    Client
+                       │
+                       ▼
+            Authentication APIs
+          (/register, /login)
+                       │
+                       ▼
+            Authentication Utilities
+      (Hash Password, Verify Password,
+       Generate JWT, Validate JWT)
+                       │
+                       ▼
+                SQLite Database
+                       ▲
+                       │
+         Retrieve Authenticated User
+                       ▲
+                       │
+      Authentication Dependency
+        (get_current_user)
+                       ▲
+                       │
+          Protected REST APIs
+```
+
+## Implementation Flow
+1. Create the Project Structure
+2. Configure the Database
+3. Create the User ORM Model
+4. Create the User Schemas
+5. Initialize the FastAPI Application
+6. Implement Authentication Utilities
+7. Implement the Register API
+8. Implement the Login API
+9. Implement the Current User Authentication Dependency
+10. Create Public and Protected APIs
+11. Test the Complete Authentication Flow
+
+
+# Step 1: Create the Project Structure
+
+**Objective**
+Create the project structure and install the required libraries for implementing JWT authentication.
+
+**Instructions**
+Create a new FastAPI project and organize it using the following structure.
+
+```text
+jwt-auth-demo/
+│
+├── app/
+│   ├── main.py
+│   ├── database.py
+│   ├── models.py
+│   ├── schemas.py
+│   └── auth.py
+│
+├── .venv/
+├── pyproject.toml
+└── uv.lock
+```
+
+Install the required libraries using **uv**.
+
+- FastAPI
+- Uvicorn
+- SQLAlchemy
+- pwdlib
+- python-jose (with cryptography support)
+
+<Question>
+
+Create the project structure and install the required dependencies for the JWT Authentication project.
+
+</Question>
+
+<Accordion title="Solution">
+
+**Create the Project**
+
+```bash
+mkdir jwt-auth-demo
+
+cd jwt-auth-demo
+```
+
+**Create a Virtual Environment**
+
+```bash
+uv venv
+```
+
+**Activate the Virtual Environment**
+
+**macOS / Linux**
+
+```bash
+source .venv/bin/activate
+```
+
+**Windows**
+
+```bash
+.venv\Scripts\activate
+```
+
+**Install the Required Libraries**
+
+```bash
+uv add fastapi
+uv add uvicorn
+uv add sqlalchemy
+uv add pwdlib
+uv add python-jose[cryptography]
+```
+
+**Create the Project Structure**
+
+```bash
+mkdir app
+
+touch app/main.py
+touch app/database.py
+touch app/models.py
+touch app/schemas.py
+touch app/auth.py
+```
+
+The project structure should look like this:
+
+```text
+jwt-auth-demo/
+│
+├── app/
+│   ├── main.py
+│   ├── database.py
+│   ├── models.py
+│   ├── schemas.py
+│   └── auth.py
+│
+├── .venv/
+├── pyproject.toml
+└── uv.lock
+```
+
+</Accordion>
+
+**Verify**
+Verify that:
+
+- The project has been created successfully.
+- The virtual environment has been activated.
+- All required libraries have been installed.
+- The `app` directory has been created.
+- All Python files have been created.
+- The project structure matches the required layout.
+
+**Commit Changes**
+<Accordion title="Solution">
+
+**Commit Changes**
+Create a `.gitignore` file with the following content.
+
+```text
+__pycache__/
+.venv/
+*.pyc
+*.db
+```
+
+Initialize the Git repository and commit the project.
+
+```bash
+git init
+
+git add .
+git commit -m "Initialize JWT authentication project"
+```
+
+</Accordion>
+
+# Step 2: Configure the Database
+
+**Objective**
+Configure the SQLite database and implement the database session dependency.
+
+**Instructions**
+Create a `database.py` file and implement the following:
+
+- Configure the SQLite database.
+- Create the SQLAlchemy engine.
+- Create the Base class.
+- Implement the `get_db()` dependency for managing database sessions.
+
+<Question>
+
+Configure the SQLite database and implement the database session dependency.
+
+</Question>
+
+<Accordion title="Solution">
+
+**`app/database.py`**
+
+```python
+from sqlalchemy import create_engine
+from sqlalchemy.orm import DeclarativeBase, Session
+
+DATABASE_URL = "sqlite:///users.db"
+
+engine = create_engine(DATABASE_URL, echo=True)
+
+
+class Base(DeclarativeBase):
+    pass
+
+
+def get_db():
+    with Session(engine) as session:
+        yield session
+```
+
+</Accordion>
+
+**Verify**
+Verify that:
+
+- The SQLite database URL has been configured.
+- The SQLAlchemy engine has been created.
+- The `Base` class has been implemented.
+- The `get_db()` dependency has been implemented.
+
+> **Note:** The `users.db` database file will be created automatically when the database tables are created in a later step.
+
+**Commit Changes**
+<Accordion title="Solution">
+
+```bash
+git add .
+git commit -m "Configure SQLite database"
+```
+
+</Accordion>
+
+# Step 3: Create the User ORM Model
+
+**Objective**
+Create the User ORM model for storing user information in the SQLite database.
+
+**Instructions**
+Create a `models.py` file and implement the `User` ORM model.
+
+The model should contain the following fields:
+
+- id
+- name
+- email
+- password
+- role
+
+Apply the following constraints:
+
+- `id` should be the primary key.
+- `email` should be unique.
+- `name`, `email`, and `password` should be mandatory.
+- `role` should default to `"user"`.
+
+<Question>
+
+Create the User ORM model.
+
+</Question>
+
+<Accordion title="Solution">
+
+**`app/models.py`**
+
+```python
+from sqlalchemy import String
+from sqlalchemy.orm import Mapped, mapped_column
+
+from app.database import Base
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(50))
+    email: Mapped[str] = mapped_column(String(100), unique=True)
+    password: Mapped[str] = mapped_column(String(255))
+    role: Mapped[str] = mapped_column(String(20), default="user")
+```
+
+</Accordion>
+
+**Verify**
+Verify that:
+
+- The `User` model has been created.
+- The model inherits from `Base`.
+- The table name is `users`.
+- The `id` field is the primary key.
+- The `email` field has a unique constraint.
+- The `role` field has a default value of `"user"`.
+
+> **Note:** The database table will be created in the next step when the FastAPI application is initialized.
+
+**Commit Changes**
+<Accordion title="Solution">
+
+```bash
+git add .
+git commit -m "Create user ORM model"
+```
+
+</Accordion>
+
+# Step 4: Create the User Schemas
+
+**Objective**
+Create Pydantic schemas for validating API requests and formatting API responses.
+
+**Instructions**
+Create a `schemas.py` file and implement the following schemas:
+
+- `UserCreate`
+- `UserResponse`
+
+The `UserCreate` schema should contain:
+
+- name
+- email
+- password
+
+Apply the following validations:
+
+- `name` should have a minimum length of 3 characters.
+- `name` should have a maximum length of 50 characters.
+- `email` should be a valid email address.
+- `password` should have a minimum length of 8 characters.
+
+The `UserResponse` schema should contain:
+
+- id
+- name
+- email
+- role
+
+Configure the schema to read data directly from SQLAlchemy ORM objects.
+
+<Question>
+
+Create the User request and response schemas.
+
+</Question>
+
+<Accordion title="Solution">
+
+**`app/schemas.py`**
+
+```python
+from typing import Annotated
+
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
+
+Name = Annotated[str, Field(min_length=3, max_length=50)]
+Password = Annotated[str, Field(min_length=8)]
+
+
+class UserCreate(BaseModel):
+    name: Name
+    email: EmailStr
+    password: Password
+
+
+class UserResponse(BaseModel):
+    id: int
+    name: str
+    email: EmailStr
+    role: str
+
+    model_config = ConfigDict(from_attributes=True)
+```
+
+</Accordion>
+
+**Verify**
+Verify that:
+
+- The `UserCreate` schema has been created.
+- The `UserResponse` schema has been created.
+- The `name` field validates the minimum and maximum length.
+- The `email` field accepts only valid email addresses.
+- The `password` field validates the minimum length.
+- The `UserResponse` schema is configured to read data from ORM objects.
+
+**Commit Changes**
+<Accordion title="Solution">
+
+```bash
+git add .
+git commit -m "Create user schemas"
+```
+
+</Accordion>
+# Step 5: Initialize the FastAPI Application
+
+**Objective**
+Initialize the FastAPI application, create the database tables, and implement a simple Home endpoint.
+
+**Instructions**
+Open the `main.py` file and implement the following:
+
+- Create a FastAPI application.
+- Import the database engine.
+- Import the User model.
+- Create the database tables.
+- Implement a Home endpoint.
+
+<Question>
+
+Initialize the FastAPI application and create the database tables.
+
+</Question>
+
+<Accordion title="Solution">
+
+**`app/main.py`**
+
+```python
+from fastapi import FastAPI
+
+from app.database import Base, engine
+from app.models import User
+
+app = FastAPI(
+    title="JWT Authentication API"
+)
+
+Base.metadata.create_all(bind=engine)
+
+
+@app.get("/")
+def home():
+    return {
+        "message": "JWT Authentication API"
+    }
+```
+
+</Accordion>
+
+**Verify**
+Start the FastAPI application.
+
+```bash
+uv run uvicorn app.main:app --reload
+```
+
+Verify that:
+
+- The application starts successfully.
+- A `users.db` database file is created.
+- A `users` table is created in the database.
+- The Home endpoint is accessible.
+
+Open the following URL in your browser:
+
+```text
+http://127.0.0.1:8000
+```
+
+Expected Response
+
+```json
+{
+    "message": "JWT Authentication API"
+}
+```
+
+You can also open the Swagger UI.
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+Verify that the Home endpoint appears in the API documentation.
+
+**Commit Changes**
+<Accordion title="Solution">
+
+```bash
+git add .
+git commit -m "Initialize FastAPI application"
+```
+
+</Accordion>
+# Step 6: Implement Authentication Utilities
+
+**Objective**
+Implement reusable helper functions for password hashing, password verification, JWT generation, and JWT validation.
+
+These helper functions will be used by the Register API, Login API, and Protected APIs.
+
+**Instructions**
+Create an `auth.py` file and implement the following:
+
+- Configure the Secret Key.
+- Configure the JWT Signing Algorithm.
+- Configure the Token Expiration Time.
+- Implement the `hash_password()` function.
+- Implement the `verify_password()` function.
+- Implement the `create_access_token()` function.
+- Implement the `verify_access_token()` function.
+
+<Question>
+
+Implement the authentication utility functions required for JWT authentication.
+
+</Question>
+
+<Accordion title="Solution">
+
+**`app/auth.py`**
+
+```python
+from datetime import datetime, timedelta, timezone
+
+from jose import JWTError, jwt
+from pwdlib import PasswordHash
+
+SECRET_KEY = "my-secret-key"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+password_hash = PasswordHash.recommended()
+
+
+def hash_password(password: str) -> str:
+    """
+    Hash a plain text password before storing it in the database.
+    """
+    return password_hash.hash(password)
+
+
+def verify_password(password: str, hashed_password: str) -> bool:
+    """
+    Verify a plain text password against the stored hashed password.
+    """
+    return password_hash.verify(password, hashed_password)
+
+
+def create_access_token(data: dict) -> str:
+    """
+    Generate a signed JWT access token.
+    """
+
+    payload = data.copy()
+
+    payload["exp"] = (
+        datetime.now(timezone.utc)
+        + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    )
+
+    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+
+
+def verify_access_token(token: str) -> dict:
+    """
+    Decode and validate a JWT access token.
+    """
+
+    try:
+        return jwt.decode(
+            token,
+            SECRET_KEY,
+            algorithms=[ALGORITHM]
+        )
+
+    except JWTError:
+        raise ValueError("Invalid or expired token.")
+```
+
+</Accordion>
+
+**Verify**
+Verify that:
+
+- The Secret Key has been configured.
+- The JWT signing algorithm has been configured.
+- The token expiration time has been configured.
+- The password hashing utility has been implemented.
+- The password verification utility has been implemented.
+- The JWT generation utility has been implemented.
+- The JWT validation utility has been implemented.
+
+> **Note:** These helper functions will be used in the upcoming steps to implement user registration, login, and protected REST APIs.
+
+**Commit Changes**
+<Accordion title="Solution">
+
+```bash
+git add .
+git commit -m "Implement authentication utilities"
+```
+
+</Accordion>
+# Step 7: Implement the Register API
+
+**Objective**
+Implement the Register API to create a new user account.
+
+Before storing the user in the database, securely hash the password using the authentication utility.
+
+**Instructions**
+Open the `main.py` file and implement the Register API.
+
+The API should perform the following:
+
+- Accept user registration details.
+- Validate the request using the `UserCreate` schema.
+- Check whether the email already exists.
+- Hash the password.
+- Create a new user.
+- Save the user to the database.
+- Return the created user.
+
+<Question>
+
+Implement the Register API.
+
+</Question>
+
+<Accordion title="Solution">
+
+**Update `app/main.py`**
+
+```python
+from typing import Annotated
+
+from fastapi import Depends, FastAPI, HTTPException
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+from app.auth import hash_password
+from app.database import Base, engine, get_db
+from app.models import User
+from app.schemas import UserCreate, UserResponse
+
+app = FastAPI(
+    title="JWT Authentication API"
+)
+
+Base.metadata.create_all(bind=engine)
+
+DbSession = Annotated[Session, Depends(get_db)]
+
+
+@app.get("/")
+def home():
+    return {
+        "message": "JWT Authentication API"
+    }
+
+
+@app.post("/register", response_model=UserResponse, status_code=201)
+def register(user: UserCreate, db: DbSession):
+    """
+    Register a new user.
+    """
+
+    existing_user = db.scalar(
+        select(User).where(User.email == user.email)
+    )
+
+    if existing_user:
+        raise HTTPException(
+            status_code=409,
+            detail="Email already exists."
+        )
+
+    new_user = User(
+        name=user.name,
+        email=user.email,
+        password=hash_password(user.password),
+        role="user"
+    )
+
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
+    return new_user
+```
+
+</Accordion>
+
+**Verify**
+Start the FastAPI application.
+
+```bash
+uv run uvicorn app.main:app --reload
+```
+
+Open the Swagger UI.
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+**Test the Register API**
+
+**POST** `/register`
+
+Request Body
+
+```json
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "admin123"
+}
+```
+
+Verify that:
+
+- The user is created successfully.
+- A **201 Created** response is returned.
+- The password stored in the database is hashed.
+- The response does not include the password.
+- Registering the same email again returns **409 Conflict**.
+
+Open the `users.db` database using **DB Browser for SQLite** and verify that the password column contains a hashed value instead of the original password.
+
+**Commit Changes**
+<Accordion title="Solution">
+
+```bash
+git add .
+git commit -m "Implement user registration"
+```
+
+</Accordion>
+# Step 8: Create the Authentication Schemas
+
+**Objective**
+Create the Pydantic schemas required for user authentication.
+
+**Instructions**
+Open the `schemas.py` file and implement the following schemas:
+
+- LoginRequest
+- TokenResponse
+
+The `LoginRequest` schema should contain:
+
+- email
+- password
+
+The `TokenResponse` schema should contain:
+
+- access_token
+- token_type
+
+<Question>
+
+Create the authentication schemas.
+
+</Question>
+
+<Accordion title="Solution">
+
+**Update `app/schemas.py`**
+
+```python
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: Password
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+```
+
+</Accordion>
+
+**Verify**
+Verify that:
+
+- The `LoginRequest` schema has been created.
+- The `TokenResponse` schema has been created.
+- The email field accepts valid email addresses.
+- The password field uses the shared `Password` validation.
+
+**Commit Changes**
+<Accordion title="Solution">
+
+```bash
+git add .
+git commit -m "Create authentication schemas"
+```
+
+</Accordion>
+
+# Step 9: Implement the Login API
+
+**Objective**
+Implement the Login API to authenticate a user and generate a JWT access token.
+
+**Instructions**
+Open the `main.py` file and implement the Login API.
+
+**Implementation Steps**
+**Step 1:** Import the required authentication utilities and schemas.
+
+**Step 2:** Create the Login API endpoint.
+
+**Step 3:** Retrieve the user using the email address.
+
+**Step 4:** Verify that the user exists.
+
+**Step 5:** Verify the entered password.
+
+**Step 6:** Generate a JWT access token.
+
+**Step 7:** Return the generated JWT to the client.
+
+<Question>
+
+Implement the Login API.
+
+</Question>
+
+<Accordion title="Solution">
+
+**Update `app/main.py`**
+
+```python
+from typing import Annotated
+
+from fastapi import Depends, FastAPI, HTTPException
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+from app.auth import (
+    create_access_token,
+    hash_password,
+    verify_password,
+)
+from app.database import Base, engine, get_db
+from app.models import User
+from app.schemas import (
+    LoginRequest,
+    TokenResponse,
+    UserCreate,
+    UserResponse,
+)
+
+app = FastAPI(
+    title="JWT Authentication API"
+)
+
+Base.metadata.create_all(bind=engine)
+
+DbSession = Annotated[Session, Depends(get_db)]
+
+
+@app.get("/")
+def home():
+    return {
+        "message": "JWT Authentication API"
+    }
+
+
+@app.post("/register", response_model=UserResponse, status_code=201)
+def register(user: UserCreate, db: DbSession):
+
+    existing_user = db.scalar(
+        select(User).where(User.email == user.email)
+    )
+
+    if existing_user:
+        raise HTTPException(
+            status_code=409,
+            detail="Email already exists."
+        )
+
+    new_user = User(
+        name=user.name,
+        email=user.email,
+        password=hash_password(user.password),
+        role="user",
+    )
+
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
+    return new_user
+
+
+@app.post("/login", response_model=TokenResponse)
+def login(credentials: LoginRequest, db: DbSession):
+    """
+    Authenticate a user and generate a JWT access token.
+    """
+
+    user = db.scalar(
+        select(User).where(User.email == credentials.email)
+    )
+
+    if not user:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid email or password."
+        )
+
+    if not verify_password(
+        credentials.password,
+        user.password,
+    ):
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid email or password."
+        )
+
+    access_token = create_access_token(
+        {
+            "sub": str(user.id),
+            "email": user.email,
+            "role": user.role,
+        }
+    )
+
+    return TokenResponse(
+        access_token=access_token
+    )
+```
+
+</Accordion>
+
+**Verify**
+Start the FastAPI application.
+
+```bash
+uv run uvicorn app.main:app --reload
+```
+
+Open the Swagger UI.
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+**Test the Login API**
+
+Invoke the **POST** `/login` endpoint.
+
+Request Body
+
+```json
+{
+    "email": "john@example.com",
+    "password": "admin123"
+}
+```
+
+Verify that:
+
+- The user is authenticated successfully.
+- A JWT access token is returned.
+- The response contains the token type as `"bearer"`.
+- An invalid email returns **401 Unauthorized**.
+- An incorrect password returns **401 Unauthorized**.
+
+> **Note:** Copy the generated JWT access token. It will be used in the next step to access the protected APIs.
+
+**Commit Changes**
+<Accordion title="Solution">
+
+```bash
+git add .
+git commit -m "Implement login API"
+```
+
+</Accordion>
+# Step 10: Implement the Current User Authentication Dependency
+
+**Objective**
+Implement a dependency that authenticates the current user using a JWT access token.
+
+The dependency will:
+
+- Read the Bearer token from the request.
+- Validate the JWT access token.
+- Extract the user information from the JWT payload.
+- Retrieve the authenticated user from the database.
+- Return the authenticated user.
+
+**Instructions**
+Open the `auth.py` file and implement the current user authentication dependency.
+
+**Implementation Steps**
+**Step 1:** Import the required FastAPI security classes.
+
+**Step 2:** Create an `HTTPBearer` security instance.
+
+**Step 3:** Create a reusable database session dependency.
+
+**Step 4:** Implement the `get_current_user()` dependency.
+
+**Step 5:** Read the Bearer token from the request.
+
+**Step 6:** Validate the JWT access token.
+
+**Step 7:** Retrieve the authenticated user from the database.
+
+**Step 8:** Return the authenticated user.
+
+<Question>
+
+Implement the current user authentication dependency.
+
+</Question>
+
+<Accordion title="Solution">
+
+**Update `app/auth.py`**
+
+```python
+from datetime import datetime, timedelta, timezone
+from typing import Annotated
+
+from fastapi import Depends, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from jose import JWTError, jwt
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+from app.database import get_db
+from app.models import User
+
+SECRET_KEY = "my-secret-key"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+password_hash = PasswordHash.recommended()
+
+security = HTTPBearer()
+
+DbSession = Annotated[Session, Depends(get_db)]
+
+
+def hash_password(password: str) -> str:
+    """
+    Hash a plain text password before storing it.
+    """
+    return password_hash.hash(password)
+
+
+def verify_password(password: str, hashed_password: str) -> bool:
+    """
+    Verify a plain text password against the stored hashed password.
+    """
+    return password_hash.verify(password, hashed_password)
+
+
+def create_access_token(data: dict) -> str:
+    """
+    Generate a JWT access token.
+    """
+
+    payload = data.copy()
+
+    payload["exp"] = (
+        datetime.now(timezone.utc)
+        + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    )
+
+    return jwt.encode(
+        payload,
+        SECRET_KEY,
+        algorithm=ALGORITHM,
+    )
+
+
+def verify_access_token(token: str) -> dict:
+    """
+    Decode and validate a JWT access token.
+    """
+
+    try:
+        return jwt.decode(
+            token,
+            SECRET_KEY,
+            algorithms=[ALGORITHM],
+        )
+
+    except JWTError:
+        raise ValueError("Invalid or expired token.")
+
+
+def get_current_user(
+    credentials: Annotated[
+        HTTPAuthorizationCredentials,
+        Depends(security),
+    ],
+    db: DbSession,
+) -> User:
+    """
+    Authenticate the current user using the JWT access token.
+    """
+
+    try:
+        payload = verify_access_token(credentials.credentials)
+
+    except ValueError:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid or expired access token.",
+        )
+
+    user = db.scalar(
+        select(User).where(
+            User.id == int(payload["sub"])
+        )
+    )
+
+    if not user:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid authentication credentials.",
+        )
+
+    return user
+```
+
+</Accordion>
+
+**Verify**
+Start the FastAPI application.
+
+```bash
+uv run uvicorn app.main:app --reload
+```
+
+Open the Swagger UI.
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+Verify that:
+
+- The application starts successfully.
+- The **Authorize** button appears in Swagger UI.
+- A Bearer token can be entered using the **Authorize** dialog.
+- The `get_current_user()` dependency is implemented successfully.
+
+> **Note:** The `get_current_user()` dependency will be used in the next step to protect REST APIs.
+
+**Commit Changes**
+<Accordion title="Solution">
+
+```bash
+git add .
+git commit -m "Implement current user authentication dependency"
+```
+
+</Accordion>
+
+# Step 11: Create Public and Protected APIs
+
+**Objective**
+Create public and protected REST APIs to demonstrate JWT-based authentication.
+
+The Public API should be accessible without authentication, while the Protected API should only be accessible to authenticated users.
+
+**Instructions**
+Open the `main.py` file and implement the Public and Protected APIs.
+
+**Implementation Steps**
+**Step 1:** Import the `get_current_user()` dependency.
+
+**Step 2:** Create a reusable dependency for the authenticated user.
+
+**Step 3:** Implement a Public API.
+
+**Step 4:** Implement a Protected API.
+
+**Step 5:** Access the authenticated user's information inside the Protected API.
+
+<Question>
+
+Create the Public and Protected APIs.
+
+</Question>
+
+<Accordion title="Solution">
+
+**Update `app/main.py`**
+
+```python
+from typing import Annotated
+
+from fastapi import Depends
+
+from app.auth import get_current_user
+from app.models import User
+
+CurrentUser = Annotated[
+    User,
+    Depends(get_current_user),
+]
+
+
+@app.get("/public")
+def public():
+    """
+    Public endpoint accessible without authentication.
+    """
+
+    return {
+        "message": "This is a public endpoint."
+    }
+
+
+@app.get("/profile")
+def profile(current_user: CurrentUser):
+    """
+    Protected endpoint accessible only to authenticated users.
+    """
+
+    return {
+        "id": current_user.id,
+        "name": current_user.name,
+        "email": current_user.email,
+        "role": current_user.role,
+    }
+```
+
+</Accordion>
+
+**Verify**
+Start the FastAPI application.
+
+```bash
+uv run uvicorn app.main:app --reload
+```
+
+Open the Swagger UI.
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+**Test the Public API**
+
+Invoke the **GET** `/public` endpoint.
+
+Verify that:
+
+- The endpoint is accessible without authentication.
+- A successful response is returned.
+
+Expected Response
+
+```json
+{
+  "message": "This is a public endpoint."
+}
+```
+
+**Test the Protected API**
+
+1. Register a new user.
+2. Login using the registered user's credentials.
+3. Copy the generated JWT access token.
+4. Click the **Authorize** button in Swagger UI.
+5. Enter the JWT token in the following format:
+
+```text
+Bearer <your-jwt-token>
+```
+
+6. Invoke the **GET** `/profile` endpoint.
+
+Verify that:
+
+- The authenticated user's details are returned.
+- Accessing the endpoint without a token returns **401 Unauthorized**.
+- Accessing the endpoint with an invalid or expired token returns **401 Unauthorized**.
+
+Expected Response
+
+```json
+{
+  "id": 1,
+  "name": "John Doe",
+  "email": "john@example.com",
+  "role": "user"
+}
+```
+
+**Commit Changes**
+<Accordion title="Solution">
+
+```bash
+git add .
+git commit -m "Create public and protected APIs"
+```
+
+</Accordion>
+
+# Step 12: Test the Complete Authentication Flow
+
+**Objective**
+Test the complete JWT authentication workflow by registering a user, logging in, obtaining a JWT access token, and accessing both public and protected APIs.
+
+**Instructions**
+Run the FastAPI application and verify that the authentication system works as expected.
+
+## Test Scenarios
+
+**Step 1: Start the Application**
+
+Run the application.
+
+```bash
+uv run uvicorn app.main:app --reload
+```
+
+Open the Swagger UI.
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+---
+
+**Step 2: Register a New User**
+
+Invoke the **POST** `/register` endpoint.
+
+Request Body
+
+```json
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "admin123"
+}
+```
+
+Verify that:
+
+- The user is registered successfully.
+- A **201 Created** response is returned.
+- The password is stored as a hashed value in the database.
+
+---
+
+**Step 3: Login**
+
+Invoke the **POST** `/login` endpoint.
+
+Request Body
+
+```json
+{
+  "email": "john@example.com",
+  "password": "admin123"
+}
+```
+
+Verify that:
+
+- Login is successful.
+- A JWT access token is returned.
+
+Example Response
+
+```json
+{
+  "access_token": "<jwt-token>",
+  "token_type": "bearer"
+}
+```
+
+Copy the generated JWT access token.
+
+---
+
+**Step 4: Access the Public API**
+
+Invoke the **GET** `/public` endpoint.
+
+Verify that:
+
+- The endpoint is accessible without authentication.
+
+Expected Response
+
+```json
+{
+  "message": "This is a public endpoint."
+}
+```
+
+---
+
+**Step 5: Access the Protected API**
+
+Click the **Authorize** button in Swagger UI.
+
+Enter the JWT access token.
+
+```text
+Bearer <your-jwt-token>
+```
+
+Invoke the **GET** `/profile` endpoint.
+
+Verify that:
+
+- The authenticated user's details are returned.
+
+Example Response
+
+```json
+{
+  "id": 1,
+  "name": "John Doe",
+  "email": "john@example.com",
+  "role": "user"
+}
+```
+
+---
+
+**Step 6: Verify Unauthorized Access**
+
+Verify the following scenarios:
+
+- Access `/profile` without a JWT token.
+- Access `/profile` with an invalid JWT token.
+- Access `/profile` with an expired JWT token.
+
+Verify that each request returns:
+
+```text
+401 Unauthorized
+```
+
+## Expected Authentication Flow
+
+```text
+Client
+   │
+   ▼
+POST /register
+   │
+   ▼
+User Created
+   │
+   ▼
+POST /login
+   │
+   ▼
+JWT Access Token
+   │
+   ▼
+Authorize (Bearer Token)
+   │
+   ▼
+GET /profile
+   │
+   ▼
+Authenticated User Details
+```
+
+**Verify**
+Verify that:
+
+- User registration works successfully.
+- Login returns a valid JWT access token.
+- Passwords are stored as hashed values.
+- Public APIs are accessible without authentication.
+- Protected APIs require a valid JWT.
+- Invalid or expired tokens return **401 Unauthorized**.
+
+**Commit Changes**
+<Accordion title="Solution">
+
+```bash
+git add .
+git commit -m "Complete JWT authentication module"
+```
+
+</Accordion>

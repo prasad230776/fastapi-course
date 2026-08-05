@@ -154,38 +154,31 @@
               "fastapi-foundations/sql-orm",
               "fastapi-foundations/jwt-auth"
             ]
-          },
-            {
-            "group": "Streamlit Fundamentals",
-            "pages": [
-              "streamlit/intro",
-              "streamlit/displaying-content",
-              "streamlit/widgets",
-              "streamlit/data-handling",
-              "streamlit/streamlit-app"
-            ]
           }
         ]
       },
-      {
-        "tab": "SQL",
+     {
+        "tab": "Data Processing",
         "groups": [
           {
-            "group": "Data Persistence",
+            "group": "SQL & Databases",
             "pages": [
-              "database-integration/introduction",
-              "database-integration/fundamentals",
-              "database-integration/relations",
-              "database-integration/getting-started-sqlite",
-              "database-integration/data-types",
-              "database-integration/creating-database",
-              "database-integration/basic-select",
-              "database-integration/advanced-select",
-              "database-integration/joins",
-              "database-integration/others-cud",
-              "database-integration/ddl",
-              "database-integration/dcl-tcl",
-              "database-integration/advanced-sql"
+              "sql/intro",
+              "sql/sqlite-ddl-dml",
+              "sql/sqlite-dbsetup",
+              "sql/dql",
+              "sql/joins",
+              "sql/adv-sql"
+            ]
+          },
+          {
+            "group": "Libraries",
+            "pages": [
+              "data-analysis/numpy",
+              "data-analysis/pandas",
+              "data-analysis/matplotlib",
+              "data-analysis/seaborn",
+              "data-analysis/visualization-guide"
             ]
           }
         ]
@@ -204,9 +197,7 @@
               "orm/select-query",
               "orm/relationships",
               "orm/advanced-queries",
-              "orm/migrations",
-              "orm/blog-posts-api",
-              "orm/blog-posts-production-grade"
+              "orm/migrations"
             ]
           }
         ]
@@ -272,9 +263,28 @@
               "workshop/06-data-validation",
               "workshop/07-project-essentials",
               "workshop/08-fastapi-essentials",
-              "workshop/09-sql-orm"
+              "workshop/09-sql-orm",
+              "workshop/10-auth-jwt"
             ]
           }
+
+        ]
+      },
+      {
+        "tab": "Projects",
+        "groups": [
+          
+           {
+            "group": "Projects",
+            "pages": [
+              "projects/01-basic-crud",
+              "projects/02-api-crud-orm-modular",
+              "projects/03-restapi-with-jwt",
+              "projects/04-blog-posts-orm-standalone",
+              "projects/05-blog-posts-api-v2"
+            ]
+          }
+
         ]
       }
 

@@ -1,0 +1,646 @@
+---
+title: "DQL"
+description: "Learn how to retrieve, filter, sort, group, and analyze data using SQL SELECT queries."
+icon: "search"
+---
+
+# DQL - Retrieving Data with SELECT
+
+Data Query Language (DQL) is used to retrieve data from a database. The primary command in DQL is **SELECT**.
+
+Throughout this chapter, we'll use the following tables.
+
+### Department
+
+| Department ID | Department Name |
+|---------------|-----------------|
+|1|Engineering|
+|2|HR|
+|3|Sales|
+
+### Employee
+
+| Employee ID | Employee Name | Salary | City | Department ID |
+|-------------|---------------|--------|------|---------------|
+|101|Rahul|65000|Hyderabad|1|
+|102|Anitha|55000|Bengaluru|2|
+|103|Kiran|72000|Hyderabad|1|
+|104|Sneha|50000|Chennai|3|
+|105|Ajay|80000|Hyderabad|1|
+
+## SELECT Statement
+
+The `SELECT` statement retrieves data from one or more tables.
+
+### Syntax
+
+```sql
+SELECT column_name
+FROM table_name;
+```
+
+### Example 1
+
+Retrieve all columns.
+
+```sql
+SELECT *
+FROM employee;
+```
+
+### Example 2
+
+Retrieve only employee names.
+
+```sql
+SELECT employee_name
+FROM employee;
+```
+
+### Example 3
+
+Retrieve employee names and salaries.
+
+```sql
+SELECT employee_name, salary
+FROM employee;
+```
+
+### Practice
+
+**Display only the employee names and cities.**
+
+<Accordion title="Solution">
+
+```sql
+SELECT employee_name, city
+FROM employee;
+```
+
+</Accordion>
+
+## Column Aliases
+
+Aliases provide temporary names to columns, making the output easier to read.
+
+### Syntax
+
+```sql
+SELECT column_name AS alias_name
+FROM table_name;
+```
+
+### Example
+
+```sql
+SELECT
+    employee_name AS Name,
+    salary AS MonthlySalary
+FROM employee;
+```
+
+### Example
+
+```sql
+SELECT
+    employee_name AS Name,
+    salary * 12 AS AnnualSalary
+FROM employee;
+```
+
+### Practice
+
+Display employee names as **Employee** and salary as **Salary**.
+
+<Accordion title="Solution">
+
+```sql
+SELECT
+    employee_name AS Employee,
+    salary AS Salary
+FROM employee;
+```
+
+</Accordion>
+
+## DISTINCT
+
+`DISTINCT` removes duplicate values.
+
+### Syntax
+
+```sql
+SELECT DISTINCT column_name
+FROM table_name;
+```
+
+### Example
+
+```sql
+SELECT DISTINCT city
+FROM employee;
+```
+
+### Example
+
+```sql
+SELECT DISTINCT department_id
+FROM employee;
+```
+
+### Practice
+
+Display all unique department IDs.
+
+<Accordion title="Solution">
+
+```sql
+SELECT DISTINCT department_id
+FROM employee;
+```
+
+</Accordion>
+
+## WHERE Clause
+
+The `WHERE` clause filters rows based on a condition.
+
+### Syntax
+
+```sql
+SELECT *
+FROM employee
+WHERE condition;
+```
+
+### Example
+
+```sql
+SELECT *
+FROM employee
+WHERE salary > 60000;
+```
+
+### Example
+
+```sql
+SELECT *
+FROM employee
+WHERE city = 'Hyderabad';
+```
+
+### Example
+
+```sql
+SELECT *
+FROM employee
+WHERE department_id = 1;
+```
+
+### Practice
+
+Display employees earning more than ₹70,000.
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE salary > 70000;
+```
+
+</Accordion>
+
+## Comparison Operators
+
+| Operator | Meaning |
+|----------|---------|
+| `=` | Equal |
+| `!=` | Not Equal |
+| `>` | Greater Than |
+| `<` | Less Than |
+| `>=` | Greater Than or Equal |
+| `<=` | Less Than or Equal |
+
+### Example
+
+```sql
+SELECT *
+FROM employee
+WHERE salary >= 60000;
+```
+
+### Practice
+
+Display employees whose salary is less than ₹60,000.
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE salary < 60000;
+```
+
+</Accordion>
+
+## Logical Operators
+
+Logical operators combine multiple conditions.
+
+### AND
+
+Both conditions must be true.
+
+```sql
+SELECT *
+FROM employee
+WHERE city = 'Hyderabad'
+AND salary > 60000;
+```
+
+### OR
+
+At least one condition must be true.
+
+```sql
+SELECT *
+FROM employee
+WHERE city = 'Hyderabad'
+OR city = 'Chennai';
+```
+
+### NOT
+
+Negates a condition.
+
+```sql
+SELECT *
+FROM employee
+WHERE NOT city = 'Hyderabad';
+```
+
+### Practice
+
+Display employees from Hyderabad earning more than ₹65,000.
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE city = 'Hyderabad'
+AND salary > 65000;
+```
+
+</Accordion>
+
+## BETWEEN
+
+`BETWEEN` checks whether a value falls within a range.
+
+### Example
+
+```sql
+SELECT *
+FROM employee
+WHERE salary BETWEEN 50000 AND 70000;
+```
+
+### Practice
+
+Display employees with salaries between ₹55,000 and ₹80,000.
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE salary BETWEEN 55000 AND 80000;
+```
+
+</Accordion>
+
+## IN
+
+`IN` checks whether a value exists in a list.
+
+### Example
+
+```sql
+SELECT *
+FROM employee
+WHERE department_id IN (1, 3);
+```
+
+### Practice
+
+Display employees belonging to departments 2 and 3.
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE department_id IN (2, 3);
+```
+
+</Accordion>
+
+## LIKE
+
+`LIKE` searches for text patterns.
+
+| Pattern | Meaning |
+|----------|---------|
+| A% | Starts with A |
+| %a | Ends with a |
+| %an% | Contains "an" |
+| _ | Single character |
+
+### Example
+
+```sql
+SELECT *
+FROM employee
+WHERE employee_name LIKE 'A%';
+```
+
+### Example
+
+```sql
+SELECT *
+FROM employee
+WHERE employee_name LIKE '%a';
+```
+
+### Practice
+
+Display employees whose names start with **S**.
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE employee_name LIKE 'S%';
+```
+
+</Accordion>
+
+## NULL Values
+
+Use `IS NULL` or `IS NOT NULL` to work with missing values.
+
+### Example
+
+```sql
+SELECT *
+FROM employee
+WHERE department_id IS NULL;
+```
+
+### Practice
+
+Display employees whose department has been assigned.
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+WHERE department_id IS NOT NULL;
+```
+
+</Accordion>
+
+## ORDER BY
+
+`ORDER BY` sorts the result set.
+
+### Ascending Order
+
+```sql
+SELECT *
+FROM employee
+ORDER BY salary;
+```
+
+### Descending Order
+
+```sql
+SELECT *
+FROM employee
+ORDER BY salary DESC;
+```
+
+### Multiple Columns
+
+```sql
+SELECT *
+FROM employee
+ORDER BY department_id, salary DESC;
+```
+
+### Practice
+
+Display employees sorted by employee name.
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+ORDER BY employee_name;
+```
+
+</Accordion>
+
+## LIMIT and OFFSET
+
+### LIMIT
+
+Returns only the specified number of rows.
+
+```sql
+SELECT *
+FROM employee
+LIMIT 3;
+```
+
+### OFFSET
+
+Skips a specified number of rows.
+
+```sql
+SELECT *
+FROM employee
+LIMIT 2 OFFSET 3;
+```
+
+### Practice
+
+Display the first four employees.
+
+<Accordion title="Solution">
+
+```sql
+SELECT *
+FROM employee
+LIMIT 4;
+```
+
+</Accordion>
+
+## Aggregate Functions
+
+Aggregate functions perform calculations on multiple rows.
+
+| Function | Purpose |
+|----------|---------|
+| COUNT() | Counts rows |
+| SUM() | Total |
+| AVG() | Average |
+| MIN() | Smallest value |
+| MAX() | Largest value |
+
+### Example
+
+```sql
+SELECT COUNT(*)
+FROM employee;
+```
+
+```sql
+SELECT AVG(salary)
+FROM employee;
+```
+
+```sql
+SELECT MAX(salary)
+FROM employee;
+```
+
+### Practice
+
+Find the minimum salary.
+
+<Accordion title="Solution">
+
+```sql
+SELECT MIN(salary)
+FROM employee;
+```
+
+</Accordion>
+
+## GROUP BY
+
+`GROUP BY` groups rows before performing aggregate calculations.
+
+### Example
+
+```sql
+SELECT
+    department_id,
+    AVG(salary)
+FROM employee
+GROUP BY department_id;
+```
+
+### Practice
+
+Count employees in each city.
+
+<Accordion title="Solution">
+
+```sql
+SELECT
+    city,
+    COUNT(*)
+FROM employee
+GROUP BY city;
+```
+
+</Accordion>
+
+## HAVING
+
+`HAVING` filters groups after aggregation.
+
+### Example
+
+```sql
+SELECT
+    department_id,
+    AVG(salary)
+FROM employee
+GROUP BY department_id
+HAVING AVG(salary) > 60000;
+```
+
+### Practice
+
+Display cities having more than one employee.
+
+<Accordion title="Solution">
+
+```sql
+SELECT
+    city,
+    COUNT(*)
+FROM employee
+GROUP BY city
+HAVING COUNT(*) > 1;
+```
+
+</Accordion>
+
+## SQL Execution Order
+
+Although we write queries in this order:
+
+```text
+SELECT
+FROM
+WHERE
+GROUP BY
+HAVING
+ORDER BY
+LIMIT
+```
+
+SQL actually executes them in the following order:
+
+```text
+FROM
+↓
+WHERE
+↓
+GROUP BY
+↓
+HAVING
+↓
+SELECT
+↓
+ORDER BY
+↓
+LIMIT
+```
+
+Understanding this order helps explain why some clauses (like `WHERE`) cannot use column aliases created in `SELECT`.
+
+## Summary
+
+In this chapter, you learned how to:
+
+- Retrieve data using `SELECT`
+- Filter rows with `WHERE`
+- Remove duplicates using `DISTINCT`
+- Sort results using `ORDER BY`
+- Limit returned rows using `LIMIT` and `OFFSET`
+- Perform calculations using aggregate functions
+- Group data using `GROUP BY`
+- Filter grouped results using `HAVING`
+
+The next chapter introduces **SQL JOINs**, allowing you to retrieve related data from multiple tables.

@@ -1,0 +1,287 @@
+---
+title: "SQL JOINs"
+description: "Learn how to combine data from multiple tables using SQL JOINs."
+icon: "link"
+---
+
+# SQL JOINs
+
+In a relational database, related data is usually stored in separate tables to avoid duplication.
+
+For example, instead of storing the department name for every employee, we store only the `department_id` in the `employee` table. Whenever we need the department name, we combine both tables using a **JOIN**.
+
+Throughout this chapter, we'll use the following tables.
+
+## Department
+
+| Department ID | Department Name |
+|---------------|-----------------|
+|1|Engineering|
+|2|HR|
+|3|Sales|
+|4|Finance|
+
+## Employee
+
+| Employee ID | Employee Name | Salary | Department ID |
+|-------------|---------------|--------|---------------|
+|101|Rahul|65000|1|
+|102|Anitha|55000|2|
+|103|Kiran|72000|1|
+|104|Sneha|50000|3|
+|105|Ajay|80000|NULL|
+
+Notice that **Ajay** is not assigned to any department.
+
+## Why Do We Need JOINs?
+
+In a normalized database, related information is stored in different tables.
+
+For example, the `employee` table stores only the `department_id`, not the department name.
+
+If we execute the following query:
+
+```sql
+SELECT *
+FROM employee;
+```
+
+We get:
+
+| Employee ID | Employee Name | Salary | Department ID |
+|-------------|---------------|--------|---------------|
+|101|Rahul|65000|1|
+|102|Anitha|55000|2|
+|103|Kiran|72000|1|
+|104|Sneha|50000|3|
+|105|Ajay|80000|NULL|
+
+Although we know the department IDs, we don't know the department names.
+
+To retrieve the department name, we combine the `employee` and `department` tables using a **JOIN**.
+
+## JOIN Syntax
+
+```sql
+SELECT columns
+FROM table1
+JOIN table2
+ON table1.common_column = table2.common_column;
+```
+
+### Explanation
+
+- `JOIN` specifies the table to combine.
+- `ON` specifies the matching condition.
+- The matching column is usually a **Primary Key** in one table and a **Foreign Key** in another.
+
+### Practice
+
+Which clause specifies the matching condition between two tables?
+
+<Accordion title="Solution">
+
+The `ON` clause specifies how two tables should be matched.
+
+Example:
+
+```sql
+ON employee.department_id = department.department_id
+```
+
+</Accordion>
+
+## INNER JOIN
+
+An **INNER JOIN** returns **only the rows that have matching values in both tables**.
+
+If a record exists in one table but has no matching record in the other table, it is not included in the result.
+
+### Example 1
+
+Display employee names along with their department names.
+
+```sql
+SELECT
+    e.employee_name,
+    d.department_name
+FROM employee e
+INNER JOIN department d
+ON e.department_id = d.department_id;
+```
+
+### Result
+
+| Employee | Department |
+|----------|------------|
+|Rahul|Engineering|
+|Anitha|HR|
+|Kiran|Engineering|
+|Sneha|Sales|
+
+Notice that **Ajay** is not included because there is no matching department.
+
+### Example 2
+
+Display employees earning more than ₹60,000 along with their department names.
+
+```sql
+SELECT
+    e.employee_name,
+    e.salary,
+    d.department_name
+FROM employee e
+INNER JOIN department d
+ON e.department_id = d.department_id
+WHERE e.salary > 60000;
+```
+
+### Result
+
+| Employee | Salary | Department |
+|----------|--------|------------|
+|Rahul|65000|Engineering|
+|Kiran|72000|Engineering|
+
+### Practice
+
+Display employee names with their department names.
+
+<Accordion title="Solution">
+
+```sql
+SELECT
+    e.employee_name,
+    d.department_name
+FROM employee e
+INNER JOIN department d
+ON e.department_id = d.department_id;
+```
+
+</Accordion>
+
+### Practice
+
+Display employees working in the HR department.
+
+<Accordion title="Solution">
+
+```sql
+SELECT
+    e.employee_name,
+    d.department_name
+FROM employee e
+INNER JOIN department d
+ON e.department_id = d.department_id
+WHERE d.department_name = 'HR';
+```
+
+</Accordion>
+
+### Practice
+
+Display employee names, salaries, and department names for employees earning more than ₹70,000.
+
+<Accordion title="Solution">
+
+```sql
+SELECT
+    e.employee_name,
+    e.salary,
+    d.department_name
+FROM employee e
+INNER JOIN department d
+ON e.department_id = d.department_id
+WHERE e.salary > 70000;
+```
+
+</Accordion>
+
+## LEFT JOIN
+
+A **LEFT JOIN** returns **all rows from the left table** and only the matching rows from the right table.
+
+If no matching row exists in the right table, SQL fills those columns with **NULL**.
+
+### Example 1
+
+Display all employees along with their department names.
+
+```sql
+SELECT
+    e.employee_name,
+    d.department_name
+FROM employee e
+LEFT JOIN department d
+ON e.department_id = d.department_id;
+```
+
+### Result
+
+| Employee | Department |
+|----------|------------|
+|Rahul|Engineering|
+|Anitha|HR|
+|Kiran|Engineering|
+|Sneha|Sales|
+|Ajay|NULL|
+
+Notice that **Ajay** is included because LEFT JOIN returns every row from the Employee table.
+
+### Example 2
+
+Display employees along with department names and salaries.
+
+```sql
+SELECT
+    e.employee_name,
+    e.salary,
+    d.department_name
+FROM employee e
+LEFT JOIN department d
+ON e.department_id = d.department_id;
+```
+
+### Practice
+
+Display all employees with their department names.
+
+<Accordion title="Solution">
+
+```sql
+SELECT
+    e.employee_name,
+    d.department_name
+FROM employee e
+LEFT JOIN department d
+ON e.department_id = d.department_id;
+```
+
+</Accordion>
+
+### Practice
+
+Find employees who are not assigned to any department.
+
+<Accordion title="Solution">
+
+```sql
+SELECT
+    employee_name
+FROM employee
+WHERE department_id IS NULL;
+```
+
+</Accordion>
+
+### Practice
+
+How does a LEFT JOIN differ from an INNER JOIN?
+
+<Accordion title="Solution">
+
+- **INNER JOIN** returns only matching rows.
+- **LEFT JOIN** returns all rows from the left table and matching rows from the right table.
+- If there is no match, the right table columns contain `NULL`.
+
+</Accordion>

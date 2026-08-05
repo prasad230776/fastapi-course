@@ -1,0 +1,436 @@
+---
+title: "Introduction"
+description: "Learn the fundamentals of databases, DBMS, relational databases, SQL, and relationships."
+icon: "database"
+---
+
+# Introduction to DBMS & SQL
+
+Almost every modern application stores data. Whether it is a banking application, an e-commerce website, a hospital management system, or a social media platform, all of them rely on databases to efficiently store and retrieve information.
+
+A **Database Management System (DBMS)** provides a systematic way to create, manage, retrieve, and update this data.
+
+Throughout these notes, we will use an **Employee Management System** as our example database.
+
+## What is Data?
+
+**Data** is a collection of raw facts and figures.
+
+Examples:
+
+- Rahul
+- 25
+- ₹50,000
+- Hyderabad
+
+Individually, these values have little meaning.
+
+### Practice
+
+**1. Which of the following is an example of data?**
+
+- A. Rahul
+- B. 25
+- C. ₹50,000
+- D. All of the above
+
+<Accordion title="Solution">
+
+**Answer:** **D. All of the above**
+
+Data represents raw facts and figures before they are processed into meaningful information.
+
+</Accordion>
+
+## What is Information?
+
+**Information** is processed and organized data that has meaning.
+
+Example
+
+| Employee ID | Name | Salary |
+|-------------|------|---------|
+|101|Rahul|50000|
+
+This is meaningful information because it describes an employee.
+
+### Practice
+
+**1. What is the difference between data and information?**
+
+<Accordion title="Solution">
+
+- **Data** consists of raw facts and figures.
+- **Information** is processed data that has meaning.
+
+</Accordion>
+
+## What is a Database?
+
+A **database** is an organized collection of related data stored electronically so that it can be accessed, updated, and managed efficiently.
+
+Examples:
+
+- Student Management System
+- Banking System
+- Hospital Management System
+- Employee Management System
+- Library Management System
+
+### Why do we need a Database?
+
+Without databases, data would often be stored in files or spreadsheets, making it difficult to:
+
+- Search large amounts of data
+- Update records
+- Prevent duplicate entries
+- Share data among multiple users
+- Maintain data consistency
+
+A database solves these problems by organizing data efficiently.
+
+### Practice
+
+**1. Which of the following is an example of a database?**
+
+- A. Employee Records
+- B. Calculator
+- C. Keyboard
+- D. Printer
+
+<Accordion title="Solution">
+
+**Answer:** **A. Employee Records**
+
+A database stores related information such as employee details, customer records, hospital data, etc.
+
+</Accordion>
+
+## What is DBMS?
+
+A **Database Management System (DBMS)** is software that allows users and applications to create, store, retrieve, update, and delete data from a database.
+
+Examples of DBMS:
+
+- SQLite
+- MySQL
+- PostgreSQL
+- Oracle Database
+- Microsoft SQL Server
+
+### Responsibilities of a DBMS
+
+- Stores data
+- Retrieves data quickly
+- Updates records
+- Deletes records
+- Controls multiple users
+- Maintains security
+- Performs backup and recovery
+
+### Practice
+
+**1. What is the primary purpose of a DBMS?**
+
+<Accordion title="Solution">
+
+A DBMS is used to efficiently **store, organize, retrieve, update, and manage data**.
+
+</Accordion>
+
+## Advantages of DBMS
+
+Compared to storing information in files, a DBMS provides several advantages.
+
+- Faster data retrieval
+- Reduced data redundancy
+- Better security
+- Data consistency
+- Concurrent access
+- Backup and recovery
+- Easier maintenance
+
+### Practice
+
+**1. Which feature of a DBMS helps reduce duplicate data?**
+
+<Accordion title="Solution">
+
+**Reduced Data Redundancy**
+
+A DBMS stores data in an organized manner to avoid unnecessary duplication.
+
+</Accordion>
+
+## Types of Databases
+
+Databases can be broadly classified into two categories.
+
+### Relational Databases (SQL Databases)
+
+A Relational Database stores data in **tables** consisting of rows and columns.
+
+Examples:
+
+- SQLite
+- MySQL
+- PostgreSQL
+- Oracle
+- SQL Server
+
+Suitable for:
+
+- Banking
+- College Management
+- Employee Management
+- Inventory Systems
+
+### NoSQL Databases
+
+NoSQL databases store data in formats other than tables, such as documents, key-value pairs, graphs, or columns.
+
+Examples:
+
+- MongoDB
+- Redis
+- Cassandra
+- Neo4j
+
+Suitable for:
+
+- Social Media
+- Chat Applications
+- Big Data
+- IoT Systems
+
+### SQL vs NoSQL
+
+| SQL | NoSQL |
+|------|--------|
+| Stores data in tables | Stores data as documents, key-value pairs, graphs, etc. |
+| Uses SQL | Does not necessarily use SQL |
+| Fixed Schema | Flexible Schema |
+| Best for structured data | Best for unstructured data |
+
+### Practice
+
+**1. Which type of database stores data in tables?**
+
+<Accordion title="Solution">
+
+**Relational Database (SQL Database)**
+
+</Accordion>
+
+## What is SQL?
+
+**SQL (Structured Query Language)** is the standard language used to communicate with relational databases.
+
+Using SQL, we can:
+
+- Create tables
+- Insert records
+- Retrieve data
+- Update records
+- Delete records
+
+### Example
+
+```sql
+SELECT * FROM employee;
+```
+
+The above query retrieves all employee records.
+
+### Practice
+
+**1. Which language is used to communicate with relational databases?**
+
+<Accordion title="Solution">
+
+**SQL (Structured Query Language)**
+
+</Accordion>
+
+## Relational Database Concepts
+
+A relational database organizes data into **tables**.
+
+### Table
+
+A table stores related information.
+
+Example
+
+| Employee ID | Name | Salary |
+|--------------|------|---------|
+|101|Rahul|65000|
+|102|Anitha|55000|
+
+### Row (Record)
+
+Each row represents one complete record.
+
+Example
+
+|101|Rahul|65000|
+
+This represents one employee.
+
+### Column (Field)
+
+Each column represents one attribute.
+
+Examples:
+
+- Employee ID
+- Name
+- Salary
+
+### Practice
+
+**1. What does a row represent in a table?**
+
+<Accordion title="Solution">
+
+A **row** represents one complete record.
+
+Example: One employee.
+
+</Accordion>
+
+## Primary Key
+
+A **Primary Key** uniquely identifies every row in a table.
+
+### Characteristics
+
+- Unique
+- Cannot contain NULL
+- One primary key per table
+
+Example
+
+| Employee ID | Name |
+|-------------|------|
+|101|Rahul|
+|102|Anitha|
+
+Here, **Employee ID** is the Primary Key.
+
+### Practice
+
+**1. Can two rows have the same Primary Key value?**
+
+<Accordion title="Solution">
+
+No.
+
+A Primary Key must always contain **unique values**.
+
+</Accordion>
+
+## Foreign Key
+
+A **Foreign Key** creates a relationship between two tables.
+
+It refers to the Primary Key of another table.
+
+### Department Table
+
+| Department ID | Department Name |
+|---------------|-----------------|
+|1|Engineering|
+|2|HR|
+
+### Employee Table
+
+| Employee | Department ID |
+|----------|---------------|
+|Rahul|1|
+|Anitha|2|
+
+Here, **Department ID** in the Employee table is a Foreign Key.
+
+### Practice
+
+**1. What does a Foreign Key reference?**
+
+<Accordion title="Solution">
+
+A Foreign Key references the **Primary Key** of another table.
+
+</Accordion>
+
+## Database Relationships
+
+### One-to-One (1:1)
+
+One employee has one passport.
+
+```text
+Employee
+    │
+    └── Passport
+```
+
+### One-to-Many (1:N)
+
+One department contains many employees.
+
+```text
+Engineering
+    ├── Rahul
+    ├── Kiran
+    └── Ajay
+```
+
+This is the most common relationship in relational databases.
+
+### Many-to-Many (M:N)
+
+Many students can enroll in many courses.
+
+This relationship requires a **junction table**.
+
+```text
+Student
+    │
+Enrollment
+    │
+Course
+```
+
+### Practice
+
+**1. Which relationship is commonly used between Departments and Employees?**
+
+<Accordion title="Solution">
+
+**One-to-Many (1:N)**
+
+One department can have many employees, while each employee belongs to one department.
+
+</Accordion>
+
+## Sample Database Used Throughout This Guide
+
+### Department
+
+| Department ID | Department Name |
+|---------------|-----------------|
+|1|Engineering|
+|2|HR|
+|3|Sales|
+
+### Employee
+
+| Employee ID | Employee Name | Salary | City | Department ID |
+|-------------|---------------|--------|------|---------------|
+|101|Rahul|65000|Hyderabad|1|
+|102|Anitha|55000|Bengaluru|2|
+|103|Kiran|72000|Hyderabad|1|
+|104|Sneha|50000|Chennai|3|
+|105|Ajay|80000|Hyderabad|1|
+
+The Employee and Department tables will be used in all SQL examples throughout the following chapters.

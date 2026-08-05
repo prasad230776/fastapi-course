@@ -1,0 +1,1223 @@
+---
+title: 01-Student Management REST API using in-memory db
+description: Learn the fundamentals of REST API development in FastAPI by building a Student Management application using an in-memory dictionary, CRUD operations, search functionality, and HTTP exceptions.
+---
+
+# Student Management REST API
+
+**Objective**
+
+In this module, you will build a complete Student Management REST API using FastAPI without a database. By the end of this module, you will be able to:
+
+- Build REST APIs using FastAPI.
+- Design request and response schemas using Pydantic.
+- Store data using an in-memory dictionary.
+- Implement CRUD operations.
+- Search resources using query parameters.
+- Handle API errors using `HTTPException`.
+- Test REST APIs using Swagger UI.
+
+## Architecture
+
+```text
+                  Client
+                     │
+                     ▼
+               FastAPI Application
+                  (main.py)
+                     │
+          ┌──────────┴──────────┐
+          │                     │
+          ▼                     ▼
+    Student REST APIs     Student Schemas
+          │
+          ▼
+   In-Memory Dictionary
+```
+
+## Implementation Roadmap
+
+We will build the Student Management REST API from scratch using the following steps:
+
+1. Create the Project Structure
+2. Initialize the FastAPI Application
+3. Create the Student Schemas
+4. Create the In-Memory Data Store
+5. Implement the Get All Students API
+6. Implement the Get Student by ID API
+17. Implement the Search Students API
+8. Handle Resource Not Found Errors Using HTTPException
+9. Implement the Create Student API
+10. Implement the Update Student API
+11. Implement the Delete Student API
+12. Test the Complete Application
+
+# Step 1: Create the Project Structure
+
+**Objective**
+
+Create the project structure and install the required libraries for building the Student Management REST API.
+
+**Instructions**
+
+Create a new FastAPI project and install the required dependencies.
+
+**Implementation Steps**
+
+**Step 1:** Create a new project folder named `student-api`.
+
+**Step 2:** Open the project folder in your preferred editor (such as **VS Code**).
+
+**Step 3:** Create and activate a Python virtual environment.
+
+**Step 4:** Install the required libraries using **uv**.
+
+**Step 5:** Create the project structure shown below.
+
+```text
+student-api/
+│
+├── app/
+│   └── main.py
+│
+├── .venv/
+├── pyproject.toml
+└── uv.lock
+```
+
+> **Note:** Create the folders and files using your preferred editor or your operating system's file explorer. You may also use terminal commands if you are comfortable with the command line.
+
+<Question>
+
+Create the project structure and install the required dependencies for the Student Management REST API.
+
+</Question>
+
+<Accordion title="Solution">
+
+**Create the Project**
+
+```bash
+mkdir student-api
+
+cd student-api
+```
+
+**Create a Virtual Environment**
+
+```bash
+uv venv
+```
+
+**Activate the Virtual Environment**
+
+**macOS / Linux**
+
+```bash
+source .venv/bin/activate
+```
+
+**Windows**
+
+```bash
+.venv\Scripts\activate
+```
+
+**Install the Required Libraries**
+
+```bash
+uv add fastapi
+uv add uvicorn
+```
+
+**Create the Project Structure**
+
+Create the following folders and files.
+
+```text
+student-api/
+│
+├── app/
+│   └── main.py
+│
+├── .venv/
+├── pyproject.toml
+└── uv.lock
+```
+
+</Accordion>
+
+**Verify**
+
+Verify that:
+
+- The project has been created successfully.
+- The virtual environment has been activated.
+- FastAPI and Uvicorn have been installed.
+- The `app` folder has been created.
+- The `main.py` file has been created.
+- The project structure matches the required layout.
+
+**Commit Changes**
+
+<Accordion title="Solution">
+
+Create a `.gitignore` file with the following content.
+
+```text
+__pycache__/
+.venv/
+*.pyc
+```
+
+Initialize the Git repository and commit the project.
+
+```bash
+git init
+
+git add .
+git commit -m "Initialize Student Management REST API project"
+```
+
+</Accordion>
+
+# Step 2: Initialize the FastAPI Application
+
+**Objective**
+
+Initialize the FastAPI application and implement a simple Health Check endpoint.
+
+**Instructions**
+
+Open the `main.py` file and initialize the FastAPI application.
+
+**Implementation Steps**
+
+**Step 1:** Import the `FastAPI` class.
+
+**Step 2:** Create a FastAPI application.
+
+**Step 3:** Implement a Health Check endpoint.
+
+<Question>
+
+Initialize the FastAPI application and implement a Health Check endpoint.
+
+</Question>
+
+<Accordion title="Solution">
+
+**Update `app/main.py`**
+
+```python
+from fastapi import FastAPI
+
+app = FastAPI(
+    title="Student Management REST API"
+)
+
+
+@app.get("/health")
+def health():
+    return {
+        "status": "healthy"
+    }
+```
+
+</Accordion>
+
+**Verify**
+
+Run the application.
+
+```bash
+uv run uvicorn app.main:app --reload
+```
+
+Open the Health Check endpoint.
+
+```text
+http://127.0.0.1:8000/health
+```
+
+Expected Response
+
+```json
+{
+    "status": "healthy"
+}
+```
+
+Open the Swagger UI.
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+Verify that:
+
+- The application starts successfully.
+- The Health Check endpoint is accessible.
+- The Swagger UI loads successfully.
+
+**Commit Changes**
+
+<Accordion title="Solution">
+
+```bash
+git add .
+git commit -m "Initialize FastAPI application"
+```
+
+</Accordion>
+# Step 3: Create the Student Schemas
+
+**Objective**
+
+Create Pydantic schemas for validating API requests and formatting API responses.
+
+**Instructions**
+
+Create a `schemas.py` file and implement the required request and response schemas.
+
+**Implementation Steps**
+
+**Step 1:** Create a `StudentBase` schema containing the common student fields.
+
+**Step 2:** Apply the required validations to each field.
+
+**Step 3:** Create a `StudentCreate` schema by inheriting from `StudentBase`.
+
+**Step 4:** Create a `StudentUpdate` schema with all fields optional.
+
+**Step 5:** Create a `StudentResponse` schema by inheriting from `StudentBase` and adding the `id` field.
+
+<Question>
+
+Create the Student request and response schemas.
+
+</Question>
+
+<Accordion title="Solution">
+
+**Create `app/schemas.py`**
+
+```python
+from typing import Annotated
+
+from pydantic import BaseModel, Field
+
+Name = Annotated[str, Field(min_length=3, max_length=50)]
+Age = Annotated[int, Field(ge=18, le=60)]
+Course = Annotated[str, Field(min_length=3, max_length=50)]
+
+
+class StudentBase(BaseModel):
+    name: Name
+    age: Age
+    course: Course
+
+
+class StudentCreate(StudentBase):
+    pass
+
+
+class StudentUpdate(BaseModel):
+    name: Name | None = None
+    age: Age | None = None
+    course: Course | None = None
+
+
+class StudentResponse(StudentBase):
+    id: int
+```
+
+</Accordion>
+
+**Verify**
+
+Verify that:
+
+- The `StudentBase` schema has been created.
+- The `StudentCreate` schema inherits from `StudentBase`.
+- The `StudentUpdate` schema contains optional fields.
+- The `StudentResponse` schema inherits from `StudentBase`.
+- All field validations have been implemented successfully.
+
+**Commit Changes**
+
+<Accordion title="Solution">
+
+```bash
+git add .
+git commit -m "Create student schemas"
+```
+
+</Accordion>
+# Step 4: Create the In-Memory Data Store
+
+**Objective**
+
+Create an in-memory data store for managing student records.
+
+**Instructions**
+
+Create a `data.py` file and initialize an in-memory dictionary with sample student records.
+
+**Implementation Steps**
+
+**Step 1:** Create an empty dictionary named `students`.
+
+**Step 2:** Add a few sample student records to the dictionary.
+
+**Step 3:** Use the student ID as the key and the student details as the value.
+
+<Question>
+
+Create the in-memory data store with sample student records.
+
+</Question>
+
+<Accordion title="Solution">
+
+**Create `app/data.py`**
+
+```python
+students: dict[int, dict] = {
+    1: {
+        "id": 1,
+        "name": "Rahul Sharma",
+        "age": 20,
+        "course": "Computer Science",
+    },
+    2: {
+        "id": 2,
+        "name": "Priya Reddy",
+        "age": 21,
+        "course": "Information Technology",
+    },
+    3: {
+        "id": 3,
+        "name": "Arjun Kumar",
+        "age": 19,
+        "course": "Electronics",
+    },
+    4: {
+        "id": 4,
+        "name": "Sneha Patel",
+        "age": 22,
+        "course": "Mechanical Engineering",
+    },
+    5: {
+        "id": 5,
+        "name": "Vikram Singh",
+        "age": 20,
+        "course": "Civil Engineering",
+    },
+}
+```
+
+</Accordion>
+
+**Verify**
+
+Verify that:
+
+- The `data.py` file has been created.
+- The `students` dictionary has been initialized.
+- The dictionary contains five student records.
+- Each student has a unique ID.
+
+> **Note:** These sample records will be used to test the CRUD and Search APIs in the upcoming steps.
+
+**Commit Changes**
+
+<Accordion title="Solution">
+
+```bash
+git add .
+git commit -m "Create in-memory data store"
+```
+
+</Accordion>
+
+# Step 5: Implement the Get All Students API
+
+**Objective**
+
+Implement the Get All Students API to retrieve all student records from the in-memory data store.
+
+**Instructions**
+
+Open the `main.py` file and implement the Get All Students API.
+
+**Implementation Steps**
+
+**Step 1:** Import the `StudentResponse` schema.
+
+**Step 2:** Create the **GET** `/students` endpoint.
+
+**Step 3:** Retrieve all student records from the in-memory data store.
+
+**Step 4:** Return the list of students.
+
+<Question>
+
+Implement the Get All Students API.
+
+</Question>
+
+<Accordion title="Solution">
+
+**Update the imports in `app/main.py`**
+
+```python
+from app.schemas import StudentResponse
+```
+
+**Implement the Get All Students endpoint**
+
+```python
+@app.get("/students", response_model=list[StudentResponse])
+def get_all_students():
+    return students.values()
+```
+
+</Accordion>
+
+**Verify**
+
+Run the application.
+
+```bash
+uv run uvicorn app.main:app --reload
+```
+
+Open the Swagger UI.
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+Invoke the **GET** `/students` endpoint.
+
+Verify that:
+
+- All student records are returned successfully.
+- A **200 OK** response is returned.
+- The response contains all students stored in the in-memory data store.
+
+Expected Response
+
+```json
+[
+    {
+        "id": 1,
+        "name": "Rahul Sharma",
+        "age": 20,
+        "course": "Computer Science"
+    },
+    {
+        "id": 2,
+        "name": "Priya Reddy",
+        "age": 21,
+        "course": "Information Technology"
+    },
+    {
+        "id": 3,
+        "name": "Arjun Kumar",
+        "age": 19,
+        "course": "Electronics"
+    },
+    {
+        "id": 4,
+        "name": "Sneha Patel",
+        "age": 22,
+        "course": "Mechanical Engineering"
+    },
+    {
+        "id": 5,
+        "name": "Vikram Singh",
+        "age": 20,
+        "course": "Civil Engineering"
+    }
+]
+```
+
+**Commit Changes**
+
+<Accordion title="Solution">
+
+```bash
+git add .
+git commit -m "Implement get all students API"
+```
+
+</Accordion>
+
+# Step 6: Implement the Get Student by ID API
+
+**Objective**
+
+Implement the Get Student by ID API to retrieve a student using the student ID.
+
+**Instructions**
+
+Open the `main.py` file and implement the Get Student by ID API.
+
+**Implementation Steps**
+
+**Step 1:** Import the required classes.
+
+**Step 2:** Define a validated path parameter for the student ID.
+
+**Step 3:** Create the **GET** `/students/{student_id}` endpoint.
+
+**Step 4:** Retrieve the student from the in-memory data store.
+
+**Step 5:** Raise an `HTTPException` if the student does not exist.
+
+**Step 6:** Return the student.
+
+<Question>
+
+Implement the Get Student by ID API.
+
+</Question>
+
+<Accordion title="Solution">
+
+**Update the imports in `app/main.py`**
+
+```python
+from typing import Annotated
+
+from fastapi import HTTPException, Path
+```
+
+**Add the validated path parameter**
+
+```python
+# Validate the student ID received in the URL.
+StudentId = Annotated[
+    int,
+    Path(
+        gt=0,
+        description="Student ID",
+    ),
+]
+```
+
+**Implement the Get Student by ID endpoint**
+
+```python
+@app.get("/students/{student_id}", response_model=StudentResponse)
+def get_student_by_id(student_id: StudentId):
+
+    student = students.get(student_id)
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student not found.",
+        )
+
+    return student
+```
+
+</Accordion>
+
+**Verify**
+
+Run the application.
+
+```bash
+uv run uvicorn app.main:app --reload
+```
+
+Open the Swagger UI.
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+Invoke the **GET** `/students/{student_id}` endpoint.
+
+Example
+
+```text
+GET /students/1
+```
+
+Verify that:
+
+- The student details are returned successfully.
+- A **200 OK** response is returned.
+- Requesting a non-existent student returns **404 Not Found**.
+- Providing a student ID less than or equal to **0** returns **422 Unprocessable Entity**.
+- The path parameter validation is visible in the Swagger UI.
+
+Expected Response
+
+```json
+{
+    "id": 1,
+    "name": "Rahul Sharma",
+    "age": 20,
+    "course": "Computer Science"
+}
+```
+
+**Commit Changes**
+
+<Accordion title="Solution">
+
+```bash
+git add .
+git commit -m "Implement get student by ID API"
+```
+
+</Accordion>
+
+# Step 7: Implement the Search Students by Course API
+
+**Objective**
+
+Implement the Search Students by Course API to retrieve students belonging to a specific course.
+
+**Instructions**
+
+Open the `main.py` file and implement the Search Students by Course API.
+
+**Implementation Steps**
+
+**Step 1:** Import the `Query` class.
+
+**Step 2:** Define a validated query parameter for the course name.
+
+**Step 3:** Create the **GET** `/students/search` endpoint.
+
+**Step 4:** Search for students whose course matches the given course name.
+
+**Step 5:** Return the matching students.
+
+<Question>
+
+Implement the Search Students by Course API.
+
+</Question>
+
+<Accordion title="Solution">
+
+**Update the imports in `app/main.py`**
+
+```python
+from fastapi import Query
+```
+
+**Add the validated query parameter**
+
+```python
+# Validate the course name received as a query parameter.
+Course = Annotated[
+    str,
+    Query(
+        min_length=3,
+        description="Course name",
+    ),
+]
+```
+
+**Implement the Search Students by Course endpoint**
+
+```python
+@app.get("/students/search", response_model=list[StudentResponse])
+def search_students_by_course(course: Course):
+
+    matching_students = [
+        student
+        for student in students.values()
+        if student["course"].lower() == course.lower()
+    ]
+
+    return matching_students
+```
+
+</Accordion>
+
+**Verify**
+
+Run the application.
+
+```bash
+uv run uvicorn app.main:app --reload
+```
+
+Open the Swagger UI.
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+Invoke the **GET** `/students/search` endpoint.
+
+Example
+
+```text
+GET /students/search?course=Computer Science
+```
+
+Verify that:
+
+- Matching students are returned successfully.
+- The search is case-insensitive.
+- An empty list is returned when no matching students are found.
+- The query parameter validation is visible in the Swagger UI.
+
+Expected Response
+
+```json
+[
+    {
+        "id": 1,
+        "name": "Rahul Sharma",
+        "age": 20,
+        "course": "Computer Science"
+    }
+]
+```
+
+Expected Response (No Matches)
+
+```json
+[]
+```
+
+**Commit Changes**
+
+<Accordion title="Solution">
+
+```bash
+git add .
+git commit -m "Implement search students by course API"
+```
+
+</Accordion>
+# Step 8: Implement the Create Student API
+
+**Objective**
+
+Implement the Create Student API to add a new student to the in-memory data store.
+
+**Instructions**
+
+Open the `main.py` file and implement the Create Student API.
+
+**Implementation Steps**
+
+**Step 1:** Import the `StudentCreate` schema.
+
+**Step 2:** Create the **POST** `/students` endpoint.
+
+**Step 3:** Generate the next available student ID.
+
+**Step 4:** Create a new student record.
+
+**Step 5:** Add the student to the in-memory data store.
+
+**Step 6:** Return the newly created student.
+
+<Question>
+
+Implement the Create Student API.
+
+</Question>
+
+<Accordion title="Solution">
+
+**Update the imports in `app/main.py`**
+
+```python
+from app.schemas import (
+    StudentCreate,
+    StudentResponse,
+)
+```
+
+**Implement the Create Student endpoint**
+
+```python
+@app.post("/students", response_model=StudentResponse, status_code=201)
+def create_student(student: StudentCreate):
+
+    next_id = max(students.keys(), default=0) + 1
+
+    new_student = {
+        "id": next_id,
+        **student.model_dump(),
+    }
+
+    students[next_id] = new_student
+
+    return new_student
+```
+
+</Accordion>
+
+**Verify**
+
+Run the application.
+
+```bash
+uv run uvicorn app.main:app --reload
+```
+
+Open the Swagger UI.
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+Invoke the **POST** `/students` endpoint.
+
+Request Body
+
+```json
+{
+    "name": "Ananya Gupta",
+    "age": 20,
+    "course": "Artificial Intelligence"
+}
+```
+
+Verify that:
+
+- A new student is created successfully.
+- A unique student ID is generated automatically.
+- The student is added to the in-memory data store.
+- A **201 Created** response is returned.
+
+Expected Response
+
+```json
+{
+    "id": 6,
+    "name": "Ananya Gupta",
+    "age": 20,
+    "course": "Artificial Intelligence"
+}
+```
+
+**Commit Changes**
+
+<Accordion title="Solution">
+
+```bash
+git add .
+git commit -m "Implement create student API"
+```
+
+</Accordion>
+# Step 9: Implement the Update Student API
+
+**Objective**
+
+Implement the Update Student API to modify an existing student record.
+
+**Instructions**
+
+Open the `main.py` file and implement the Update Student API.
+
+**Implementation Steps**
+
+**Step 1:** Import the `StudentUpdate` schema.
+
+**Step 2:** Create the **PUT** `/students/{student_id}` endpoint.
+
+**Step 3:** Retrieve the student from the in-memory data store.
+
+**Step 4:** Raise an `HTTPException` if the student does not exist.
+
+**Step 5:** Update only the fields provided in the request.
+
+**Step 6:** Return the updated student.
+
+<Question>
+
+Implement the Update Student API.
+
+</Question>
+
+<Accordion title="Solution">
+
+**Update the imports in `app/main.py`**
+
+```python
+from app.schemas import StudentUpdate
+```
+
+**Implement the Update Student endpoint**
+
+```python
+@app.put("/students/{student_id}", response_model=StudentResponse)
+def update_student(
+    student_id: StudentId,
+    student: StudentUpdate,
+):
+
+    existing_student = students.get(student_id)
+
+    if not existing_student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student not found.",
+        )
+
+    existing_student.update(
+        student.model_dump(exclude_unset=True)
+    )
+
+    return existing_student
+```
+
+</Accordion>
+
+**Verify**
+
+Run the application.
+
+```bash
+uv run uvicorn app.main:app --reload
+```
+
+Open the Swagger UI.
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+Invoke the **PUT** `/students/{student_id}` endpoint.
+
+Example
+
+```text
+PUT /students/1
+```
+
+Request Body
+
+```json
+{
+    "course": "Artificial Intelligence"
+}
+```
+
+Verify that:
+
+- The student record is updated successfully.
+- Only the fields provided in the request are updated.
+- Existing field values remain unchanged.
+- Updating a non-existent student returns **404 Not Found**.
+
+Expected Response
+
+```json
+{
+    "id": 1,
+    "name": "Rahul Sharma",
+    "age": 20,
+    "course": "Artificial Intelligence"
+}
+```
+
+**Commit Changes**
+
+<Accordion title="Solution">
+
+```bash
+git add .
+git commit -m "Implement update student API"
+```
+
+</Accordion>
+# Step 10: Implement the Delete Student API
+
+**Objective**
+
+Implement the Delete Student API to remove a student from the in-memory data store.
+
+**Instructions**
+
+Open the `main.py` file and implement the Delete Student API.
+
+**Implementation Steps**
+
+**Step 1:** Create the **DELETE** `/students/{student_id}` endpoint.
+
+**Step 2:** Retrieve the student from the in-memory data store.
+
+**Step 3:** Raise an `HTTPException` if the student does not exist.
+
+**Step 4:** Delete the student from the in-memory data store.
+
+**Step 5:** Return a success message.
+
+<Question>
+
+Implement the Delete Student API.
+
+</Question>
+
+<Accordion title="Solution">
+
+**Implement the Delete Student endpoint**
+
+```python
+@app.delete("/students/{student_id}")
+def delete_student(student_id: StudentId):
+
+    student = students.get(student_id)
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student not found.",
+        )
+
+    del students[student_id]
+
+    return {
+        "message": "Student deleted successfully."
+    }
+```
+
+</Accordion>
+
+**Verify**
+
+Run the application.
+
+```bash
+uv run uvicorn app.main:app --reload
+```
+
+Open the Swagger UI.
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+Invoke the **DELETE** `/students/{student_id}` endpoint.
+
+Example
+
+```text
+DELETE /students/1
+```
+
+Verify that:
+
+- The student is deleted successfully.
+- A success message is returned.
+- Deleting the same student again returns **404 Not Found**.
+
+Expected Response
+
+```json
+{
+    "message": "Student deleted successfully."
+}
+```
+
+**Commit Changes**
+
+<Accordion title="Solution">
+
+```bash
+git add .
+git commit -m "Implement delete student API"
+```
+
+</Accordion>
+# Step 11: Test the Complete Student Management API
+
+**Objective**
+
+Test all the REST APIs implemented in the Student Management application.
+
+**Instructions**
+
+Run the FastAPI application and test each endpoint using the Swagger UI.
+
+**Implementation Steps**
+
+**Step 1:** Start the FastAPI application.
+
+**Step 2:** Open the Swagger UI.
+
+**Step 3:** Test the Get All Students API.
+
+**Step 4:** Test the Get Student by ID API.
+
+**Step 5:** Test the Search Students by Course API.
+
+**Step 6:** Test the Create Student API.
+
+**Step 7:** Test the Update Student API.
+
+**Step 8:** Test the Delete Student API.
+
+<Question>
+
+Test all the APIs implemented in the Student Management application.
+
+</Question>
+
+<Accordion title="Solution">
+
+Run the application.
+
+```bash
+uv run uvicorn app.main:app --reload
+```
+
+Open the Swagger UI.
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+Test the APIs in the following order.
+
+| API | Method | Endpoint |
+|------|--------|----------|
+| Get All Students | GET | `/students` |
+| Get Student by ID | GET | `/students/{student_id}` |
+| Search Students by Course | GET | `/students/search?course=Computer Science` |
+| Create Student | POST | `/students` |
+| Update Student | PUT | `/students/{student_id}` |
+| Delete Student | DELETE | `/students/{student_id}` |
+
+</Accordion>
+
+**Verify**
+
+Verify that:
+
+- All APIs execute successfully.
+- The expected HTTP status codes are returned.
+- Student records can be created, retrieved, updated, searched, and deleted.
+- Invalid student IDs return **404 Not Found**.
+- Invalid path and query parameters return **422 Unprocessable Entity**.
+- All APIs are available in the Swagger UI.
+
+**Commit Changes**
+
+<Accordion title="Solution">
+
+```bash
+git add .
+git commit -m "Complete student management REST API"
+```
+
+</Accordion>

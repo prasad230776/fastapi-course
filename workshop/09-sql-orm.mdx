@@ -1233,3 +1233,478 @@ Need ORM objects from a SELECT query?
         ▼
     scalars()
 ```
+
+# ORM Relationships
+
+In real-world applications, a single table is rarely enough to represent all the required data. Instead, multiple tables work together by establishing **relationships** between them.
+
+For example, in a Blog application:
+
+- A user can write multiple blog posts.
+- Every blog post belongs to one author.
+- A blog post can have multiple tags.
+- Every comment belongs to a blog post.
+
+Instead of duplicating data across tables, relational databases connect tables using **Primary Keys** and **Foreign Keys**.
+
+---
+
+## Why Relationships?
+
+Suppose we store author information inside every blog post.
+
+```text
+BlogPosts
+
++----+------------------+-----------+----------------+
+| id | title            | author    | email          |
++----+------------------+-----------+----------------+
+| 1  | FastAPI Basics   | John      | john@mail.com  |
+| 2  | SQLAlchemy ORM   | John      | john@mail.com  |
++----+------------------+-----------+----------------+
+```
+
+This causes several problems.
+
+- Duplicate data
+- Wasted storage
+- Difficult updates
+- Risk of inconsistent data
+
+Instead, store author information only once.
+
+```text
+Users
+
++----+---------+----------------+--------+
+| id | username| email          | role   |
++----+---------+----------------+--------+
+| 1  | john    | john@mail.com  | AUTHOR |
++----+---------+----------------+--------+
+
+BlogPosts
+
++----+------------------+-----------+
+| id | title            | author_id |
++----+------------------+-----------+
+| 1  | FastAPI Basics   |     1     |
+| 2  | SQLAlchemy ORM   |     1     |
++----+------------------+-----------+
+```
+
+Now the author details exist only once, making the database normalized and easier to maintain.
+
+---
+
+# Primary Key vs Foreign Key
+
+Every table has a **Primary Key**, which uniquely identifies each row.
+
+A **Foreign Key** stores the primary key value of another table.
+
+```text
+Users
++----+----------+
+| id | username |
++----+----------+
+| 1  | john     |
+| 2  | alice    |
++----+----------+
+
+        ▲
+        │
+        │ Foreign Key
+        │
+
+BlogPosts
++----+----------------+-----------+
+| id | title          | author_id |
++----+----------------+-----------+
+| 1  | FastAPI Intro  |     1     |
+| 2  | SQLAlchemy ORM |     1     |
+| 3  | JWT Auth       |     2     |
++----+----------------+-----------+
+```
+
+Here,
+
+- `Users.id` is the Primary Key.
+- `BlogPosts.author_id` is the Foreign Key.
+
+---
+
+# Types of Relationships
+
+## One-to-One (1:1)
+
+One record is associated with exactly one record in another table.
+
+Examples
+
+- User → Profile
+- Employee → Passport
+- Student → Identity Card
+
+```text
+User -------- Profile
+```
+
+---
+
+## One-to-Many (1:N)
+
+One record can have multiple related records.
+
+This is the most common relationship.
+
+Example
+
+One author can write many blog posts.
+
+```text
+John
+
+├── FastAPI Basics
+├── SQLAlchemy ORM
+├── JWT Authentication
+└── Docker Deployment
+```
+
+Only the child table stores the foreign key.
+
+---
+
+## Many-to-One (N:1)
+
+This is simply the reverse direction of One-to-Many.
+
+Many blog posts belong to one author.
+
+```text
+Blog Post
+      │
+      ▼
+    Author
+```
+
+Although conceptually different, SQLAlchemy implements One-to-Many and Many-to-One together.
+
+---
+
+## Many-to-Many (M:N)
+
+Many records on one side are related to many records on the other side.
+
+Example
+
+```text
+Blog Post
+      ▲
+      │
+ Association Table
+      │
+      ▼
+      Tag
+```
+
+Examples
+
+- Students ↔ Courses
+- Users ↔ Roles
+- Blog Posts ↔ Tags
+- Movies ↔ Actors
+
+Many-to-Many relationships always require an **association table**.
+
+---
+
+# Relationship in Our Blog Application
+
+Our application contains two tables.
+
+```text
+User
+
+id
+username
+email
+role
+
+        │
+        │ One User
+        ▼
+
+BlogPost
+
+id
+title
+content
+author_id
+```
+
+One author can create multiple blog posts.
+
+```text
+John
+
+├── Blog 1
+├── Blog 2
+├── Blog 3
+└── Blog 4
+```
+
+The relationship is therefore
+
+> **One User → Many Blog Posts**
+
+---
+
+# User Roles
+
+Our application stores both **Authors** and **Admins** inside the same `users` table.
+
+```text
+Users
+
++----+----------+--------+
+| id | username | role   |
++----+----------+--------+
+| 1  | john     | AUTHOR |
+| 2  | admin    | ADMIN  |
++----+----------+--------+
+```
+
+The `role` determines permissions.
+
+**Author**
+
+- Create posts
+- Update own posts
+- Delete own posts
+
+**Admin**
+
+- View all posts
+- Update any post
+- Delete any post
+- Manage users
+
+Notice that **roles do not affect the database relationship**.
+
+Both Admin and Author are simply users.
+
+The relationship remains
+
+```text
+User 1 ------< BlogPosts
+```
+
+Authorization is handled by the application logic, not by the database relationship.
+
+---
+
+# Relationship in SQLAlchemy
+
+SQLAlchemy models relationships in two different ways.
+
+## Database Relationship
+
+The database only understands foreign keys.
+
+```python
+author_id = mapped_column(
+    ForeignKey("users.id")
+)
+```
+
+This creates the actual database constraint.
+
+---
+
+## ORM Relationship
+
+Python objects need an object reference.
+
+For that, SQLAlchemy provides `relationship()`.
+
+```python
+posts = relationship(
+    "BlogPost",
+    back_populates="author"
+)
+```
+
+and
+
+```python
+author = relationship(
+    "User",
+    back_populates="posts"
+)
+```
+
+Now SQLAlchemy understands that these two models are connected.
+
+---
+
+# Complete User Model
+
+```python
+class User(Base):
+    __tablename__ = "users"
+
+    id = mapped_column(primary_key=True)
+    username = mapped_column(unique=True)
+    email = mapped_column(unique=True)
+    role = mapped_column()
+
+    posts = relationship(
+        "BlogPost",
+        back_populates="author"
+    )
+```
+
+---
+
+# Complete BlogPost Model
+
+```python
+class BlogPost(Base):
+    __tablename__ = "blog_posts"
+
+    id = mapped_column(primary_key=True)
+    title = mapped_column()
+    content = mapped_column()
+
+    author_id = mapped_column(
+        ForeignKey("users.id")
+    )
+
+    author = relationship(
+        "User",
+        back_populates="posts"
+    )
+```
+
+---
+
+# How SQLAlchemy Uses Relationships
+
+Unlike SQL, SQLAlchemy lets us navigate related objects directly.
+
+Instead of writing joins, we simply access attributes.
+
+### Get all posts written by a user
+
+```python
+user.posts
+```
+
+Returns
+
+```python
+[
+    BlogPost(...),
+    BlogPost(...),
+    BlogPost(...)
+]
+```
+
+---
+
+### Get the author of a blog post
+
+```python
+post.author
+```
+
+Returns
+
+```python
+User(...)
+```
+
+---
+
+# Creating Relationships
+
+Instead of assigning the foreign key manually,
+
+```python
+post.author_id = user.id
+```
+
+you can assign the object itself.
+
+```python
+post.author = user
+```
+
+SQLAlchemy automatically updates the foreign key during `session.commit()`.
+
+Similarly,
+
+```python
+user.posts.append(post)
+```
+
+automatically sets
+
+```python
+post.author_id
+```
+
+This synchronization is handled by the ORM.
+
+---
+
+# Understanding `back_populates`
+
+`back_populates` connects both relationship properties.
+
+```text
+User.posts
+      ▲
+      │
+back_populates
+      │
+      ▼
+BlogPost.author
+```
+
+Without `back_populates`, each relationship behaves independently.
+
+With `back_populates`:
+
+- Updating one side updates the other.
+- Both objects remain synchronized.
+- Navigation works in both directions.
+
+---
+
+# Database Relationship vs ORM Relationship
+
+| Database | SQLAlchemy ORM |
+|-----------|----------------|
+| Foreign Key | relationship() |
+| Enforced by Database | Managed by SQLAlchemy |
+| Stores IDs | Stores Object References |
+| Used by SQL | Used by Python |
+
+Both work together.
+
+The database guarantees referential integrity, while SQLAlchemy provides convenient object navigation.
+
+---
+
+# Summary
+
+- Relationships connect tables using foreign keys.
+- Primary keys uniquely identify rows.
+- Foreign keys reference another table's primary key.
+- SQLAlchemy models relationships using `relationship()`.
+- One-to-Many is the most common relationship in REST APIs.
+- `back_populates` connects both sides of the relationship.
+- SQLAlchemy lets you navigate relationships using Python objects instead of writing SQL joins.
+- User roles (Author/Admin) determine permissions but do **not** change the database relationship.
+- The database manages data integrity, while SQLAlchemy provides an object-oriented interface to work with related data.

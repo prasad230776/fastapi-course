@@ -1,0 +1,239 @@
+---
+title: "Advanced SQL"
+description: "A concise guide to database normalization, ACID properties, and SQL window functions."
+icon: "sparkles"
+---
+
+# Database Concepts & Advanced SQL
+
+## Database Normalization
+
+**Normalization** is the process of organizing data to reduce **redundancy** and improve **consistency**.
+
+### Benefits
+
+- Reduces duplicate data
+- Improves data consistency
+- Saves storage space
+- Simplifies updates
+- Improves database maintenance
+
+### Normal Forms
+
+#### First Normal Form (1NF)
+
+A table is in **1NF** if:
+
+- Each column contains a single (atomic) value.
+- No repeating groups.
+- Each row is unique.
+
+**Not in 1NF**
+
+| Student | Subjects |
+|----------|----------|
+| Rahul | Python, SQL |
+
+**In 1NF**
+
+| Student | Subject |
+|----------|---------|
+| Rahul | Python |
+| Rahul | SQL |
+
+### Practice
+
+Why is the first table not in 1NF?
+
+<Accordion title="Solution">
+
+The `Subjects` column contains multiple values. Every column should contain only a single value.
+
+</Accordion>
+
+#### Second Normal Form (2NF)
+
+A table is in **2NF** if:
+
+- It is already in **1NF**.
+- Every non-key column depends on the **entire primary key**.
+
+This mainly applies to tables with **composite primary keys**.
+
+### Practice
+
+When is 2NF mainly applicable?
+
+<Accordion title="Solution">
+
+When a table has a **composite primary key**.
+
+</Accordion>
+
+#### Third Normal Form (3NF)
+
+A table is in **3NF** if:
+
+- It is already in **2NF**.
+- No non-key column depends on another non-key column.
+
+### Example
+
+Instead of storing the manager with every employee:
+
+| Employee | Department | Manager |
+|----------|------------|---------|
+
+Store manager details in the **Department** table.
+
+### Practice
+
+What problem does 3NF solve?
+
+<Accordion title="Solution">
+
+It removes **transitive dependencies**, where one non-key column depends on another non-key column.
+
+</Accordion>
+
+## ACID Properties
+
+ACID properties ensure database transactions are **reliable and consistent**.
+
+| Property | Description |
+|----------|-------------|
+| **Atomicity** | Either the entire transaction succeeds or it is rolled back. |
+| **Consistency** | Moves the database from one valid state to another. |
+| **Isolation** | Concurrent transactions do not interfere with each other. |
+| **Durability** | Committed data is permanently stored. |
+
+### Example
+
+During a money transfer:
+
+1. Debit ₹500
+2. Credit ₹500
+
+If the second step fails, the first step is also rolled back (**Atomicity**).
+
+### Practice
+
+Which ACID property ensures committed data is permanently saved?
+
+<Accordion title="Solution">
+
+**Durability**
+
+</Accordion>
+
+## Window Functions
+
+Window functions perform calculations across related rows **without grouping them into a single row**.
+
+Unlike `GROUP BY`, every row remains in the result.
+
+### ROW_NUMBER()
+
+Assigns a unique sequence number.
+
+```sql
+SELECT
+    employee_name,
+    salary,
+    ROW_NUMBER() OVER(ORDER BY salary DESC) AS row_num
+FROM employee;
+```
+
+### RANK()
+
+Assigns the same rank to equal values and **skips** the next rank.
+
+Example:
+
+```
+1
+2
+2
+4
+```
+
+```sql
+SELECT
+    employee_name,
+    salary,
+    RANK() OVER(ORDER BY salary DESC) AS rank
+FROM employee;
+```
+
+### DENSE_RANK()
+
+Assigns the same rank to equal values but **does not skip** ranks.
+
+Example:
+
+```
+1
+2
+2
+3
+```
+
+```sql
+SELECT
+    employee_name,
+    salary,
+    DENSE_RANK() OVER(ORDER BY salary DESC) AS dense_rank
+FROM employee;
+```
+
+### PARTITION BY
+
+Divides rows into groups before applying a window function.
+
+```sql
+SELECT
+    employee_name,
+    department_id,
+    salary,
+    ROW_NUMBER() OVER(
+        PARTITION BY department_id
+        ORDER BY salary DESC
+    ) AS rank
+FROM employee;
+```
+
+### GROUP BY vs Window Functions
+
+| GROUP BY | Window Function |
+|----------|-----------------|
+| Combines rows | Keeps all rows |
+| Returns one row per group | Returns every row |
+| Uses aggregate functions | Uses `OVER()` |
+
+### Practice
+
+What is the main advantage of a window function over `GROUP BY`?
+
+<Accordion title="Solution">
+
+A window function performs calculations while **keeping every row** in the result, whereas `GROUP BY` combines rows into a single row for each group.
+
+</Accordion>
+
+## Summary
+
+This chapter introduced:
+
+- Database Normalization
+  - 1NF
+  - 2NF
+  - 3NF
+- ACID Properties
+- Window Functions
+  - `ROW_NUMBER()`
+  - `RANK()`
+  - `DENSE_RANK()`
+  - `PARTITION BY`
+- Difference between `GROUP BY` and Window Functions
+
+These concepts complete the essential SQL fundamentals and prepare you for advanced topics such as indexes, views, stored procedures, triggers, and query optimization.

@@ -1,0 +1,193 @@
+---
+title: "Data Visualization Guide"
+description: "A comprehensive guide to Univariate, Bivariate, and Multivariate analysis using Matplotlib and Seaborn on student performance data"
+icon: "chart-bar"
+---
+
+Visualizing your data is one of the most critical steps in Data Science and Machine Learning. It helps you understand distributions, detect anomalies, identify correlations, and extract actionable insights.
+
+This guide walks through the three main types of data analysis using **Matplotlib** and **Seaborn**, using the student performance dataset (`student_dataset.csv`):
+1. **Univariate Analysis:** Analyzing one variable at a time.
+2. **Bivariate Analysis:** Analyzing relationships between two variables.
+3. **Multivariate Analysis:** Analyzing interactions between three or more variables.
+
+---
+
+## 1. Setup and Loading Data
+
+First, import the required libraries and load the student performance dataset:
+
+```python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Set global Seaborn style
+sns.set_theme(style="whitegrid", palette="muted")
+
+# Load the dataset
+df = pd.read_csv('public/data/student_dataset.csv')
+```
+
+---
+
+## 2. Univariate Analysis (Analyzing Single Variables)
+
+Univariate analysis inspects the frequency, distribution, and spread of a **single column** without considering its relationship to other columns.
+
+### A. Numerical Columns (Histograms & KDE)
+To visualize the spread of continuous values like `study_hours` or `exam_score`, use a histogram with a density curve:
+
+```python
+# Distribution of Study Hours
+plt.figure(figsize=(7, 4))
+sns.histplot(data=df, x="study_hours", kde=True, color="teal")
+plt.title("Univariate Analysis: Distribution of Weekly Study Hours")
+plt.xlabel("Study Hours per Week")
+plt.ylabel("Number of Students")
+plt.show()
+```
+
+### B. Categorical Columns (Count Plots)
+To visualize the frequency of discrete labels like `placement_status`, use a count plot:
+
+```python
+# Count of Placed vs. Not Placed Students
+plt.figure(figsize=(5, 4))
+sns.countplot(data=df, x="placement_status", palette="pastel")
+plt.title("Univariate Analysis: Student Placement Counts")
+plt.xlabel("Placement Status")
+plt.ylabel("Student Count")
+plt.show()
+```
+
+---
+
+## 3. Bivariate Analysis (Analyzing Two Variables)
+
+Bivariate analysis studies how **two variables** interact with each other.
+
+### A. Numerical vs. Numerical (Scatter Plots)
+To find correlations or associations between two continuous variables (e.g., `study_hours` vs. `exam_score`), use a scatter plot:
+
+```python
+# Relationship between study hours and exam scores
+plt.figure(figsize=(7, 4))
+sns.scatterplot(data=df, x="study_hours", y="exam_score", alpha=0.6, color="purple")
+plt.title("Bivariate Analysis: Study Hours vs. Exam Scores")
+plt.xlabel("Weekly Study Hours")
+plt.ylabel("Exam Score (out of 100)")
+plt.show()
+```
+
+### B. Numerical vs. Categorical (Box Plots / Violin Plots)
+To compare distributions of a continuous variable (like `exam_score`) across different categories (like `placement_status`), use a box plot or a violin plot:
+
+```python
+# Comparing exam scores across placement categories
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+# Box Plot (shows quartiles and outliers)
+sns.boxplot(data=df, x="placement_status", y="exam_score", ax=axes[0], palette="Set2")
+axes[0].set_title("Exam Scores by Placement (Box Plot)")
+axes[0].set_xlabel("Placement Status")
+axes[0].set_ylabel("Exam Score")
+
+# Violin Plot (shows density shape of distributions)
+sns.violinplot(data=df, x="placement_status", y="exam_score", ax=axes[1], palette="Set2")
+axes[1].set_title("Exam Scores by Placement (Violin Plot)")
+axes[1].set_xlabel("Placement Status")
+axes[1].set_ylabel("Exam Score")
+
+plt.tight_layout()
+plt.show()
+```
+
+### C. Categorical vs. Categorical (Grouped Count Plots)
+To study the overlap between two categories (e.g., how sleep habits affect placement), group a category using the `hue` parameter:
+
+```python
+# First, create a categorical 'sleep_category' column
+df['sleep_category'] = np.where(df['sleep_hours'] >= 7, 'Healthy', 'Sleep Deprived')
+
+# Plot grouped counts
+plt.figure(figsize=(7, 4))
+sns.countplot(data=df, x="sleep_category", hue="placement_status", palette="coolwarm")
+plt.title("Bivariate Analysis: Sleep Quality vs. Placement Status")
+plt.xlabel("Sleep Category")
+plt.ylabel("Number of Students")
+plt.legend(title="Placement")
+plt.show()
+```
+
+---
+
+## 4. Multivariate Analysis (Analyzing Multiple Variables)
+
+Multivariate analysis looks at how **three or more variables** interact. It is highly useful for spotting complex patterns, trends, and identifying correlations across the entire dataset.
+
+### A. Scatter Plots with Color & Size Mapping
+You can map a third variable to the **color (`hue`)** and a fourth variable to the **size (`size`)** of dots in a scatter plot:
+
+```python
+# Analyzing Study Hours vs. Exam Score, grouped by Placement, sized by Attendance
+plt.figure(figsize=(9, 5))
+sns.scatterplot(
+    data=df.sample(n=1000, random_state=42),  # Sample 1000 rows for cleaner visual display
+    x="study_hours", 
+    y="exam_score", 
+    hue="placement_status", 
+    size="attendance", 
+    sizes=(20, 200),
+    alpha=0.7, 
+    palette="RdYlGn"
+)
+plt.title("Multivariate Analysis: Study Hours vs. Exam Scores (Sized by Attendance)")
+plt.xlabel("Weekly Study Hours")
+plt.ylabel("Exam Score")
+plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')  # Place legend outside the chart
+plt.tight_layout()
+plt.show()
+```
+
+### B. Correlation Heatmaps
+To evaluate all linear relationships across the entire dataset simultaneously, generate a correlation heatmap:
+
+```python
+# Select only numerical features
+numeric_df = df.select_dtypes(include=["number"])
+
+# Calculate Pearson correlation matrix
+corr_matrix = numeric_df.corr()
+
+# Plot Heatmap
+plt.figure(figsize=(8, 6))
+sns.heatmap(corr_matrix, annot=True, cmap="coolwarm", fmt=".2f", vmin=-1, vmax=1, linewidths=0.5)
+plt.title("Multivariate Analysis: Correlation Heatmap of Student Metrics")
+plt.show()
+```
+
+---
+
+## Practice and Next Steps
+
+Before moving to the next section, make sure to practice your overall Data Visualization skills using the interactive notebook:
+
+<CardGroup cols={2}>
+  <Card
+    title="Data Visualization Exercise"
+    icon="notebook"
+  >
+    Practice your skills using the interactive notebook.
+    
+    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/python%20material/python4ai/public/notebooks/visualization_student_exercise.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/python4ai/blob/master/public/notebooks/visualization_student_exercise.ipynb) | <a href="/public/notebooks/visualization_student_exercise.ipynb" download>📥 Download</a>
+  </Card>
+  <Card
+    title="Course Summary"
+    icon="graduation-cap"
+    href="/next-steps/course-summary"
+  >
+    Review what you have learned and discover advanced learning paths.
+  </Card>
+</CardGroup>

@@ -1,0 +1,990 @@
+---
+title: 04-Implementing SQLAlchemy ORM Relationships
+description: "Build a standalone Blog Posts application to learn SQLAlchemy ORM relationships and CRUD operations."
+---
+## Implementing ORM Relationships in the Blog Posts Application
+
+We will build a simple **Blog Posts** application to learn how relationships are implemented using **SQLAlchemy ORM**. The focus of this workshop is on creating related ORM models and working with them through Python objects.
+
+The application consists of two entities:
+
+- **Users**
+- **Blog Posts**
+
+Each user can create multiple blog posts, and each blog post belongs to exactly one user. This represents a **One-to-Many** relationship, one of the most common relationship types used in real-world applications.
+
+By the end of this workshop, you will understand how to define relationships using `ForeignKey` and `relationship()`, insert related data, and query associated objects using SQLAlchemy ORM.
+
+## Steps
+
+1. Create the Project Structure
+2. Configure the Database
+3. Create the User ORM Model
+4. Create the BlogPost ORM Model
+5. Implement the ORM Relationship
+6. Create the Database Tables
+7. Insert Sample Data
+8. Perform CRUD Operations
+9. Query Related Data
+
+---
+
+## Step 1: Create the Project Structure
+
+**Objective**
+
+Create the initial project structure for the Blog Posts ORM application and initialize the project using **uv**.
+
+**Instructions**
+
+Create a new project directory and initialize it as a Python project.
+
+Create the following project structure.
+
+```text
+blog-posts-orm/
+│
+├── app/
+│   ├── __init__.py
+│   ├── database.py
+│   ├── models.py
+│   ├── main.py
+│   └── seed.py
+│
+├── pyproject.toml
+├── uv.lock
+├── .python-version
+├── README.md
+└── .gitignore
+```
+
+**Project Overview**
+
+| File | Purpose |
+|------|---------|
+| `database.py` | Configure the database engine, session, and declarative base. |
+| `models.py` | Define the User and BlogPost ORM models. |
+| `seed.py` | Insert sample users and blog posts into the database. |
+| `main.py` | Execute and test ORM operations. |
+
+<Accordion title="Initialize the Project">
+
+```bash
+mkdir blog-posts-orm
+cd blog-posts-orm
+
+uv init .
+```
+
+</Accordion>
+
+Install the required dependencies.
+
+<Accordion title="Install Dependencies">
+
+```bash
+uv add sqlalchemy psycopg2-binary python-dotenv
+```
+
+</Accordion>
+
+
+** Verify **
+
+Verify the following before proceeding:
+
+- The project is initialized using **uv**.
+- The `app` package is created.
+- All Python files are created.
+- The required dependencies are added to `pyproject.toml`.
+- The `uv.lock` file is generated.
+
+** Commit **
+
+```bash
+git add .
+git commit -m "Initialize Blog Posts ORM project"
+```
+## Step 2: Configure the Database
+
+**Objective**
+
+Configure SQLAlchemy by creating the database engine, session factory, and declarative base. The database connection string will be stored in a `.env` file and loaded into the application at runtime.
+
+**Instructions**
+
+Create a PostgreSQL database named **`blog_posts_db`**.
+
+Store the database connection string in a `.env` file instead of hardcoding it in your application. This keeps sensitive information such as database credentials separate from the source code.
+
+Create a `.env` file in the project root.
+
+<Accordion title=".env">
+
+```env
+DATABASE_URL=postgresql+psycopg2://postgres:password@localhost:5432/blog_posts_db
+```
+
+</Accordion>
+
+Open `app/database.py` and configure SQLAlchemy.
+
+<Accordion title="app/database.py">
+
+```python
+import os
+
+from dotenv import load_dotenv
+from sqlalchemy import create_engine
+from sqlalchemy.orm import DeclarativeBase, sessionmaker
+
+# Load environment variables from the .env file
+load_dotenv()
+
+# Read the database connection string
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+# Create the SQLAlchemy engine
+engine = create_engine(
+    DATABASE_URL,
+    echo=True
+)
+
+# Create the session factory
+SessionLocal = sessionmaker(
+    bind=engine,
+    autoflush=False,
+    autocommit=False
+)
+
+# Base class for all ORM models
+class Base(DeclarativeBase):
+    pass
+```
+
+</Accordion>
+
+The `load_dotenv()` function loads all variables from the `.env` file into the application. The `os.getenv()` function reads the value of `DATABASE_URL`. The SQLAlchemy `engine` manages the database connection, `SessionLocal` creates database sessions, and `Base` acts as the parent class for all ORM models.
+
+> **Note:** It is a best practice to store configuration values such as database URLs, API keys, and secrets in environment variables instead of hardcoding them in your source code.
+
+**Verify**
+
+- PostgreSQL database `blog_posts_db` is created.
+- `.env` file contains the `DATABASE_URL`.
+- `database.py` loads the connection string successfully.
+- The SQLAlchemy engine and session factory are configured.
+- No import or configuration errors are reported by your IDE.
+
+**Commit**
+
+```bash
+git add .
+git commit -m "Configure SQLAlchemy database"
+
+```
+## Step 3: Create the User ORM Model
+
+**Objective**
+
+Create the `User` ORM model that represents the `users` table in the database. This model stores user information and will later be associated with blog posts through an ORM relationship.
+
+**Instructions**
+
+The `users` table stores information about the application's users. Each user has a unique username and email address. The `role` column identifies whether the user is an **AUTHOR** or an **ADMIN**, and the `created_at` column records when the user was created.
+
+Create the following table schema.
+
+| Column | Type | Constraints |
+|---------|------|-------------|
+| `id` | Integer | Primary Key |
+| `username` | String(50) | Unique, Not Null |
+| `email` | String(100) | Unique, Not Null |
+| `role` | Enum | AUTHOR / ADMIN |
+| `created_at` | DateTime | Default: Current Timestamp |
+
+Open `app/models.py` and define the `User` ORM model.
+
+<Accordion title="app/models.py">
+
+```python
+from datetime import datetime
+from enum import Enum
+
+from sqlalchemy import DateTime, Enum as SQLEnum, String
+from sqlalchemy.orm import Mapped, mapped_column
+
+from app.database import Base
+
+
+class UserRole(str, Enum):
+    AUTHOR = "AUTHOR"
+    ADMIN = "ADMIN"
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(
+        primary_key=True,
+        index=True
+    )
+
+    username: Mapped[str] = mapped_column(
+        String(50),
+        unique=True,
+        nullable=False
+    )
+
+    email: Mapped[str] = mapped_column(
+        String(100),
+        unique=True,
+        nullable=False
+    )
+
+    role: Mapped[UserRole] = mapped_column(
+        SQLEnum(UserRole),
+        default=UserRole.AUTHOR,
+        nullable=False
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=datetime.utcnow
+    )
+```
+
+</Accordion>
+
+The `User` class inherits from `Base`, making it an ORM model. The `__tablename__` attribute specifies the database table name, while `mapped_column()` maps each class attribute to its corresponding database column.
+
+> **Note:** The `User` model currently represents a standalone table. The relationship with the `BlogPost` model will be implemented in a later step.
+
+**Verify**
+
+- The `UserRole` enum is created.
+- The `User` model inherits from `Base`.
+- The `users` table schema matches the required design.
+- No import or syntax errors are reported by your IDE.
+
+**Commit**
+
+```bash
+git add .
+git commit -m "Create User ORM model"
+```
+## Step 4: Create the BlogPost ORM Model
+
+**Objective**
+
+Create the `BlogPost` ORM model that represents the `blog_posts` table in the database. Each blog post belongs to a user, so this table includes a foreign key that references the `users` table.
+
+**Instructions**
+
+The `blog_posts` table stores information about blog posts created by users. Each blog post has a title, content, publication status, and an author. The `author_id` column is a **Foreign Key** that references the `id` column of the `users` table.
+
+Create the following table schema.
+
+| Column | Type | Constraints |
+|---------|------|-------------|
+| `id` | Integer | Primary Key |
+| `title` | String(200) | Not Null |
+| `content` | Text | Not Null |
+| `published` | Boolean | Default: False |
+| `author_id` | Integer | Foreign Key → `users.id` |
+| `created_at` | DateTime | Default: Current Timestamp |
+
+Open `app/models.py` and add the `BlogPost` model below the `User` model.
+
+<Accordion title="app/models.py">
+
+```python
+from sqlalchemy import Boolean, ForeignKey, Text
+
+class BlogPost(Base):
+    __tablename__ = "blog_posts"
+
+    id: Mapped[int] = mapped_column(
+        primary_key=True,
+        index=True
+    )
+
+    title: Mapped[str] = mapped_column(
+        String(200),
+        nullable=False
+    )
+
+    content: Mapped[str] = mapped_column(
+        Text,
+        nullable=False
+    )
+
+    published: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False
+    )
+
+    author_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id"),
+        nullable=False
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=datetime.utcnow
+    )
+```
+
+</Accordion>
+
+The `author_id` column creates a **database relationship** by referencing the primary key of the `users` table. At this stage, only the **Foreign Key** is defined. The ORM relationship using `relationship()` will be implemented in the next step.
+
+> **Note:** A foreign key enforces referential integrity at the database level, ensuring that every blog post is associated with an existing user.
+
+**Verify**
+
+- The `BlogPost` model inherits from `Base`.
+- The `blog_posts` table schema matches the required design.
+- The `author_id` column references `users.id`.
+- No import or syntax errors are reported by your IDE.
+
+**Commit**
+
+```bash
+git add .
+git commit -m "Create BlogPost ORM model"
+```
+## Step 5: Implement the ORM Relationship
+
+**Objective**
+
+Implement a **One-to-Many** relationship between the `User` and `BlogPost` models using SQLAlchemy's `relationship()` function.
+
+**Instructions**
+
+The `author_id` column created in the previous step establishes the relationship at the **database level** using a foreign key. In this step, you will create the **ORM relationship**, allowing you to navigate between related Python objects.
+
+The relationship is shown below.
+
+```text
+User (1)
+    │
+    ├── Blog Post 1
+    ├── Blog Post 2
+    └── Blog Post 3
+```
+
+Update the `User` model by adding a `posts` relationship.
+
+<Accordion title="Update the User Model">
+
+```python
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+# ...
+
+class User(Base):
+    __tablename__ = "users"
+
+    # Existing fields...
+
+    posts: Mapped[list["BlogPost"]] = relationship(
+        back_populates="author",
+        cascade="all, delete-orphan"
+    )
+```
+
+</Accordion>
+
+Update the `BlogPost` model by adding an `author` relationship.
+
+<Accordion title="Update the BlogPost Model">
+
+```python
+class BlogPost(Base):
+    __tablename__ = "blog_posts"
+
+    # Existing fields...
+
+    author: Mapped["User"] = relationship(
+        back_populates="posts"
+    )
+```
+
+</Accordion>
+
+The `posts` relationship allows a user to access all of their blog posts, while the `author` relationship allows a blog post to access its author. The `back_populates` parameter links both sides of the relationship, keeping them synchronized. The `cascade="all, delete-orphan"` option automatically deletes a user's blog posts when the user is removed.
+
+> **Note:** `ForeignKey()` creates the relationship in the database, whereas `relationship()` creates the relationship between Python objects. Both are required for a complete ORM relationship.
+
+**Verify**
+
+- The `User` model contains the `posts` relationship.
+- The `BlogPost` model contains the `author` relationship.
+- Both relationships use `back_populates`.
+- No import or type hint errors are reported by your IDE.
+
+**Commit**
+
+```bash
+git add .
+git commit -m "Implement ORM relationships"
+```
+The `posts` relationship allows a user to access all of their blog posts, while the `author` relationship allows a blog post to access its author. The `back_populates` parameter links both sides of the relationship, keeping them synchronized.
+
+The `cascade="all, delete-orphan"` option automatically applies ORM operations such as save, update, and delete to related blog posts. It also ensures that all blog posts belonging to a user are deleted automatically when the user is deleted, preventing orphan records from remaining in the database.
+
+> **Note:** `ForeignKey()` establishes the relationship at the database level, while `relationship()` creates the relationship between Python objects, allowing you to navigate related data using the ORM.
+
+## Step 6: Create the Database Tables
+
+**Objective**
+
+Create the database tables from the ORM models using SQLAlchemy.
+
+**Instructions**
+
+Now that the `User` and `BlogPost` models are defined, use SQLAlchemy to generate the corresponding tables in the database.
+
+Open `app/main.py` and create the tables.
+
+<Accordion title="app/main.py">
+
+```python
+from app.database import Base, engine
+
+# Import models to register them with SQLAlchemy
+from app.models import BlogPost, User
+
+
+def main():
+    Base.metadata.create_all(bind=engine)
+    print("Database tables created successfully.")
+
+
+if __name__ == "__main__":
+    main()
+```
+
+</Accordion>
+
+Run the application.
+
+<Accordion title="Create the Database Tables">
+
+```bash
+uv run app/main.py
+```
+
+</Accordion>
+
+The `Base.metadata.create_all()` method scans all ORM models that inherit from `Base` and creates the corresponding tables in the connected database. If a table already exists, SQLAlchemy skips its creation.
+
+> **Note:** The `User` and `BlogPost` models must be imported before calling `create_all()`. Otherwise, SQLAlchemy will not detect them and the corresponding tables will not be created.
+
+**Verify**
+
+- The `users` table is created.
+- The `blog_posts` table is created.
+- The `author_id` foreign key is created successfully.
+- The application runs without errors.
+
+**Commit**
+
+```bash
+git add .
+git commit -m "Create database tables"
+```
+
+## Step 7: Insert Sample Data
+
+**Objective**
+
+Insert sample users and blog posts into the database and establish the relationship between them using SQLAlchemy ORM.
+
+**Instructions**
+
+Create two users and assign a few blog posts to each user. Instead of setting the `author_id` manually, assign the `User` object to the `author` relationship. SQLAlchemy will automatically populate the foreign key when the changes are committed.
+
+Open `app/seed.py` and insert the sample data.
+
+<Accordion title="app/seed.py">
+
+```python
+from app.database import SessionLocal
+from app.models import BlogPost, User, UserRole
+
+
+def seed_data():
+    session = SessionLocal()
+
+    admin = User(
+        username="admin",
+        email="admin@example.com",
+        role=UserRole.ADMIN
+    )
+
+    john = User(
+        username="john",
+        email="john@example.com",
+        role=UserRole.AUTHOR
+    )
+
+    post1 = BlogPost(
+        title="Getting Started with SQLAlchemy",
+        content="Introduction to SQLAlchemy ORM.",
+        published=True,
+        author=john
+    )
+
+    post2 = BlogPost(
+        title="Understanding ORM Relationships",
+        content="Working with One-to-Many relationships.",
+        published=True,
+        author=john
+    )
+
+    post3 = BlogPost(
+        title="Admin Announcement",
+        content="Welcome to the Blog Posts application.",
+        published=True,
+        author=admin
+    )
+
+    session.add_all([
+        admin,
+        john,
+        post1,
+        post2,
+        post3
+    ])
+
+    session.commit()
+    session.close()
+
+    print("Sample data inserted successfully.")
+
+
+if __name__ == "__main__":
+    seed_data()
+```
+
+</Accordion>
+
+Run the seed script.
+
+<Accordion title="Insert Sample Data">
+
+```bash
+uv run app/seed.py
+```
+
+</Accordion>
+
+Notice that the `author` relationship is assigned directly with a `User` object instead of manually setting the `author_id`. During `session.commit()`, SQLAlchemy automatically stores the correct foreign key value in the `blog_posts` table.
+
+> **Note:** Using ORM relationships makes the code more readable and object-oriented by allowing you to work with Python objects instead of managing foreign key values manually.
+
+**Verify**
+
+- Two users are inserted into the `users` table.
+- Three blog posts are inserted into the `blog_posts` table.
+- The `author_id` column is populated automatically.
+- The seed script executes without errors.
+
+**Commit**
+
+```bash
+git add .
+git commit -m "Insert sample users and blog posts"
+```
+## Step 8: Query Related Data
+
+**Objective**
+
+Query related data using the ORM relationships and navigate between users and blog posts without writing SQL joins.
+
+**Instructions**
+
+The relationships defined using `relationship()` allow you to navigate between related objects. A `User` object can access all of its blog posts using the `posts` relationship, and a `BlogPost` object can access its author using the `author` relationship.
+
+Open `app/main.py` and query the related data.
+
+<Accordion title="app/main.py">
+
+```python
+from app.database import SessionLocal
+from app.models import User, BlogPost
+
+
+def main():
+    session = SessionLocal()
+
+    print("User -> Blog Posts")
+    print("-" * 40)
+
+    users = session.query(User).all()
+
+    for user in users:
+        print(f"\n{user.username}")
+
+        for post in user.posts:
+            print(f"  • {post.title}")
+
+    print("\nBlog Post -> Author")
+    print("-" * 40)
+
+    posts = session.query(BlogPost).all()
+
+    for post in posts:
+        print(f"{post.title} -> {post.author.username}")
+
+    session.close()
+
+
+if __name__ == "__main__":
+    main()
+```
+
+</Accordion>
+
+Run the application.
+
+<Accordion title="Query Related Data">
+
+```bash
+uv run app/main.py
+```
+
+</Accordion>
+
+The `posts` relationship returns all blog posts written by a user, while the `author` relationship returns the user who wrote a particular blog post. SQLAlchemy automatically retrieves the related objects when they are accessed, eliminating the need to manually write SQL join queries.
+
+> **Note:** Although SQLAlchemy executes SQL queries behind the scenes, you interact with Python objects instead of writing SQL statements directly.
+
+**Verify**
+
+- All users are displayed.
+- Each user displays their associated blog posts.
+- Each blog post displays its author.
+- The application executes without errors.
+
+**Commit**
+
+```bash
+git add .
+git commit -m "Query related ORM objects"
+```
+## Step 9: Execute Join Queries
+
+**Objective**
+
+Retrieve data from multiple related tables using SQLAlchemy joins.
+
+**Instructions**
+
+While ORM relationships allow you to navigate related objects, there are situations where you need to retrieve data from multiple tables in a single query. SQLAlchemy provides the `join()` method for this purpose.
+
+Open `app/main.py` and execute the following join queries.
+
+<Accordion title="app/main.py">
+
+```python
+from sqlalchemy import select
+
+from app.database import SessionLocal
+from app.models import BlogPost, User
+
+
+def main():
+    session = SessionLocal()
+
+    print("Blog Posts with Authors")
+    print("-" * 50)
+
+    stmt = (
+        select(BlogPost, User)
+        .join(User)
+    )
+
+    results = session.execute(stmt)
+
+    for post, user in results:
+        print(f"{post.title} -> {user.username}")
+
+    print("\nPublished Blog Posts")
+    print("-" * 50)
+
+    stmt = (
+        select(BlogPost)
+        .join(User)
+        .where(User.role == "AUTHOR")
+    )
+
+    posts = session.scalars(stmt)
+
+    for post in posts:
+        print(post.title)
+
+    session.close()
+
+
+if __name__ == "__main__":
+    main()
+```
+
+</Accordion>
+
+Run the application.
+
+<Accordion title="Execute the Application">
+
+```bash
+uv run app/main.py
+```
+
+</Accordion>
+
+The `join()` method combines the `blog_posts` and `users` tables based on the foreign key relationship. Unlike relationship navigation, joins allow you to filter, sort, and retrieve data from multiple tables efficiently within a single query.
+
+> **Note:** Use ORM relationships (`post.author`, `user.posts`) when navigating between related objects. Use `join()` when querying data from multiple tables with filtering, sorting, or aggregation.
+
+**Verify**
+
+- Blog posts are displayed along with their authors.
+- The join query executes successfully.
+- Results are returned without writing raw SQL.
+
+**Commit**
+
+```bash
+git add .
+git commit -m "Implement join queries"
+```
+## Step 10: Update and Delete Related Data
+
+**Objective**
+
+Update and delete related objects using ORM relationships.
+
+**Instructions**
+
+Retrieve an existing user and create a new blog post by assigning the `author` relationship. Then update an existing blog post and delete another one.
+
+Open `app/main.py` and perform the following operations.
+
+<Accordion title="app/main.py">
+
+```python
+from sqlalchemy import select
+
+from app.database import SessionLocal
+from app.models import BlogPost, User
+
+
+def main():
+    session = SessionLocal()
+
+    # Get an existing user
+    user = session.scalar(
+        select(User).where(User.username == "john")
+    )
+
+    # Create a new blog post
+    new_post = BlogPost(
+        title="SQLAlchemy Best Practices",
+        content="Useful tips for working with SQLAlchemy ORM.",
+        published=True,
+        author=user
+    )
+
+    session.add(new_post)
+    session.commit()
+
+    print("New blog post created.")
+
+    # Update an existing blog post
+    post = session.scalar(
+        select(BlogPost).where(BlogPost.title == "Getting Started with SQLAlchemy")
+    )
+
+    post.title = "Getting Started with SQLAlchemy ORM"
+
+    session.commit()
+
+    print("Blog post updated.")
+
+    # Delete a blog post
+    session.delete(new_post)
+    session.commit()
+
+    print("Blog post deleted.")
+
+    session.close()
+
+
+if __name__ == "__main__":
+    main()
+```
+
+</Accordion>
+
+Run the application.
+
+<Accordion title="Run the Application">
+
+```bash
+uv run app/main.py
+```
+
+</Accordion>
+
+The new blog post is associated with the user by assigning the `author` relationship instead of manually setting the `author_id`. SQLAlchemy automatically manages the foreign key and persists the relationship when the session is committed.
+
+**Verify**
+
+- A new blog post is created.
+- The new post is associated with the correct user.
+- An existing blog post is updated successfully.
+- The newly created blog post is deleted successfully.
+
+**Commit**
+
+```bash
+git add .
+git commit -m "Perform CRUD operations on related data"
+```
+
+## Step 11: Explore Relationship Loading
+
+**Objective**
+
+Understand how SQLAlchemy loads related objects and learn the difference between lazy loading and eager loading.
+
+**Instructions**
+
+By default, SQLAlchemy uses **lazy loading**, which means related objects are loaded only when they are accessed.
+
+For example, the following code first retrieves all users. When `user.posts` is accessed, SQLAlchemy automatically executes another query to fetch the related blog posts.
+
+<Accordion title="Lazy Loading">
+
+```python
+from sqlalchemy import select
+
+from app.database import SessionLocal
+from app.models import User
+
+
+def main():
+    session = SessionLocal()
+
+    users = session.scalars(select(User)).all()
+
+    for user in users:
+        print(user.username)
+
+        for post in user.posts:
+            print(f"  • {post.title}")
+
+    session.close()
+
+
+if __name__ == "__main__":
+    main()
+```
+
+</Accordion>
+
+To load users and their blog posts together in a single query, use `joinedload()`.
+
+<Accordion title="Eager Loading with joinedload()">
+
+```python
+from sqlalchemy import select
+from sqlalchemy.orm import joinedload
+
+from app.database import SessionLocal
+from app.models import User
+
+
+def main():
+    session = SessionLocal()
+
+    stmt = (
+        select(User)
+        .options(joinedload(User.posts))
+    )
+
+    users = session.scalars(stmt).unique().all()
+
+    for user in users:
+        print(user.username)
+
+        for post in user.posts:
+            print(f"  • {post.title}")
+
+    session.close()
+
+
+if __name__ == "__main__":
+    main()
+```
+
+</Accordion>
+
+With **lazy loading**, SQLAlchemy executes an additional query whenever a related collection is accessed. With **eager loading**, the related objects are fetched along with the parent object, reducing the number of database queries and improving performance when related data is needed.
+
+> **Note:** Use lazy loading when related data is not always required. Use eager loading when you know the related objects will be accessed immediately.
+
+**Verify**
+
+- Users and their blog posts are displayed correctly.
+- Both lazy loading and eager loading produce the same results.
+- Observe the SQL statements in the terminal (`echo=True`) and compare the number of queries executed.
+
+**Commit**
+
+```bash
+git add .
+git commit -m "Explore relationship loading"
+```
+
+## Step 12: Practice Exercises
+
+**Objective**
+
+Practice working with SQLAlchemy ORM relationships by implementing a few additional queries and operations on the Blog Posts application.
+
+**Instructions**
+
+Complete the following exercises using the concepts learned in this workshop.
+
+1. Display all blog posts along with their author's username.
+2. Display all blog posts written by a specific user.
+3. Display the total number of blog posts created by each user.
+4. Display only published blog posts.
+5. Update the title of a specific blog post.
+6. Delete a blog post by its ID.
+7. Create a new author and assign two blog posts to that author.
+8. Delete an author and observe how the `cascade="all, delete-orphan"` option affects the related blog posts.
+9. Retrieve all authors who have published at least one blog post.
+10. Display each user along with the number of blog posts they have written.
+
+> **Challenge:** Rewrite the queries using both ORM relationships (`user.posts`, `post.author`) and explicit `join()` statements wherever applicable. Compare the readability of each approach and observe the SQL statements generated by SQLAlchemy.
+
+**Verify**
+
+- All exercises execute successfully.
+- The expected records are created, updated, queried, and deleted.
+- The generated SQL statements match the intended operations.
+- You can confidently navigate between related objects using ORM relationships.
+
+**Commit**
+
+```bash
+git add .
+git commit -m "Complete ORM relationships"
+```
+
+

@@ -1,0 +1,244 @@
+---
+title: "Setting Up SQLite Database"
+description: "Create a SQLite database and populate it with sample data for SQL practice."
+icon: "database"
+---
+
+# Setting Up SQLite Database
+
+In this guide, you'll create a SQLite database, create the required tables, and populate them with sample data for practicing SQL queries.
+
+## Prerequisites
+
+Install the following Visual Studio Code extension:
+
+- **SQLite** by Alex Covizzi
+
+The extension allows you to:
+
+- Create and open SQLite databases
+- Execute SQL scripts
+- Browse tables
+- View and edit records
+- Run SQL queries
+
+## Step 1: Create a Database
+
+1. Open **Visual Studio Code**.
+2. Open the **Command Palette**.
+   - **Windows/Linux:** `Ctrl + Shift + P`
+   - **macOS:** `Cmd + Shift + P`
+3. Search for:
+
+```text
+SQLite: Open Database
+```
+
+4. Choose **Create New Database**.
+5. Save the database as:
+
+```text
+employee.db
+```
+
+The database is now ready.
+
+## Step 2: Create the Tables
+
+Execute the following SQL statements.
+
+```sql
+CREATE TABLE department (
+    department_id INTEGER PRIMARY KEY,
+    department_name TEXT NOT NULL
+);
+
+CREATE TABLE employee (
+    employee_id INTEGER PRIMARY KEY,
+    employee_name TEXT NOT NULL,
+    salary REAL NOT NULL,
+    city TEXT NOT NULL,
+    joining_date TEXT NOT NULL,
+    department_id INTEGER,
+    FOREIGN KEY (department_id)
+        REFERENCES department(department_id)
+);
+```
+
+## Step 3: Populate the Tables
+
+### Department Data
+
+```sql
+INSERT INTO department (department_id, department_name)
+VALUES
+(1, 'Engineering'),
+(2, 'Human Resources'),
+(3, 'Sales'),
+(4, 'Finance'),
+(5, 'Marketing');
+```
+
+### Employee Data
+
+```sql
+INSERT INTO employee (
+    employee_id,
+    employee_name,
+    salary,
+    city,
+    joining_date,
+    department_id
+)
+VALUES
+(101, 'Rahul Sharma',   65000, 'Hyderabad',      '2022-01-15', 1),
+(102, 'Priya Reddy',    72000, 'Bengaluru',      '2021-08-20', 1),
+(103, 'Arjun Kumar',    58000, 'Chennai',        '2023-02-10', 1),
+(104, 'Sneha Patel',    81000, 'Pune',           '2020-11-18', 1),
+(105, 'Vikram Singh',   69000, 'Mumbai',         '2022-06-12', 1),
+
+(106, 'Anitha Rao',     52000, 'Hyderabad',      '2023-04-08', 2),
+(107, 'Meena Iyer',     56000, 'Chennai',        '2022-09-15', 2),
+(108, 'Karthik Nair',   61000, 'Kochi',          '2021-12-01', 2),
+(109, 'Pooja Sharma',   54000, 'Delhi',          '2023-01-28', 2),
+(110, 'Rohit Gupta',    60000, 'Noida',          '2022-05-09', 2),
+
+(111, 'Ajay Verma',     50000, 'Hyderabad',      '2024-01-10', 3),
+(112, 'Neha Kapoor',    64000, 'Mumbai',         '2021-10-21', 3),
+(113, 'Suresh Babu',    68000, 'Vijayawada',     '2022-07-18', 3),
+(114, 'Divya Menon',    55000, 'Bengaluru',      '2023-03-11', 3),
+(115, 'Rakesh Yadav',   73000, 'Lucknow',        '2020-08-14', 3),
+
+(116, 'Harsha Vardhan', 76000, 'Hyderabad',      '2021-06-05', 4),
+(117, 'Deepika Joshi',  59000, 'Pune',           '2023-09-17', 4),
+(118, 'Nikhil Jain',    82000, 'Indore',         '2020-04-22', 4),
+(119, 'Asha Rani',      57000, 'Mysuru',         '2022-12-13', 4),
+(120, 'Manoj Kumar',    61000, 'Nagpur',         '2021-11-30', 4),
+
+(121, 'Keerthi Reddy',  66000, 'Hyderabad',      '2022-10-07', 5),
+(122, 'Amit Mishra',    62000, 'Delhi',          '2023-05-19', 5),
+(123, 'Lakshmi Devi',   71000, 'Chennai',        '2021-07-26', 5),
+(124, 'Gopal Krishna',  53000, 'Visakhapatnam',  '2024-02-12', NULL),
+(125, 'Swathi Rao',     69000, 'Bengaluru',      '2022-08-16', 5);
+```
+
+> **Note:** `Gopal Krishna` has a `NULL` department to demonstrate `LEFT JOIN` and `IS NULL` queries.
+
+## Step 4: Verify the Data
+
+Display all departments.
+
+```sql
+SELECT *
+FROM department;
+```
+
+Display all employees.
+
+```sql
+SELECT *
+FROM employee;
+```
+
+Count the total number of employees.
+
+```sql
+SELECT COUNT(*) AS total_employees
+FROM employee;
+```
+
+**Expected Output**
+
+```text
+25
+```
+
+## Step 5: Execute Sample Queries
+
+Display all employee names.
+
+```sql
+SELECT employee_name
+FROM employee;
+```
+
+Display employees from Hyderabad.
+
+```sql
+SELECT *
+FROM employee
+WHERE city = 'Hyderabad';
+```
+
+Display employees with salaries greater than ₹70,000.
+
+```sql
+SELECT *
+FROM employee
+WHERE salary > 70000;
+```
+
+Display employees sorted by salary.
+
+```sql
+SELECT employee_name, salary
+FROM employee
+ORDER BY salary DESC;
+```
+
+Display employee names with department names.
+
+```sql
+SELECT
+    e.employee_name,
+    d.department_name
+FROM employee e
+INNER JOIN department d
+ON e.department_id = d.department_id;
+```
+
+Display all employees, including those without a department.
+
+```sql
+SELECT
+    e.employee_name,
+    d.department_name
+FROM employee e
+LEFT JOIN department d
+ON e.department_id = d.department_id;
+```
+
+## Database Schema
+
+```text
+Department
+----------
+department_id (PK)
+department_name
+       ▲
+       │
+       │ department_id
+       │
+Employee
+--------
+employee_id (PK)
+employee_name
+salary
+city
+joining_date
+department_id (FK)
+```
+
+## Summary
+
+You have successfully:
+
+- Installed the SQLite extension in Visual Studio Code.
+- Created a SQLite database.
+- Created the `department` and `employee` tables.
+- Inserted 5 departments and 25 employee records.
+- Added one employee with a `NULL` department for practicing `LEFT JOIN` and `IS NULL`.
+- Verified the data.
+- Executed sample SQL queries.
+
+Your database is now ready to practice all SQL topics, including **SELECT**, **WHERE**, **GROUP BY**, **HAVING**, **JOINs**, **Aggregate Functions**, and **Window Functions**.

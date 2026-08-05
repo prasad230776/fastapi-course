@@ -77,68 +77,6 @@ Python supports four fundamental principles of OOP.
 
 In this module, we'll build upon these fundamentals and explore advanced OOP concepts.
 
-## Everything in Python is an Object
-
-Python follows an object-oriented design where **everything is an object**—numbers, strings, lists, dictionaries, functions, modules, and even classes.
-
-Every object has:
-
-- **Identity** (`id()`)
-- **Type** (`type()`)
-- **State** (data)
-- **Behavior** (methods)
-
-## Classes are Objects Too
-
-A common misconception is that only instances are objects. In reality, **classes themselves are also objects**.
-
-```python
-class Student:
-    pass
-
-print(type(Student))
-print(type(int))
-print(type(str))
-print(type(list))
-```
-
-### What Happens When Python Creates a Class?
-
-When Python executes a class definition, it performs these steps internally:
-
-1. Reads the `class` statement.
-2. Creates a temporary namespace (dictionary).
-3. Executes every statement inside the class body.
-4. Collects all attributes and methods into the namespace.
-5. Calls `type(class_name, bases, namespace)`.
-6. `type` creates the new class object.
-7. Assigns the class object to the class name.
-
-When a class inherits from another class, the base classes are passed as the `bases` argument to `type()`.
-
-
-Output:
-
-```text
-<class 'type'>
-<class 'type'>
-<class 'type'>
-<class 'type'>
-```
-
-Every class is an **instance of the built-in `type` class**. When you define a class, Python is actually creating a **new custom type**.
-
-```python
-student = Student()
-print(type(student))
-```
-
-Output:
-
-```text
-<class '__main__.Student'>
-```
-
 ## Class Members vs Instance Members
 
 A class can contain both **instance members** and **class members**.
@@ -319,49 +257,6 @@ print(student2.name)
 ```
 
 </Accordion>
-
-## Properties
-
-Properties provide controlled access to attributes while allowing them to be accessed like normal variables.
-
-Instead of calling `get_name()` and `set_name()`, properties let you write:
-
-```python
-student.name
-student.name = "Alice"
-```
-
-using the `@property` decorator.
-
-### Read-only Properties
-
-A property that only defines a getter can be read but not modified.
-
-```python
-class Circle:
-
-    @property
-    def area(self):
-        return 3.14 * self.radius ** 2
-```
-
-### Write-only Properties
-
-Although Python does not have true write-only variables, a property can emulate one.
-
-```python
-class User:
-
-    @property
-    def password(self):
-        raise AttributeError("Password cannot be read.")
-
-    @password.setter
-    def password(self, value):
-        self._hashed = hash(value)
-```
-
-This is commonly used for passwords and other sensitive information.
 
 ## Class Methods
 
@@ -1112,20 +1007,6 @@ print(rectangle.area())
 ```
 
 </Accordion>
-
-
-
-### What Happens During Inheritance?
-
-When Python creates a derived class, it performs these steps:
-
-1. Resolves the parent classes.
-2. Validates each base class.
-3. Computes the Method Resolution Order (MRO).
-4. Creates the child class namespace.
-5. Calls `type()` to create the new class object.
-6. Stores the inheritance hierarchy.
-7. Uses the MRO whenever attributes or methods are searched.
 
 ## Multiple Inheritance
 

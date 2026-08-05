@@ -1,0 +1,175 @@
+---
+title: "Seaborn"
+description: "Statistical data visualization built on top of Matplotlib"
+icon: "chart-simple"
+---
+
+Seaborn is a powerful Python library built on top of Matplotlib that is specifically designed for statistical data visualization. It integrates seamlessly with Pandas DataFrames and allows you to create elegant, informative, and modern charts with single-line commands.
+
+---
+
+## 1. Introduction and Styling
+
+### Importing Seaborn
+By convention, Seaborn is imported as `sns`:
+```python
+import seaborn as sns
+import matplotlib.pyplot as plt
+```
+
+### Themes and Palettes
+Seaborn allows you to change the global appearance of plots with one command.
+
+* **Styles:** `whitegrid`, `darkgrid`, `ticks`, `white`, `dark`.
+* **Contexts:** `paper`, `notebook`, `talk`, `poster` (scales fonts and sizes).
+
+```python
+# Apply a modern dark grid style and a pastel color palette
+sns.set_theme(style="darkgrid", palette="muted")
+```
+
+---
+
+## 2. Analyzing Numerical Distributions
+
+Distribution plots help you understand the range, skewness, and density of numerical features.
+
+### Histograms and KDE (`sns.histplot`)
+You can plot histograms combined with **Kernel Density Estimation (KDE)** to see a smoothed probability curve over the bars.
+```python
+tips = sns.load_dataset("tips")
+
+# Plot distribution of bill totals with a density curve
+sns.histplot(data=tips, x="total_bill", kde=True, color="teal")
+plt.title("Distribution of Total Bills")
+plt.show()
+```
+
+### Joint Plots (`sns.jointplot`)
+Joint plots draw a bivariate relationship (like a scatter plot) along with univariate distributions (histograms) on the margins.
+```python
+# Scatter plot with marginal histograms showing bills vs. tips
+sns.jointplot(data=tips, x="total_bill", y="tip", kind="scatter", color="purple")
+plt.show()
+```
+
+### Pair Plots (`sns.pairplot`)
+Pair plots create a grid of scatter plots and histograms comparing every numerical column in a DataFrame against every other numerical column. This is one of the most common first steps in Machine Learning data exploration.
+```python
+# Create pairwise relationships across the entire dataset, color-coded by gender
+sns.pairplot(data=tips, hue="sex", palette="coolwarm")
+plt.show()
+```
+
+---
+
+## 3. Categorical Visualizations
+
+Categorical plots are used to inspect statistical aggregates across distinct categories.
+
+### Bar Plots (`sns.barplot`)
+Seaborn's `barplot` automatically aggregates data (calculating the mean by default) and draws error bars representing confidence intervals.
+```python
+# Compare average tips across days of the week
+sns.barplot(data=tips, x="day", y="tip", hue="time", palette="Set2")
+plt.title("Average Tip by Day and Time")
+plt.show()
+```
+
+### Count Plots (`sns.countplot`)
+A count plot counts the number of records (rows) in each category (similar to a bar plot of frequencies).
+```python
+# Count the number of smokers vs non-smokers in the dataset
+sns.countplot(data=tips, x="smoker", palette="Blues")
+plt.title("Frequency of Customers by Smoking Status")
+plt.show()
+```
+
+### Violin Plots vs. Box Plots
+* **`sns.boxplot`:** Shows the quartiles and outliers.
+* **`sns.violinplot`:** Combines a box plot with a KDE density estimation, showing the shape of the data distribution.
+```python
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+# 1. Box plot
+sns.boxplot(data=tips, x="day", y="total_bill", ax=axes[0], palette="pastel")
+axes[0].set_title("Total Bill Range per Day (Box Plot)")
+
+# 2. Violin plot
+sns.violinplot(data=tips, x="day", y="total_bill", ax=axes[1], palette="muted")
+axes[1].set_title("Total Bill Distribution density per Day (Violin Plot)")
+
+plt.tight_layout()
+plt.show()
+```
+
+---
+
+## 4. Relationship and Regressions
+
+### Scatter Plots and Line Plots
+* **`sns.scatterplot`:** Plots data points with color (`hue`) and size mapping.
+* **`sns.lineplot`:** Plots trends, grouping, and error bands.
+```python
+# Scatter plot with size and color styling
+sns.scatterplot(data=tips, x="total_bill", y="tip", hue="smoker", size="size", sizes=(20, 200))
+plt.title("Bill vs Tip sized by Table Size")
+plt.show()
+```
+
+### Regression Plots (`sns.lmplot`)
+Draws a scatter plot along with a fitted linear regression line and confidence bands.
+```python
+# Plot linear relationship between bill and tip, grouped by smoking status
+sns.lmplot(data=tips, x="total_bill", y="tip", hue="smoker", height=5)
+plt.show()
+```
+
+---
+
+## 5. Matrix Plots (Correlation Heatmaps)
+
+Heatmaps are highly useful for visualizing correlation tables between numerical variables.
+
+### Heatmaps (`sns.heatmap`)
+To plot correlation matrices:
+1. Select only the numerical columns from the DataFrame.
+2. Compute the Pearson correlation using `.corr()`.
+3. Draw the heatmap with values printed inside the boxes.
+
+```python
+# Select only numerical features
+numerical_df = tips.select_dtypes(include=["number"])
+
+# Calculate correlation matrix
+corr_matrix = numerical_df.corr()
+
+# Draw Heatmap
+sns.heatmap(corr_matrix, annot=True, cmap="coolwarm", vmin=-1, vmax=1, linewidths=0.5)
+plt.title("Tips Dataset Correlation Matrix")
+plt.show()
+```
+
+---
+
+## Practice and Next Steps
+
+Before moving to the next section, make sure to practice your Seaborn skills using the interactive notebook:
+
+<CardGroup cols={2}>
+  <Card
+    title="Seaborn Practice Exercise"
+    icon="notebook"
+  >
+    Practice your skills using the interactive notebook.
+    
+    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/python%20material/python4ai/public/notebooks/seaborn_student_exercise.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/python4ai/blob/master/public/notebooks/seaborn_student_exercise.ipynb) | <a href="/public/notebooks/seaborn_student_exercise.ipynb" download>📥 Download</a>
+  </Card>
+  <Card
+    title="Next Step: Data Visualization Guide"
+    icon="chart-bar"
+    href="/data-analysis/visualization-guide"
+  >
+    See a comprehensive guide comparing univariate, bivariate, and multivariate analysis on student data.
+  </Card>
+</CardGroup>

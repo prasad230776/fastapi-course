@@ -1,0 +1,350 @@
+---
+title: "SQLite, DDL & DML"
+description: "Learn SQLite basics, SQL command categories, table creation, and data manipulation."
+icon: "table"
+---
+
+## Why SQLite?
+
+- What is SQLite?
+- Features of SQLite
+- Advantages
+- Limitations
+- SQLite Data Types
+
+## SQL Command Categories
+
+### DDL (Data Definition Language)
+
+**Purpose:** Defines or changes the structure of database objects.
+
+**Commands**
+
+- CREATE
+- ALTER
+- DROP
+
+**Examples**
+
+- Create a new table
+- Add a new column to an existing table
+- Delete a table from the database
+
+**Think**
+
+- Which command would you use to create a new table?
+- Which command would you use to add a new column?
+- Does DDL modify the table structure or the data?
+
+### DML (Data Manipulation Language)
+
+**Purpose:** Adds, updates, or removes data stored in tables.
+
+**Commands**
+
+- INSERT
+- UPDATE
+- DELETE
+
+**Examples**
+
+- Add a new student record
+- Update a student's email address
+- Delete an inactive student
+
+**Think**
+
+- Which command adds new records?
+- Which command modifies existing records?
+- Which command removes records?
+
+### DQL (Data Query Language)
+
+**Purpose:** Retrieves data from one or more tables.
+
+**Command**
+
+- SELECT
+
+**Examples**
+
+- Display all students
+- Display students from the CSE department
+- Display students whose marks are greater than 80
+
+**Think**
+
+- Which SQL command is used to retrieve data?
+- Does `SELECT` change the data stored in the table?
+
+### TCL (Transaction Control Language)
+
+**Purpose:** Controls transactions and ensures data consistency.
+
+**Commands**
+
+- BEGIN
+- COMMIT
+- ROLLBACK
+
+**Examples**
+
+- Start a transaction
+- Save all changes permanently
+- Undo changes before they are committed
+
+**Think**
+
+- Which command permanently saves changes?
+- Which command cancels uncommitted changes?
+- Why are transactions important?
+
+## SQLite Data Types
+
+| Type | Description | Example |
+|------|-------------|---------|
+| INTEGER | Whole numbers | 10 |
+| REAL | Decimal numbers | 99.5 |
+| TEXT | Text values | "Rahul" |
+| BLOB | Binary data such as images or files | Image |
+| NULL | Missing or unknown value | NULL |
+
+### Common Examples
+
+| Data | SQLite Type |
+|------|-------------|
+| Student ID | INTEGER |
+| Student Name | TEXT |
+| Age | INTEGER |
+| Percentage | REAL |
+| Resume | BLOB |
+| Middle Name (not provided) | NULL |
+
+**Think**
+
+- Which data type would you choose for a mobile number?
+- Which data type is suitable for storing an image?
+- When is the `NULL` value used?
+
+## Creating Tables
+
+### Syntax
+
+```sql
+CREATE TABLE department (
+    department_id INTEGER PRIMARY KEY,
+    department_name TEXT NOT NULL
+);
+```
+
+```sql
+CREATE TABLE employee (
+    employee_id INTEGER PRIMARY KEY,
+    employee_name TEXT NOT NULL,
+    salary REAL NOT NULL,
+    city TEXT,
+    joining_date TEXT,
+    department_id INTEGER,
+    FOREIGN KEY (department_id)
+        REFERENCES department(department_id)
+);
+```
+
+### Explanation
+
+- **PRIMARY KEY** — Uniquely identifies each row.
+- **NOT NULL** — Prevents NULL values.
+- **FOREIGN KEY** — Creates a relationship with another table.
+
+### Practice
+
+Create a `student` table with `student_id`, `student_name`, and `email`.
+
+<Accordion title="Solution">
+
+```sql
+CREATE TABLE student (
+    student_id INTEGER PRIMARY KEY,
+    student_name TEXT NOT NULL,
+    email TEXT
+);
+```
+
+</Accordion>
+
+## ALTER TABLE
+
+Used to modify an existing table.
+
+### Add a Column
+
+```sql
+ALTER TABLE employee
+ADD COLUMN email TEXT;
+```
+
+### Rename a Column
+
+```sql
+ALTER TABLE employee
+RENAME COLUMN joining_date TO start_date;
+```
+
+### Practice
+
+Add a `phone` column to the `employee` table.
+
+<Accordion title="Solution">
+
+```sql
+ALTER TABLE employee
+ADD COLUMN phone TEXT;
+```
+
+</Accordion>
+
+## DROP TABLE
+
+Deletes an entire table permanently.
+
+```sql
+DROP TABLE employee;
+```
+
+> **Note:** All data in the table is permanently deleted.
+
+### Practice
+
+Delete the `student` table.
+
+<Accordion title="Solution">
+
+```sql
+DROP TABLE student;
+```
+
+</Accordion>
+
+## INSERT Statement
+
+Used to insert new rows into a table.
+
+### Insert a Single Row
+
+```sql
+INSERT INTO department
+VALUES (1, 'Engineering');
+```
+
+### Insert Multiple Rows
+
+```sql
+INSERT INTO department
+VALUES
+    (2, 'HR'),
+    (3, 'Sales');
+```
+
+### Insert by Specifying Columns
+
+```sql
+INSERT INTO employee (
+    employee_id,
+    employee_name,
+    salary
+)
+VALUES (
+    101,
+    'Rahul',
+    65000
+);
+```
+
+### Practice
+
+Insert an employee named **Anitha** with a salary of **55000**.
+
+<Accordion title="Solution">
+
+```sql
+INSERT INTO employee (
+    employee_id,
+    employee_name,
+    salary
+)
+VALUES (
+    102,
+    'Anitha',
+    55000
+);
+```
+
+</Accordion>
+
+## UPDATE Statement
+
+Used to modify existing records.
+
+### Syntax
+
+```sql
+UPDATE employee
+SET salary = 70000
+WHERE employee_id = 101;
+```
+
+> **Important:** Always use a `WHERE` clause unless you intend to update every row.
+
+### Practice
+
+Increase Rahul's salary to ₹75,000.
+
+<Accordion title="Solution">
+
+```sql
+UPDATE employee
+SET salary = 75000
+WHERE employee_name = 'Rahul';
+```
+
+</Accordion>
+
+## DELETE Statement
+
+Deletes one or more rows.
+
+```sql
+DELETE FROM employee
+WHERE employee_id = 101;
+```
+
+> **Important:** Omitting the `WHERE` clause deletes all rows.
+
+### Practice
+
+Delete the employee named **Sneha**.
+
+<Accordion title="Solution">
+
+```sql
+DELETE FROM employee
+WHERE employee_name = 'Sneha';
+```
+
+</Accordion>
+
+## Summary
+
+In this chapter, you learned:
+
+- SQLite basics
+- SQL command categories
+- SQLite data types
+- CREATE TABLE
+- ALTER TABLE
+- DROP TABLE
+- INSERT
+- UPDATE
+- DELETE
+
+The next chapter focuses entirely on **DQL (SELECT)**, where you'll learn how to retrieve and analyze data from the database.

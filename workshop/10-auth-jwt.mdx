@@ -1,0 +1,909 @@
+---
+title: 10-Authentication & Authorization with JWT
+description: Learn the fundamentals of securing REST APIs by understanding authentication, authorization, different authentication mechanisms, and implementing JWT-based authentication and role-based authorization in FastAPI.
+---
+
+## Objectives
+
+By the end of this module, you will be able to:
+
+- Understand authentication and authorization concepts.
+- Compare different authentication mechanisms.
+- Understand how JWT-based authentication works.
+- Implement secure user authentication using JWT.
+- Protect REST APIs using JWT.
+- Implement role-based authorization.
+
+# 1. Authentication & Authorization Fundamentals
+
+## Introduction
+
+Most web applications and REST APIs expose resources that should only be accessible to authenticated users. Before allowing access, an application must verify the user's identity and determine what resources they are allowed to access.
+
+This section introduces the fundamental concepts of authentication and authorization and explains the different mechanisms used to secure modern web applications and APIs.
+
+## Topics
+
+- Why APIs Need Security
+- Authentication
+- Authorization
+- Authentication vs Authorization
+- Basic Authentication
+- Session-Based Authentication
+- Token-Based Authentication (JWT)
+- Comparison of Authentication Mechanisms
+- When to Use JWT
+
+## 1. Basic Authentication
+
+### Key Points
+
+- Simplest authentication mechanism.
+- Client sends username and password with every request.
+- Credentials are sent in the `Authorization` header.
+- Server validates the credentials for every request.
+- Stateless authentication.
+- Should always be used over HTTPS.
+
+### Flow
+
+```text
+Client
+   │
+Authorization: Basic <Base64(username:password)>
+   │
+   ▼
+Server
+   │
+Validate Username & Password
+   │
+   ▼
+Response
+```
+
+## 2. Session-Based Authentication
+
+### Key Points
+
+- User logs in once using username and password.
+- Server validates the credentials.
+- Server creates a session.
+- Session ID is returned to the client.
+- Client sends the Session ID with every subsequent request.
+- Server maintains session information.
+- Stateful authentication.
+- Commonly used in traditional web applications.
+
+### Flow
+
+```text
+Login
+
+Client
+   │
+Username + Password
+   ▼
+Server
+   │
+Validate Credentials
+   │
+Create Session
+   ▼
+Session ID
+   ▲
+   │
+Client
+
+
+Subsequent Requests
+
+Client
+   │
+Session ID
+   ▼
+Server
+   │
+Validate Session
+   ▼
+Response
+```
+
+## 3. Token-Based Authentication (JWT)
+
+### Key Points
+
+- User logs in once using username and password.
+- Server validates the credentials.
+- Server generates a signed JWT.
+- JWT is returned to the client.
+- Client stores the token.
+- Client sends the JWT with every subsequent request.
+- Server validates the JWT before processing the request.
+- Stateless authentication.
+- Widely used in REST APIs, mobile applications, and microservices.
+
+### Flow
+
+```text
+Login
+
+Client
+   │
+Username + Password
+   ▼
+Server
+   │
+Validate Credentials
+   │
+Generate JWT
+   ▼
+JWT Token
+   ▲
+   │
+Client
+
+
+Subsequent Requests
+
+Client
+   │
+Authorization: Bearer <JWT>
+   ▼
+Server
+   │
+Validate JWT
+   ▼
+Response
+```
+
+## Comparison
+
+| Feature | Basic | Session | JWT |
+|---------|-------|---------|-----|
+| Login Required | Every Request | Once | Once |
+| Client Sends | Username & Password | Session ID | JWT Token |
+| Server Stores State | No | Yes | No |
+| Stateless | Yes | No | Yes |
+| Commonly Used In | Simple APIs | Web Applications | REST APIs & Microservices |
+
+## When to Use JWT
+
+Use JWT when:
+
+- Building REST APIs.
+- Developing mobile applications.
+- Building microservices.
+- Creating stateless applications.
+- Supporting multiple clients (Web, Mobile, Third-Party APIs).
+
+## Authentication
+
+Authentication is the process of verifying the identity of a user, application, or system before granting access to protected resources.
+
+It answers the question:
+
+> **"Who are you?"**
+
+During authentication, the application validates the credentials provided by the user, such as a username and password, OTP, biometric data, or security token.
+
+If the credentials are valid, the user is considered authenticated and can proceed to access the application.
+
+### Examples
+
+- Logging in with an email and password.
+- Signing in using Google or GitHub.
+- Verifying a user with a One-Time Password (OTP).
+- Fingerprint or Face ID authentication.
+
+---
+
+## Authorization
+
+Authorization is the process of determining what an authenticated user is allowed to access or perform within an application.
+
+It answers the question:
+
+> **"What are you allowed to do?"**
+
+After authentication is successful, the application checks the user's permissions or roles to determine which resources and operations they are authorized to access.
+
+### Examples
+
+- An **Admin** can create, update, and delete students.
+- A **Teacher** can view and update student records.
+- A **Student** can only view their own profile.
+- An authenticated user cannot access resources without sufficient permissions.
+
+---
+
+## Authentication vs Authorization
+
+| Authentication | Authorization |
+|---------------|---------------|
+| Verifies the identity of a user. | Determines what the authenticated user is allowed to access. |
+| Happens before authorization. | Happens after successful authentication. |
+| Answers **"Who are you?"** | Answers **"What are you allowed to do?"** |
+| Validates credentials. | Validates roles and permissions. |
+| Example: Login using email and password. | Example: Only admins can delete records. |
+
+### Why Secure APIs?
+
+- Protect sensitive user and business data.
+- Prevent unauthorized access.
+- Ensure only authenticated users can access resources.
+- Restrict operations based on user roles and permissions.
+- Prevent malicious activities and data manipulation.
+# 2. JWT Authentication Fundamentals
+
+## Objective
+
+Understand what JWT is, why it is preferred for modern REST APIs, and how JWT-based authentication works.
+
+## Introduction
+
+JSON Web Token (JWT) is an open standard (RFC 7519) for securely transmitting information between a client and a server as a digitally signed JSON object.
+
+Instead of sending user credentials with every request or maintaining server-side sessions, the client sends a signed JWT to access protected resources.
+
+## Topics
+
+- What is JWT?
+- Why JWT?
+- JWT Architecture
+- Components of JWT
+- JWT Claims
+- JWT Authentication Flow
+- Access Token & Token Expiration
+
+## What is JWT?
+
+JWT (JSON Web Token) is a compact, URL-safe token that contains user information (claims) and is digitally signed by the server.
+
+After successful login, the server generates a JWT and sends it to the client. The client includes this token in subsequent requests to access protected APIs.
+
+## JWT Architecture
+
+```text
+               Login
+
+Client
+   │
+Username + Password
+   ▼
+Authentication Server
+   │
+Validate Credentials
+   │
+Generate JWT
+   ▼
+JWT Token
+   ▲
+   │
+Client
+
+
+         Protected Request
+
+Client
+   │
+Authorization: Bearer <JWT>
+   ▼
+REST API
+   │
+Validate JWT
+   ▼
+Protected Resource
+```
+
+## Components of JWT
+
+A JWT consists of three parts separated by dots (`.`).
+
+```text
+Header.Payload.Signature
+```
+
+### Header
+
+Contains metadata about the token.
+
+```json
+{
+  "alg": "HS256",
+  "typ": "JWT"
+}
+```
+
+### Payload
+
+Contains user information called **claims**.
+
+```json
+{
+  "sub": "101",
+  "name": "John Doe",
+  "role": "admin"
+}
+```
+
+### Signature
+
+Used to verify the integrity of the token.
+
+It is generated using:
+
+- Header
+- Payload
+- Secret Key
+- Signing Algorithm
+
+## JWT Claims
+
+Claims are pieces of information stored inside the payload.
+
+### Registered Claims
+
+- `sub` – Subject
+- `iss` – Issuer
+- `aud` – Audience
+- `iat` – Issued At
+- `exp` – Expiration Time
+
+### Public Claims
+
+Shared custom claims.
+
+Example:
+
+- username
+- email
+
+### Private Claims
+
+Application-specific claims.
+
+Example:
+
+- role
+- permissions
+
+## Access Token
+
+An Access Token is the JWT returned after successful authentication.
+
+The client sends it with every protected request.
+
+```http
+Authorization: Bearer <JWT>
+```
+
+## Token Expiration
+
+JWTs have a limited lifetime defined by the `exp` claim.
+
+When the token expires, the user must authenticate again or obtain a new token.
+
+## JWT Authentication Flow
+
+```text
+Login
+─────
+
+Client
+   │
+Username + Password
+   ▼
+Authentication Server
+   │
+Verify Credentials
+   │
+Generate JWT
+   ▼
+JWT Token
+
+
+Protected API
+─────────────
+
+Client
+   │
+Authorization: Bearer <JWT>
+   ▼
+REST API
+   │
+Validate JWT
+   ▼
+Protected Resource
+```
+## Why JWT?
+
+JWT is widely used because it:
+
+- Eliminates server-side session management.
+- Supports stateless authentication.
+- Scales well across distributed systems.
+- Is ideal for REST APIs, mobile applications, and microservices.
+
+## Comparison of Authentication Mechanisms
+
+| Feature | Basic Authentication | Session-Based Authentication | JWT Authentication |
+|---------|----------------------|------------------------------|-------------------|
+| Login Required | Every Request | Once | Once |
+| Client Sends | Username & Password | Session ID | JWT Token |
+| Server Stores State | No | Yes | No |
+| Credentials Sent | Every Request | Login Only | Login Only |
+| Stateless | Yes | No | Yes |
+| Scalability | Moderate | Limited | High |
+| Best Suited For | Simple APIs & Testing | Traditional Web Applications | REST APIs & Microservices |
+
+# 3. Preparing for JWT Implementation
+
+## Objective
+
+Understand the libraries, FastAPI components, and implementation flow required to build JWT-based authentication in a FastAPI application.
+
+## Required Libraries
+
+Install the following libraries:
+
+```bash
+uv add python-jose[cryptography]
+uv add pwdlib
+```
+
+## Purpose of Each Library
+
+| Library | Purpose |
+|---------|---------|
+| `python-jose[cryptography]` | Generate, sign, decode, and validate JWT tokens. |
+| `pwdlib` | Securely hash and verify user passwords. |
+
+## FastAPI Components
+
+| Component | Purpose |
+|----------|---------|
+| `Depends()` | Inject dependencies such as the database session and current user. |
+| `HTTPBearer` | Extract the Bearer token from the `Authorization` header. |
+| `HTTPAuthorizationCredentials` | Access the Bearer token received from the client. |
+
+## JWT Authentication Flow
+
+```text
+                    User Registration
+                            │
+                            ▼
+                   Hash User Password
+                            │
+                            ▼
+                   Store User in Database
+                            │
+                            ▼
+
+────────────────────────────────────────────────
+
+                       User Login
+                            │
+                            ▼
+                  Verify User Credentials
+                            │
+                            ▼
+                    Generate JWT Token
+                            │
+                            ▼
+                 Return JWT to the Client
+                            │
+                            ▼
+
+────────────────────────────────────────────────
+
+                 Access Protected API
+                            │
+                            ▼
+      Authorization: Bearer <JWT Token>
+                            │
+                            ▼
+                   Extract JWT Token
+                            │
+                            ▼
+                   Validate JWT Token
+                            │
+                            ▼
+             Retrieve Authenticated User
+                            │
+                            ▼
+                Check User Permissions
+                            │
+                            ▼
+                 Execute Requested API
+```
+
+# Authentication Building Blocks
+
+## Objective
+
+Implement the core building blocks of JWT authentication using simple Python programs before integrating them into a FastAPI application.
+
+## Step 1: Install the Required Libraries
+
+### Objective
+
+Install the libraries required for password hashing and JWT token generation.
+
+### Instructions
+
+Install the following libraries:
+
+```bash
+uv add pwdlib
+uv add python-jose[cryptography]
+```
+
+---
+
+## Step 2: Hash a Password
+
+### Objective
+
+Securely hash a password before storing it in the database.
+
+### Instructions
+
+- Import `PasswordHash`.
+- Create a password hasher.
+- Hash the password.
+- Display the hashed password.
+
+```python
+from pwdlib import PasswordHash
+
+password_hash = PasswordHash.recommended()
+
+password = "admin123"
+
+hashed_password = password_hash.hash(password)
+
+print(hashed_password)
+```
+
+### Verify
+
+- Run the program.
+- Observe that the output is a hashed password instead of the original password.
+
+---
+
+## Step 3: Verify a Password
+
+### Objective
+
+Verify whether the entered password matches the stored hashed password.
+
+### Instructions
+
+- Hash a password.
+- Verify the entered password against the stored hash.
+- Display the verification result.
+
+```python
+from pwdlib import PasswordHash
+
+password_hash = PasswordHash.recommended()
+
+password = "admin123"
+
+hashed_password = password_hash.hash(password)
+
+is_valid = password_hash.verify(password, hashed_password)
+
+print(is_valid)
+```
+
+### Verify
+
+Expected Output
+
+```text
+True
+```
+
+Change the password to:
+
+```python
+password = "password123"
+```
+
+Expected Output
+
+```text
+False
+```
+
+---
+
+## Step 4: Generate a JWT
+
+### Objective
+
+Generate a signed JWT containing user information.
+
+### Instructions
+
+- Define the Secret Key.
+- Define the Signing Algorithm.
+- Create the JWT payload.
+- Set the token expiration time.
+- Generate the JWT.
+- Display the generated token.
+
+```python
+from datetime import datetime, timedelta, timezone
+
+from jose import jwt
+
+SECRET_KEY = "my-secret-key"
+ALGORITHM = "HS256"
+
+payload = {
+    "sub": "101",
+    "name": "John Doe",
+    "role": "admin",
+    "exp": datetime.now(timezone.utc) + timedelta(minutes=30)
+}
+
+token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+
+print(token)
+```
+
+### Verify
+
+- Run the program.
+- Observe that a JWT token is generated.
+
+---
+
+## Step 5: Validate a JWT
+
+### Objective
+
+Validate a JWT and extract the user information stored inside it.
+
+### Instructions
+
+- Decode the JWT.
+- Verify the signature.
+- Verify the expiration time.
+- Display the decoded payload.
+
+```python
+from jose import JWTError, jwt
+
+SECRET_KEY = "my-secret-key"
+ALGORITHM = "HS256"
+
+try:
+    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+
+    print(payload)
+
+except JWTError:
+    print("Invalid or Expired Token")
+```
+
+### Verify
+
+Expected Output
+
+```python
+{
+    "sub": "101",
+    "name": "John Doe",
+    "role": "admin",
+    "exp": ...
+}
+```
+
+---
+
+## Step 6: Read the JWT Claims
+
+### Objective
+
+Retrieve the information stored inside the JWT payload.
+
+### Instructions
+
+- Read the user ID.
+- Read the username.
+- Read the user role.
+- Display the values.
+
+```python
+user_id = payload["sub"]
+name = payload["name"]
+role = payload["role"]
+
+print(user_id)
+print(name)
+print(role)
+```
+
+### Verify
+
+Expected Output
+
+```text
+101
+John Doe
+admin
+```
+
+### Objective
+
+Create a simple Python program to verify that all the authentication building blocks work correctly.
+
+The program should:
+
+- Hash a password.
+- Verify the password.
+- Generate a JWT.
+- Validate the JWT.
+- Read the user information stored inside the JWT.
+
+<Question>
+
+Implement a standalone Python program that demonstrates password hashing, password verification, JWT generation, and JWT validation.
+
+</Question>
+
+<Accordion title="Solution">
+
+```python
+from datetime import datetime, timedelta, timezone
+
+from jose import JWTError, jwt
+from pwdlib import PasswordHash
+
+
+# -----------------------------
+# Configuration
+# -----------------------------
+
+SECRET_KEY = "my-secret-key"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+password_hash = PasswordHash.recommended()
+
+
+# -----------------------------
+# Password Utilities
+# -----------------------------
+
+def hash_password(password: str) -> str:
+    return password_hash.hash(password)
+
+
+def verify_password(password: str, hashed_password: str) -> bool:
+    return password_hash.verify(password, hashed_password)
+
+
+# -----------------------------
+# JWT Utilities
+# -----------------------------
+
+def create_access_token(data: dict) -> str:
+    payload = data.copy()
+    payload["exp"] = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+
+
+def verify_access_token(token: str) -> dict:
+    return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+
+
+# -----------------------------
+# Test Program
+# -----------------------------
+
+def main():
+
+    print("=" * 60)
+    print("PASSWORD HASHING")
+    print("=" * 60)
+
+    password = "admin123"
+
+    hashed_password = hash_password(password)
+
+    print("Original Password :", password)
+    print("Hashed Password   :", hashed_password)
+
+    print("\n" + "=" * 60)
+    print("PASSWORD VERIFICATION")
+    print("=" * 60)
+
+    print("Correct Password :", verify_password("admin123", hashed_password))
+    print("Wrong Password   :", verify_password("password123", hashed_password))
+
+    print("\n" + "=" * 60)
+    print("JWT TOKEN GENERATION")
+    print("=" * 60)
+
+    token = create_access_token({
+        "sub": "101",
+        "name": "John Doe",
+        "role": "admin"
+    })
+
+    print(token)
+
+    print("\n" + "=" * 60)
+    print("JWT TOKEN VALIDATION")
+    print("=" * 60)
+
+    try:
+        payload = verify_access_token(token)
+
+        print(payload)
+
+        print("\nExtracted Claims")
+
+        print("User ID :", payload["sub"])
+        print("Name    :", payload["name"])
+        print("Role    :", payload["role"])
+
+    except JWTError:
+        print("Invalid or Expired Token")
+
+
+if __name__ == "__main__":
+    main()
+```
+
+</Accordion>
+
+## Verify
+
+Verify that the program:
+
+- Hashes the password successfully.
+- Verifies the correct password.
+- Rejects an incorrect password.
+- Generates a JWT token.
+- Successfully validates the generated token.
+- Extracts the user information from the JWT.
+
+### Expected Output
+
+```text
+============================================================
+PASSWORD HASHING
+============================================================
+Original Password : admin123
+Hashed Password   : $argon2id$...
+
+============================================================
+PASSWORD VERIFICATION
+============================================================
+Correct Password : True
+Wrong Password   : False
+
+============================================================
+JWT TOKEN GENERATION
+============================================================
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+============================================================
+JWT TOKEN VALIDATION
+============================================================
+{'sub': '101', 'name': 'John Doe', 'role': 'admin', 'exp': ...}
+
+Extracted Claims
+User ID : 101
+Name    : John Doe
+Role    : admin
+```
+
+> **Note:** In the next section, we will integrate these helper functions into a FastAPI application to implement user registration, login, and protected REST APIs.
+

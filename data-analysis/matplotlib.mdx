@@ -1,0 +1,228 @@
+---
+title: "Matplotlib"
+description: "Creating static, animated, and interactive visualizations in Python"
+icon: "chart-line"
+---
+
+Matplotlib is the foundational plotting library for Python. It provides full control over every element of a chart—from axes and labels to grids and legends—allowing you to create publication-quality charts.
+
+---
+
+## 1. Introduction and Core Interfaces
+
+Matplotlib offers two main interfaces to create plots:
+
+1. **State-Based Interface (using `plt.xxx`)**: The simplest and most common method for single plots. You call functions directly on `pyplot`, and Matplotlib automatically manages the figure and plot details under the hood.
+2. **Object-Oriented Interface (using `fig, ax`)**: Recommended for advanced setups, such as creating grid layouts (subplots) or managing multiple charts simultaneously.
+
+For single charts, the **State-Based (`plt`)** style is highly preferred due to its simplicity.
+
+### Importing Matplotlib
+By convention, the plotting module `matplotlib.pyplot` is imported under the alias `plt`:
+```python
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+```
+
+### Creating Your First Plot
+```python
+# Simple plot using the direct state-based interface
+x = [1, 2, 3]
+y = [4, 5, 6]
+
+plt.plot(x, y)
+plt.show()
+```
+
+---
+
+## 2. Anatomy and Customization of a Plot
+
+You can easily customize titles, labels, legends, grids, and boundaries using direct `plt.` commands:
+
+```python
+x = np.linspace(0, 10, 100)
+y = np.sin(x)
+
+# 1. Plotting the data
+plt.plot(x, y, label="Sine Wave", color="teal", linestyle="--", linewidth=2)
+
+# 2. Customizing Labels and Title
+plt.title("Customized Sine Wave Plot", fontsize=14, fontweight="bold", pad=15)
+plt.xlabel("X-Axis Values (Time)", fontsize=11)
+plt.ylabel("Y-Axis Values (Amplitude)", fontsize=11)
+
+# 3. Boundaries and Grid
+plt.xlim(0, 10)  # X-axis limits
+plt.ylim(-1.5, 1.5)  # Y-axis limits
+plt.grid(True, linestyle=":", alpha=0.6)
+
+# 4. Legend
+plt.legend(loc="upper right")
+
+# 5. Ticks Customization
+plt.xticks([0, np.pi, 2*np.pi, 3*np.pi], ["0", "π", "2π", "3π"])
+
+# Display the result
+plt.show()
+```
+
+---
+
+## 3. Analyzing Numerical Data
+
+Numerical data is continuous and is best visualized using plots that show trends, distributions, or correlations.
+
+### Line Plots (Trends Over Time)
+Line plots are used to show how numerical values change over a continuous interval (typically time).
+```python
+years = [2021, 2022, 2023, 2024, 2025]
+sales = [150, 220, 290, 410, 500]
+
+plt.plot(years, sales, marker="o", color="blue")
+plt.title("Sales Growth Over Time")
+plt.xlabel("Year")
+plt.ylabel("Sales")
+plt.show()
+```
+
+### Histograms (Distributions)
+Histograms show the frequency distribution of a continuous numerical variable by grouping values into "bins".
+```python
+# Generate 1000 random values following a normal distribution
+scores = np.random.normal(loc=75, scale=10, size=1000)
+
+plt.hist(scores, bins=20, color="skyblue", edgecolor="black", alpha=0.7)
+plt.title("Distribution of Student Scores")
+plt.xlabel("Exam Scores")
+plt.ylabel("Number of Students")
+plt.show()
+```
+
+### Scatter Plots (Correlation)
+Scatter plots show the relationship (correlation) between two numerical variables.
+```python
+study_hours = [2, 4, 5, 7, 8, 10, 11, 12]
+exam_scores = [55, 62, 70, 78, 85, 92, 95, 100]
+
+plt.scatter(study_hours, exam_scores, color="orange", s=100, edgecolor="red")
+plt.title("Study Hours vs. Exam Scores")
+plt.xlabel("Hours Studied")
+plt.ylabel("Exam Score")
+plt.show()
+```
+
+---
+
+## 4. Analyzing Categorical Data
+
+Categorical data represents discrete groups (like gender, courses, or jobs) and is best visualized using bar charts.
+
+### Vertical Bar Charts
+Used to compare numerical values across different categorical groups.
+```python
+courses = ["Python", "SQL", "Machine Learning", "Git"]
+students = [450, 320, 540, 180]
+
+plt.bar(courses, students, color=["#10B981", "#3B82F6", "#8B5CF6", "#F59E0B"])
+plt.title("Student Enrollment by Course")
+plt.ylabel("Number of Students")
+plt.show()
+```
+
+### Horizontal Bar Charts (`barh`)
+Highly useful when category names are long, preventing text overlap on the X-axis.
+```python
+categories = ["Software Engineer", "Data Scientist", "Product Manager", "UI/UX Designer"]
+salaries = [110, 120, 105, 90]  # in thousands
+
+plt.barh(categories, salaries, color="purple")
+plt.title("Median Salaries by Role ($k)")
+plt.xlabel("Salary ($k)")
+plt.show()
+```
+
+---
+
+## 5. Analyzing Numerical vs. Categorical Data
+
+To compare the distribution of a numerical variable across different categories, we use **Box Plots**.
+
+### Box Plots (Whisker Plots)
+A box plot summarizes a dataset using five statistics: minimum, first quartile (Q1), median, third quartile (Q3), and maximum. It is also excellent for identifying outliers.
+
+```python
+# Sample data: Exam scores for three different classes
+class_A = [55, 62, 70, 78, 85, 90, 92, 100]
+class_B = [40, 50, 55, 60, 72, 80, 85, 90]
+class_C = [65, 75, 80, 85, 90, 95, 98, 100]
+
+data_to_plot = [class_A, class_B, class_C]
+
+# Create boxplot
+plt.boxplot(data_to_plot, labels=["Class A", "Class B", "Class C"], patch_artist=True)
+plt.title("Exam Score Distribution by Class")
+plt.ylabel("Scores")
+plt.show()
+```
+
+---
+
+## 6. Multi-Plots and Subplots
+
+To display multiple plots side-by-side or stacked in a grid, we transition to the **Object-Oriented Interface** using `plt.subplots(rows, columns)`.
+
+### Grid Layouts with Subplots
+
+```python
+# Create a grid of 2 rows and 2 columns of subplots
+fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(10, 8))
+
+# Data
+x = np.linspace(0, 5, 50)
+
+# 1. Top-Left (Row 0, Col 0) - Linear Plot
+axes[0, 0].plot(x, x, color="blue")
+axes[0, 0].set_title("Linear")
+
+# 2. Top-Right (Row 0, Col 1) - Quadratic Plot
+axes[0, 1].plot(x, x**2, color="green")
+axes[0, 1].set_title("Quadratic")
+
+# 3. Bottom-Left (Row 1, Col 0) - Cubic Plot
+axes[1, 0].plot(x, x**3, color="red")
+axes[1, 0].set_title("Cubic")
+
+# 4. Bottom-Right (Row 1, Col 1) - Exponential Plot
+axes[1, 1].plot(x, np.exp(x), color="purple")
+axes[1, 1].set_title("Exponential")
+
+# Adjust spacing so titles and labels don't overlap
+plt.tight_layout()
+plt.show()
+```
+
+---
+
+## Practice and Next Steps
+
+Before moving to the next section, make sure to practice your Matplotlib skills using the interactive notebook:
+
+<CardGroup cols={2}>
+  <Card
+    title="Matplotlib Practice Exercise"
+    icon="notebook"
+  >
+    Practice your skills using the interactive notebook.
+    
+    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/python%20material/python4ai/public/notebooks/matplotlib_student_exercise.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/python4ai/blob/master/public/notebooks/matplotlib_student_exercise.ipynb) | <a href="/public/notebooks/matplotlib_student_exercise.ipynb" download>📥 Download</a>
+  </Card>
+  <Card
+    title="Next Library: Seaborn"
+    icon="chart-simple"
+    href="/data-analysis/seaborn"
+  >
+    Learn how to create beautiful, advanced statistical charts with Seaborn.
+  </Card>
+</CardGroup>

@@ -1,0 +1,734 @@
+---
+title: "Pandas"
+description: "Pandas for Machine Learning: The Essential Python Data Guide"
+icon: "table"
+---
+
+This study guide provides a detailed breakdown of the essential Pandas operations for Data Science, Machine Learning, and Generative AI, complete with clear, copy-pasteable code examples. All concepts and examples are grounded directly in the video crash course tutorial.
+
+---
+
+## 1. Introduction to Pandas
+
+### Need and Overview of Pandas
+* **The Data Science Bottleneck:** Real-world data is rarely immediately usable. It is typically massive, unstructured, noisy, and unclean. 
+* **The Role of Pandas:** Instead of writing boilerplate code to read, clean, restructure, and analyze data from scratch, Pandas serves as an open-source Python library that provides highly optimized data structures and functions. 
+* **Prerequisite for ML:** Knowing Pandas is an essential step before diving into Machine Learning and Generative AI.
+
+### Importing Pandas
+By convention, Pandas is imported using the standard alias `pd`:
+```python
+import pandas as pd
+```
+
+### Setup and Installation
+* **Cloud Environments (Recommended for Beginners):** Google Colab runs on the cloud, requiring zero local setup, while tracking and saving progress automatically.
+* **Local Environments:** You can install Jupyter Notebook, VS Code, or PyCharm. To get started with Jupyter Notebook, install it via pip:
+```bash
+pip install notebook
+```
+
+---
+
+## 2. Pandas Data Structures
+
+Pandas has two primary data structures: **Series** (1D) and **DataFrame** (2D).
+
+### Series
+A **Series** is a 1-dimensional array-like object. While it looks like a Python list, it is built with optimized functions (like calculating `mean()`, `median()`, and `sum()`) that standard Python lists lack.
+```python
+import pandas as pd
+
+# Creating a Series from a list
+data_list = [1, 2, 3, 4, 5]
+series = pd.Series(data_list)
+
+# Creating a Series with custom label indices
+custom_labels = ['a', 'b', 'c', 'd', 'e']
+series_with_labels = pd.Series(data_list, index=custom_labels)
+
+print(series_with_labels)
+# Output:
+# a    1
+# b    2
+# ...
+```
+
+### DataFrame
+A **DataFrame** is a 2-dimensional, table-like structure with labeled rows and columns. It can be thought of as a spreadsheet or a SQL table, offering rich tools for filtering, manipulation, and analysis.
+
+### DataFrame vs 2D Arrays
+* **Heterogeneous Data:** A DataFrame can hold multiple different data types across different columns (e.g., one column of `str`, another of `int`, and another of `float`).
+* **Homogeneous Data:** A traditional 2D array (such as in NumPy) is limited to holding a single, uniform data type across all elements.
+
+---
+
+## 3. Creating DataFrames
+
+### Creating DataFrames from Different Sources
+You can construct DataFrames programmatically from nested Python lists or dictionaries.
+```python
+# Programmatically creating a simple DataFrame with custom row and column labels
+data = [[1, 2, 3]]
+df = pd.DataFrame(data, columns=['c0', 'C1', 'C2'], index=['r0'])
+print(df)
+```
+
+### Common File Formats for Datasets
+* **CSV, Excel, JSON:** Universal and compatible, but often slow and storage-heavy. Excel is especially bulky because it packs rich formatting and metadata.
+* **Parquet and Feather:** Columnar binary formats optimized for big data. They employ built-in compression and are highly efficient. E.g., a 1 GB CSV file can be compressed to ~100 MB in **Parquet** (Apache ecosystem) or ~200–300 MB in **Feather**.
+
+### Reading Data from CSV Files
+Pandas provides dedicated reading and exporting tools:
+```python
+# Reading a CSV file
+obesity_data = pd.read_csv('obesity prediction.csv')
+
+# Alternative readers:
+# pd.read_excel('file.xlsx')
+# pd.read_json('file.json')
+# pd.read_parquet('file.parquet')
+# pd.read_feather('file.feather')
+
+# Exporting data:
+# obesity_data.to_csv('output.csv', index=False)
+# obesity_data.to_feather('output.feather')
+```
+
+---
+
+## 4. Exploring Data
+
+### Viewing Data (`head()`, `tail()`, `sample()`)
+* **`head(n)`:** Returns the first `n` rows (defaults to 5) to verify data is loaded properly.
+* **`tail(n)`:** Returns the last `n` rows (defaults to 5).
+* **`sample(n, frac, random_state)`:** Selects random rows. This is superior to `head()` and `tail()` for checking sorted datasets.
+  * `n`: exact number of rows.
+  * `frac`: fraction of rows (e.g., `frac=0.1` is 10% of the dataset).
+  * `random_state`: set to an integer seed to guarantee the same random row selection across runs.
+
+```python
+# Viewing top 3 rows
+print(obesity_data.head(3))
+
+# Viewing bottom 15 rows
+print(obesity_data.tail(15))
+
+# Getting a reproducible sample of 10 random rows
+sample_df = obesity_data.sample(n=10, random_state=29)
+```
+
+### DataFrame Information
+* **Labels (Index & Columns):** Access labels directly as properties.
+* **Shape:** Returns a tuple indicating dimensionality `(rows, columns)`.
+* **Size:** Returns an integer of total elements (rows × columns).
+* **`info()`:** Lists column names, non-null counts, indices, data types, and memory usage.
+* **`describe()`:** Computes descriptive statistics (mean, median, standard deviation, min, max, percentiles) for numerical columns.
+
+```python
+# Inspecting labels
+columns_list = obesity_data.columns.tolist()  # Converts columns to standard list
+index_list = obesity_data.index.tolist()      # Converts indices to list
+
+# Attributes (No parentheses)
+print(obesity_data.shape)  # e.g., (2111, 17)
+print(obesity_data.size)   # total number of elements
+
+# Metadata Functions
+obesity_data.info()
+print(obesity_data.describe())
+```
+
+---
+
+## 5. Accessing Data
+
+### Row and Column Selection
+
+#### 1. `loc[]` (Label-Based Indexing)
+Accesses rows/columns by their label names. **Slicing with `loc` is fully inclusive of both endpoints**.
+```python
+# Accessing cell at row label 0, column 'age'
+age_val = obesity_data.loc[0, 'age']
+
+# Slicing rows 0 to 5 (inclusive) and columns 'age' through 'weight'
+subset_loc = obesity_data.loc[0:5, 'age':'weight']
+
+# Selecting specific rows and columns via lists
+list_subset = obesity_data.loc[[0, 7, 10], ['age', 'height', 'weight']]
+
+# Selecting all rows for specified columns
+all_rows_subset = obesity_data.loc[:, 'age':'weight']
+```
+
+#### 2. `iloc[]` (Integer Position-Based Indexing)
+Accesses rows/columns by their integer index positions. **Slicing with `iloc` is exclusive of the upper bound**.
+```python
+# Slicing rows 0 to 9 and columns 0 to 4 (upper bound 10 and 5 are exclusive)
+subset_iloc = obesity_data.iloc[0:10, 0:5]
+
+# Specific coordinates: rows 10, 20, 30 and columns 0, 1, 2
+coords_iloc = obesity_data.iloc[[10, 20, 30], [0, 1, 2]]
+```
+
+#### 3. `at[]` (Optimized Label-Based Scalar Access)
+Designed to quickly fetch or update a single, specific value. Built on top of NumPy, it bypasses safety checks and is faster than `.loc[]`. Slices are not supported.
+```python
+# Fetching scalar value
+scalar_val = obesity_data.at[0, 'age']
+```
+
+#### 4. `iat[]` (Optimized Integer-Based Scalar Access)
+Bypasses overhead checks to retrieve a single value by integer index. Requires both row and column indices.
+```python
+# Fetching scalar value at row index 5, column index 0
+scalar_val_iat = obesity_data.iat[5, 0]
+```
+
+### Accessing Columns: Shorthand vs Dot Notation
+Columns can be queried using brackets or attributes:
+* **Bracket (Shorthand) Notation:** `obesity_data['family_history']`. For multiple columns, pass a nested list: `obesity_data[['age', 'weight']]`. Highly recommended because it easily handles column names with spaces or special characters.
+* **Dot Notation:** `obesity_data.family_history`. Fails when column names contain spaces (e.g., `family history` instead of `family_history`).
+
+---
+
+## 6. Filtering Data
+
+### Filtering with Conditions (Boolean Indexing)
+By applying comparison operations to columns, Pandas generates a "Boolean Mask" of True/False values, which `.loc[]` uses to extract corresponding rows.
+```python
+# Filter rows where height is greater than 1 meter
+tall_folks = obesity_data[obesity_data['height'] > 1.0]
+# Also valid: obesity_data.loc[obesity_data['height'] > 1.0]
+```
+
+### Multiple Conditions
+Combine multiple conditional filters using bitwise operators:
+* `&` for AND (all conditions must be true)
+* `|` for OR (at least one condition must be true)
+* **Crucial Rule:** Each conditional block **must** be enclosed in parentheses `()` to maintain correct order of operations.
+```python
+# AND: Weight less than 50 AND Normal weight category
+filtered_and = obesity_data[(obesity_data['weight'] < 50) & (obesity_data['category'] == 'normal weight')]
+
+# OR: Weight less than 50 OR Normal weight category
+filtered_or = obesity_data[(obesity_data['weight'] < 50) | (obesity_data['category'] == 'normal weight')]
+```
+
+### Regular Expressions (Regex)
+You can search text patterns inside object/string columns using `.str` methods.
+```python
+# Find rows where category column contains the substring "normal"
+normal_weight_df = obesity_data[obesity_data['category'].str.contains('normal', regex=True)]
+
+# Find rows where category column starts with "normal"
+starts_with_df = obesity_data[obesity_data['category'].str.startswith('normal')]
+```
+
+---
+
+## 7. Updating and Transforming Data
+
+All updates modify the original DataFrame structure.
+
+### Updating Data using `loc[]`
+Update values across specific labels:
+```python
+# Update single scalar value
+obesity_data.loc[0, 'age'] = 22
+
+# Update entire column values
+obesity_data.loc[:, 'smoke'] = 'yes'
+
+# Update range of rows for a column
+obesity_data.loc[0:2, 'smoke'] = 'yes'
+
+# Update multiple specified rows
+obesity_data.loc[[2, 3], 'height'] = 1.6
+```
+
+### Updating using `iloc[]`, `at[]`, `iat[]`
+```python
+# iloc[]: Update value at row position 1, column position 4
+obesity_data.iloc[1, 4] = 'no_data'
+
+# at[]: Label-based single value update
+obesity_data.at[2, 'category'] = 'overweight'
+
+# iat[]: Integer-position single value update
+obesity_data.iat[0, 0] = 'secret'
+```
+
+### Transforming Data with `apply()`
+`.apply()` allows running a custom function along an entire row or column. By default, it runs column-wise (`axis=0`).
+* **Assignment is Required:** By default, `.apply()` does not edit in-place; you must assign it back.
+
+```python
+# Defining a transformation function
+def increment_age_by_five(x):
+    return x + 5
+
+# Transforming and assigning the changes back
+obesity_data['age'] = obesity_data['age'].apply(increment_age_by_five)
+```
+
+### Using Lambda Functions with `apply()`
+For simple, temporary transformations, write a short, anonymous **lambda function** directly inside `.apply()` to avoid writing a full function definition.
+```python
+# Simple lambda subtraction
+obesity_data['age'] = obesity_data['age'].apply(lambda x: x - 5)
+
+# Adding a new column with custom conditional lambda logic
+obesity_data['age_category'] = obesity_data['age'].apply(
+    lambda x: 'very young' if x < 25 else 'mature'
+)
+```
+
+### Transforming Data with `where()` (Vectorized Alternative)
+For simple conditions, NumPy's vectorized function `np.where(condition, value_if_true, value_if_false)` is significantly faster and more computationally efficient than `.apply()`.
+```python
+import numpy as np
+
+# Highly efficient conditional column creation
+obesity_data['new_age_category'] = np.where(
+    obesity_data['age'] < 25, 
+    'very young', 
+    'not so young'
+)
+```
+
+### `np.where()` vs `apply()`
+
+Both `np.where()` and `apply()` are used to transform data, but they are designed for different purposes and are commonly used in different libraries.
+
+| `np.where()` | `apply()` |
+|---------------|-----------|
+| NumPy function | Pandas method |
+| Used for simple conditional operations | Used to apply a custom function to each element, row, or column |
+| Faster because it is vectorized | Comparatively slower because it applies a Python function repeatedly |
+| Best suited for one or two simple conditions | Best suited for complex logic and custom transformations |
+
+---
+
+#### Using `np.where()`
+
+Use `np.where()` when you want to replace values based on a condition.
+
+**Syntax**
+```python
+np.where(condition, value_if_true, value_if_false)
+```
+
+**Example**
+```python
+import numpy as np
+
+marks = np.array([35, 78, 45, 92, 28])
+result = np.where(marks >= 40, "Pass", "Fail")
+print(result)
+# Output: ['Fail' 'Pass' 'Pass' 'Pass' 'Fail']
+```
+
+---
+
+#### Using `apply()`
+
+Use `apply()` when the transformation requires a custom function.
+
+**Example**
+```python
+import pandas as pd
+
+marks = pd.Series([35, 78, 45, 92, 28])
+
+def grade(mark):
+    if mark >= 75:
+        return "Distinction"
+    elif mark >= 40:
+        return "Pass"
+    else:
+        return "Fail"
+
+result = marks.apply(grade)
+print(result)
+```
+
+**Output**
+```text
+0           Fail
+1    Distinction
+2           Pass
+3    Distinction
+4           Fail
+dtype: object
+```
+
+---
+
+#### Using `apply()` with a Lambda Function
+
+```python
+import pandas as pd
+
+marks = pd.Series([35, 78, 45, 92, 28])
+result = marks.apply(
+    lambda x: "Pass" if x >= 40 else "Fail"
+)
+print(result)
+```
+
+**Output**
+```text
+0    Fail
+1    Pass
+2    Pass
+3    Pass
+4    Fail
+dtype: object
+```
+
+---
+
+#### Which One Should You Use?
+
+| Scenario | Recommended |
+|----------|-------------|
+| Simple condition (Pass/Fail, Yes/No) | `np.where()` |
+| Multiple conditions or complex business logic | `apply()` |
+| Highest performance on large datasets | `np.where()` |
+| Custom calculations or transformations | `apply()` |
+
+---
+
+#### Key Differences
+
+- **`np.where()`** is a **vectorized NumPy function** that performs conditional replacement efficiently.
+- **`apply()`** is a **Pandas method** that applies a user-defined function to each element, row, or column.
+- For simple conditional operations, **`np.where()` is generally faster and preferred**.
+- For complex transformations involving multiple conditions or calculations, **`apply()` provides greater flexibility**.
+
+> **Rule of Thumb:**  
+> Use **`np.where()`** for **simple conditional replacement** and **`apply()`** for **custom or complex transformations**.
+
+
+---
+
+## 8. Column Operations
+
+### Inserting Columns
+Use `.insert(loc, column, value)` to add a new column at a specific index location.
+```python
+# Insert column 'BMI' at column position index 2, with value 20 for all rows
+obesity_data.insert(2, 'BMI', 20)
+
+# Inserting with calculations based on existing columns
+obesity_data.insert(
+    2, 
+    'calculated_BMI', 
+    obesity_data['weight'] / (obesity_data['height'] ** 2)
+)
+```
+
+### Dropping Columns
+The `.drop(columns=[...])` method does not modify the original data unless you explicitly assign it back or set `inplace=True`.
+```python
+# Option 1: Using inplace=True
+obesity_data.drop(columns=['BMI'], inplace=True)
+
+# Option 2: Assignment back to the original variable
+obesity_data = obesity_data.drop(columns=['BMI', 'calculated_BMI'])
+```
+
+### Deleting Columns
+Use Python's built-in `del` keyword to instantly remove the column in-place.
+```python
+# Instant, in-place deletion
+del obesity_data['new_age_category']
+```
+
+### Renaming Columns
+Use `.rename(columns={old_name: new_name})`. Requires `inplace=True` or assignment.
+```python
+# Renaming multiple columns in-place
+obesity_data.rename(
+    columns={
+        'obesity': 'category',
+        'smoke': 'smoker_status'
+    }, 
+    inplace=True
+)
+```
+
+---
+
+## 9. Combining Data
+
+### Merging DataFrames (SQL Joins)
+You can perform relational merges on common key columns using `pd.merge(left_df, right_df, how, on)`.
+
+**Setup Example DataFrames:**
+```python
+df1 = pd.DataFrame({
+    'ID': [1, 2, 3, 4], 
+    'name': ['Alice', 'Bob', 'Charlie', 'David']
+})
+
+df2 = pd.DataFrame({
+    'ID': [3, 4, 5, 6], 
+    'course': ['Math', 'Science', 'History', 'Art']
+})
+```
+
+* **Inner Join (`how='inner'`):** Returns only rows where keys match in both DataFrames (intersection).
+  ```python
+  inner_df = pd.merge(df1, df2, how='inner', on='ID')
+  # Output contains IDs 3 & 4
+  ```
+* **Outer Join (`how='outer'`):** Returns all rows, inserting `NaN` where matches are missing (union).
+  ```python
+  outer_df = pd.merge(df1, df2, how='outer', on='ID')
+  ```
+* **Left Join (`how='left'`):** Retains all rows from the left DataFrame (`df1`), introducing `NaN` for missing right matches.
+  ```python
+  left_df = pd.merge(df1, df2, how='left', on='ID')
+  ```
+* **Right Join (`how='right'`):** Retains all rows from the right DataFrame (`df2`), introducing `NaN` for missing left matches.
+  ```python
+  right_df = pd.merge(df1, df2, how='right', on='ID')
+  ```
+
+#### Different Column Names
+If the key columns are named differently (e.g., `ID_1` and `ID_2`), use `left_on` and `right_on`:
+```python
+different_keys_df = pd.merge(
+    df1, df2, 
+    how='inner', 
+    left_on='ID_1', 
+    right_on='ID_2'
+)
+```
+
+### Concatenating DataFrames (Stacking)
+`pd.concat([df1, df2], axis)` stacks DataFrames vertically or horizontally.
+
+* **Vertical Stacking (`axis=0`):** Stack rows on top of each other.
+  ```python
+  # reset index from 0 to N instead of repeating original row indices
+  vert_df = pd.concat([df1, df2], axis=0, ignore_index=True)
+  
+  # Keep track of source data frames using multi-level (hierarchical) indexing
+  hierarchical_df = pd.concat([df1, df2], axis=0, keys=['df1', 'df2'])
+  ```
+* **Horizontal Stacking (`axis=1`):** Stack columns side-by-side.
+  ```python
+  horiz_df = pd.concat([df1, df2], axis=1)
+  ```
+
+---
+
+## 10. Handling Missing Values
+
+`NaN` (Not a Number) represents missing or undefined values in datasets. 
+
+### Detecting Missing Values
+* **`isna()`:** Returns Boolean mask where `True` marks missing values.
+* **`notna()`:** Returns Boolean mask where `True` marks populated values.
+```python
+# Check total nulls per column
+print(obesity_data.isna().sum())
+
+# Check total non-nulls per column
+print(obesity_data.notna().sum())
+```
+
+### Filling Missing Values (`fillna()`)
+Replace null values with meaningful data. Requires assignment or `inplace=True`.
+```python
+# Example: Injecting NaNs to practice filling
+import numpy as np
+obesity_data.loc[0, 'age'] = np.nan
+obesity_data.loc[0, 'smoke'] = np.nan
+
+# 1. Fill ALL missing cells in the entire DataFrame with 0
+obesity_data.fillna(0, inplace=True)
+
+# 2. Fill single column with static scalar
+obesity_data['age'].fillna(20, inplace=True)
+
+# 3. Fill column with column Mean (Highly common in ML preprocessing)
+obesity_data['age'].fillna(obesity_data['age'].mean(), inplace=True)
+
+# 4. Fill multiple different columns with unique values
+obesity_data.fillna(
+    value={
+        'smoke': 'no', 
+        'family_history': 'no'
+    }, 
+    inplace=True
+)
+
+# 5. Interpolate: Fill values using neighbor patterns/mean (useful for sequential data)
+obesity_data['age'].interpolate(inplace=True)
+```
+
+### Removing Missing Values (`dropna()`)
+Completely drop rows or columns containing missing values.
+```python
+# Drop any row containing at least one missing value
+obesity_data.dropna(axis=0, inplace=True)
+
+# Drop any column containing at least one missing value
+obesity_data.dropna(axis=1, inplace=True)
+```
+
+---
+
+## 11. Data Aggregation
+
+### Grouping Data using `groupby()`
+Group row records by unique category values to analyze statistics within subgroups (e.g., comparing height across genders).
+```python
+# 1. Group by gender and find mean height
+print(obesity_data.groupby('gender')['height'].mean())
+
+# 2. Group by gender and find median weight
+print(obesity_data.groupby('gender')['weight'].median())
+
+# 3. Apply multiple aggregations at once using .agg()
+aggregated_stats = obesity_data.groupby('gender')['height'].agg(['sum', 'mean'])
+print(aggregated_stats)
+```
+
+---
+
+## 12. Working with String Data
+
+Pandas provides a dedicated set of string manipulation methods under the `.str` accessor. These operations are fully vectorized, allowing you to manipulate entire text columns efficiently.
+
+### Common String Operations
+
+```python
+import pandas as pd
+
+# Sample DataFrame
+data = {'employee_name': ['  John Doe ', 'jane SMITH', ' BOB martin '],
+        'role': ['Lead-Developer', 'Junior-Developer', 'Manager']}
+df = pd.DataFrame(data)
+
+# 1. Cleaning Whitespace (trimming)
+df['employee_name'] = df['employee_name'].str.strip()
+print(df['employee_name'].tolist())
+# Output: ['John Doe', 'jane SMITH', 'BOB martin']
+
+# 2. Changing Case
+print(df['employee_name'].str.lower().tolist()) # lowercase: ['john doe', 'jane smith', ...]
+print(df['employee_name'].str.upper().tolist()) # uppercase: ['JOHN DOE', 'JANE SMITH', ...]
+print(df['employee_name'].str.title().tolist()) # titlecase: ['John Doe', 'Jane Smith', ...]
+
+# 3. Replacing Substrings
+df['role'] = df['role'].str.replace('-', ' ')
+print(df['role'].tolist())
+# Output: ['Lead Developer', 'Junior Developer', 'Manager']
+
+# 4. Splitting Strings
+# Splits string into lists: ['Lead', 'Developer']
+df['role_split'] = df['role'].str.split(' ')
+
+# 5. Extracting Substrings / Slicing
+# Get the first 4 characters of names
+df['name_short'] = df['employee_name'].str[0:4]
+print(df['name_short'].tolist())
+# Output: ['John', 'jane', 'BOB ']
+```
+
+### Checking Substrings
+
+```python
+# Check if role contains the word 'Developer'
+df['is_dev'] = df['role'].str.contains('Developer')
+print(df)
+```
+
+---
+
+## 13. Working with Dates and Time
+
+Datasets often contain date information stored as strings. Pandas provides powerful tools to parse, extract, and perform calculations on date columns using the `pd.to_datetime()` function and the `.dt` accessor.
+
+### Converting to Datetime
+
+Convert string columns into actual datetime objects so Pandas can understand dates chronologically:
+
+```python
+import pandas as pd
+
+data = {'event': ['Conference', 'Hackathon', 'Launch'],
+        'date_str': ['2026-07-01', '05/06/2026', '2026.07.15']}
+df = pd.DataFrame(data)
+
+# Convert string to datetime format
+df['event_date'] = pd.to_datetime(df['date_str'], format='mixed')
+print(df['event_date'].dtype)
+# Output: datetime64[ns]
+```
+
+### Extracting Date Parts
+
+Once a column is converted to `datetime64`, you can extract specific parts (year, month, day, day name) using the `.dt` accessor:
+
+```python
+# Extracting properties
+df['year'] = df['event_date'].dt.year
+df['month'] = df['event_date'].dt.month
+df['day'] = df['event_date'].dt.day
+df['day_of_week'] = df['event_date'].dt.day_name()
+
+print(df[['event', 'year', 'month', 'day_of_week']])
+```
+
+**Output**
+```text
+        event  year  month day_of_week
+0  Conference  2026      7   Wednesday
+1   Hackathon  2026      5    Wednesday
+2      Launch  2026      7    Wednesday
+```
+
+### Calculating Date Differences (Timedelta)
+
+You can subtract dates directly to calculate durations:
+
+```python
+# Create dates
+start_date = pd.to_datetime('2026-07-01')
+end_date = pd.to_datetime('2026-07-10')
+
+# Timedelta calculation
+duration = end_date - start_date
+print(duration)       # Output: 9 days 00:00:00
+print(duration.days)  # Output: 9
+```
+
+---
+
+## Practice and Next Steps
+
+Before moving to the next section, make sure to practice your Pandas skills using the interactive notebook:
+
+<CardGroup cols={2}>
+  <Card
+    title="Pandas Practice Exercise"
+    icon="notebook"
+  >
+    Practice your skills using the interactive notebook.
+    
+    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/python%20material/python4ai/public/notebooks/pandas_student_exercise.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/python4ai/blob/master/public/notebooks/pandas_student_exercise.ipynb) | <a href="/public/notebooks/pandas_student_exercise.ipynb" download>📥 Download</a>
+  </Card>
+  <Card
+    title="Next Library: Matplotlib"
+    icon="chart-line"
+    href="/data-analysis/matplotlib"
+  >
+    Learn how to create static, animated, and interactive visualizations in Python.
+  </Card>
+</CardGroup>
