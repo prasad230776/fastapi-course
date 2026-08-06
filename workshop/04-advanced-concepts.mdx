@@ -1,6 +1,6 @@
 ---
 title: "04-Advanced Python Concepts"
-description: "Learn advanced Python concepts including functions as objects, higher-order functions, closures, decorators, iterators, and generators."
+description: "Learn advanced Python concepts including functions as objects, higher-order functions, closures, decorators, iterators, generators, and context managers."
 ---
 
 This chapter introduces advanced Python concepts that make programs more modular, reusable, and memory efficient. These concepts are widely used in modern Python applications, web frameworks, data processing, and AI libraries.
@@ -1735,6 +1735,119 @@ Examples include:
 - Streaming API data
 - Log processing
 - Infinite sequences
+
+</Accordion>
+
+---
+
+## Context Managers
+
+Whenever we open external resources such as files or database connections, they should be closed properly. Python provides the **with** statement to handle this automatically.
+
+### Without a Context Manager
+
+```python
+file = open("sample.txt", "r")
+content = file.read()
+print(content)
+file.close()
+```
+
+If an exception occurs before `close()`, the file may remain open.
+
+### Using a Context Manager
+
+```python
+with open("sample.txt", "r") as file:
+    content = file.read()
+    print(content)
+```
+
+The file is automatically closed after leaving the `with` block.
+
+### Custom Context Manager
+
+A context manager implements two special methods:
+- `__enter__()`
+- `__exit__()`
+
+```python
+class Database:
+    def __enter__(self):
+        print("Connection Opened")
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        print("Connection Closed")
+
+with Database():
+    print("Executing Queries")
+```
+
+<Accordion title="Show Output">
+
+```text
+Connection Opened
+Executing Queries
+Connection Closed
+```
+
+</Accordion>
+
+### Exercise 1
+
+Open a file using the `with` statement and display its contents.
+
+**Sample Input**
+```python
+# Assume file sample.txt exists
+```
+
+**Expected Output**
+```text
+Displays the file contents.
+```
+
+<Accordion title="Solution">
+
+```python
+with open("sample.txt", "r") as file:
+    print(file.read())
+```
+
+</Accordion>
+
+### Exercise 2
+
+Create a context manager that prints `"Start"` on entry and `"End"` on exit.
+
+**Sample Input**
+```python
+with Demo():
+    print("Inside")
+```
+
+**Expected Output**
+```text
+Start
+Inside
+End
+```
+
+<Accordion title="Solution">
+
+```python
+class Demo:
+    def __enter__(self):
+        print("Start")
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        print("End")
+
+with Demo():
+    print("Inside")
+```
 
 </Accordion>
 
