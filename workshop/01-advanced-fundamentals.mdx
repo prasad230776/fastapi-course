@@ -11,19 +11,21 @@ These features are part of modern Python and are widely used in professional app
 
 In this module, you'll learn:
 
-1. Advanced String Indexing and Slicing
-2. Python Nuances
+1. Mutability (Mutable vs Immutable Objects)
+2. Floating Point Precision Nuances (`0.1 + 0.2 != 0.3`)
+3. Advanced String Indexing and Slicing
+4. Python Nuances
    - Short-circuit Evaluation (`and` and `or`)
    - Chained Comparisons
    - Multiple Assignment and Variable Swapping
-3. `for-else` and `while-else`
-4. Function Arguments
+5. `for-else` and `while-else`
+6. Function Arguments
    - Positional Arguments
    - Keyword Arguments
    - Mixing Positional and Keyword Arguments
    - Positional-only Parameters (`/`)
    - Keyword-only Parameters (`*`)
-5. Packing and Unpacking
+7. Packing and Unpacking
    - Packing Positional Arguments (`*args`)
    - Packing Keyword Arguments (`**kwargs`)
    - Unpacking Positional Arguments (`*`)
@@ -32,6 +34,226 @@ In this module, you'll learn:
    - Combining Different Parameter Types
 
 By the end of this module, you'll be comfortable writing more flexible, reusable, and Pythonic functions that are commonly used in real-world Python applications.
+
+## Mutability (Mutable vs Immutable Objects)
+
+In Python, every object is classified as either **mutable** or **immutable**. Understanding this distinction is crucial for understanding how Python handles variable assignment, function arguments, and memory.
+
+### Immutable Objects
+An immutable object's state **cannot be changed** after it is created. Examples of immutable types in Python:
+- Numeric types (`int`, `float`, `complex`)
+- Strings (`str`)
+- Tuples (`tuple`)
+- Booleans (`bool`)
+- Frozensets (`frozenset`)
+
+If you attempt to modify an immutable object, Python does not change the original object; instead, it creates a new object in memory and updates the reference.
+
+```python
+x = 10
+print(f"Initial ID of x: {id(x)}")
+
+x = x + 5
+print(f"New ID of x: {id(x)}")
+```
+
+Output
+
+<Accordion title="Show Output">
+
+```text
+Initial ID of x: 4376378704
+New ID of x: 4376378864
+```
+
+*(Note: The exact IDs will vary across runs, but they will be different).*
+
+</Accordion>
+
+### Mutable Objects
+A mutable object's state **can be changed** in-place after it is created. Examples of mutable types in Python:
+- Lists (`list`)
+- Dictionaries (`dict`)
+- Sets (`set`)
+
+Modifying a mutable object retains the same memory address (`id`).
+
+```python
+lst = [1, 2, 3]
+print(f"Initial ID of lst: {id(lst)}")
+
+lst.append(4)
+print(f"New ID of lst: {id(lst)}")
+print(f"List content: {lst}")
+```
+
+Output
+
+<Accordion title="Show Output">
+
+```text
+Initial ID of lst: 4377983168
+New ID of lst: 4377983168
+List content: [1, 2, 3, 4]
+```
+
+*(Note: The ID remains identical, showing the object was modified in-place).*
+
+</Accordion>
+
+### A Common Nuance: Mutable Objects Inside Immutable Containers
+If a tuple contains a mutable object, such as a list, the tuple itself is still immutable (its references cannot change), but the list *inside* it can be mutated.
+
+```python
+t = (1, 2, [3, 4])
+t[2].append(5)
+print(t)
+```
+
+Output
+
+<Accordion title="Show Output">
+
+```text
+(1, 2, [3, 4, 5])
+```
+
+</Accordion>
+
+### Exercise 1
+Predict whether the following operation is valid and what it outputs:
+```python
+my_str = "hello"
+my_str[0] = "H"
+```
+
+<Accordion title="Solution">
+
+```text
+TypeError: 'str' object does not support item assignment
+```
+Strings are immutable, so you cannot mutate individual characters in-place.
+
+</Accordion>
+
+### Exercise 2
+What is the final content of `list_b`?
+```python
+list_a = [1, 2, 3]
+list_b = list_a
+list_a.append(4)
+```
+
+<Accordion title="Solution">
+
+```python
+[1, 2, 3, 4]
+```
+Since lists are mutable and assignment (`list_b = list_a`) copies the reference, both variables point to the same list object in memory.
+
+</Accordion>
+
+---
+
+## Floating Point Precision Nuances
+
+Floating-point numbers in computers are represented as binary fractions. This leads to some surprising behavior when performing decimal calculations.
+
+### The Classic Floating-Point Issue: `0.1 + 0.2`
+In Python:
+
+```python
+print(0.1 + 0.2)
+print(0.1 + 0.2 == 0.3)
+```
+
+Output
+
+<Accordion title="Show Output">
+
+```text
+0.30000000000000004
+False
+```
+
+</Accordion>
+
+### Why Does This Happen?
+Numbers like `0.1` and `0.2` have infinite repeating representations in binary (similar to how $1/3$ is $0.33333...$ in base 10). The computer must truncate these values, introducing a microscopic rounding error. When you add them, the errors combine, resulting in `0.30000000000000004`.
+
+### Why Does `0.5 + 0.25 == 0.75` Work?
+Unlike `0.1` and `0.2`, the fractions `0.5` ($2^{-1}$), `0.25` ($2^{-2}$), and `0.75` ($2^{-1} + 2^{-2}$) are sums of exact powers of 2. They can be represented perfectly in binary.
+
+```python
+print(0.5 + 0.25)
+print(0.5 + 0.25 == 0.75)
+```
+
+Output
+
+<Accordion title="Show Output">
+
+```text
+0.75
+True
+```
+
+</Accordion>
+
+### How to Handle Exact Decimal Math
+If your application requires exact decimal calculations (e.g., handling money or financial transactions), use Python's built-in `decimal` module:
+
+```python
+from decimal import Decimal
+
+val1 = Decimal('0.1')
+val2 = Decimal('0.2')
+print(val1 + val2)
+print(val1 + val2 == Decimal('0.3'))
+```
+
+Output
+
+<Accordion title="Show Output">
+
+```text
+0.3
+True
+```
+
+</Accordion>
+
+*(Note: Always pass string representations to `Decimal` constructor. Passing floats like `Decimal(0.1)` preserves the float's floating-point precision error).*
+
+### Exercise 1
+Predict the output of:
+```python
+from decimal import Decimal
+print(Decimal(0.1) == Decimal('0.1'))
+```
+
+<Accordion title="Solution">
+
+```text
+False
+```
+`Decimal(0.1)` inherits the imprecise representation of the float `0.1`, whereas `Decimal('0.1')` represents exactly `0.1`.
+
+</Accordion>
+
+### Exercise 2
+Will the expression `0.125 + 0.125 == 0.25` be `True` or `False`?
+
+<Accordion title="Solution">
+
+```text
+True
+```
+`0.125` ($2^{-3}$) and `0.25` ($2^{-2}$) can be represented exactly in binary, so no rounding error occurs.
+
+</Accordion>
+
+---
 
 ## Advanced String Indexing and Slicing
 
