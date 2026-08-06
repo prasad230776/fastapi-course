@@ -261,13 +261,14 @@
               "workshop/01-advanced-fundamentals",
               "workshop/02-python-internals",
               "workshop/03-comprehensions",
-              "workshop/04-functional-concepts",
-              "workshop/05-advanced-oop",
-              "workshop/06-data-validation",
-              "workshop/07-project-essentials",
-              "workshop/08-fastapi-essentials",
-              "workshop/09-sql-orm",
-              "workshop/10-auth-jwt"
+              "workshop/04-advanced-concepts",
+              "workshop/05-functional-programming",
+              "workshop/06-advanced-oop",
+              "workshop/07-data-validation",
+              "workshop/08-project-essentials",
+              "workshop/09-fastapi-essentials",
+              "workshop/10-sql-orm",
+              "workshop/11-auth-jwt"
             ]
           }
 
