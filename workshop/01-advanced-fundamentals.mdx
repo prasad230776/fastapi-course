@@ -713,144 +713,27 @@ Python provides several elegant language features that simplify common programmi
 
 ## Short-Circuit Evaluation
 
-Logical operators in Python (`and` and `or`) use **short-circuit evaluation**. This means Python only evaluates as much of a logical expression as is necessary to determine the final result, and returns the actual value of the evaluated operand (not just a boolean `True` or `False`).
+Logical operators don't always evaluate every expression.
 
-### Truthy vs Falsy Values
-In Python, every object has an inherent boolean value when used in a conditional context:
+### Using `or`
 
-- **Falsy Values:**
-  - `None`
-  - `False`
-  - Zero numeric values: `0`, `0.0`, `0j`
-  - Empty sequences and collections: `""` (empty string), `[]` (empty list), `()` (empty tuple), `{}` (empty dict), `set()` (empty set)
-- **Truthy Values:**
-  - Any non-zero number (e.g., `3`, `-1`)
-  - Any non-empty sequence or collection (e.g., `"zero"`, `[1, 2]`)
-  - `True`
+Suppose a user doesn't enter a name.
 
----
-
-### How `or` and `and` Work
-- **`A or B`**: Evaluates `A`. If `A` is Truthy, it returns `A` immediately (short-circuits) without evaluating `B`. If `A` is Falsy, it evaluates and returns `B`.
-- **`A and B`**: Evaluates `A`. If `A` is Falsy, it returns `A` immediately (short-circuits) without evaluating `B`. If `A` is Truthy, it evaluates and returns `B`.
-
-Let's look at how Python evaluates the following expressions:
-
-#### 1. What is the output of `3 or "zero"`?
-Since `3` is a non-zero integer, it is Truthy. The `or` operator returns the first operand immediately.
-
-<Accordion title="Show Output">
-
-```python
-# Output: 3
-print(3 or "zero")
-```
-
-</Accordion>
-
-#### 2. What is the output of `3 and "zero"`?
-`3` is Truthy. For `and` to succeed, it must evaluate the second operand. It returns `"zero"`.
-
-<Accordion title="Show Output">
-
-```python
-# Output: "zero"
-print(3 and "zero")
-```
-
-</Accordion>
-
-#### 3. What is the output of `"" and 3`?
-The empty string `""` is Falsy. Since `and` requires both operands to be truthy, it short-circuits on the first falsy operand and returns `""`.
-
-<Accordion title="Show Output">
-
-```python
-# Output: "" (empty string)
-print("" and 3)
-```
-
-</Accordion>
-
-#### 4. What is the output of `"" or 3`?
-`""` is Falsy. The `or` operator must check the second operand. It evaluates and returns `3`.
-
-<Accordion title="Show Output">
-
-```python
-# Output: 3
-print("" or 3)
-```
-
-</Accordion>
-
----
-
-### Common Use Cases
-
-#### Fallback / Default Values (`or`)
 ```python
 username = ""
-# If username is empty/falsy, fallback to "Guest"
-print(username or "Guest")  # Output: Guest
-```
 
-#### Conditional Execution (`and`)
-```python
-logged_in = True
-# Only runs the print if logged_in is True
-logged_in and print("Welcome!")  # Output: Welcome!
-```
-
-### Exercise 1
-Write a program to print `"Anonymous"` whenever `name` is an empty string using the `or` operator.
-
-<Accordion title="Solution">
-
-```python
-name = ""
-print(name or "Anonymous")
-```
-
-</Accordion>
-
-### Exercise 2
-Print `"Access Granted"` only when `is_admin` is `True` using the `and` operator.
-
-<Accordion title="Solution">
-
-```python
-is_admin = True
-is_admin and print("Access Granted")
-```
-
-</Accordion>
-
-
-## Conditional Expressions (One-line `if-else` / Ternary Operator)
-
-A **conditional expression** (also known as a ternary operator) allows you to assign a value to a variable based on a condition in a single line.
-
-### Syntax
-```python
-value_if_true if condition else value_if_false
-```
-
-Traditional `if-else` blocks:
-```python
-age = 20
-if age >= 18:
-    status = "Adult"
+if username:
+    print(username)
 else:
-    status = "Minor"
-print(status)
+    print("Guest")
 ```
 
-Can be written cleanly as:
+The same logic can be written more concisely.
+
 ```python
-age = 20
-status = "Adult" if age >= 18 else "Minor"
-print(status)
+username = ""
+
+print(username or "Guest")
 ```
 
 Output
@@ -858,7 +741,74 @@ Output
 <Accordion title="Show Output">
 
 ```text
-Adult
+Guest
+```
+
+</Accordion>
+
+If a username exists,
+
+```python
+username = "Alice"
+
+print(username or "Guest")
+```
+
+Output
+
+<Accordion title="Show Output">
+
+```text
+Alice
+```
+
+</Accordion>
+
+### Using `and`
+
+Suppose a user must be logged in before displaying a welcome message.
+
+```python
+logged_in = True
+
+if logged_in:
+    print("Welcome!")
+```
+
+Python allows this shorter form.
+
+```python
+logged_in = True
+
+logged_in and print("Welcome!")
+```
+
+If `logged_in` is `False`, the second expression is never evaluated.
+
+### Exercise 1
+
+Print `"Anonymous"` whenever `name` is an empty string.
+
+<Accordion title="Solution">
+
+```python
+name = ""
+
+print(name or "Anonymous")
+```
+
+</Accordion>
+
+### Exercise 2
+
+Print `"Access Granted"` only when `is_admin` is `True`.
+
+<Accordion title="Solution">
+
+```python
+is_admin = True
+
+is_admin and print("Access Granted")
 ```
 
 </Accordion>
@@ -897,7 +847,42 @@ print(result)
 
 </Accordion>
 
----
+## Conditional Expressions (One-line `if-else` / Ternary Operator)
+
+A **conditional expression** (also known as a ternary operator) allows you to assign a value to a variable based on a condition in a single line.
+
+### Syntax
+```python
+value_if_true if condition else value_if_false
+```
+
+Traditional `if-else` blocks:
+```python
+age = 20
+if age >= 18:
+    status = "Adult"
+else:
+    status = "Minor"
+print(status)
+```
+
+Can be written cleanly as:
+```python
+age = 20
+status = "Adult" if age >= 18 else "Minor"
+print(status)
+```
+
+Output
+
+<Accordion title="Show Output">
+
+```text
+Adult
+```
+
+</Accordion>
+
 
 ## Chained Comparisons
 
