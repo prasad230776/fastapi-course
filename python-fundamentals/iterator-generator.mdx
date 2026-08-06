@@ -1,0 +1,1093 @@
+---
+title: "Iterators and Generators"
+description: "Learn how iterators and generators work in Python, understand the iterator protocol, and generate values efficiently using lazy evaluation."
+icon: repeat
+---
+
+An **iterator** is an object that returns one value at a time from a collection, while a **generator** is a special type of iterator created using the `yield` keyword. They provide a memory-efficient way to process data without loading everything into memory at once.
+
+## Learning Objectives
+
+After completing this lesson, you will be able to:
+
+- Understand iterables, iterators, and generators.
+- Create iterators using `iter()` and `next()`.
+- Build custom iterators.
+- Create generators using `yield`.
+- Differentiate between `yield` and `return`.
+- Create generator expressions.
+- Compare iterators and generators.
+- Identify real-world use cases of generators.
+
+## What is an Iterator?
+
+An **iterator** is an object that returns one element at a time from a collection. It remembers its current position and produces the next value only when requested.
+
+Python uses iterators internally whenever you iterate over a collection using a `for` loop.
+
+### Iterator Protocol
+
+An iterator implements the following special methods:
+
+- `__iter__()` – Returns the iterator object.
+- `__next__()` – Returns the next element.
+
+When no more elements are available, `__next__()` raises a `StopIteration` exception.
+
+### Creating an Iterator
+
+Use the `iter()` function to create an iterator from an iterable.
+
+```python
+numbers = [10, 20, 30]
+
+iterator = iter(numbers)
+
+print(iterator)
+```
+
+**Output**
+
+```text
+<list_iterator object at 0x...>
+```
+
+### Retrieving Values
+
+Use the `next()` function to retrieve values from an iterator.
+
+```python
+numbers = [10, 20, 30]
+
+iterator = iter(numbers)
+
+print(next(iterator))
+print(next(iterator))
+print(next(iterator))
+```
+
+**Output**
+
+```text
+10
+20
+30
+```
+
+### StopIteration
+
+Once all elements are consumed, calling `next()` again raises a `StopIteration` exception.
+
+```python
+numbers = [10]
+
+iterator = iter(numbers)
+
+print(next(iterator))
+print(next(iterator))
+```
+
+### Practice
+
+<Question>
+
+Predict the output.
+
+```python
+numbers = [100, 200, 300]
+
+it = iter(numbers)
+
+print(next(it))
+print(next(it))
+```
+
+</Question>
+
+<Accordion title="Solution">
+
+```text
+100
+200
+```
+
+The iterator returns one element at a time and remembers its current position.
+
+</Accordion>
+
+<Question>
+
+Predict the output.
+
+```python
+name = "Python"
+
+it = iter(name)
+
+print(next(it))
+print(next(it))
+print(next(it))
+```
+
+</Question>
+
+<Accordion title="Solution">
+
+```text
+P
+y
+t
+```
+
+Strings are iterable objects, so they can be converted into iterators using `iter()`.
+
+</Accordion>
+
+<Question>
+
+What exception will be raised by the following code?
+
+```python
+numbers = [1]
+
+it = iter(numbers)
+
+print(next(it))
+print(next(it))
+```
+
+</Question>
+
+<Accordion title="Solution">
+
+A `StopIteration` exception is raised because the iterator has no more elements to return.
+
+</Accordion>
+
+## Creating a Custom Iterator
+
+You can create your own iterator by implementing the `__iter__()` and `__next__()` methods.
+
+- `__iter__()` returns the iterator object.
+- `__next__()` returns the next value.
+- When all values are consumed, `__next__()` raises a `StopIteration` exception.
+
+### Example
+
+```python
+class Counter:
+
+    def __init__(self, limit):
+        self.current = 1
+        self.limit = limit
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.current > self.limit:
+            raise StopIteration
+
+        value = self.current
+        self.current += 1
+        return value
+
+
+counter = Counter(5)
+
+for number in counter:
+    print(number)
+```
+
+**Output**
+
+```text
+1
+2
+3
+4
+5
+```
+
+### How It Works
+
+1. The `Counter` object is created.
+2. The `for` loop calls `__iter__()` to obtain the iterator.
+3. The loop repeatedly calls `__next__()`.
+4. Each call returns the next value.
+5. When the limit is reached, `StopIteration` is raised, ending the loop.
+
+### Practice
+
+<Question>
+
+Predict the output.
+
+```python
+counter = Counter(3)
+
+for value in counter:
+    print(value)
+```
+
+</Question>
+
+<Accordion title="Solution">
+
+```text
+1
+2
+3
+```
+
+The iterator returns values from `1` to `3` and then raises `StopIteration`.
+
+</Accordion>
+
+<Question>
+
+What happens if `raise StopIteration` is removed from the `__next__()` method?
+
+</Question>
+
+<Accordion title="Solution">
+
+The iterator will never indicate that it has finished, causing the loop to continue indefinitely or resulting in incorrect behavior.
+
+</Accordion>
+
+<Question>
+
+Which two special methods must every custom iterator implement?
+
+</Question>
+
+<Accordion title="Solution">
+
+Every custom iterator must implement:
+
+- `__iter__()`
+- `__next__()`
+
+</Accordion>
+## What is a Generator?
+
+A **generator** is a special type of iterator created using a function that contains the `yield` keyword. Unlike a normal function that returns all values at once, a generator produces one value at a time and automatically remembers its execution state.
+
+Generators are easier to write than custom iterators because Python automatically implements the iterator protocol for you.
+
+### Creating a Generator
+
+A function becomes a generator as soon as it contains a `yield` statement.
+
+```python
+def numbers():
+    yield 1
+    yield 2
+    yield 3
+
+
+gen = numbers()
+
+print(gen)
+```
+
+**Output**
+
+```text
+<generator object numbers at 0x...>
+```
+
+Notice that calling the function does **not** execute it immediately. Instead, it returns a **generator object**.
+
+### Using `next()` with a Generator
+
+The `next()` function starts the generator and retrieves one value at a time.
+
+```python
+def numbers():
+    print("Starting")
+
+    yield 1
+    yield 2
+    yield 3
+
+    print("Ending")
+
+
+gen = numbers()
+
+print(next(gen))
+print(next(gen))
+print(next(gen))
+```
+
+**Output**
+
+```text
+Starting
+1
+2
+3
+```
+
+The `"Ending"` message is not printed because the generator pauses after the third `yield`. It executes the remaining statements only when resumed again.
+
+### Using a Generator with a `for` Loop
+
+Generators can be directly used in a `for` loop.
+
+```python
+def numbers():
+    yield 1
+    yield 2
+    yield 3
+
+
+for number in numbers():
+    print(number)
+```
+
+**Output**
+
+```text
+1
+2
+3
+```
+
+The `for` loop automatically calls `next()` until the generator raises `StopIteration`.
+
+### Practice
+
+<Question>
+
+Predict the output.
+
+```python
+def demo():
+    yield 10
+    yield 20
+
+g = demo()
+
+print(next(g))
+print(next(g))
+```
+
+</Question>
+
+<Accordion title="Solution">
+
+```text
+10
+20
+```
+
+Each call to `next()` returns the next value produced by the generator.
+
+</Accordion>
+
+<Question>
+
+Predict the output.
+
+```python
+def greet():
+    print("Hello")
+    yield 1
+
+g = greet()
+
+print("Generator Created")
+```
+
+</Question>
+
+<Accordion title="Solution">
+
+```text
+Generator Created
+```
+
+Calling a generator function does not execute its body immediately. It simply creates a generator object. The `"Hello"` message is printed only when the generator starts executing (for example, by calling `next(g)` or iterating over it).
+
+</Accordion>
+
+<Question>
+
+What is the output?
+
+```python
+def values():
+    yield "A"
+    yield "B"
+
+for value in values():
+    print(value)
+```
+
+</Question>
+
+<Accordion title="Solution">
+
+```text
+A
+B
+```
+
+The `for` loop automatically retrieves values from the generator until it is exhausted.
+
+</Accordion>
+## Understanding `yield`
+
+The `yield` keyword is used to produce a value from a generator. Unlike `return`, which terminates a function, `yield` **pauses** the function and preserves its current state. The next time the generator is resumed, execution continues from the statement immediately after the previous `yield`.
+
+### `yield` vs `return`
+
+| `return` | `yield` |
+|----------|---------|
+| Terminates the function | Pauses the function |
+| Returns a single value | Produces one value at a time |
+| Function cannot resume | Function resumes from the same point |
+| Used in normal functions | Used in generator functions |
+
+### Execution Flow
+
+```python
+def greet():
+
+    print("Step 1")
+    yield "Hello"
+
+    print("Step 2")
+    yield "World"
+
+    print("Step 3")
+
+
+g = greet()
+
+print(next(g))
+print(next(g))
+next(g)
+```
+
+**Output**
+
+```text
+Step 1
+Hello
+Step 2
+World
+Step 3
+Traceback (most recent call last):
+...
+StopIteration
+```
+
+Notice that the function resumes exactly where it paused after each `yield`.
+
+### State Preservation
+
+One of the biggest advantages of generators is that they automatically preserve the values of local variables.
+
+```python
+def counter():
+
+    count = 1
+
+    while count <= 3:
+        yield count
+        count += 1
+
+
+g = counter()
+
+print(next(g))
+print(next(g))
+print(next(g))
+```
+
+**Output**
+
+```text
+1
+2
+3
+```
+
+The variable `count` is **not reinitialized** each time. Its value is preserved between successive calls to `next()`.
+
+### Multiple `yield` Statements
+
+A generator can contain multiple `yield` statements.
+
+```python
+def colors():
+
+    yield "Red"
+    yield "Green"
+    yield "Blue"
+
+
+for color in colors():
+    print(color)
+```
+
+**Output**
+
+```text
+Red
+Green
+Blue
+```
+
+Each `yield` produces one value before the generator pauses.
+
+### Practice
+
+<Question>
+
+Predict the output.
+
+```python
+def demo():
+
+    print("A")
+    yield 10
+
+    print("B")
+    yield 20
+
+    print("C")
+
+
+g = demo()
+
+print(next(g))
+print(next(g))
+```
+
+</Question>
+
+<Accordion title="Solution">
+
+**Output**
+
+```text
+A
+10
+B
+20
+```
+
+The generator pauses after each `yield`. Since the generator is not resumed again, `"C"` is not printed.
+
+</Accordion>
+
+<Question>
+
+Predict the output.
+
+```python
+def test():
+
+    x = 5
+    yield x
+
+    x += 5
+    yield x
+
+
+g = test()
+
+print(next(g))
+print(next(g))
+```
+
+</Question>
+
+<Accordion title="Solution">
+
+**Output**
+
+```text
+5
+10
+```
+
+The value of `x` is preserved between the two `yield` statements.
+
+</Accordion>
+
+<Question>
+
+What is the main difference between `return` and `yield`?
+
+</Question>
+
+<Accordion title="Solution">
+
+- `return` terminates the function and returns a value.
+- `yield` pauses the function, returns a value, preserves its state, and resumes execution when requested again.
+
+</Accordion>
+## Generator Expressions
+
+A **generator expression** provides a concise way to create generators. It is similar to a list comprehension but uses **parentheses `()`** instead of square brackets `[]`.
+
+Generator expressions generate values **only when required**, making them memory efficient.
+
+### Syntax
+
+```python
+(expression for item in iterable)
+```
+
+### Example
+
+```python
+squares = (x * x for x in range(5))
+
+for square in squares:
+    print(square)
+```
+
+**Output**
+
+```text
+0
+1
+4
+9
+16
+```
+
+### Generator Expression vs List Comprehension
+
+```python
+# List Comprehension
+numbers = [x * x for x in range(5)]
+
+# Generator Expression
+numbers = (x * x for x in range(5))
+```
+
+- A **list comprehension** stores all values in memory.
+- A **generator expression** generates values one at a time.
+
+### Practice
+
+<Question>
+
+Predict the output.
+
+```python
+gen = (x + 1 for x in range(3))
+
+print(next(gen))
+print(next(gen))
+```
+
+</Question>
+
+<Accordion title="Solution">
+
+```text
+1
+2
+```
+
+Each call to `next()` computes the next value in the sequence.
+
+</Accordion>
+
+<Question>
+
+Which symbol is used to create a generator expression?
+
+</Question>
+
+<Accordion title="Solution">
+
+Generator expressions use **parentheses `()`**, whereas list comprehensions use **square brackets `[]`**.
+
+</Accordion>
+
+---
+
+## Infinite Generators
+
+Generators can produce **infinite sequences** because values are generated only when requested.
+
+### Example
+
+```python
+def even_numbers():
+
+    number = 0
+
+    while True:
+        yield number
+        number += 2
+
+
+gen = even_numbers()
+
+for _ in range(5):
+    print(next(gen))
+```
+
+**Output**
+
+```text
+0
+2
+4
+6
+8
+```
+
+### Practice
+
+<Question>
+
+Predict the output.
+
+```python
+def numbers():
+
+    n = 1
+
+    while True:
+        yield n
+        n += 1
+
+
+gen = numbers()
+
+print(next(gen))
+print(next(gen))
+print(next(gen))
+```
+
+</Question>
+
+<Accordion title="Solution">
+
+```text
+1
+2
+3
+```
+
+The generator can continue producing values indefinitely.
+
+</Accordion>
+
+---
+
+## Fibonacci Generator
+
+Generators are commonly used to generate mathematical sequences.
+
+### Example
+
+```python
+def fibonacci(limit):
+
+    a, b = 0, 1
+
+    while a <= limit:
+        yield a
+        a, b = b, a + b
+
+
+for number in fibonacci(20):
+    print(number)
+```
+
+**Output**
+
+```text
+0
+1
+1
+2
+3
+5
+8
+13
+21
+```
+
+### Practice
+
+<Question>
+
+What is the first value produced by the generator?
+
+</Question>
+
+<Accordion title="Solution">
+
+The first value is **0**, because the generator yields `a` before updating its value.
+
+</Accordion>
+
+---
+
+## Memory Efficiency
+
+One of the biggest advantages of generators is **memory efficiency**.
+
+### List Example
+
+```python
+numbers = [x for x in range(1000000)]
+```
+
+The above statement creates **one million values** in memory.
+
+### Generator Example
+
+```python
+numbers = (x for x in range(1000000))
+```
+
+The generator creates **only one value at a time**, significantly reducing memory usage.
+
+### When to Use Generators
+
+Use generators when:
+
+- Working with large datasets.
+- Reading large files.
+- Processing streaming data.
+- Producing values on demand.
+- Creating infinite sequences.
+
+### Practice
+
+<Question>
+
+Which consumes less memory?
+
+```python
+[x for x in range(1000000)]
+```
+
+or
+
+```python
+(x for x in range(1000000))
+```
+
+</Question>
+
+<Accordion title="Solution">
+
+The generator expression consumes significantly less memory because values are generated only when needed.
+
+</Accordion>
+
+---
+
+## Iterator vs Generator
+
+| Feature | Iterator | Generator |
+|----------|-----------|-----------|
+| Created Using | Class | Function |
+| Implements | `__iter__()` and `__next__()` | `yield` |
+| State Management | Manual | Automatic |
+| Code Size | More | Less |
+| Lazy Evaluation | Yes | Yes |
+| Memory Efficient | Yes | Yes |
+| Best Use Case | Custom iteration logic | Sequential data generation |
+
+> **Remember:** Every **generator** is an **iterator**, but not every **iterator** is a **generator**.
+
+---
+
+## Iterable vs Iterator vs Generator
+
+```text
+                Iterable
+       (list, tuple, set, dict)
+                   │
+             iter(iterable)
+                   │
+                   ▼
+               Iterator
+       (__iter__ + __next__)
+                   ▲
+                   │
+         Generator Object
+        (Created using yield)
+```
+
+- **Iterable** → An object that can produce an iterator.
+- **Iterator** → Produces one value at a time.
+- **Generator** → A special iterator created using the `yield` keyword.
+
+---
+
+## Real-World Applications
+
+Generators are commonly used for:
+
+- Reading large files line by line.
+- Processing large datasets.
+- Streaming data from APIs.
+- Log processing.
+- Data pipelines.
+- Machine learning workflows.
+- Infinite sequences.
+
+### Example: Reading a File
+
+```python
+def read_file(filename):
+
+    with open(filename, "r") as file:
+        for line in file:
+            yield line.strip()
+
+
+for line in read_file("data.txt"):
+    print(line)
+```
+
+Instead of loading the entire file into memory, one line is processed at a time.
+
+---
+
+## Key Takeaways
+
+- An **iterable** is an object that can produce an iterator.
+- An **iterator** returns one value at a time using `next()`.
+- A **generator** is a simpler way to create an iterator using `yield`.
+- The `yield` keyword pauses execution and preserves the function's state.
+- Generator expressions provide a concise syntax for creating generators.
+- Generators are ideal for processing large datasets because they use **lazy evaluation**.
+- Every generator is an iterator, but not every iterator is a generator.
+
+---
+
+## Check Your Understanding
+
+<Question>
+
+What is the purpose of the `iter()` function?
+
+</Question>
+
+<Accordion title="Solution">
+
+The `iter()` function converts an iterable into an iterator.
+
+</Accordion>
+
+<Question>
+
+Which special methods make an object an iterator?
+
+</Question>
+
+<Accordion title="Solution">
+
+`__iter__()` and `__next__()`
+
+</Accordion>
+
+<Question>
+
+What is the purpose of the `yield` keyword?
+
+</Question>
+
+<Accordion title="Solution">
+
+The `yield` keyword pauses a generator, returns a value, preserves its state, and resumes execution from the same point when requested again.
+
+</Accordion>
+
+<Question>
+
+What is the difference between `yield` and `return`?
+
+</Question>
+
+<Accordion title="Solution">
+
+- `return` terminates the function.
+- `yield` pauses the function and allows it to continue later.
+
+</Accordion>
+
+<Question>
+
+What is a generator expression?
+
+</Question>
+
+<Accordion title="Solution">
+
+A generator expression is a concise way to create a generator using parentheses `()`.
+
+</Accordion>
+
+<Question>
+
+Why are generators memory efficient?
+
+</Question>
+
+<Accordion title="Solution">
+
+Generators create values only when they are requested instead of storing all values in memory.
+
+</Accordion>
+
+<Question>
+
+Can generators be used in a `for` loop?
+
+</Question>
+
+<Accordion title="Solution">
+
+Yes. A generator is an iterator and can be directly used in a `for` loop.
+
+</Accordion>
+
+<Question>
+
+True or False: Every iterator is a generator.
+
+</Question>
+
+<Accordion title="Solution">
+
+**False.** Every generator is an iterator, but not every iterator is a generator.
+
+</Accordion>
+
+<Question>
+
+Name two real-world use cases of generators.
+
+</Question>
+
+<Accordion title="Solution">
+
+Examples include:
+
+- Reading large files
+- Processing large datasets
+- Streaming API data
+- Log processing
+- Infinite sequences
+
+</Accordion>

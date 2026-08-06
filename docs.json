@@ -111,6 +111,9 @@
            {
             "group": "Python Advanced",
             "pages": [
+              "python-fundamentals/closures-decorators",
+              "python-fundamentals/iterator-generator",
+              "python-fundamentals/functional-programming",
               "python-fundamentals/context-mgmt",
               "python-fundamentals/dotenv",
               "python-fundamentals/di",

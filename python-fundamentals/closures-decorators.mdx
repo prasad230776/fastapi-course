@@ -1,0 +1,710 @@
+---
+title: "Closures and Decorators"
+
+description: "Learn how functions behave as objects in Python and use them to build higher-order functions, closures and decorators"
+icon: puzzle
+---
+
+In previous chapters, we learned how to define and call functions. In Python, **functions are also objects**.
+
+Since functions are objects, they can be assigned to variables, passed as arguments, returned from other functions, and stored in collections. These capabilities form the foundation for **higher-order functions**, **decorators**, and **closures**.
+
+## Learning Objectives
+
+After completing this lesson, you will be able to:
+
+- Explain why functions are objects.
+- Pass and return functions.
+- Understand higher-order functions.
+- Build and use decorators.
+- Understand closures and their relationship with decorators.
+
+## Functions are Objects
+
+Like integers, strings, lists, and dictionaries, **functions are also objects**. Therefore, a function can:
+
+- Be assigned to a variable.
+- Be passed as an argument.
+- Be returned from another function.
+- Be stored in a collection.
+
+Languages that support these capabilities are said to support **first-class functions**.
+
+### Assigning a Function
+
+```python
+def greet():
+    return "Hello"
+
+message = greet
+
+print(message())
+```
+
+**Output**
+
+```text
+Hello
+```
+
+Notice the difference:
+
+```python
+message = greet      # Function object
+message = greet()    # Function call
+```
+
+### Storing Functions
+
+```python
+def add(a, b):
+    return a + b
+
+
+def subtract(a, b):
+    return a - b
+
+
+operations = [add, subtract]
+
+print(operations[0](10, 5))
+print(operations[1](10, 5))
+```
+
+**Output**
+
+```text
+15
+5
+```
+
+## Practice
+
+<Question>
+
+Predict the output.
+
+```python
+def welcome():
+    return "Welcome"
+
+msg = welcome
+
+print(msg())
+```
+
+</Question>
+
+<Accordion title="Solution">
+
+```text
+Welcome
+```
+
+`msg` refers to the same function object as `welcome`.
+
+</Accordion>
+
+<Question>
+
+What is the difference between the following statements?
+
+```python
+f = greet
+```
+
+```python
+f = greet()
+```
+
+</Question>
+
+<Accordion title="Solution">
+
+- `f = greet` assigns the function object.
+- `f = greet()` calls the function and stores its return value.
+
+</Accordion>
+
+---
+
+## Higher-Order Functions
+
+A **higher-order function** is a function that:
+
+- Accepts one or more functions as arguments.
+- Returns a function.
+
+Since functions are objects, they can be passed to and returned from other functions.
+
+### Passing Functions as Arguments
+
+```python
+def greet():
+    print("Hello")
+
+
+def execute(func):
+    func()
+
+
+execute(greet)
+```
+
+**Output**
+
+```text
+Hello
+```
+
+### Returning Functions
+
+```python
+def outer():
+
+    def inner():
+        print("Hello")
+
+    return inner
+
+
+message = outer()
+
+message()
+```
+
+**Output**
+
+```text
+Hello
+```
+
+### Example
+
+```python
+def add(a, b):
+    return a + b
+
+
+def multiply(a, b):
+    return a * b
+
+
+def calculate(operation, a, b):
+    return operation(a, b)
+
+
+print(calculate(add, 10, 5))
+print(calculate(multiply, 10, 5))
+```
+
+**Output**
+
+```text
+15
+50
+```
+
+## Practice
+
+<Question>
+
+Predict the output.
+
+```python
+def display():
+    print("Python")
+
+
+def execute(func):
+    func()
+
+
+execute(display)
+```
+
+</Question>
+
+<Accordion title="Solution">
+
+```text
+Python
+```
+
+</Accordion>
+
+<Question>
+
+Predict the output.
+
+```python
+def outer():
+
+    def inner():
+        return "Hello"
+
+    return inner
+
+
+func = outer()
+
+print(func())
+```
+
+</Question>
+
+<Accordion title="Solution">
+
+```text
+Hello
+```
+
+</Accordion>
+
+<Question>
+
+When is a function called a higher-order function?
+
+</Question>
+
+<Accordion title="Solution">
+
+A function is called a **higher-order function** if it:
+
+- Accepts one or more functions as arguments.
+- Returns a function.
+
+</Accordion>
+
+> Higher-order functions form the foundation for closures and decorators.
+
+## Closures
+
+Sometimes we want a function to **remember information** from previous function calls.
+
+A normal function cannot do this because its local variables are destroyed when the function finishes executing.
+
+### Example: Normal Function
+
+```python
+def counter():
+
+    count = 0
+
+    count += 1
+
+    return count
+
+
+print(counter())
+print(counter())
+print(counter())
+```
+
+**Output**
+
+```text
+1
+1
+1
+```
+
+Each time `counter()` is called, the local variable `count` is created again and initialized to `0`. Therefore, the function cannot remember its previous state.
+
+To preserve the state between function calls, we can use a **closure**.
+
+### What is a Closure?
+
+A **closure** is an inner function that remembers the variables of its enclosing function even after the enclosing function has finished executing.
+
+A closure is created when:
+
+- A function is defined inside another function.
+- The inner function uses variables from the outer function.
+- The inner function is returned.
+
+### Example
+
+```python
+def counter():
+
+    count = 0
+
+    def increment():
+        nonlocal count
+
+        count += 1
+        return count
+
+    return increment
+
+
+c = counter()
+
+print(c())
+print(c())
+print(c())
+```
+
+**Output**
+
+```text
+1
+2
+3
+```
+
+Here, the variable `count` is preserved even after `counter()` has finished executing. Each call to `increment()` updates the same variable instead of creating a new one.
+
+The `nonlocal` keyword allows the inner function to modify a variable defined in the enclosing function.
+
+## Practice
+
+<Question>
+
+Predict the output.
+
+```python
+def outer():
+
+    message = "Python"
+
+    def inner():
+        print(message)
+
+    return inner
+
+
+func = outer()
+
+func()
+```
+
+</Question>
+
+<Accordion title="Solution">
+
+```text
+Python
+```
+
+The inner function remembers the value of `message` even after `outer()` has finished executing.
+
+</Accordion>
+
+<Question>
+
+Predict the output.
+
+```python
+def counter():
+
+    count = 10
+
+    def increment():
+        nonlocal count
+        count += 5
+        return count
+
+    return increment
+
+
+c = counter()
+
+print(c())
+print(c())
+```
+
+</Question>
+
+<Accordion title="Solution">
+
+```text
+15
+20
+```
+
+The variable `count` is preserved inside the closure and updated on each function call.
+
+</Accordion>
+
+<Question>
+
+Why do we use closures?
+
+</Question>
+
+<Accordion title="Solution">
+
+Closures allow a function to remember and preserve variables from its enclosing function even after the enclosing function has finished executing.
+
+</Accordion>
+
+> Closures are widely used for state preservation and form the foundation of **decorators**, where the wrapper function remembers the original function passed to the decorator.
+
+## Decorators
+
+A **decorator** is a function that extends or modifies the behavior of another function **without changing its original code**.
+
+A decorator is a higher-order function because it:
+
+- Accepts a function as an argument.
+- Returns another function.
+
+### Creating a Decorator
+
+```python
+def logger(func):
+
+    def wrapper():
+        print("Before function")
+
+        func()
+
+        print("After function")
+
+    return wrapper
+
+
+def greet():
+    print("Hello")
+
+
+greet = logger(greet)
+
+greet()
+```
+
+**Output**
+
+```text
+Before function
+Hello
+After function
+```
+
+Instead of modifying `greet()`, the decorator returns a new function with additional behavior.
+
+### Using the `@` Syntax
+
+Python provides the `@` syntax as a convenient way to apply decorators.
+
+```python
+def logger(func):
+
+    def wrapper():
+        print("Before function")
+
+        func()
+
+        print("After function")
+
+    return wrapper
+
+
+@logger
+def greet():
+    print("Hello")
+
+
+greet()
+```
+
+The above code is equivalent to:
+
+```python
+def greet():
+    print("Hello")
+
+
+greet = logger(greet)
+```
+
+### Practice
+
+<Question>
+
+Predict the output.
+
+```python
+def decorator(func):
+
+    def wrapper():
+        print("Start")
+        func()
+        print("End")
+
+    return wrapper
+
+
+@decorator
+def display():
+    print("Python")
+
+
+display()
+```
+
+</Question>
+
+<Accordion title="Solution">
+
+```text
+Start
+Python
+End
+```
+
+</Accordion>
+
+<Question>
+
+Which statement is equivalent to the following code?
+
+```python
+@logger
+def greet():
+    print("Hello")
+```
+
+</Question>
+
+<Accordion title="Solution">
+
+```python
+def greet():
+    print("Hello")
+
+
+greet = logger(greet)
+```
+
+The `@` syntax is a shorthand for applying a decorator.
+
+</Accordion>
+
+### Decorating Functions with Parameters
+
+The previous decorator works only for functions that do **not** accept any arguments.
+
+```python
+@logger
+def greet():
+    print("Hello")
+```
+
+Suppose we decorate a function that accepts parameters.
+
+```python
+@logger
+def add(a, b):
+    return a + b
+```
+
+Our decorator is:
+
+```python
+def logger(func):
+
+    def wrapper():
+        print("Function Started")
+
+        result = func()
+
+        print("Function Completed")
+
+        return result
+
+    return wrapper
+```
+
+When we call:
+
+```python
+add(10, 20)
+```
+
+Python actually executes:
+
+```python
+wrapper(10, 20)
+```
+
+Since `wrapper()` does not accept any arguments, Python raises an error.
+
+```text
+TypeError: wrapper() takes 0 positional arguments but 2 were given
+```
+
+One solution is to make the wrapper accept the same parameters.
+
+```python
+def logger(func):
+
+    def wrapper(a, b):
+        print("Function Started")
+
+        result = func(a, b)
+
+        print("Function Completed")
+
+        return result
+
+    return wrapper
+```
+
+This works only for functions having exactly two parameters.
+
+To make the decorator work with **any function**, Python provides **argument packing**.
+
+```python
+def logger(func):
+
+    def wrapper(*args, **kwargs):
+        print("Function Started")
+
+        result = func(*args, **kwargs)
+
+        print("Function Completed")
+
+        return result
+
+    return wrapper
+```
+
+Here,
+
+- `*args` collects all positional arguments.
+- `**kwargs` collects all keyword arguments.
+- `func(*args, **kwargs)` forwards all arguments to the original function.
+
+Now the decorator can be applied to functions with any number of arguments.
+
+```python
+@logger
+def multiply(a, b):
+    return a * b
+
+
+@logger
+def greet(name):
+    print(f"Hello {name}")
+
+
+print(multiply(10, 5))
+greet("Alice")
+```
+
+**Output**
+
+```text
+Function Started
+Function Completed
+50
+Function Started
+Hello Alice
+Function Completed
+```
+
+> The `wrapper()` function is defined inside another function and remembers the original `func` even after the outer function has finished executing. This behavior was possible because of **closure**.
+
