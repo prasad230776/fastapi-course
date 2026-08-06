@@ -1,0 +1,148 @@
+---
+title: 00-Introduction & Getting Started
+description: Welcome to the Advanced Python & FastAPI Workshop. Set up your development environment with Python 3.12+, VS Code, pip, and uv.
+---
+
+# Introduction & Getting Started
+
+Welcome to the **Advanced Python & FastAPI Workshop**! This course is designed to take you from writing basic Python scripts to developing robust, production-ready REST APIs using FastAPI, Pydantic, and modern database patterns.
+
+---
+
+## 1. Workshop Aim & Objectives
+
+The primary aim of this workshop is to bridge the gap between basic Python syntax and the engineering practices required to build real-world, high-performance web applications.
+
+By the end of this workshop, you will be able to:
+- Understand CPython memory management, mutability side-effects, and scope resolutions.
+- Write clean, concise, and memory-efficient comprehensions and generator streams.
+- Use advanced object-oriented design patterns, abstract classes, and magic methods.
+- Build resilient data validation schemas using **Pydantic v2**.
+- Structure scalable web applications with **FastAPI** using modular routers and advanced dependency injection.
+- Design database schemas and manage asynchronous connections using **SQLAlchemy 2.0 ORM** and **Alembic** migrations.
+- Secure APIs with **JWT Authentication** and role-based access control.
+
+---
+
+## 2. Workshop Curriculum
+
+Here is a roadmap of the topics we will cover during this workshop:
+
+1. **Introduction & Setup (This Module):** Setting up Python 3.12+, VS Code, `pip`, and Astral's Rust-based `uv` manager.
+2. **Advanced Python Fundamentals:** Mutability, floating-point precision, integer caching, string operations, and ternary operators.
+3. **Data Structures & Comprehensions:** Lists, tuples, dictionaries, sets, queues with `deque`, and comprehension mechanics.
+4. **Python Functions & Internals:** LEGB scope resolution, print parameters (`sep`/`end`), positional/keyword args, and packing/unpacking (`*args`/`**kwargs`).
+5. **Advanced Python Concepts:** Closures, decorators, and context managers (`with` statements).
+6. **Functional Programming:** Lambda expressions, generator functions (`yield`), and built-ins (`map`, `filter`, `zip`).
+7. **Advanced OOP:** Magic methods (`__repr__`, `__call__`), inheritance, properties (`@property`), and abstract base classes.
+8. **Data Validation:** Modeling schemas, nested validation, serialization, and custom constraints using **Pydantic**.
+9. **Project Essentials:** Environment variables, configurations (`python-dotenv`), project structuring, and package lockfiles.
+10. **FastAPI Essentials:** Path & query parameters, request bodies, dependency injection, and automatic OpenAPI documentation.
+11. **SQL Databases & ORM:** Asynchronous database connections, SQLAlchemy models, relationships, and database migrations.
+12. **Authentication & Security:** Hashing passwords with `passlib`, generating JWT tokens, and securing API endpoints.
+
+---
+
+## 3. Getting Started: Setting Up Your Environment
+
+To write and execute code in this workshop, we need to set up a clean, modern development environment.
+
+### Step 1: Install Python 3.12+
+We will use features from recent Python versions (like modern type hinting and syntax). 
+
+1. Go to the [Official Python Download Page](https://www.python.org/downloads/).
+2. Download and run the installer for your OS (macOS, Windows, or Linux).
+3. **Important (Windows users):** Ensure you check the box that says **"Add python.exe to PATH"** before clicking install.
+
+#### Verify Installation
+Open your terminal (macOS/Linux) or Command Prompt/PowerShell (Windows) and run:
+
+```bash
+python --version
+# or
+python3 --version
+```
+*Expected Output: `Python 3.12.x` (or higher).*
+
+---
+
+### Step 2: Install and Configure VS Code
+We recommend **Visual Studio Code (VS Code)** as your editor because of its speed, lightweight nature, and excellent Python ecosystem support.
+
+1. Download and install [VS Code](https://code.visualstudio.com/).
+2. Open VS Code, go to the Extensions view (shortcut: `Ctrl+Shift+X` or `Cmd+Shift+X`), and install the following recommended plugins:
+   - **Python** (by Microsoft): Syntax highlighting, debugging, and code formatting.
+   - **Pylance** (by Microsoft): Fast, feature-rich static type checking.
+   - **Ruff** (by Astral Software): An extremely fast Python linter and formatter.
+   - **Jupyter** (by Microsoft): For running interactive Jupyter notebooks (`.ipynb`) directly inside VS Code.
+
+---
+
+### Step 3: Package Managers — `pip` vs `uv`
+
+Historically, Python developers used `pip` (Python's default package installer) combined with `virtualenv` or `venv` to manage dependencies.
+
+While `pip` is standard, we will be using **`uv`** for this workshop. 
+
+#### What is `uv`?
+Developed by Astral (the creators of Ruff), **`uv`** is an extremely fast Python package installer and resolver written in Rust. It serves as a drop-in replacement for `pip`, `pip-tools`, `virtualenv`, and `poetry`. It is typically **10x to 100x faster** than `pip` and manages virtual environments automatically.
+
+#### Installing `uv`
+The easiest way to install `uv` globally is using `pip`:
+
+```bash
+pip install uv
+```
+
+Alternatively, you can install it using standalone installers:
+- **macOS/Linux:** `curl -LsSf https://astral.sh/uv/install.sh | sh`
+- **Windows:** `powershell -c "irm https://astral.sh/uv/install.ps1 | iex"`
+
+Verify installation:
+```bash
+uv --version
+```
+
+---
+
+### Step 4: Initializing a New Project with `uv`
+
+Let's initialize a sandbox directory to practice code and manage our virtual environments cleanly.
+
+1. Create a new directory and navigate into it:
+   ```bash
+   mkdir python-workshop
+   cd python-workshop
+   ```
+
+2. Initialize a new project with `uv`:
+   ```bash
+   uv init
+   ```
+   *This command automatically creates a basic project structure including a `pyproject.toml` file, a `.python-version` lock, and a simple `hello.py` file.*
+
+3. Create and activate a virtual environment:
+   ```bash
+   # Create a virtual environment
+   uv venv
+   
+   # Activate it:
+   # On macOS/Linux:
+   source .venv/bin/activate
+   # On Windows:
+   .venv\Scripts\activate
+   ```
+
+4. Install a package (for example, `fastapi`):
+   ```bash
+   uv add fastapi
+   ```
+   *Notice how incredibly fast the installation completes compared to standard pip!*
+
+---
+
+## 4. Next Steps
+
+Now that your development environment is ready, let's jump into the first module and explore how Python handles variables, scopes, caching, and object references behind the scenes:
+
+[Go to Module 1: Advanced Fundamentals →](/workshop/01-advanced-fundamentals)

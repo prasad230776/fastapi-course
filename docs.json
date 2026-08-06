@@ -258,6 +258,7 @@
           {
             "group": "Adv. Python Workshop",
             "pages": [
+              "workshop/00-introduction",
               "workshop/01-advanced-fundamentals",
               "workshop/02-ds-comprehensions",
               "workshop/03-python-functions",
