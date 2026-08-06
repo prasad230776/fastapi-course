@@ -42,18 +42,22 @@ print(languages)
 print(numbers)
 ```
 
-### Read (R)
-Elements in a list are accessed using zero-based indexing or slicing (`list[start:stop:step]`).
+### Read (R) - Indexing & Slicing
+Elements in a list are accessed using zero-based indexing, negative indexing (from the end), or slicing (`list[start:stop:step]`).
 
 ```python
-fruits = ["Apple", "Banana", "Cherry"]
+fruits = ["Apple", "Banana", "Cherry", "Date", "Elderberry"]
 
-# Accessing elements
-print(fruits[0])
-print(fruits[-1])
+# Accessing single elements (indexing)
+print(fruits[0])    # First element: "Apple"
+print(fruits[-1])   # Last element: "Elderberry"
 
-# Slicing
-print(fruits[1:3])
+# Extracting a sub-list (slicing)
+print(fruits[1:4])  # Indices 1 to 3: ["Banana", "Cherry", "Date"]
+print(fruits[:3])   # First 3 elements: ["Apple", "Banana", "Cherry"]
+print(fruits[2:])   # Elements from index 2 to end: ["Cherry", "Date", "Elderberry"]
+print(fruits[::2])  # Alternate elements: ["Apple", "Cherry", "Elderberry"]
+print(fruits[::-1]) # Reversed list: ["Elderberry", "Date", "Cherry", "Banana", "Apple"]
 ```
 
 ### Update (U)
@@ -165,27 +169,16 @@ print(single_tup)
 ```
 
 ### Read (R) - Indexing & Slicing
-Like lists, tuples support zero-based indexing, negative indexing, and slicing.
-
-> [!NOTE]
-> The indexing and slicing syntax is identical for lists, tuples, and strings. The only difference is that slicing a list returns a new mutable list, whereas slicing a tuple returns a new immutable tuple.
-
-Here is a side-by-side comparison of indexing and slicing on lists and tuples:
+Tuples support the exact same indexing and slicing syntax as lists (zero-based indexing, negative indexing, and slicing with `[start:stop:step]`).
 
 ```python
-# List indexing & slicing
-lst = [10, 20, 30, 40, 50]
-print(lst[0])       # Index 0: 10
-print(lst[-1])      # Last element: 50
-print(lst[1:4])     # Slice (indices 1 to 3): [20, 30, 40]
-print(lst[::-1])    # Reversed slice: [50, 40, 30, 20, 10]
+values = ("A", "B", "C", "D", "E")
 
-# Tuple indexing & slicing (same syntax)
-tup = (10, 20, 30, 40, 50)
-print(tup[0])       # Index 0: 10
-print(tup[-1])      # Last element: 50
-print(tup[1:4])     # Slice (indices 1 to 3): (20, 30, 40)
-print(tup[::-1])    # Reversed slice: (50, 40, 30, 20, 10)
+# Indexing & Slicing
+print(values[0])     # First element: "A"
+print(values[-1])    # Last element: "E"
+print(values[1:4])   # Slice: ("B", "C", "D")
+print(values[::-1])  # Reversed tuple: ("E", "D", "C", "B", "A")
 ```
 
 ### Operations
