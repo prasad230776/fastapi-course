@@ -1,5 +1,5 @@
 ---
-title: 03b-Python Modules & Packages
+title: 05b-Python Modules & Packages
 description: Learn how to structure code with modules and packages, and work with prominent standard libraries (math, random, os, pathlib, python-dotenv).
 ---
 
@@ -66,6 +66,27 @@ from utils import greet as hello
 print(u.PI)
 print(hello("Charlie"))
 ```
+
+### Exercise 1
+Create a module named `calculator.py` with two functions: `add(a, b)` and `multiply(a, b)`. In a separate script, import these functions and call them.
+
+<Accordion title="Solution">
+
+```python
+# calculator.py
+def add(a, b):
+    return a + b
+
+def multiply(a, b):
+    return a * b
+
+# main.py
+from calculator import add, multiply
+print(add(5, 7))
+print(multiply(3, 4))
+```
+
+</Accordion>
 
 ---
 
@@ -167,6 +188,31 @@ print("Extension:", file_path.suffix)  # .csv
 print("Name without extension:", file_path.stem)  # report
 ```
 
+### Exercise 2
+Write a script that uses `random.choice` to pick a random host from a list of servers `["server-a", "server-b", "server-c"]`. Then, use `pathlib` to check if a folder named `backup` exists in your project root, and create it if it does not.
+
+<Accordion title="Solution">
+
+```python
+import random
+from pathlib import Path
+
+# Pick server
+servers = ["server-a", "server-b", "server-c"]
+chosen_server = random.choice(servers)
+print(f"Deploying to: {chosen_server}")
+
+# Manage backup folder
+backup_dir = Path.cwd() / "backup"
+if not backup_dir.exists():
+    backup_dir.mkdir()
+    print("Created backup directory.")
+else:
+    print("Backup directory already exists.")
+```
+
+</Accordion>
+
 ---
 
 ## 4. Configuration with `python-dotenv`
@@ -199,56 +245,6 @@ port = int(os.environ.get("PORT", 8000)) # Fallback to 8000 if not found
 print(f"Server starting on port {port}...")
 print(f"Connecting to: {db_url}")
 ```
-
----
-
-## Exercises
-
-### Exercise 1
-Create a module named `calculator.py` with two functions: `add(a, b)` and `multiply(a, b)`. In a separate script, import these functions and call them.
-
-<Accordion title="Solution">
-
-```python
-# calculator.py
-def add(a, b):
-    return a + b
-
-def multiply(a, b):
-    return a * b
-
-# main.py
-from calculator import add, multiply
-print(add(5, 7))
-print(multiply(3, 4))
-```
-
-</Accordion>
-
-### Exercise 2
-Write a script that uses `random.choice` to pick a random host from a list of servers `["server-a", "server-b", "server-c"]`. Then, use `pathlib` to check if a folder named `backup` exists in your project root, and create it if it does not.
-
-<Accordion title="Solution">
-
-```python
-import random
-from pathlib import Path
-
-# Pick server
-servers = ["server-a", "server-b", "server-c"]
-chosen_server = random.choice(servers)
-print(f"Deploying to: {chosen_server}")
-
-# Manage backup folder
-backup_dir = Path.cwd() / "backup"
-if not backup_dir.exists():
-    backup_dir.mkdir()
-    print("Created backup directory.")
-else:
-    print("Backup directory already exists.")
-```
-
-</Accordion>
 
 ### Exercise 3
 Write a program that loads a configuration `.env` file. Retrieve the variable `API_KEY`. If `API_KEY` is not set, print a warning message; otherwise, print `"API Key Loaded"`.

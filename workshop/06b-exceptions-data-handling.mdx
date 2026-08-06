@@ -57,6 +57,28 @@ def check_positive(value):
     return value
 ```
 
+### Exercise 1
+Write a function `safe_divide(a, b)` that performs division. If a `ZeroDivisionError` or `TypeError` occurs, catch it and return `None` along with a descriptive print message.
+
+<Accordion title="Solution">
+
+```python
+def safe_divide(a, b):
+    try:
+        return a / b
+    except ZeroDivisionError:
+        print("Warning: Division by zero attempted!")
+        return None
+    except TypeError:
+        print("Warning: Division requires numeric values!")
+        return None
+
+print(safe_divide(10, 0))
+print(safe_divide(10, "two"))
+```
+
+</Accordion>
+
 ---
 
 ## 2. Custom Exceptions
@@ -82,6 +104,28 @@ try:
 except InsufficientFundsError as e:
     print(f"Transaction Declined: {e}")
 ```
+
+### Exercise 2
+Define a custom exception `InvalidAgeError`. Write a function `verify_age(age)` that raises this exception with the message `"Age must be between 0 and 120"` if the age is outside this range.
+
+<Accordion title="Solution">
+
+```python
+class InvalidAgeError(Exception):
+    pass
+
+def verify_age(age):
+    if age < 0 or age > 120:
+        raise InvalidAgeError("Age must be between 0 and 120")
+    print(f"Age {age} is valid.")
+
+try:
+    verify_age(150)
+except InvalidAgeError as e:
+    print("Error caught:", e)
+```
+
+</Accordion>
 
 ---
 
@@ -193,54 +237,6 @@ with open("data.json", "r") as file:
     loaded_data = json.load(file)
     print("Loaded Name:", loaded_data["name"])
 ```
-
----
-
-## Exercises
-
-### Exercise 1
-Write a function `safe_divide(a, b)` that performs division. If a `ZeroDivisionError` or `TypeError` occurs, catch it and return `None` along with a descriptive print message.
-
-<Accordion title="Solution">
-
-```python
-def safe_divide(a, b):
-    try:
-        return a / b
-    except ZeroDivisionError:
-        print("Warning: Division by zero attempted!")
-        return None
-    except TypeError:
-        print("Warning: Division requires numeric values!")
-        return None
-
-print(safe_divide(10, 0))
-print(safe_divide(10, "two"))
-```
-
-</Accordion>
-
-### Exercise 2
-Define a custom exception `InvalidAgeError`. Write a function `verify_age(age)` that raises this exception with the message `"Age must be between 0 and 120"` if the age is outside this range.
-
-<Accordion title="Solution">
-
-```python
-class InvalidAgeError(Exception):
-    pass
-
-def verify_age(age):
-    if age < 0 or age > 120:
-        raise InvalidAgeError("Age must be between 0 and 120")
-    print(f"Age {age} is valid.")
-
-try:
-    verify_age(150)
-except InvalidAgeError as e:
-    print("Error caught:", e)
-```
-
-</Accordion>
 
 ### Exercise 3
 Create a JSON file named `config.json` containing `{"debug": true, "version": "1.0"}`. Write a Python script to read this file, set `"debug"` to `false`, add a new key `"updated": true`, and save it back to the file.
