@@ -89,7 +89,7 @@ print(next(iterator))
 
 ### Practice
 
-<Question>
+### Exercise 1
 
 Predict the output.
 
@@ -102,8 +102,6 @@ print(next(it))
 print(next(it))
 ```
 
-</Question>
-
 <Accordion title="Solution">
 
 ```text
@@ -115,7 +113,7 @@ The iterator returns one element at a time and remembers its current position.
 
 </Accordion>
 
-<Question>
+### Exercise 2
 
 Predict the output.
 
@@ -129,8 +127,6 @@ print(next(it))
 print(next(it))
 ```
 
-</Question>
-
 <Accordion title="Solution">
 
 ```text
@@ -143,7 +139,7 @@ Strings are iterable objects, so they can be converted into iterators using `ite
 
 </Accordion>
 
-<Question>
+### Exercise 3
 
 What exception will be raised by the following code?
 
@@ -155,8 +151,6 @@ it = iter(numbers)
 print(next(it))
 print(next(it))
 ```
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -219,7 +213,7 @@ for number in counter:
 
 ### Practice
 
-<Question>
+### Exercise 1
 
 Predict the output.
 
@@ -229,8 +223,6 @@ counter = Counter(3)
 for value in counter:
     print(value)
 ```
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -244,11 +236,9 @@ The iterator returns values from `1` to `3` and then raises `StopIteration`.
 
 </Accordion>
 
-<Question>
+### Exercise 2
 
 What happens if `raise StopIteration` is removed from the `__next__()` method?
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -256,11 +246,9 @@ The iterator will never indicate that it has finished, causing the loop to conti
 
 </Accordion>
 
-<Question>
+### Exercise 3
 
 Which two special methods must every custom iterator implement?
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -360,7 +348,7 @@ The `for` loop automatically calls `next()` until the generator raises `StopIter
 
 ### Practice
 
-<Question>
+### Exercise 1
 
 Predict the output.
 
@@ -375,8 +363,6 @@ print(next(g))
 print(next(g))
 ```
 
-</Question>
-
 <Accordion title="Solution">
 
 ```text
@@ -388,7 +374,7 @@ Each call to `next()` returns the next value produced by the generator.
 
 </Accordion>
 
-<Question>
+### Exercise 2
 
 Predict the output.
 
@@ -402,8 +388,6 @@ g = greet()
 print("Generator Created")
 ```
 
-</Question>
-
 <Accordion title="Solution">
 
 ```text
@@ -414,7 +398,7 @@ Calling a generator function does not execute its body immediately. It simply cr
 
 </Accordion>
 
-<Question>
+### Exercise 3
 
 What is the output?
 
@@ -426,8 +410,6 @@ def values():
 for value in values():
     print(value)
 ```
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -547,7 +529,7 @@ Each `yield` produces one value before the generator pauses.
 
 ### Practice
 
-<Question>
+### Exercise 1
 
 Predict the output.
 
@@ -569,8 +551,6 @@ print(next(g))
 print(next(g))
 ```
 
-</Question>
-
 <Accordion title="Solution">
 
 **Output**
@@ -586,7 +566,7 @@ The generator pauses after each `yield`. Since the generator is not resumed agai
 
 </Accordion>
 
-<Question>
+### Exercise 2
 
 Predict the output.
 
@@ -606,8 +586,6 @@ print(next(g))
 print(next(g))
 ```
 
-</Question>
-
 <Accordion title="Solution">
 
 **Output**
@@ -621,11 +599,9 @@ The value of `x` is preserved between the two `yield` statements.
 
 </Accordion>
 
-<Question>
+### Exercise 3
 
 What is the main difference between `return` and `yield`?
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -679,7 +655,7 @@ numbers = (x * x for x in range(5))
 
 ### Practice
 
-<Question>
+### Exercise 1
 
 Predict the output.
 
@@ -689,8 +665,6 @@ gen = (x + 1 for x in range(3))
 print(next(gen))
 print(next(gen))
 ```
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -703,11 +677,9 @@ Each call to `next()` computes the next value in the sequence.
 
 </Accordion>
 
-<Question>
+### Exercise 2
 
 Which symbol is used to create a generator expression?
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -751,7 +723,7 @@ for _ in range(5):
 
 ### Practice
 
-<Question>
+### Exercise 1
 
 Predict the output.
 
@@ -771,8 +743,6 @@ print(next(gen))
 print(next(gen))
 print(next(gen))
 ```
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -824,11 +794,9 @@ for number in fibonacci(20):
 
 ### Practice
 
-<Question>
+### Exercise 1
 
 What is the first value produced by the generator?
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -870,7 +838,7 @@ Use generators when:
 
 ### Practice
 
-<Question>
+### Exercise 1
 
 Which consumes less memory?
 
@@ -883,8 +851,6 @@ or
 ```python
 (x for x in range(1000000))
 ```
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -977,11 +943,9 @@ Instead of loading the entire file into memory, one line is processed at a time.
 
 ## Check Your Understanding
 
-<Question>
+**Question 1**
 
 What is the purpose of the `iter()` function?
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -989,11 +953,9 @@ The `iter()` function converts an iterable into an iterator.
 
 </Accordion>
 
-<Question>
+**Question 2**
 
 Which special methods make an object an iterator?
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -1001,11 +963,9 @@ Which special methods make an object an iterator?
 
 </Accordion>
 
-<Question>
+**Question 3**
 
 What is the purpose of the `yield` keyword?
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -1013,11 +973,9 @@ The `yield` keyword pauses a generator, returns a value, preserves its state, an
 
 </Accordion>
 
-<Question>
+**Question 4**
 
 What is the difference between `yield` and `return`?
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -1026,11 +984,9 @@ What is the difference between `yield` and `return`?
 
 </Accordion>
 
-<Question>
+**Question 5**
 
 What is a generator expression?
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -1038,11 +994,9 @@ A generator expression is a concise way to create a generator using parentheses 
 
 </Accordion>
 
-<Question>
+**Question 6**
 
 Why are generators memory efficient?
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -1050,11 +1004,9 @@ Generators create values only when they are requested instead of storing all val
 
 </Accordion>
 
-<Question>
+**Question 7**
 
 Can generators be used in a `for` loop?
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -1062,11 +1014,9 @@ Yes. A generator is an iterator and can be directly used in a `for` loop.
 
 </Accordion>
 
-<Question>
+**Question 8**
 
 True or False: Every iterator is a generator.
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -1074,11 +1024,9 @@ True or False: Every iterator is a generator.
 
 </Accordion>
 
-<Question>
+**Question 9**
 
 Name two real-world use cases of generators.
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -1091,3 +1039,28 @@ Examples include:
 - Infinite sequences
 
 </Accordion>
+
+---
+
+## Practice & Exercises
+
+To reinforce what you've learned in this section (Iterators, Custom Iterators, Generators, and Generator Expressions), practice with these interactive notebooks:
+
+<CardGroup cols={2}>
+  <Card
+    title="Follow-Along Practice"
+    icon="laptop-code"
+  >
+    Practice creating iterators, implementing custom iterator classes, writing generators with yield, and creating generator expressions.
+
+    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/python%20material/python4ai/public/notebooks/basics_exercises/Iterators_Generators_Practice.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/python4ai/blob/master/public/notebooks/basics_exercises/Iterators_Generators_Practice.ipynb) | <a href="/public/notebooks/basics_exercises/Iterators_Generators_Practice.ipynb" download>📥 Download</a>
+  </Card>
+  <Card
+    title="Practice Exercises"
+    icon="pen-to-square"
+  >
+    Test your skills with exercises on custom range iterators, cubes generators, odd numbers generator expressions, and infinite powers of three generators.
+
+    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/python%20material/python4ai/public/notebooks/basics_exercises/Iterators_Generators_Exercises.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/python4ai/blob/master/public/notebooks/basics_exercises/Iterators_Generators_Exercises.ipynb) | <a href="/public/notebooks/basics_exercises/Iterators_Generators_Exercises.ipynb" download>📥 Download</a>
+  </Card>
+</CardGroup>

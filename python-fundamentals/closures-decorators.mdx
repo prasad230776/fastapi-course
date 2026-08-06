@@ -80,7 +80,7 @@ print(operations[1](10, 5))
 
 ## Practice
 
-<Question>
+### Exercise 1
 
 Predict the output.
 
@@ -93,8 +93,6 @@ msg = welcome
 print(msg())
 ```
 
-</Question>
-
 <Accordion title="Solution">
 
 ```text
@@ -105,7 +103,7 @@ Welcome
 
 </Accordion>
 
-<Question>
+### Exercise 2
 
 What is the difference between the following statements?
 
@@ -116,8 +114,6 @@ f = greet
 ```python
 f = greet()
 ```
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -207,7 +203,7 @@ print(calculate(multiply, 10, 5))
 
 ## Practice
 
-<Question>
+### Exercise 1
 
 Predict the output.
 
@@ -223,8 +219,6 @@ def execute(func):
 execute(display)
 ```
 
-</Question>
-
 <Accordion title="Solution">
 
 ```text
@@ -233,7 +227,7 @@ Python
 
 </Accordion>
 
-<Question>
+### Exercise 2
 
 Predict the output.
 
@@ -251,8 +245,6 @@ func = outer()
 print(func())
 ```
 
-</Question>
-
 <Accordion title="Solution">
 
 ```text
@@ -261,11 +253,9 @@ Hello
 
 </Accordion>
 
-<Question>
+### Exercise 3
 
 When is a function called a higher-order function?
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -360,7 +350,7 @@ The `nonlocal` keyword allows the inner function to modify a variable defined in
 
 ## Practice
 
-<Question>
+### Exercise 1
 
 Predict the output.
 
@@ -380,8 +370,6 @@ func = outer()
 func()
 ```
 
-</Question>
-
 <Accordion title="Solution">
 
 ```text
@@ -392,7 +380,7 @@ The inner function remembers the value of `message` even after `outer()` has fin
 
 </Accordion>
 
-<Question>
+### Exercise 2
 
 Predict the output.
 
@@ -415,8 +403,6 @@ print(c())
 print(c())
 ```
 
-</Question>
-
 <Accordion title="Solution">
 
 ```text
@@ -428,11 +414,9 @@ The variable `count` is preserved inside the closure and updated on each functio
 
 </Accordion>
 
-<Question>
+### Exercise 3
 
 Why do we use closures?
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -522,7 +506,7 @@ greet = logger(greet)
 
 ### Practice
 
-<Question>
+### Exercise 1
 
 Predict the output.
 
@@ -545,8 +529,6 @@ def display():
 display()
 ```
 
-</Question>
-
 <Accordion title="Solution">
 
 ```text
@@ -557,7 +539,7 @@ End
 
 </Accordion>
 
-<Question>
+### Exercise 2
 
 Which statement is equivalent to the following code?
 
@@ -566,8 +548,6 @@ Which statement is equivalent to the following code?
 def greet():
     print("Hello")
 ```
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -708,3 +688,27 @@ Function Completed
 
 > The `wrapper()` function is defined inside another function and remembers the original `func` even after the outer function has finished executing. This behavior was possible because of **closure**.
 
+---
+
+## Practice & Exercises
+
+To reinforce what you've learned in this section (Functions as objects, Higher-order functions, Closures, and Decorators), practice with these interactive notebooks:
+
+<CardGroup cols={2}>
+  <Card
+    title="Follow-Along Practice"
+    icon="laptop-code"
+  >
+    Practice passing and returning functions, preserving state with closures using nonlocal, and creating custom decorators with arguments.
+
+    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/python%20material/python4ai/public/notebooks/basics_exercises/Closures_Decorators_Practice.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/python4ai/blob/master/public/notebooks/basics_exercises/Closures_Decorators_Practice.ipynb) | <a href="/public/notebooks/basics_exercises/Closures_Decorators_Practice.ipynb" download>📥 Download</a>
+  </Card>
+  <Card
+    title="Practice Exercises"
+    icon="pen-to-square"
+  >
+    Test your skills with exercises on higher-order function mapping, prefix greeting closures, timer decorators, argument uppercase decorators, and call counter decorators.
+
+    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/python%20material/python4ai/public/notebooks/basics_exercises/Closures_Decorators_Exercises.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/python4ai/blob/master/public/notebooks/basics_exercises/Closures_Decorators_Exercises.ipynb) | <a href="/public/notebooks/basics_exercises/Closures_Decorators_Exercises.ipynb" download>📥 Download</a>
+  </Card>
+</CardGroup>

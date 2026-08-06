@@ -92,11 +92,9 @@ The procedural approach describes **how** to perform each step, whereas the func
 
 ## Practice
 
-<Question>
+### Exercise 1
 
 Which two concepts form the foundation of functional programming?
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -107,11 +105,9 @@ Functional programming combines:
 
 </Accordion>
 
-<Question>
+### Exercise 2
 
 What is the main difference between procedural programming and functional programming?
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -120,15 +116,13 @@ What is the main difference between procedural programming and functional progra
 
 </Accordion>
 
-<Question>
+### Exercise 3
 
 Is SQL a functional programming language? Why?
 
-</Question>
-
 <Accordion title="Solution">
 
-No. SQL follows a **declarative programming style**, but it is **not** a functional programming language because it does not use higher-order functions and function composition as its primary programming model.
+No. SQL follows a **declarative programming style**, but it is **not** a functional programming language because it does not use **higher-order functions** and **function composition** as its primary programming model.
 
 </Accordion>
 
@@ -236,7 +230,7 @@ Avoid lambda functions when:
 
 ## Practice
 
-<Question>
+### Exercise 1
 
 Convert the following function into a lambda function.
 
@@ -244,8 +238,6 @@ Convert the following function into a lambda function.
 def cube(x):
     return x ** 3
 ```
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -255,7 +247,7 @@ cube = lambda x: x ** 3
 
 </Accordion>
 
-<Question>
+### Exercise 2
 
 Predict the output.
 
@@ -265,17 +257,17 @@ multiply = lambda a, b: a * b
 print(multiply(5, 6))
 ```
 
-</Question>
-
 <Accordion title="Solution">
 
 ```text
 30
 ```
 
+The lambda function multiplies the two arguments and returns the result.
+
 </Accordion>
 
-<Question>
+### Exercise 3
 
 Predict the output.
 
@@ -287,27 +279,29 @@ names.sort(key=lambda name: len(name))
 print(names)
 ```
 
-</Question>
-
 <Accordion title="Solution">
 
 ```text
 ['Bob', 'John', 'Alexander']
 ```
 
-The list is sorted based on the length of each string.
+The `key` function returns the length of each string, so the list is sorted in ascending order of string length.
 
 </Accordion>
 
-<Question>
+### Exercise 4
 
 When should you prefer a normal function over a lambda function?
 
-</Question>
-
 <Accordion title="Solution">
 
-A normal function should be preferred when the logic is complex, requires multiple statements, or will be reused in multiple places.
+Use a **normal function** when:
+
+- The logic is complex.
+- Multiple statements are required.
+- The function will be reused in multiple places.
+
+Use a **lambda function** when the function is short, simple, and used only once.
 
 </Accordion>
 
@@ -395,7 +389,7 @@ print(list(result))
 
 ## Practice
 
-<Question>
+### Exercise 1
 
 Predict the output.
 
@@ -407,25 +401,30 @@ result = map(lambda x: x + 1, numbers)
 print(list(result))
 ```
 
-</Question>
-
 <Accordion title="Solution">
 
 ```text
 [3, 5, 7]
 ```
 
+The lambda function adds `1` to each element, and `map()` applies it to every element in the list.
+
 </Accordion>
 
-<Question>
+### Exercise 2
 
 When should you use `map()`?
 
-</Question>
-
 <Accordion title="Solution">
 
-Use `map()` when the **same transformation** needs to be applied to every element of an iterable.
+Use `map()` when you want to **apply the same transformation** to every element of an iterable.
+
+Some common use cases include:
+
+- Squaring numbers
+- Converting strings to uppercase
+- Calculating percentages
+- Formatting data
 
 </Accordion>
 
@@ -536,7 +535,7 @@ The procedural approach manually checks every element, whereas the functional ap
 
 ## Practice
 
-<Question>
+### Exercise 1
 
 Predict the output.
 
@@ -548,17 +547,17 @@ result = filter(lambda x: x > 15, numbers)
 print(list(result))
 ```
 
-</Question>
-
 <Accordion title="Solution">
 
 ```text
 [20, 25]
 ```
 
+The lambda function returns `True` only for values greater than `15`, so `filter()` selects only those elements.
+
 </Accordion>
 
-<Question>
+### Exercise 2
 
 Predict the output.
 
@@ -570,25 +569,30 @@ result = filter(lambda word: len(word) > 2, words)
 print(list(result))
 ```
 
-</Question>
-
 <Accordion title="Solution">
 
 ```text
 ['Python', 'Programming']
 ```
 
+The lambda function keeps only the strings whose length is greater than `2`.
+
 </Accordion>
 
-<Question>
+### Exercise 3
 
 When should you use `filter()`?
-
-</Question>
 
 <Accordion title="Solution">
 
 Use `filter()` when you want to **select only those elements that satisfy a condition**.
+
+Some common use cases include:
+
+- Selecting even or odd numbers
+- Filtering students who passed an exam
+- Removing empty strings
+- Selecting records based on a condition
 
 </Accordion>
 
@@ -681,7 +685,7 @@ The final result is returned.
 
 ## Practice
 
-<Question>
+### Exercise 1
 
 Predict the output.
 
@@ -695,17 +699,17 @@ result = reduce(lambda a, b: a + b, numbers)
 print(result)
 ```
 
-</Question>
-
 <Accordion title="Solution">
 
 ```text
 12
 ```
 
+`reduce()` repeatedly applies the lambda function to combine all elements into a single value.
+
 </Accordion>
 
-<Question>
+### Exercise 2
 
 Predict the output.
 
@@ -719,25 +723,34 @@ result = reduce(lambda a, b: a * b, numbers)
 print(result)
 ```
 
-</Question>
-
 <Accordion title="Solution">
 
 ```text
 24
 ```
 
+The multiplication is performed as:
+
+```text
+1 × 2 = 2
+2 × 3 = 6
+6 × 4 = 24
+```
+
 </Accordion>
 
-<Question>
+### Exercise 3
 
 When should you use `reduce()`?
 
-</Question>
-
 <Accordion title="Solution">
 
-Use `reduce()` when you want to **combine all elements of an iterable into a single value**, such as computing a sum, product, maximum, or minimum.
+Use `reduce()` when you need to **combine all elements of an iterable into a single value**, such as calculating the:
+
+- Sum
+- Product
+- Maximum
+- Minimum
 
 </Accordion>
 
@@ -818,7 +831,7 @@ print(result)
 
 ## Practice
 
-<Question>
+### Exercise 1
 
 Predict the output.
 
@@ -828,25 +841,29 @@ numbers = [8, 3, 5, 1]
 print(sorted(numbers, reverse=True))
 ```
 
-</Question>
-
 <Accordion title="Solution">
 
 ```text
 [8, 5, 3, 1]
 ```
 
+The `reverse=True` argument sorts the elements in descending order.
+
 </Accordion>
 
-<Question>
+### Exercise 2
 
-When should you use the `key` parameter?
-
-</Question>
+When should you use the `key` parameter with the `sorted()` function?
 
 <Accordion title="Solution">
 
-Use the `key` parameter when the sorting order depends on a custom property rather than the element itself.
+Use the `key` parameter when the sorting order should be based on a **custom property** of each element rather than the element itself.
+
+For example:
+
+- Sort strings by their length.
+- Sort students by their marks.
+- Sort dictionaries by a specific key.
 
 </Accordion>
 
@@ -897,7 +914,7 @@ The expression checks whether **any number is odd**.
 
 ## Practice
 
-<Question>
+### Exercise 1
 
 Predict the output.
 
@@ -907,15 +924,13 @@ numbers = [0, 0, 0]
 print(any(numbers))
 ```
 
-</Question>
-
 <Accordion title="Solution">
 
 ```text
 False
 ```
 
-All elements evaluate to `False`.
+All elements evaluate to `False`, so `any()` returns `False`.
 
 </Accordion>
 
@@ -971,7 +986,7 @@ Since one element does not satisfy the condition, `all()` returns `False`.
 
 ## Practice
 
-<Question>
+### Exercise 1
 
 Predict the output.
 
@@ -980,8 +995,6 @@ values = [True, True, False]
 
 print(all(values))
 ```
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -993,11 +1006,9 @@ Since one element is `False`, the result is `False`.
 
 </Accordion>
 
-<Question>
+### Exercise 2
 
 What is the difference between `any()` and `all()`?
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -1184,11 +1195,9 @@ Frameworks such as **FastAPI**, **Pandas**, **PySpark**, **Apache Beam**, and **
 
 ## Check Your Understanding
 
-<Question>
+**Question 1**
 
 What are the two main ideas behind functional programming?
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -1199,11 +1208,9 @@ Functional programming combines:
 
 </Accordion>
 
-<Question>
+**Question 2**
 
 What is the purpose of a lambda function?
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -1211,11 +1218,9 @@ A lambda function provides a concise way to create a small anonymous function, t
 
 </Accordion>
 
-<Question>
+**Question 3**
 
 When should you use `map()`?
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -1223,11 +1228,9 @@ Use `map()` when the same transformation needs to be applied to every element of
 
 </Accordion>
 
-<Question>
+**Question 4**
 
 When should you use `filter()`?
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -1235,11 +1238,9 @@ Use `filter()` when selecting elements that satisfy a given condition.
 
 </Accordion>
 
-<Question>
+**Question 5**
 
 When should you use `reduce()`?
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -1247,11 +1248,9 @@ Use `reduce()` when combining all elements of an iterable into a single value.
 
 </Accordion>
 
-<Question>
+**Question 6**
 
 What is the difference between `any()` and `all()`?
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -1260,11 +1259,9 @@ What is the difference between `any()` and `all()`?
 
 </Accordion>
 
-<Question>
+**Question 7**
 
 Why is SQL not considered a functional programming language?
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -1272,14 +1269,37 @@ SQL follows a declarative programming style, but it is not a functional programm
 
 </Accordion>
 
-<Question>
+**Question 8**
 
 What is the main advantage of functional programming?
-
-</Question>
 
 <Accordion title="Solution">
 
 Functional programming encourages writing modular, reusable, and expressive programs by composing small functions.
 
 </Accordion>
+
+---
+
+## Practice & Exercises
+
+To reinforce what you've learned in this section (Lambdas, Map, Filter, Reduce, Custom Sorting, any(), and all()), practice with these interactive notebooks:
+
+<CardGroup cols={2}>
+  <Card
+    title="Follow-Along Practice"
+    icon="laptop-code"
+  >
+    Practice writing lambda functions, mapping and filtering collections, reducing lists to single values, using custom sorted keys, and checking conditions with any and all.
+
+    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/python%20material/python4ai/public/notebooks/basics_exercises/Functional_Programming_Practice.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/python4ai/blob/master/public/notebooks/basics_exercises/Functional_Programming_Practice.ipynb) | <a href="/public/notebooks/basics_exercises/Functional_Programming_Practice.ipynb" download>📥 Download</a>
+  </Card>
+  <Card
+    title="Practice Exercises"
+    icon="pen-to-square"
+  >
+    Test your skills with exercises on custom lambda sorting of dictionary products, mapping string lengths, filtering vowel-starting words, reducing list elements to products, and validating group scores.
+
+    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/python%20material/python4ai/public/notebooks/basics_exercises/Functional_Programming_Exercises.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/python4ai/blob/master/public/notebooks/basics_exercises/Functional_Programming_Exercises.ipynb) | <a href="/public/notebooks/basics_exercises/Functional_Programming_Exercises.ipynb" download>📥 Download</a>
+  </Card>
+</CardGroup>
