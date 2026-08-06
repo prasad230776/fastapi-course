@@ -148,9 +148,23 @@ with open("users.csv", "r") as file:
 ---
 
 ### JSON Data (JavaScript Object Notation)
-JSON is the standard format for exchanging data in web APIs. Python's `json` module translates between JSON strings/files and Python dictionaries/lists.
+JSON (JavaScript Object Notation) is a lightweight, text-based data interchange format. It is the standard format for exchanging data in modern web APIs because it is easy for both humans to read and machines to parse.
 
-- **`json.dumps()`** / **`json.loads()`**: Convert between Python dictionaries and JSON strings.
+#### JSON Data Types & Type Mapping
+JSON supports a limited set of data types. When you load a JSON payload into Python or convert Python objects to JSON, Python handles the conversions automatically based on the following type mapping:
+
+| Python Type | JSON equivalent | Example |
+| :--- | :--- | :--- |
+| `dict` | `object` | `{"name": "Alice", "role": "admin"}` |
+| `list`, `tuple` | `array` | `[1, 2, "three"]` |
+| `str` | `string` | `"hello"` |
+| `int`, `float` | `number` | `42` or `3.14` |
+| `True` | `true` | `true` |
+| `False` | `false` | `false` |
+| `None` | `null` | `null` |
+
+Python's built-in `json` module provides four primary functions to translate between these types:
+- **`json.dumps()`** / **`json.loads()`**: Convert between Python objects and JSON strings.
 - **`json.dump()`** / **`json.load()`**: Read and write JSON files.
 
 ```python
