@@ -1,37 +1,563 @@
-title: 03-Python Comprehensions
-description: Learn Python's comprehension syntax for creating collections in a concise, readable, and efficient way.
+---
+title: 03-Python Data Structures & Comprehensions
+description: Master lists, tuples, dictionaries, sets, queues with deque, and learn Pythonic comprehensions.
+---
 
-# Python Comprehensions
+# Python Data Structures & Comprehensions
 
-Comprehensions provide a Pythonic way to create and transform collections with less code. They improve readability, reduce boilerplate code, and are often faster than traditional loops.
+This module covers Python's core data structures (Lists, Tuples, Dictionaries, Sets), queue operations using `deque`, and the powerful comprehension syntax used to create and transform them.
 
 ## Topics Covered
 
 In this module, you'll learn:
 
-1. Why Comprehensions?
-2. List Comprehensions
-3. Dictionary Comprehensions
-4. Set Comprehensions
-5. Iterators and Generator Expressions
-6. Comprehensions vs Traditional Loops
-7. Best Practices
+1. **Lists**: CRUD Operations and Sorting
+2. **Tuples**: Operations, Indexing, and Slicing
+3. **Dictionaries**: CRUD Operations and Sorting
+4. **Sets**: CRUD Operations and Sorting
+5. **Queues**: Using `collections.deque`
+6. **Why Comprehensions?**
+7. **List Comprehensions**
+8. **Dictionary Comprehensions**
+9. **Set Comprehensions**
+10. **Generator Expressions**
+11. **Comprehensions vs Loops & Best Practices**
 
-By the end of this module, you'll be able to write cleaner, more concise, and more efficient Python code using comprehensions and understand when generator expressions are a better choice.
+---
 
+# 1. Lists: CRUD Operations and Sorting
 
-# Why Comprehensions?
+A **List** in Python is an ordered, mutable sequence of elements. It is one of the most widely used data structures.
 
-Suppose we want to create a list containing the squares of numbers from `1` to `5`.
+### Create (C)
+You can create a list by enclosing comma-separated values in square brackets `[]` or by using the `list()` constructor.
 
-A common approach is to use a `for` loop.
+```python
+# Creating lists
+languages = ["Python", "JavaScript"]
+empty_list = []
+numbers = list(range(1, 4))
+
+print(languages)
+print(numbers)
+```
+
+### Read (R)
+Elements in a list are accessed using zero-based indexing or slicing (`list[start:stop:step]`).
+
+```python
+fruits = ["Apple", "Banana", "Cherry"]
+
+# Accessing elements
+print(fruits[0])
+print(fruits[-1])
+
+# Slicing
+print(fruits[1:3])
+```
+
+### Update (U)
+Since lists are mutable, you can modify elements in-place, append new elements, insert at specific positions, or extend with another list.
+
+```python
+colors = ["red", "green"]
+
+# Modify in-place
+colors[1] = "blue"
+
+# Append (add to end)
+colors.append("yellow")
+
+# Insert at index 1
+colors.insert(1, "orange")
+
+# Extend (add multiple items)
+colors.extend(["purple", "pink"])
+
+print(colors)
+```
+
+### Delete (D)
+You can remove elements from a list using `.remove()`, `.pop()`, `.clear()`, or the `del` statement.
+
+```python
+tasks = ["code", "test", "deploy", "debug"]
+
+# Remove by value
+tasks.remove("test")
+
+# Remove by index (returns the removed value)
+removed = tasks.pop(1)
+print(f"Removed item: {removed}")
+
+# Delete via index
+del tasks[0]
+
+print(tasks)
+```
+
+### Sorting
+Python lists can be sorted in-place using `.sort()` or out-of-place using the global `sorted()` function.
+
+```python
+nums = [42, 7, 19, 88, 3]
+
+# Out-of-place (returns a new sorted list)
+new_nums = sorted(nums)
+print("Original:", nums)
+print("Sorted copy:", new_nums)
+
+# In-place sorting
+nums.sort()
+print("Sorted in-place:", nums)
+
+# Reverse sorting
+nums.sort(reverse=True)
+print("Reverse sorted in-place:", nums)
+```
+
+### Exercise 1
+Write a program to create a list of numbers, append `10`, insert `5` at index `0`, and then sort it in-place in descending order.
+
+<Accordion title="Solution">
+
+```python
+nums = [12, 3, 45]
+nums.append(10)
+nums.insert(0, 5)
+nums.sort(reverse=True)
+print(nums)
+```
+
+</Accordion>
+
+### Exercise 2
+Given a list `arr = ["apple", "cherry", "banana"]`, remove the element `"cherry"` and print the sorted list.
+
+<Accordion title="Solution">
+
+```python
+arr = ["apple", "cherry", "banana"]
+arr.remove("cherry")
+print(sorted(arr))
+```
+
+</Accordion>
+
+---
+
+# 2. Tuples: Operations, Indexing, and Slicing
+
+A **Tuple** is an ordered, **immutable** sequence of elements. Once created, a tuple's elements cannot be modified, added, or removed.
+
+### Create (C)
+Tuples are defined using parentheses `()` or the `tuple()` constructor. To define a tuple with a single element, you must include a trailing comma.
+
+```python
+# Creating tuples
+tup1 = (10, 20, 30)
+empty_tup = ()
+single_tup = (5,)  # Note the trailing comma
+tup_from_list = tuple([1, 2, 3])
+
+print(tup1)
+print(single_tup)
+```
+
+### Read (R) - Indexing & Slicing
+Like lists, tuples support zero-based indexing, negative indexing, and slicing.
+
+```python
+values = ("A", "B", "C", "D", "E")
+
+# Indexing
+print(values[0])
+print(values[-1])
+
+# Slicing
+print(values[1:4])
+print(values[::-1])  # Reversing a tuple
+```
+
+### Operations
+Although immutable, tuples support common operations such as concatenation, repetition, membership testing, and element counting.
+
+```python
+t1 = (1, 2)
+t2 = (3, 4)
+
+# Concatenation
+t3 = t1 + t2
+print("Concatenation:", t3)
+
+# Repetition
+t4 = t1 * 3
+print("Repetition:", t4)
+
+# Index and Count
+chars = ("a", "b", "a", "c")
+print("Count of 'a':", chars.count("a"))
+print("First index of 'b':", chars.index("b"))
+
+# Membership
+print("a" in chars)
+```
+
+### Sorting
+Because tuples are immutable, you cannot sort them in-place. You must use the `sorted()` function, which returns a new sorted **list**. You can convert this list back to a tuple if needed.
+
+```python
+tup = (42, 7, 19, 3)
+sorted_list = sorted(tup)
+sorted_tup = tuple(sorted_list)
+
+print("Original Tuple:", tup)
+print("Sorted Tuple:", sorted_tup)
+```
+
+### Exercise 1
+Create a tuple containing elements `10`, `20`, `30`, `40`, `50`. Extract the middle three elements using slicing.
+
+<Accordion title="Solution">
+
+```python
+tup = (10, 20, 30, 40, 50)
+print(tup[1:4])
+```
+
+</Accordion>
+
+### Exercise 2
+Given the tuple `data = (5, 2, 9, 1)`, write a program to sort it in ascending order and print the result as a tuple.
+
+<Accordion title="Solution">
+
+```python
+data = (5, 2, 9, 1)
+sorted_data = tuple(sorted(data))
+print(sorted_data)
+```
+
+</Accordion>
+
+---
+
+# 3. Dictionaries: CRUD Operations and Sorting
+
+A **Dictionary** in Python is a mutable, key-value collection. Keys must be unique and immutable.
+
+### Create (C)
+Create dictionaries using curly braces `{}` containing key-value pairs or the `dict()` constructor.
+
+```python
+# Creating dictionaries
+student = {"name": "Alice", "age": 25}
+empty_dict = {}
+colors = dict(red="#FF0000", green="#00FF00")
+
+print(student)
+print(colors)
+```
+
+### Read (R)
+Values are retrieved using key indexing or the safer `.get()` method.
+
+```python
+profile = {"username": "coder1", "email": "coder1@test.com"}
+
+# Key lookup
+print(profile["username"])
+
+# Safe lookup using get() (returns None or default value if missing)
+print(profile.get("age"))
+print(profile.get("age", 18))
+
+# Accessing keys, values, and items
+print(list(profile.keys()))
+print(list(profile.values()))
+print(list(profile.items()))
+```
+
+### Update (U)
+You can add new key-value pairs or modify existing ones simply by assigning to a key, or by using `.update()`.
+
+```python
+car = {"brand": "Tesla", "model": "Model 3"}
+
+# Add/Modify key-value pairs
+car["year"] = 2021
+car["model"] = "Model Y"
+
+# Batch update
+car.update({"color": "red", "battery": "Long Range"})
+
+print(car)
+```
+
+### Delete (D)
+Items can be removed using `del`, `.pop()` (returns value), `.popitem()` (removes last inserted pair), or `.clear()`.
+
+```python
+inventory = {"apples": 10, "bananas": 5, "peaches": 2}
+
+# Remove by key using pop
+popped_val = inventory.pop("bananas")
+print(f"Removed bananas value: {popped_val}")
+
+# Remove last inserted item
+last_item = inventory.popitem()
+print(f"Removed last item: {last_item}")
+
+# Delete keyword
+del inventory["apples"]
+
+print(inventory)
+```
+
+### Sorting
+Dictionaries can be sorted by keys or values using the `sorted()` function on their items.
+
+```python
+scores = {"Charlie": 90, "Alice": 95, "Bob": 85}
+
+# Sort by Keys (alphabetical)
+sorted_by_keys = dict(sorted(scores.items()))
+print("Sorted by keys:", sorted_by_keys)
+
+# Sort by Values (ascending scores)
+sorted_by_values = dict(sorted(scores.items(), key=lambda item: item[1]))
+print("Sorted by values:", sorted_by_values)
+```
+
+### Exercise 1
+Create a dictionary representing a book with key-value pairs for `title`, `author`, and `price`. Update the price to `499`, add a new key `year` as `2024`, and print all keys in the dictionary.
+
+<Accordion title="Solution">
+
+```python
+book = {"title": "Python Basics", "author": "John Doe", "price": 399}
+book["price"] = 499
+book["year"] = 2024
+print(list(book.keys()))
+```
+
+</Accordion>
+
+### Exercise 2
+Given `d = {"z": 1, "y": 2, "x": 3}`, sort the dictionary by keys in ascending order and print the resulting dictionary.
+
+<Accordion title="Solution">
+
+```python
+d = {"z": 1, "y": 2, "x": 3}
+sorted_d = dict(sorted(d.items()))
+print(sorted_d)
+```
+
+</Accordion>
+
+---
+
+# 4. Sets: CRUD Operations and Sorting
+
+A **Set** in Python is an unordered collection of unique, immutable elements. Sets do not allow duplicate values.
+
+### Create (C)
+Sets are created using curly braces `{}` containing elements or the `set()` constructor. Note that an empty set must be created using `set()`, as `{}` creates an empty dictionary.
+
+```python
+# Creating sets
+numbers = {1, 2, 3, 3}  # Duplicates are automatically removed
+print(numbers)
+
+empty_set = set()
+names = set(["Alice", "Bob"])
+print(names)
+```
+
+### Read (R)
+Since sets are unordered, they do not support indexing or slicing. You read elements by checking membership (`in`) or by iterating over the set.
+
+```python
+chars = {"a", "b", "c"}
+
+# Membership test
+print("a" in chars)
+print("z" in chars)
+
+# Iteration
+for char in chars:
+    print(char)
+```
+
+### Update (U)
+You can add elements using `.add()` (for a single element) or `.update()` (for multiple elements).
+
+```python
+countries = {"India", "USA"}
+
+# Add single item
+countries.add("UK")
+
+# Add multiple items (can pass list, tuple, set, etc.)
+countries.update(["Canada", "Germany"])
+
+print(countries)
+```
+
+### Delete (D)
+Remove elements using `.remove()` (raises KeyError if not found), `.discard()` (safe, does not raise error), `.pop()` (removes and returns an arbitrary element), or `.clear()`.
+
+```python
+brands = {"Nike", "Adidas", "Puma"}
+
+# Remove element (raises error if missing)
+brands.remove("Adidas")
+
+# Discard element safely (no error if missing)
+brands.discard("Reebok")
+
+# Pop arbitrary element
+popped = brands.pop()
+print(f"Popped brand: {popped}")
+
+print(brands)
+```
+
+### Sorting
+Since sets are inherently unordered, they cannot be sorted in-place. However, you can use the `sorted()` function, which returns a sorted list of the set's elements.
+
+```python
+values = {42, 3, 17, 8}
+
+# Sorting a set returns a list
+sorted_values = sorted(values)
+print("Sorted values list:", sorted_values)
+```
+
+### Exercise 1
+Create an empty set, add elements `10`, `20`, and `30` to it, remove `20`, and verify if `20` is still in the set.
+
+<Accordion title="Solution">
+
+```python
+s = set()
+s.add(10)
+s.add(20)
+s.add(30)
+s.remove(20)
+print(20 in s)
+```
+
+</Accordion>
+
+### Exercise 2
+Given a set `my_set = {15, 5, 25, 10}`, sort the elements of the set and print the result.
+
+<Accordion title="Solution">
+
+```python
+my_set = {15, 5, 25, 10}
+print(sorted(my_set))
+```
+
+</Accordion>
+
+---
+
+# 5. Queues: Using `collections.deque`
+
+A queue is a linear data structure that follows the **FIFO (First-In, First-Out)** principle. 
+
+Although you can use a Python list as a queue by calling `list.pop(0)`, this operation is inefficient. Shifting elements at index 0 requires **$O(n)$ time complexity**.
+
+Python's **`collections.deque`** (double-ended queue) is specifically designed to allow fast appends and pops from both ends in **$O(1)$ time complexity**.
+
+### Creating and Enqueuing Elements
+Import `deque` from `collections`, and use `.append()` to enqueue items to the right side of the queue.
+
+```python
+from collections import deque
+
+# Create a queue
+queue = deque()
+
+# Enqueue (adding elements)
+queue.append("Alice")
+queue.append("Bob")
+queue.append("Charlie")
+
+print("Queue status:", queue)
+```
+
+### Dequeuing Elements
+Use `.popleft()` to remove and return elements from the left side (front of the queue), preserving the FIFO order.
+
+```python
+# Dequeue (removing elements)
+first = queue.popleft()
+print(f"Served: {first}")
+
+second = queue.popleft()
+print(f"Served: {second}")
+
+print("Remaining Queue:", queue)
+```
+
+### Add to Front / Remove from Back
+Because `deque` is double-ended, you can also perform LIFO operations or add to the front:
+- `appendleft(item)`: Add an element to the front.
+- `pop()`: Remove and return an element from the back.
+
+```python
+q = deque(["Job1", "Job2"])
+q.appendleft("UrgentJob")  # Added to front
+print(q)
+```
+
+### Exercise 1
+Create a queue using `deque` containing `["user1", "user2"]`. Enqueue `"user3"`, dequeue the first user in line, and print the remaining queue.
+
+<Accordion title="Solution">
+
+```python
+from collections import deque
+
+q = deque(["user1", "user2"])
+q.append("user3")
+served = q.popleft()
+print("Served:", served)
+print("Queue:", q)
+```
+
+</Accordion>
+
+### Exercise 2
+Write a program to demonstrate how to use `deque` as a stack (Last-In, First-Out) using `.append()` and `.pop()`.
+
+<Accordion title="Solution">
+
+```python
+from collections import deque
+
+stack = deque()
+stack.append("plate1")
+stack.append("plate2")
+print(stack.pop())  # returns "plate2"
+```
+
+</Accordion>
+
+---
+
+# 6. Why Comprehensions?
+
+Suppose we want to create a list containing the squares of numbers from `1` to `5`. A common approach is to use a `for` loop.
 
 ```python
 squares = []
-
 for number in range(1, 6):
     squares.append(number ** 2)
-
 print(squares)
 ```
 
@@ -43,1209 +569,200 @@ print(squares)
 
 </Accordion>
 
-Although this works well, it requires multiple lines of code.
-
-Python provides **comprehensions** to perform the same task in a cleaner and more concise way.
+Python provides **comprehensions** to perform the same task in a cleaner, single-line expression:
 
 ```python
 squares = [number ** 2 for number in range(1, 6)]
-
 print(squares)
 ```
 
-<Accordion title="Show Output">
-
-```text
-[1, 4, 9, 16, 25]
-```
-
-</Accordion>
-
-## Benefits of Comprehensions
-
-- Write less code.
-- Improve readability.
-- Avoid unnecessary temporary variables.
-- Often perform better than traditional loops.
-- Express data transformations more clearly.
-
-
-## General Syntax
-
+### General Syntax
 ```python
 [expression for item in iterable]
 ```
 
-Where:
-
 - **expression** → Value to be added to the collection.
 - **item** → Current element from the iterable.
-- **iterable** → Any iterable object such as a string, list, tuple, range, dictionary, or set.
+- **iterable** → Any iterable object such as a string, list, tuple, range, or set.
 
+---
 
-## Exercise 1
-
-Create a list containing the cubes of numbers from `1` to `5` using a comprehension.
-
-**Sample Input**
-
-```text
-1 to 5
-```
-
-**Expected Output**
-
-```text
-[1, 8, 27, 64, 125]
-```
-
-<Accordion title="Solution">
-
-```python
-cubes = [number ** 3 for number in range(1, 6)]
-
-print(cubes)
-```
-
-</Accordion>
-
-
-## Exercise 2
-
-Create a list containing the uppercase characters from the string `"python"`.
-
-**Sample Input**
-
-```python
-text = "python"
-```
-
-**Expected Output**
-
-```text
-['P', 'Y', 'T', 'H', 'O', 'N']
-```
-
-<Accordion title="Solution">
-
-```python
-text = "python"
-
-result = [character.upper() for character in text]
-
-print(result)
-```
-
-</Accordion>
-
-
-# List Comprehensions
+# 7. List Comprehensions
 
 A **list comprehension** creates a new list by applying an expression to each element of an iterable.
 
-## Basic List Comprehension
-
-Traditional approach
-
+### Basic List Comprehension
 ```python
-numbers = []
-
-for number in range(1, 6):
-    numbers.append(number)
-
-print(numbers)
-```
-
-<Accordion title="Show Output">
-
-```text
-[1, 2, 3, 4, 5]
-```
-
-</Accordion>
-
-Using a list comprehension
-
-```python
-numbers = [number for number in range(1, 6)]
-
-print(numbers)
-```
-
-<Accordion title="Show Output">
-
-```text
-[1, 2, 3, 4, 5]
-```
-
-</Accordion>
-
-
-## Transforming Values
-
-Each element can be modified before adding it to the list.
-
-```python
-squares = [number ** 2 for number in range(1, 6)]
-
+numbers = [1, 2, 3, 4, 5]
+squares = [num ** 2 for num in numbers]
 print(squares)
 ```
 
-<Accordion title="Show Output">
-
-```text
-[1, 4, 9, 16, 25]
-```
-
-</Accordion>
-
-Another example.
+### Filtering with `if`
+You can filter elements by adding an `if` clause at the end.
 
 ```python
-text = "python"
-
-uppercase = [character.upper() for character in text]
-
-print(uppercase)
+numbers = range(1, 11)
+evens = [num for num in numbers if num % 2 == 0]
+print(evens)
 ```
 
-<Accordion title="Show Output">
-
-```text
-['P', 'Y', 'T', 'H', 'O', 'N']
-```
-
-</Accordion>
-
-
-## Using Conditions
-
-A comprehension can filter elements using an `if` condition.
-
-Traditional approach
+### Using `if-else` (Transformation)
+To transform values differently based on a condition, place the `if-else` clause **before** the `for` loop.
 
 ```python
-even_numbers = []
-
-for number in range(1, 11):
-    if number % 2 == 0:
-        even_numbers.append(number)
-
-print(even_numbers)
+numbers = range(1, 6)
+labels = ["Even" if num % 2 == 0 else "Odd" for num in numbers]
+print(labels)
 ```
 
-<Accordion title="Show Output">
-
-```text
-[2, 4, 6, 8, 10]
-```
-
-</Accordion>
-
-Using a comprehension
+### Nested List Comprehensions (Flattening)
+You can nest comprehensions to work with multi-dimensional lists (e.g., flattening a matrix).
 
 ```python
-even_numbers = [
-    number
-    for number in range(1, 11)
-    if number % 2 == 0
-]
-
-print(even_numbers)
+matrix = [[1, 2], [3, 4], [5, 6]]
+flat = [num for row in matrix for num in row]
+print(flat)
 ```
 
-<Accordion title="Show Output">
-
-```text
-[2, 4, 6, 8, 10]
-```
-
-</Accordion>
-
-
-## Using Conditional Expressions
-
-Python also allows `if...else` expressions inside comprehensions.
-
-```python
-result = [
-    "Even" if number % 2 == 0 else "Odd"
-    for number in range(1, 6)
-]
-
-print(result)
-```
-
-<Accordion title="Show Output">
-
-```text
-['Odd', 'Even', 'Odd', 'Even', 'Odd']
-```
-
-</Accordion>
-
-Notice the difference.
-
-Filtering
-
-```python
-[number for number in range(10) if number % 2 == 0]
-```
-
-Conditional expression
-
-```python
-["Even" if number % 2 == 0 else "Odd" for number in range(10)]
-```
-
-The first **filters** elements.
-
-The second **transforms** every element.
-
-
-## Multiple `for` Clauses
-
-A list comprehension can contain more than one `for` loop.
-
-Traditional approach
-
-```python
-pairs = []
-
-for x in range(1, 4):
-    for y in range(1, 3):
-        pairs.append((x, y))
-
-print(pairs)
-```
-
-<Accordion title="Show Output">
-
-```text
-[(1, 1), (1, 2), (2, 1), (2, 2), (3, 1), (3, 2)]
-```
-
-</Accordion>
-
-Using a comprehension
-
-```python
-pairs = [
-    (x, y)
-    for x in range(1, 4)
-    for y in range(1, 3)
-]
-
-print(pairs)
-```
-
-<Accordion title="Show Output">
-
-```text
-[(1, 1), (1, 2), (2, 1), (2, 2), (3, 1), (3, 2)]
-```
-
-</Accordion>
-
-
-## Exercise 1
-
-Create a list containing the squares of all even numbers between `1` and `20`.
-
-**Sample Input**
-
-```text
-1 to 20
-```
-
-**Expected Output**
-
-```text
-[4, 16, 36, 64, 100, 144, 196, 256, 324, 400]
-```
+### Exercise 1
+Create a list containing the lengths of each word in the list `["Python", "FastAPI", "API"]` using a list comprehension.
 
 <Accordion title="Solution">
 
 ```python
-result = [
-    number ** 2
-    for number in range(1, 21)
-    if number % 2 == 0
-]
-
-print(result)
-```
-
-</Accordion>
-
-
-## Exercise 2
-
-Create a list that contains `"Upper"` for uppercase letters and `"Lower"` for lowercase letters in the string `"PyThOn"`.
-
-**Sample Input**
-
-```python
-text = "PyThOn"
-```
-
-**Expected Output**
-
-```text
-['Upper', 'Lower', 'Upper', 'Lower', 'Upper', 'Lower']
-```
-
-<Accordion title="Solution">
-
-```python
-text = "PyThOn"
-
-result = [
-    "Upper" if character.isupper() else "Lower"
-    for character in text
-]
-
-print(result)
-```
-
-</Accordion>
-
-# Dictionary Comprehensions
-
-A **dictionary comprehension** provides a concise way to create dictionaries.
-
-Instead of creating an empty dictionary and adding key-value pairs one by one, a dictionary comprehension creates the entire dictionary in a single expression.
-
-
-## Basic Dictionary Comprehension
-
-Traditional approach
-
-```python
-squares = {}
-
-for number in range(1, 6):
-    squares[number] = number ** 2
-
-print(squares)
-```
-
-<Accordion title="Show Output">
-
-```text
-{1: 1, 2: 4, 3: 9, 4: 16, 5: 25}
-```
-
-</Accordion>
-
-Using a dictionary comprehension
-
-```python
-squares = {
-    number: number ** 2
-    for number in range(1, 6)
-}
-
-print(squares)
-```
-
-<Accordion title="Show Output">
-
-```text
-{1: 1, 2: 4, 3: 9, 4: 16, 5: 25}
-```
-
-</Accordion>
-
-
-## Using Conditions
-
-Dictionary comprehensions can also filter elements.
-
-Traditional approach
-
-```python
-squares = {}
-
-for number in range(1, 11):
-    if number % 2 == 0:
-        squares[number] = number ** 2
-
-print(squares)
-```
-
-<Accordion title="Show Output">
-
-```text
-{2: 4, 4: 16, 6: 36, 8: 64, 10: 100}
-```
-
-</Accordion>
-
-Using a comprehension
-
-```python
-squares = {
-    number: number ** 2
-    for number in range(1, 11)
-    if number % 2 == 0
-}
-
-print(squares)
-```
-
-<Accordion title="Show Output">
-
-```text
-{2: 4, 4: 16, 6: 36, 8: 64, 10: 100}
-```
-
-</Accordion>
-
-
-## Transforming an Existing Dictionary
-
-Dictionary comprehensions can transform values.
-
-```python
-marks = {
-    "Alice": 80,
-    "Bob": 65,
-    "Charlie": 90
-}
-
-updated_marks = {
-    name: mark + 5
-    for name, mark in marks.items()
-}
-
-print(updated_marks)
-```
-
-<Accordion title="Show Output">
-
-```text
-{'Alice': 85, 'Bob': 70, 'Charlie': 95}
-```
-
-</Accordion>
-
-
-## Inverting Keys and Values
-
-```python
-grades = {
-    "Alice": "A",
-    "Bob": "B",
-    "Charlie": "A"
-}
-
-result = {
-    grade: name
-    for name, grade in grades.items()
-}
-
-print(result)
-```
-
-<Accordion title="Show Output">
-
-```text
-{'A': 'Charlie', 'B': 'Bob'}
-```
-
-</Accordion>
-
-> **Note:** If duplicate values exist in the original dictionary, later keys overwrite earlier ones.
-
-
-## Exercise 1
-
-Create a dictionary containing numbers from `1` to `10` and their cubes.
-
-**Sample Input**
-
-```text
-1 to 10
-```
-
-**Expected Output**
-
-```text
-{1: 1, 2: 8, 3: 27, ..., 10: 1000}
-```
-
-<Accordion title="Solution">
-
-```python
-cubes = {
-    number: number ** 3
-    for number in range(1, 11)
-}
-
-print(cubes)
-```
-
-</Accordion>
-
-
-## Exercise 2
-
-Create a dictionary that stores each character in `"Python"` along with its ASCII value.
-
-**Sample Input**
-
-```python
-text = "Python"
-```
-
-**Expected Output**
-
-```text
-{'P': 80, 'y': 121, 't': 116, 'h': 104, 'o': 111, 'n': 110}
-```
-
-<Accordion title="Solution">
-
-```python
-text = "Python"
-
-ascii_values = {
-    character: ord(character)
-    for character in text
-}
-
-print(ascii_values)
-```
-
-</Accordion>
-
-
-# Set Comprehensions
-
-A **set comprehension** creates a set in a concise and readable manner.
-
-Since sets store **unique values**, duplicate elements are automatically removed.
-
-
-## Basic Set Comprehension
-
-Traditional approach
-
-```python
-numbers = [1, 2, 2, 3, 4, 4, 5]
-
-unique = set()
-
-for number in numbers:
-    unique.add(number)
-
-print(unique)
-```
-
-<Accordion title="Show Output">
-
-```text
-{1, 2, 3, 4, 5}
-```
-
-</Accordion>
-
-Using a set comprehension
-
-```python
-numbers = [1, 2, 2, 3, 4, 4, 5]
-
-unique = {
-    number
-    for number in numbers
-}
-
-print(unique)
-```
-
-<Accordion title="Show Output">
-
-```text
-{1, 2, 3, 4, 5}
-```
-
-</Accordion>
-
-
-## Transforming Values
-
-```python
-squares = {
-    number ** 2
-    for number in range(1, 6)
-}
-
-print(squares)
-```
-
-<Accordion title="Show Output">
-
-```text
-{1, 4, 9, 16, 25}
-```
-
-</Accordion>
-
-
-## Using Conditions
-
-```python
-vowels = {
-    character.lower()
-    for character in "Programming"
-    if character.lower() in "aeiou"
-}
-
-print(vowels)
-```
-
-<Accordion title="Show Output">
-
-```text
-{'a', 'o'}
-```
-
-</Accordion>
-
-Notice that although `"o"` appears multiple times, it is stored only once.
-
-
-## Comparing List and Set Comprehensions
-
-List comprehension
-
-```python
-letters = [
-    character
-    for character in "Programming"
-]
-
-print(letters)
-```
-
-<Accordion title="Show Output">
-
-```text
-['P', 'r', 'o', 'g', 'r', 'a', 'm', 'm', 'i', 'n', 'g']
-```
-
-</Accordion>
-
-Set comprehension
-
-```python
-letters = {
-    character
-    for character in "Programming"
-}
-
-print(letters)
-```
-
-<Accordion title="Show Output">
-
-```text
-{'P', 'r', 'o', 'g', 'a', 'm', 'i', 'n'}
-```
-
-</Accordion>
-
-The set automatically removes duplicate values.
-
-
-## Exercise 1
-
-Create a set containing the unique vowels in the string `"Artificial Intelligence"`.
-
-**Sample Input**
-
-```python
-text = "Artificial Intelligence"
-```
-
-**Expected Output**
-
-```text
-{'a', 'e', 'i'}
-```
-
-<Accordion title="Solution">
-
-```python
-text = "Artificial Intelligence"
-
-vowels = {
-    character.lower()
-    for character in text
-    if character.lower() in "aeiou"
-}
-
-print(vowels)
-```
-
-</Accordion>
-
-
-## Exercise 2
-
-Create a set containing the lengths of the following words.
-
-**Sample Input**
-
-```python
-words = ["cat", "apple", "dog", "banana"]
-```
-
-**Expected Output**
-
-```text
-{3, 5, 6}
-```
-
-<Accordion title="Solution">
-
-```python
-words = ["cat", "apple", "dog", "banana"]
-
-lengths = {
-    len(word)
-    for word in words
-}
-
+words = ["Python", "FastAPI", "API"]
+lengths = [len(word) for word in words]
 print(lengths)
 ```
 
 </Accordion>
-## Quick Recap
 
-Before moving on, let's summarize the three types of comprehensions you've learned.
+---
 
-| Comprehension | Creates | Syntax |
-|---------------|---------|--------|
-| List Comprehension | List | `[expression for item in iterable]` |
-| Dictionary Comprehension | Dictionary | `{key: value for item in iterable}` |
-| Set Comprehension | Set | `{expression for item in iterable}` |
+# 8. Dictionary Comprehensions
 
-The next concept introduces **generator expressions**, which look similar to comprehensions but produce values **one at a time** instead of storing them all in memory.
+A **dictionary comprehension** provides a concise way to create dictionaries from iterables.
 
-
-# Iterators
-
-Before learning generator expressions, it's important to understand **iterators**.
-
-An **iterator** is an object that returns one item at a time from a collection.
-
-Python automatically uses iterators whenever you loop over a collection using a `for` loop.
-
+### Basic Dictionary Comprehension
 ```python
-numbers = [10, 20, 30]
-
-for number in numbers:
-    print(number)
-```
-
-<Accordion title="Show Output">
-
-```text
-10
-20
-30
-```
-
-</Accordion>
-
-Behind the scenes, Python creates an iterator for the list.
-
-
-## Creating an Iterator
-
-The `iter()` function creates an iterator from an iterable.
-
-```python
-numbers = [10, 20, 30]
-
-iterator = iter(numbers)
-
-print(iterator)
-```
-
-<Accordion title="Show Output">
-
-```text
-<list_iterator object at ...>
-```
-
-</Accordion>
-
-
-## Getting Values Using `next()`
-
-The `next()` function retrieves one value at a time.
-
-```python
-numbers = [10, 20, 30]
-
-iterator = iter(numbers)
-
-print(next(iterator))
-print(next(iterator))
-print(next(iterator))
-```
-
-<Accordion title="Show Output">
-
-```text
-10
-20
-30
-```
-
-</Accordion>
-
-After all elements are consumed, another call to `next()` raises a `StopIteration` exception.
-
-```python
-numbers = [10]
-
-iterator = iter(numbers)
-
-print(next(iterator))
-
-print(next(iterator))
-```
-
-<Accordion title="Show Output">
-
-```text
-10
-
-StopIteration
-```
-
-</Accordion>
-
-
-## Why Iterators?
-
-Iterators process one element at a time instead of processing the entire collection at once.
-
-Many Python objects such as lists, tuples, strings, dictionaries, sets, files, and generator expressions are iterable.
-
-Understanding iterators makes it easier to understand **generator expressions**.
-
-
-## Exercise 1
-
-Create an iterator from the string `"Python"` and print its first three characters using `next()`.
-
-**Sample Input**
-
-```python
-text = "Python"
-```
-
-**Expected Output**
-
-```text
-P
-y
-t
-```
-
-<Accordion title="Solution">
-
-```python
-text = "Python"
-
-iterator = iter(text)
-
-print(next(iterator))
-print(next(iterator))
-print(next(iterator))
-```
-
-</Accordion>
-
-
-## Exercise 2
-
-Create an iterator from a tuple and print all its elements using `next()`.
-
-**Sample Input**
-
-```python
-colors = ("Red", "Green", "Blue")
-```
-
-**Expected Output**
-
-```text
-Red
-Green
-Blue
-```
-
-<Accordion title="Solution">
-
-```python
-colors = ("Red", "Green", "Blue")
-
-iterator = iter(colors)
-
-print(next(iterator))
-print(next(iterator))
-print(next(iterator))
-```
-
-</Accordion>
-
-
-# Generator Expressions
-
-A **generator expression** is similar to a list comprehension, but instead of creating an entire list, it generates values **one at a time**.
-
-This makes generator expressions more memory efficient, especially when working with large datasets.
-
-
-## List Comprehension
-
-```python
-squares = [
-    number ** 2
-    for number in range(1, 6)
-]
-
+numbers = [1, 2, 3, 4, 5]
+squares = {num: num ** 2 for num in numbers}
 print(squares)
 ```
 
-<Accordion title="Show Output">
-
-```text
-[1, 4, 9, 16, 25]
-```
-
-</Accordion>
-
-The entire list is created and stored in memory.
-
-
-## Generator Expression
-
-Replace square brackets (`[]`) with parentheses (`()`).
-
+### Filtering in Dictionary Comprehensions
 ```python
-squares = (
-    number ** 2
-    for number in range(1, 6)
-)
-
-print(squares)
+scores = {"Alice": 85, "Bob": 72, "Charlie": 90}
+passed = {name: score for name, score in scores.items() if score >= 80}
+print(passed)
 ```
 
-<Accordion title="Show Output">
-
-```text
-<generator object ...>
-```
-
-</Accordion>
-
-The values are **not** generated immediately.
-
-
-## Iterating Over a Generator
-
-```python
-squares = (
-    number ** 2
-    for number in range(1, 6)
-)
-
-for value in squares:
-    print(value)
-```
-
-<Accordion title="Show Output">
-
-```text
-1
-4
-9
-16
-25
-```
-
-</Accordion>
-
-The values are produced only when required.
-
-
-## Using `next()`
-
-Since a generator is also an iterator, `next()` can be used.
-
-```python
-squares = (
-    number ** 2
-    for number in range(1, 6)
-)
-
-print(next(squares))
-print(next(squares))
-print(next(squares))
-```
-
-<Accordion title="Show Output">
-
-```text
-1
-4
-9
-```
-
-</Accordion>
-
-Each call generates the next value.
-
-
-## List Comprehensions vs Generator Expressions
-
-| Feature | List Comprehension | Generator Expression |
-|----------|--------------------|----------------------|
-| Syntax | `[]` | `()` |
-| Stores all values | ✅ Yes | ❌ No |
-| Memory Usage | Higher | Lower |
-| Evaluation | Immediate | Lazy |
-| Best For | Small to medium collections | Large datasets |
-
-
-## When Should You Use a Generator Expression?
-
-Use a generator expression when:
-
-- Working with large datasets.
-- Processing values one at a time.
-- Memory efficiency is important.
-
-Use a list comprehension when:
-
-- You need all values immediately.
-- The collection will be reused multiple times.
-- Fast random access is required.
-
-
-## Exercise 1
-
-Create a generator expression that produces the cubes of numbers from `1` to `5`.
-
-**Sample Input**
-
-```text
-1 to 5
-```
-
-**Expected Output**
-
-```text
-1
-8
-27
-64
-125
-```
+### Exercise 1
+Given the list `["a", "b", "c"]`, create a dictionary where each character is a key, and its ASCII code (`ord(char)`) is the value.
 
 <Accordion title="Solution">
 
 ```python
-cubes = (
-    number ** 3
-    for number in range(1, 6)
-)
-
-for value in cubes:
-    print(value)
+chars = ["a", "b", "c"]
+ascii_dict = {char: ord(char) for char in chars}
+print(ascii_dict)
 ```
 
 </Accordion>
 
+---
 
-## Exercise 2
+# 9. Set Comprehensions
 
-Create a generator expression that converts each character of `"python"` to uppercase.
+A **set comprehension** creates a set. Since sets store unique values, duplicates are automatically removed.
 
-**Sample Input**
-
+### Basic Set Comprehension
 ```python
-text = "python"
+numbers = [1, 2, 2, 3, 4, 4, 5]
+unique_squares = {num ** 2 for num in numbers}
+print(unique_squares)
 ```
 
-**Expected Output**
-
-```text
-P
-Y
-T
-H
-O
-N
-```
+### Exercise 1
+Extract all unique vowels from the string `"Artificial Intelligence"` in lowercase using a set comprehension.
 
 <Accordion title="Solution">
 
 ```python
-text = "python"
-
-letters = (
-    character.upper()
-    for character in text
-)
-
-for letter in letters:
-    print(letter)
+text = "Artificial Intelligence"
+vowels = {char.lower() for char in text if char.lower() in "aeiou"}
+print(vowels)
 ```
 
 </Accordion>
 
+---
 
-# Comprehensions vs Traditional Loops
+# 10. Generator Expressions
 
-Both loops and comprehensions can solve the same problems, but each has its own strengths.
+A **generator expression** is similar to a list comprehension, but instead of creating the entire list in memory, it produces values **one at a time (lazy evaluation)** using iterators.
 
-| Feature | Traditional Loop | Comprehension |
-|---------|------------------|---------------|
-| Readability | Better for complex logic | Better for simple transformations |
-| Code Length | More lines | Fewer lines |
-| Performance | Good | Often slightly faster |
-| Best Use | Complex processing | Creating and transforming collections |
+### Syntax
+Replace square brackets `[]` with parentheses `()`.
 
-## Best Practices
+```python
+# This is a generator expression
+squares_gen = (num ** 2 for num in range(1, 6))
 
-- Use comprehensions for **simple transformations**.
-- Avoid deeply nested comprehensions.
-- Prefer readability over writing one-liners.
-- Use generator expressions when processing large datasets.
-- When the logic becomes complex, use a normal loop.
+print(squares_gen)
+# Retrieve values using next() or a loop
+print(next(squares_gen))
+print(next(squares_gen))
+```
 
+Output
 
-# Summary
+<Accordion title="Show Output">
 
-In this module, you learned Python's comprehension syntax for creating collections in a concise and Pythonic way.
+```text
+<generator object <genexpr> at ...>
+1
+4
+```
 
-## Key Concepts Covered
+</Accordion>
 
-- Why Comprehensions?
-- List Comprehensions
-- Dictionary Comprehensions
-- Set Comprehensions
-- Iterators
-- Generator Expressions
-- Comprehensions vs Traditional Loops
-- Best Practices
+---
 
-Comprehensions make code cleaner and easier to read, while generator expressions help process large amounts of data efficiently by generating values only when needed. Choosing the appropriate approach based on readability, performance, and memory usage is an important step toward writing more Pythonic code.
+# 11. Comprehensions vs Loops & Best Practices
+
+| Feature | Traditional Loop | Comprehension | Generator Expression |
+|---------|------------------|---------------|----------------------|
+| Readability | Better for complex logic | Better for simple transformations | Ideal for streaming data |
+| Memory Usage | Moderate | Higher (stores entire collection) | Minimal ($O(1)$ memory) |
+| Performance | Good | Fast | Fast (lazy computation) |
+
+### Best Practices
+- Use comprehensions for **simple, readable** mappings or filter operations.
+- Avoid nesting comprehensions more than 2 levels deep to keep code readable.
+- Use **generator expressions** when working with large or infinite datasets.
+- If the loop body contains complex conditional logic, prefer a standard `for` loop.
+
+---
+
+## Practice
+
+To reinforce what you've learned in this section, practice with the interactive follow-along notebook:
+
+<CardGroup cols={1}>
+  <Card
+    title="Follow-Along Practice"
+    icon="laptop-code"
+  >
+    Practice lists, tuples, dictionaries, sets operations, deque queues, list/dict/set comprehensions, and generator expressions.
+
+    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/python%20material/fastapi-course/public/notebooks/basics_exercises/Comprehensions_Practice.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/fastapi-course/blob/master/public/notebooks/basics_exercises/Comprehensions_Practice.ipynb) | <a href="/public/notebooks/basics_exercises/Comprehensions_Practice.ipynb" download>📥 Download</a>
+  </Card>
+</CardGroup>
+
+---
+
+## Summary
+
+In this module, you learned how to manipulate Python's core data structures (Lists, Tuples, Dictionaries, Sets), use double-ended queues, and write clean, memory-efficient comprehensions.

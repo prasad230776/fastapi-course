@@ -259,7 +259,7 @@
             "group": "Adv. Python Workshop",
             "pages": [
               "workshop/01-advanced-fundamentals",
-              "workshop/02-python-internals",
+              "workshop/02-python-functions",
               "workshop/03-comprehensions",
               "workshop/04-advanced-concepts",
               "workshop/05-functional-programming",
