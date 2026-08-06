@@ -1,6 +1,6 @@
 ---
 title: 00-Introduction & Getting Started
-description: Welcome to the Advanced Python & FastAPI Workshop. Set up your development environment with Python 3.12+, VS Code, pip, and uv.
+description: Welcome to the Advanced Python & FastAPI Workshop. Set up your development environment with Python 3.12+, VS Code and uv.
 ---
 
 # Introduction & Getting Started
@@ -9,12 +9,13 @@ Welcome to the **Advanced Python & FastAPI Workshop**! This course is designed t
 
 ---
 
-## 1. Workshop Aim & Objectives
+## Workshop Aim & Objectives
 
 The primary aim of this workshop is to bridge the gap between basic Python syntax and the engineering practices required to build real-world, high-performance web applications.
 
 By the end of this workshop, you will be able to:
 - Understand CPython memory management, mutability side-effects, and scope resolutions.
+- Master advanced function concepts including positional/keyword arguments, packing/unpacking (`*args`/`**kwargs`), scope resolution (LEGB), closures, decorators, iterators, generator functions, and functional programming patterns.
 - Write clean, concise, and memory-efficient comprehensions and generator streams.
 - Use advanced object-oriented design patterns, abstract classes, and magic methods.
 - Build resilient data validation schemas using **Pydantic v2**.
@@ -24,14 +25,14 @@ By the end of this workshop, you will be able to:
 
 ---
 
-## 2. Workshop Curriculum
+## Workshop Curriculum
 
 Here is a roadmap of the topics we will cover during this workshop:
 
 1. **Introduction & Setup (This Module):** Setting up Python 3.12+, VS Code, `pip`, and Astral's Rust-based `uv` manager.
 2. **Advanced Python Fundamentals:** Mutability, floating-point precision, integer caching, string operations, and ternary operators.
 3. **Data Structures & Comprehensions:** Lists, tuples, dictionaries, sets, queues with `deque`, and comprehension mechanics.
-4. **Python Functions & Internals:** LEGB scope resolution, print parameters (`sep`/`end`), positional/keyword args, and packing/unpacking (`*args`/`**kwargs`).
+4. **Python Functions & Internals:** positional/keyword args,print parameters (`sep`/`end`), LEGB scope resolution, and packing/unpacking (`*args`/`**kwargs`).
 5. **Advanced Python Concepts:** Closures, decorators, and context managers (`with` statements).
 6. **Functional Programming:** Lambda expressions, generator functions (`yield`), and built-ins (`map`, `filter`, `zip`).
 7. **Advanced OOP:** Magic methods (`__repr__`, `__call__`), inheritance, properties (`@property`), and abstract base classes.
@@ -43,7 +44,7 @@ Here is a roadmap of the topics we will cover during this workshop:
 
 ---
 
-## 3. Getting Started: Setting Up Your Environment
+## Getting Started: Setting Up Your Environment
 
 To write and execute code in this workshop, we need to set up a clean, modern development environment.
 
@@ -119,7 +120,7 @@ Let's initialize a sandbox directory to practice code and manage our virtual env
    ```bash
    uv init
    ```
-   *This command automatically creates a basic project structure including a `pyproject.toml` file, a `.python-version` lock, and a simple `hello.py` file.*
+   *This command automatically creates a basic project structure including a `pyproject.toml` file, a `.python-version` lock, and a simple `main.py` file.*
 
 3. Create and activate a virtual environment:
    ```bash
@@ -133,7 +134,7 @@ Let's initialize a sandbox directory to practice code and manage our virtual env
    .venv\Scripts\activate
    ```
 
-4. Install a package (for example, `fastapi`):
+4. Install required packages (for example, `fastapi`):
    ```bash
    uv add fastapi
    ```
