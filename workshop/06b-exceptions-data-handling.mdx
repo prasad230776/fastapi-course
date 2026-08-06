@@ -1,0 +1,259 @@
+---
+title: 06b-Exceptions & Data Handling
+description: Learn exception handling (try-except-else-finally), custom exceptions, and reading/writing text, CSV, and JSON files.
+---
+
+# Exception Handling & Data Handling
+
+In real-world applications, systems must be robust against failures. **Exception Handling** allows you to gracefully recover from runtime errors. Furthermore, backend applications frequently exchange and process data stored in **Text**, **CSV**, and **JSON** formats.
+
+---
+
+## Topics Covered
+
+In this module, you'll learn:
+
+1. **Exception Handling**: The `try-except-else-finally` block.
+2. **Custom Exceptions**: Inheriting from the base `Exception` class for domain-specific errors.
+3. **Data Handling (File I/O)**:
+   - Text files
+   - CSV files (using the `csv` module)
+   - JSON files (using the `json` module)
+
+---
+
+## 1. Exception Handling
+
+An **exception** is an error that occurs during the execution of a program. If not handled, the program will terminate abruptly (crash). Exception handling allows you to catch these errors and respond gracefully.
+
+### The `try-except-else-finally` Block
+
+```python
+try:
+    # Code that might raise an exception
+    num = int(input("Enter a number: "))
+    result = 100 / num
+except ZeroDivisionError:
+    # Runs only if ZeroDivisionError occurs
+    print("Error: You cannot divide by zero!")
+except ValueError:
+    # Runs only if ValueError occurs (e.g. invalid string input)
+    print("Error: Please enter a valid integer!")
+else:
+    # Runs only if NO exceptions were raised in the try block
+    print(f"Success! Result is {result}")
+finally:
+    # Always runs, regardless of whether an exception occurred
+    print("Execution of block completed.")
+```
+
+### Raising Exceptions (`raise`)
+You can trigger exceptions intentionally in your code using the `raise` keyword.
+
+```python
+def check_positive(value):
+    if value < 0:
+        raise ValueError("Negative values are not allowed!")
+    return value
+```
+
+---
+
+## 2. Custom Exceptions
+
+When building complex applications (like APIs), Python's built-in exceptions (like `ValueError` or `KeyError`) might not be expressive enough. You can create your own **custom exceptions** by inheriting from the base `Exception` class.
+
+```python
+class InsufficientFundsError(Exception):
+    """Exception raised when an account balance is too low for a transaction."""
+    def __init__(self, balance, amount):
+        self.balance = balance
+        self.amount = amount
+        super().__init__(f"Attempted to withdraw ${amount} but balance is only ${balance}.")
+
+# Using the Custom Exception
+def withdraw(balance, amount):
+    if amount > balance:
+        raise InsufficientFundsError(balance, amount)
+    return balance - amount
+
+try:
+    withdraw(50, 100)
+except InsufficientFundsError as e:
+    print(f"Transaction Declined: {e}")
+```
+
+---
+
+## 3. Data Handling (File I/O)
+
+Backend services constantly read configurations, import CSV logs, or exchange JSON payloads.
+
+### Text Files
+Always use the **context manager (`with` statement)** when working with files. It ensures that the file is closed automatically after execution, preventing memory leaks.
+
+```python
+# Writing to a text file
+with open("note.txt", "w") as file:
+    file.write("Hello World!\nWelcome to data handling.")
+
+# Reading from a text file
+with open("note.txt", "r") as file:
+    content = file.read()
+    print(content)
+```
+
+---
+
+### CSV Data (Comma Separated Values)
+Python's built-in `csv` module provides simple utilities to read and write rows of tabular data.
+
+#### Writing CSV
+```python
+import csv
+
+data = [
+    ["Name", "Age", "Role"],
+    ["Alice", 25, "Developer"],
+    ["Bob", 30, "Manager"]
+]
+
+with open("users.csv", "w", newline="") as file:
+    writer = csv.writer(file)
+    writer.writerows(data)
+```
+
+#### Reading CSV
+```python
+import csv
+
+with open("users.csv", "r") as file:
+    reader = csv.reader(file)
+    for row in reader:
+        print(row)  # row is a list of strings
+```
+
+#### Reading CSV as Dictionaries (`DictReader`)
+`DictReader` maps the header row to keys, turning each row into a dictionary.
+
+```python
+import csv
+
+with open("users.csv", "r") as file:
+    reader = csv.DictReader(file)
+    for row in reader:
+        print(row["Name"], "is a", row["Role"])
+```
+
+---
+
+### JSON Data (JavaScript Object Notation)
+JSON is the standard format for exchanging data in web APIs. Python's `json` module translates between JSON strings/files and Python dictionaries/lists.
+
+- **`json.dumps()`** / **`json.loads()`**: Convert between Python dictionaries and JSON strings.
+- **`json.dump()`** / **`json.load()`**: Read and write JSON files.
+
+```python
+import json
+
+student = {
+    "name": "Alice",
+    "age": 25,
+    "courses": ["Python", "FastAPI"]
+}
+
+# 1. Convert Dict to JSON String (Serialization)
+json_string = json.dumps(student, indent=2)
+print("JSON String:\n", json_string)
+
+# 2. Convert JSON String to Dict (Deserialization)
+parsed_dict = json.loads(json_string)
+print("Parsed age:", parsed_dict["age"])
+
+# 3. Writing to a JSON File
+with open("data.json", "w") as file:
+    json.dump(student, file, indent=4)
+
+# 4. Reading from a JSON File
+with open("data.json", "r") as file:
+    loaded_data = json.load(file)
+    print("Loaded Name:", loaded_data["name"])
+```
+
+---
+
+## Exercises
+
+### Exercise 1
+Write a function `safe_divide(a, b)` that performs division. If a `ZeroDivisionError` or `TypeError` occurs, catch it and return `None` along with a descriptive print message.
+
+<Accordion title="Solution">
+
+```python
+def safe_divide(a, b):
+    try:
+        return a / b
+    except ZeroDivisionError:
+        print("Warning: Division by zero attempted!")
+        return None
+    except TypeError:
+        print("Warning: Division requires numeric values!")
+        return None
+
+print(safe_divide(10, 0))
+print(safe_divide(10, "two"))
+```
+
+</Accordion>
+
+### Exercise 2
+Define a custom exception `InvalidAgeError`. Write a function `verify_age(age)` that raises this exception with the message `"Age must be between 0 and 120"` if the age is outside this range.
+
+<Accordion title="Solution">
+
+```python
+class InvalidAgeError(Exception):
+    pass
+
+def verify_age(age):
+    if age < 0 or age > 120:
+        raise InvalidAgeError("Age must be between 0 and 120")
+    print(f"Age {age} is valid.")
+
+try:
+    verify_age(150)
+except InvalidAgeError as e:
+    print("Error caught:", e)
+```
+
+</Accordion>
+
+### Exercise 3
+Create a JSON file named `config.json` containing `{"debug": true, "version": "1.0"}`. Write a Python script to read this file, set `"debug"` to `false`, add a new key `"updated": true`, and save it back to the file.
+
+<Accordion title="Solution">
+
+```python
+import json
+
+# Setup starting file
+initial_data = {"debug": True, "version": "1.0"}
+with open("config.json", "w") as file:
+    json.dump(initial_data, file)
+
+# Read, modify, and write back
+with open("config.json", "r") as file:
+    config = json.load(file)
+
+config["debug"] = False
+config["updated"] = True
+
+with open("config.json", "w") as file:
+    json.dump(config, file, indent=4)
+
+# Verify
+with open("config.json", "r") as file:
+    print(file.read())
+```
+
+</Accordion>

@@ -1,0 +1,271 @@
+---
+title: 03b-Python Modules & Packages
+description: Learn how to structure code with modules and packages, and work with prominent standard libraries (math, random, os, pathlib, python-dotenv).
+---
+
+# Python Modules, Packages & Standard Libraries
+
+As codebases grow, keeping all code in a single file becomes unmanageable. Python provides **Modules** and **Packages** to organize code into reusable components. Additionally, Python comes with a rich set of built-in **Standard Libraries** that handle common engineering tasks.
+
+---
+
+## Topics Covered
+
+In this module, you'll learn:
+
+1. **Python Modules**: Creating and importing files.
+2. **Python Packages**: Organizing modules into folders using `__init__.py`.
+3. **Prominent Standard Libraries**:
+   - `math` (Mathematical calculations)
+   - `random` (Randomization and sampling)
+   - `os` (Operating system interface)
+   - `pathlib` (Object-oriented path manipulation)
+4. **Environment Variables**: Working with `python-dotenv`.
+
+---
+
+## 1. Python Modules
+
+A **module** is simply a file containing Python code (functions, classes, or variables) with a `.py` extension. You can use code from one module in another using the `import` statement.
+
+### Creating and Importing a Module
+
+Suppose we have a file named **`utils.py`**:
+
+```python
+# utils.py
+def greet(name):
+    return f"Hello, {name}!"
+
+PI = 3.14159
+```
+
+You can import and use `utils.py` in your main script (**`main.py`**) in three different ways:
+
+#### A. Standard Import
+```python
+import utils
+
+print(utils.greet("Alice"))
+print(utils.PI)
+```
+
+#### B. Importing Specific Elements
+```python
+from utils import greet, PI
+
+print(greet("Bob"))
+print(PI)
+```
+
+#### C. Alias Import (Renaming)
+```python
+import utils as u
+from utils import greet as hello
+
+print(u.PI)
+print(hello("Charlie"))
+```
+
+---
+
+## 2. Python Packages
+
+A **package** is a directory that contains multiple modules. It allows you to group related modules together. 
+
+### Package Structure
+To turn a directory into a package, it traditionally contains a file named **`__init__.py`** (which can be empty).
+
+```text
+my_project/
+│
+├── main.py
+└── db/
+    ├── __init__.py
+    ├── connection.py
+    └── queries.py
+```
+
+Inside **`main.py`**, you can import from the `db` package:
+```python
+from db.connection import get_db_connection
+from db.queries import fetch_users
+```
+
+---
+
+## 3. Prominent Standard Libraries
+
+Python’s standard library contains pre-built modules for math, randomness, paths, and OS interactions.
+
+### The `math` Module
+Provides mathematical functions and constants.
+
+```python
+import math
+
+print(math.pi)          # 3.141592653589793
+print(math.sqrt(16))    # 4.0 (Square root)
+print(math.ceil(4.2))   # 5 (Round up)
+print(math.floor(4.8))  # 4 (Round down)
+```
+
+### The `random` Module
+Used to generate pseudo-random numbers, make random selections, or shuffle sequences.
+
+```python
+import random
+
+# Random float between 0.0 and 1.0
+print(random.random())
+
+# Random integer between a and b (inclusive)
+print(random.randint(1, 10))
+
+# Select a random element from a list
+choices = ["red", "blue", "green"]
+print(random.choice(choices))
+
+# Shuffle a list in-place
+numbers = [1, 2, 3, 4, 5]
+random.shuffle(numbers)
+print("Shuffled:", numbers)
+```
+
+### The `os` Module
+Provides functions to interact with the operating system (creating directories, reading env variables).
+
+```python
+import os
+
+# Get current working directory
+print("Current Dir:", os.getcwd())
+
+# Get an environment variable
+print("User Path:", os.environ.get("PATH"))
+```
+
+### The `pathlib` Module (Recommended for Paths)
+Modern Python prefers `pathlib` over `os.path` because it treats file paths as **objects** rather than strings, making path manipulation cleaner and safer across different operating systems (Windows uses `\`, macOS/Linux uses `/`).
+
+```python
+from pathlib import Path
+
+# Get current directory
+current_path = Path.cwd()
+print("Path Object:", current_path)
+
+# Creating subfolders safely
+logs_dir = current_path / "logs"
+if not logs_dir.exists():
+    logs_dir.mkdir()
+    print("Logs directory created!")
+
+# Checking file extension
+file_path = Path("report.csv")
+print("Extension:", file_path.suffix)  # .csv
+print("Name without extension:", file_path.stem)  # report
+```
+
+---
+
+## 4. Configuration with `python-dotenv`
+
+In production, you should never hardcode database credentials, secret keys, or configurations in your code. Instead, you store them in environment variables.
+
+The **`python-dotenv`** package allows you to load variables from a `.env` file into `os.environ` during development.
+
+### Step 1: Create a `.env` file
+Create a file named `.env` in the root of your project:
+
+```text
+DATABASE_URL=postgresql://user:password@localhost:5432/mydb
+PORT=8000
+DEBUG=True
+```
+
+### Step 2: Load variables in your script
+```python
+import os
+from dotenv import load_dotenv
+
+# Load variables from .env
+load_dotenv()
+
+# Read the environment variables
+db_url = os.environ.get("DATABASE_URL")
+port = int(os.environ.get("PORT", 8000)) # Fallback to 8000 if not found
+
+print(f"Server starting on port {port}...")
+print(f"Connecting to: {db_url}")
+```
+
+---
+
+## Exercises
+
+### Exercise 1
+Create a module named `calculator.py` with two functions: `add(a, b)` and `multiply(a, b)`. In a separate script, import these functions and call them.
+
+<Accordion title="Solution">
+
+```python
+# calculator.py
+def add(a, b):
+    return a + b
+
+def multiply(a, b):
+    return a * b
+
+# main.py
+from calculator import add, multiply
+print(add(5, 7))
+print(multiply(3, 4))
+```
+
+</Accordion>
+
+### Exercise 2
+Write a script that uses `random.choice` to pick a random host from a list of servers `["server-a", "server-b", "server-c"]`. Then, use `pathlib` to check if a folder named `backup` exists in your project root, and create it if it does not.
+
+<Accordion title="Solution">
+
+```python
+import random
+from pathlib import Path
+
+# Pick server
+servers = ["server-a", "server-b", "server-c"]
+chosen_server = random.choice(servers)
+print(f"Deploying to: {chosen_server}")
+
+# Manage backup folder
+backup_dir = Path.cwd() / "backup"
+if not backup_dir.exists():
+    backup_dir.mkdir()
+    print("Created backup directory.")
+else:
+    print("Backup directory already exists.")
+```
+
+</Accordion>
+
+### Exercise 3
+Write a program that loads a configuration `.env` file. Retrieve the variable `API_KEY`. If `API_KEY` is not set, print a warning message; otherwise, print `"API Key Loaded"`.
+
+<Accordion title="Solution">
+
+```python
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+api_key = os.getenv("API_KEY")
+if not api_key:
+    print("WARNING: API_KEY is not set!")
+else:
+    print("API Key Loaded.")
+```
+
+</Accordion>
