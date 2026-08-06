@@ -19,6 +19,7 @@ In this module, you'll learn:
 6. Important String Operations (split, join, strip, replace)
 7. Python Nuances
    - Short-circuit Evaluation (`and` and `or`)
+   - Conditional Expressions (One-line `if-else`)
    - Chained Comparisons
    - Multiple Assignment and Variable Swapping
 8. `for-else` and `while-else`
@@ -808,6 +809,77 @@ Print `"Access Granted"` only when `is_admin` is `True`.
 is_admin = True
 
 is_admin and print("Access Granted")
+```
+
+</Accordion>
+
+
+## Conditional Expressions (One-line `if-else` / Ternary Operator)
+
+A **conditional expression** (also known as a ternary operator) allows you to assign a value to a variable based on a condition in a single line.
+
+### Syntax
+```python
+value_if_true if condition else value_if_false
+```
+
+Traditional `if-else` blocks:
+```python
+age = 20
+if age >= 18:
+    status = "Adult"
+else:
+    status = "Minor"
+print(status)
+```
+
+Can be written cleanly as:
+```python
+age = 20
+status = "Adult" if age >= 18 else "Minor"
+print(status)
+```
+
+Output
+
+<Accordion title="Show Output">
+
+```text
+Adult
+```
+
+</Accordion>
+
+### One-line `if` only statement
+If you want to run a single statement on a condition without an `else`, you can write it on one line (though this is a statement, not an expression that returns a value):
+
+```python
+is_ready = True
+if is_ready: print("Ready!")
+```
+
+### Exercise 1
+Write a one-line conditional expression that assigns `"Even"` or `"Odd"` to a variable `label` based on whether `num` is divisible by 2.
+
+<Accordion title="Solution">
+
+```python
+num = 7
+label = "Even" if num % 2 == 0 else "Odd"
+print(label)
+```
+
+</Accordion>
+
+### Exercise 2
+Write a one-line conditional expression to assign `"Pass"` to a variable `result` if `score >= 50` else `"Fail"`.
+
+<Accordion title="Solution">
+
+```python
+score = 85
+result = "Pass" if score >= 50 else "Fail"
+print(result)
 ```
 
 </Accordion>
