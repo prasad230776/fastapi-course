@@ -90,6 +90,94 @@ False
 
 </Accordion>
 
+### Verification: Integers and Floats are Objects
+
+Unlike languages like C++ or Java where primitive types (such as `int`, `double`) store raw values directly in variables, in Python, **even integers and floats are objects**. 
+
+This has two major implications:
+1. Variables assigned to integers or floats store **references** (pointers) to those numeric objects in memory.
+2. Integers and floats have their own built-in **properties and methods** that you can invoke using dot notation.
+
+#### 1. Verifying Reference Behavior with Float Objects
+When you create two floats independently, Python creates two distinct objects in memory. The variables `f1` and `f2` store references to these distinct objects:
+
+```python
+f1 = 2.5
+f2 = 2.5
+
+print("Value Equality (f1 == f2):", f1 == f2)
+print("Object Identity (f1 is f2):", f1 is f2)
+print("ID of f1:", id(f1))
+print("ID of f2:", id(f2))
+```
+
+Output
+
+<Accordion title="Show Output">
+
+```text
+Value Equality (f1 == f2): True
+Object Identity (f1 is f2): False
+ID of f1: 4395648112
+ID of f2: 4395648240
+```
+
+</Accordion>
+
+---
+
+#### 2. Accessing Methods on Numbers
+Since numbers are objects, they have built-in methods. 
+
+> [!NOTE]
+> If you call a method directly on a literal number, you must enclose the number in parentheses (e.g., `(10).bit_length()`). Otherwise, Python's parser will confuse the dot `.` with a decimal point.
+
+##### Built-in Methods on Integers:
+- **`bit_length()`**: Returns the number of bits required to represent an integer in binary.
+- **`as_integer_ratio()`**: Returns a tuple of `(numerator, denominator)` representing the integer as a fraction.
+
+```python
+num = 42
+print("Bits required for 42:", num.bit_length())  # 42 is binary 101010
+print("Fraction representation:", num.as_integer_ratio())
+```
+
+Output
+
+<Accordion title="Show Output">
+
+```text
+Bits required for 42: 6
+Fraction representation: (42, 1)
+```
+
+</Accordion>
+
+##### Built-in Methods on Floats:
+- **`is_integer()`**: Returns `True` if the float has no fractional part (e.g., `10.0`).
+- **`as_integer_ratio()`**: Returns the exact fraction representing the float.
+
+```python
+f_val = 10.5
+print("Is 10.5 an integer?", f_val.is_integer())
+print("Is 3.0 an integer?", (3.0).is_integer())
+print("Fraction representation:", f_val.as_integer_ratio())
+```
+
+Output
+
+<Accordion title="Show Output">
+
+```text
+Is 10.5 an integer? False
+Is 3.0 an integer? True
+Fraction representation: (21, 2)
+```
+
+</Accordion>
+
+---
+
 ### Exercise 1
 
 Assign the string `"FastAPI"` to a variable `a`, and then assign `a` to `b`. Verify if they point to the same object using `is` and by printing their `id`s.
