@@ -1,5 +1,5 @@
 ---
-title: 03-Python Data Structures & Comprehensions
+title: 02-Data Structures & Comprehensions
 description: Master lists, tuples, dictionaries, sets, queues with deque, and learn Pythonic comprehensions.
 ---
 
@@ -167,16 +167,25 @@ print(single_tup)
 ### Read (R) - Indexing & Slicing
 Like lists, tuples support zero-based indexing, negative indexing, and slicing.
 
+> [!NOTE]
+> The indexing and slicing syntax is identical for lists, tuples, and strings. The only difference is that slicing a list returns a new mutable list, whereas slicing a tuple returns a new immutable tuple.
+
+Here is a side-by-side comparison of indexing and slicing on lists and tuples:
+
 ```python
-values = ("A", "B", "C", "D", "E")
+# List indexing & slicing
+lst = [10, 20, 30, 40, 50]
+print(lst[0])       # Index 0: 10
+print(lst[-1])      # Last element: 50
+print(lst[1:4])     # Slice (indices 1 to 3): [20, 30, 40]
+print(lst[::-1])    # Reversed slice: [50, 40, 30, 20, 10]
 
-# Indexing
-print(values[0])
-print(values[-1])
-
-# Slicing
-print(values[1:4])
-print(values[::-1])  # Reversing a tuple
+# Tuple indexing & slicing (same syntax)
+tup = (10, 20, 30, 40, 50)
+print(tup[0])       # Index 0: 10
+print(tup[-1])      # Last element: 50
+print(tup[1:4])     # Slice (indices 1 to 3): (20, 30, 40)
+print(tup[::-1])    # Reversed slice: (50, 40, 30, 20, 10)
 ```
 
 ### Operations
