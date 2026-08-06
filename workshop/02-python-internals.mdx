@@ -1,176 +1,21 @@
 ---
 title: 02-Python Internals
-description: Understand integer caching, variable scope, print parameters, argument passing, packing/unpacking, and the mutable default argument pitfall.
+description: Understand function arguments, print parameters, packing/unpacking, mutable defaults, and variable scope LEGB resolution.
 ---
 
 # Python Internals
 
-Understanding how Python manages memory, caches objects, resolves variables, and passes arguments will help you write more predictable, efficient, and bug-free code.
+Understanding how Python passes arguments, manages variables/scopes, and executes functions behind the scenes will help you write more predictable, efficient, and bug-free code.
 
 ## Topics Covered
 
 In this module, you'll learn:
 
-1. **Variable Scope and resolution** (LEGB rule, `global` and `nonlocal` keywords)
-2. **Function Arguments**: Positional vs Keyword argument passing
-3. **Print formatting**: `sep` and `end` parameters
-4. **Packing and Unpacking**: `*` and `**` operators, `*args`, and `**kwargs`
-5. **Mutable Default Arguments Pitfall**
-
----
-
-## Variable Scope
-
-A variable's scope determines where it can be accessed in a program. Python resolves variables using the **LEGB Rule**:
-
-1. **L**ocal – Inside the current function.
-2. **E**nclosing – Inside nested/enclosing functions.
-3. **G**lobal – At the top level of the module.
-4. **B**uilt-in – Built-in functions and names (e.g., `print`, `len`).
-
----
-
-### Local Scope
-
-Variables defined inside a function belong to the local scope of that function and cannot be accessed outside.
-
-```python
-def calculate():
-    result = 100
-    print("Inside:", result)
-
-calculate()
-# print(result)  # NameError: name 'result' is not defined
-```
-
----
-
-### Global Scope
-
-Variables defined at the top level of a file are global and can be read from anywhere inside that file.
-
-```python
-message = "Global Message"
-
-def show():
-    print(message)
-
-show()
-```
-
-Output
-
-<Accordion title="Show Output">
-
-```text
-Global Message
-```
-
-</Accordion>
-
----
-
-### The `global` Keyword
-
-To modify a global variable inside a function, you must declare it using the `global` keyword.
-
-```python
-count = 0
-
-def increment():
-    global count
-    count += 1
-
-increment()
-print(count)
-```
-
-Output
-
-<Accordion title="Show Output">
-
-```text
-1
-```
-
-</Accordion>
-
----
-
-### Enclosing Scope and the `nonlocal` Keyword
-
-When you nest functions, the outer function's scope is the enclosing scope for the inner function. To modify a variable in the enclosing scope, use `nonlocal`.
-
-```python
-def outer():
-    count = 10
-
-    def inner():
-        nonlocal count
-        count += 5
-        print("Inner count:", count)
-
-    inner()
-    print("Outer count:", count)
-
-outer()
-```
-
-Output
-
-<Accordion title="Show Output">
-
-```text
-Inner count: 15
-Outer count: 15
-```
-
-</Accordion>
-
-### Exercise 1
-
-Predict the output of the following code:
-
-```python
-x = 50
-
-def func():
-    global x
-    x = 2
-    
-func()
-print(x)
-```
-
-<Accordion title="Solution">
-
-```text
-2
-```
-The `global x` statement inside `func()` makes any assignment to `x` modify the global variable `x`.
-
-</Accordion>
-
-### Exercise 2
-
-Write a nested function where the inner function increments a variable defined in the outer function's scope by `1` and prints it.
-
-<Accordion title="Solution">
-
-```python
-def counter():
-    val = 0
-    def step():
-        nonlocal val
-        val += 1
-        print(val)
-    return step
-
-my_step = counter()
-my_step()
-```
-
-</Accordion>
+1. **Function Arguments**: Positional vs Keyword argument passing
+2. **Print formatting**: `sep` and `end` parameters
+3. **Packing and Unpacking**: `*` and `**` operators, `*args`, and `**kwargs`
+4. **Mutable Default Arguments Pitfall**
+5. **Variable Scope and resolution** (LEGB rule, `global` and `nonlocal` keywords)
 
 ---
 
@@ -414,6 +259,161 @@ Because the default dictionary `my_dict={}` is mutable, modifications persist ac
 
 ---
 
+## Variable Scope
+
+A variable's scope determines where it can be accessed in a program. Python resolves variables using the **LEGB Rule**:
+
+1. **L**ocal – Inside the current function.
+2. **E**nclosing – Inside nested/enclosing functions.
+3. **G**lobal – At the top level of the module.
+4. **B**uilt-in – Built-in functions and names (e.g., `print`, `len`).
+
+---
+
+### Local Scope
+
+Variables defined inside a function belong to the local scope of that function and cannot be accessed outside.
+
+```python
+def calculate():
+    result = 100
+    print("Inside:", result)
+
+calculate()
+# print(result)  # NameError: name 'result' is not defined
+```
+
+---
+
+### Global Scope
+
+Variables defined at the top level of a file are global and can be read from anywhere inside that file.
+
+```python
+message = "Global Message"
+
+def show():
+    print(message)
+
+show()
+```
+
+Output
+
+<Accordion title="Show Output">
+
+```text
+Global Message
+```
+
+</Accordion>
+
+---
+
+### The `global` Keyword
+
+To modify a global variable inside a function, you must declare it using the `global` keyword.
+
+```python
+count = 0
+
+def increment():
+    global count
+    count += 1
+
+increment()
+print(count)
+```
+
+Output
+
+<Accordion title="Show Output">
+
+```text
+1
+```
+
+</Accordion>
+
+---
+
+### Enclosing Scope and the `nonlocal` Keyword
+
+When you nest functions, the outer function's scope is the enclosing scope for the inner function. To modify a variable in the enclosing scope, use `nonlocal`.
+
+```python
+def outer():
+    count = 10
+
+    def inner():
+        nonlocal count
+        count += 5
+        print("Inner count:", count)
+
+    inner()
+    print("Outer count:", count)
+
+outer()
+```
+
+Output
+
+<Accordion title="Show Output">
+
+```text
+Inner count: 15
+Outer count: 15
+```
+
+</Accordion>
+
+### Exercise 1
+
+Predict the output of the following code:
+
+```python
+x = 50
+
+def func():
+    global x
+    x = 2
+    
+func()
+print(x)
+```
+
+<Accordion title="Solution">
+
+```text
+2
+```
+The `global x` statement inside `func()` makes any assignment to `x` modify the global variable `x`.
+
+</Accordion>
+
+### Exercise 2
+
+Write a nested function where the inner function increments a variable defined in the outer function's scope by `1` and prints it.
+
+<Accordion title="Solution">
+
+```python
+def counter():
+    val = 0
+    def step():
+        nonlocal val
+        val += 1
+        print(val)
+    return step
+
+my_step = counter()
+my_step()
+```
+
+</Accordion>
+
+---
+
 ## Practice
 
 To reinforce what you've learned in this section, practice with the interactive follow-along notebook:
@@ -423,7 +423,7 @@ To reinforce what you've learned in this section, practice with the interactive 
     title="Follow-Along Practice"
     icon="laptop-code"
   >
-    Practice integer value caching, local and global scope resolution, LEGB rules, sep and end parameters, arguments packing/unpacking, and mutable default arguments.
+    Practice local and global scope resolution, LEGB rules, sep and end parameters, arguments packing/unpacking, and mutable default arguments.
 
     [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/python%20material/fastapi-course/public/notebooks/basics_exercises/Python_Internals_Practice.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/fastapi-course/blob/master/public/notebooks/basics_exercises/Python_Internals_Practice.ipynb) | <a href="/public/notebooks/basics_exercises/Python_Internals_Practice.ipynb" download>📥 Download</a>
   </Card>
@@ -433,14 +433,13 @@ To reinforce what you've learned in this section, practice with the interactive 
 
 ## Summary
 
-In this module, you learned how Python manages variables, scopes, function parameters, and caches objects behind the scenes.
+In this module, you learned how Python manages variables, scopes, function parameters, and execution behind the scenes.
 
 ### Key Concepts Covered
 
-- Integer value caching in the range `[-5, 256]`
-- LEGB Variable scopes and scope resolution
-- The `global` and `nonlocal` keywords
 - Positional vs Keyword function argument passing
 - print parameters `sep` and `end`
 - Packing and Unpacking with `*` and `**` operators
 - The mutable default argument pitfall and its solution
+- LEGB Variable scopes and scope resolution
+- The `global` and `nonlocal` keywords
