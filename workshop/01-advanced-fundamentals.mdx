@@ -432,7 +432,7 @@ True
 
 ---
 
-## Advanced String Indexing and Slicing
+## String Indexing and Slicing
 
 Strings are sequences of characters. Python allows extracting portions of a string using **indexing** and **slicing**.
 
@@ -713,101 +713,114 @@ Python provides several elegant language features that simplify common programmi
 
 ## Short-Circuit Evaluation
 
-Logical operators don't always evaluate every expression.
+Logical operators in Python (`and` and `or`) use **short-circuit evaluation**. This means Python only evaluates as much of a logical expression as is necessary to determine the final result, and returns the actual value of the evaluated operand (not just a boolean `True` or `False`).
 
-### Using `or`
+### Truthy vs Falsy Values
+In Python, every object has an inherent boolean value when used in a conditional context:
 
-Suppose a user doesn't enter a name.
+- **Falsy Values:**
+  - `None`
+  - `False`
+  - Zero numeric values: `0`, `0.0`, `0j`
+  - Empty sequences and collections: `""` (empty string), `[]` (empty list), `()` (empty tuple), `{}` (empty dict), `set()` (empty set)
+- **Truthy Values:**
+  - Any non-zero number (e.g., `3`, `-1`)
+  - Any non-empty sequence or collection (e.g., `"zero"`, `[1, 2]`)
+  - `True`
 
-```python
-username = ""
+---
 
-if username:
-    print(username)
-else:
-    print("Guest")
-```
+### How `or` and `and` Work
+- **`A or B`**: Evaluates `A`. If `A` is Truthy, it returns `A` immediately (short-circuits) without evaluating `B`. If `A` is Falsy, it evaluates and returns `B`.
+- **`A and B`**: Evaluates `A`. If `A` is Falsy, it returns `A` immediately (short-circuits) without evaluating `B`. If `A` is Truthy, it evaluates and returns `B`.
 
-The same logic can be written more concisely.
+Let's look at how Python evaluates the following expressions:
 
-```python
-username = ""
-
-print(username or "Guest")
-```
-
-Output
+#### 1. What is the output of `3 or "zero"`?
+Since `3` is a non-zero integer, it is Truthy. The `or` operator returns the first operand immediately.
 
 <Accordion title="Show Output">
 
-```text
-Guest
+```python
+# Output: 3
+print(3 or "zero")
 ```
 
 </Accordion>
 
-If a username exists,
-
-```python
-username = "Alice"
-
-print(username or "Guest")
-```
-
-Output
+#### 2. What is the output of `3 and "zero"`?
+`3` is Truthy. For `and` to succeed, it must evaluate the second operand. It returns `"zero"`.
 
 <Accordion title="Show Output">
 
-```text
-Alice
+```python
+# Output: "zero"
+print(3 and "zero")
 ```
 
 </Accordion>
 
-### Using `and`
+#### 3. What is the output of `"" and 3`?
+The empty string `""` is Falsy. Since `and` requires both operands to be truthy, it short-circuits on the first falsy operand and returns `""`.
 
-Suppose a user must be logged in before displaying a welcome message.
-
-```python
-logged_in = True
-
-if logged_in:
-    print("Welcome!")
-```
-
-Python allows this shorter form.
+<Accordion title="Show Output">
 
 ```python
-logged_in = True
-
-logged_in and print("Welcome!")
+# Output: "" (empty string)
+print("" and 3)
 ```
 
-If `logged_in` is `False`, the second expression is never evaluated.
+</Accordion>
+
+#### 4. What is the output of `"" or 3`?
+`""` is Falsy. The `or` operator must check the second operand. It evaluates and returns `3`.
+
+<Accordion title="Show Output">
+
+```python
+# Output: 3
+print("" or 3)
+```
+
+</Accordion>
+
+---
+
+### Common Use Cases
+
+#### Fallback / Default Values (`or`)
+```python
+username = ""
+# If username is empty/falsy, fallback to "Guest"
+print(username or "Guest")  # Output: Guest
+```
+
+#### Conditional Execution (`and`)
+```python
+logged_in = True
+# Only runs the print if logged_in is True
+logged_in and print("Welcome!")  # Output: Welcome!
+```
 
 ### Exercise 1
-
-Print `"Anonymous"` whenever `name` is an empty string.
+Write a program to print `"Anonymous"` whenever `name` is an empty string using the `or` operator.
 
 <Accordion title="Solution">
 
 ```python
 name = ""
-
 print(name or "Anonymous")
 ```
 
 </Accordion>
 
 ### Exercise 2
-
-Print `"Access Granted"` only when `is_admin` is `True`.
+Print `"Access Granted"` only when `is_admin` is `True` using the `and` operator.
 
 <Accordion title="Solution">
 
 ```python
 is_admin = True
-
 is_admin and print("Access Granted")
 ```
 
