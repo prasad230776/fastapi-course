@@ -11,100 +11,11 @@ Understanding how Python manages memory, caches objects, resolves variables, and
 
 In this module, you'll learn:
 
-1. **Integer Value Caching** (Integer Interning)
-2. **Variable Scope and resolution** (LEGB rule, `global` and `nonlocal` keywords)
-3. **Function Arguments**: Positional vs Keyword argument passing
-4. **Print formatting**: `sep` and `end` parameters
-5. **Packing and Unpacking**: `*` and `**` operators, `*args`, and `**kwargs`
-6. **Mutable Default Arguments Pitfall**
-
----
-
-## Integer Value Caching (Integer Interning)
-
-In Python, memory optimization is built into the interpreter. One of the most famous optimizations is **Integer Value Caching** (also known as integer interning).
-
-At startup, Python (specifically the standard CPython implementation) pre-allocates and caches all integers in the range **`[-5, 256]`**. 
-
-When you reference any integer in this range, Python does not create a new object. Instead, it returns a reference to the existing cached integer object.
-
-```python
-a = 100
-b = 100
-
-print(a is b)
-print(id(a) == id(b))
-```
-
-Output
-
-<Accordion title="Show Output">
-
-```text
-True
-True
-```
-
-</Accordion>
-
-However, for integers outside this range, Python creates a new object in memory (unless optimized within the same code block by the compiler).
-
-```python
-x = 300
-y = 300
-
-print(x is y)
-```
-
-Output
-
-<Accordion title="Show Output">
-
-```text
-False
-```
-
-</Accordion>
-
-### Exercise 1
-
-Predict the output of the following comparisons:
-
-```python
-a = 256
-b = 256
-print(a is b)
-
-x = -6
-y = -6
-print(x is y)
-```
-
-<Accordion title="Solution">
-
-```text
-True
-False
-```
-`256` lies within the cache range `[-5, 256]`, so `a` and `b` refer to the same object. `-6` is outside the cache range, so `x` and `y` refer to different objects.
-
-</Accordion>
-
-### Exercise 2
-
-Write a code snippet to verify that floats are **not** cached in the same manner as small integers (e.g., compare `1.0` and `1.0` using `is`).
-
-<Accordion title="Solution">
-
-```python
-f1 = 1.0
-f2 = 1.0
-
-# This will print False because float caching is not pre-allocated like small integers
-print(f1 is f2)
-```
-
-</Accordion>
+1. **Variable Scope and resolution** (LEGB rule, `global` and `nonlocal` keywords)
+2. **Function Arguments**: Positional vs Keyword argument passing
+3. **Print formatting**: `sep` and `end` parameters
+4. **Packing and Unpacking**: `*` and `**` operators, `*args`, and `**kwargs`
+5. **Mutable Default Arguments Pitfall**
 
 ---
 

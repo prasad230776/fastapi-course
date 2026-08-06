@@ -11,21 +11,23 @@ These features are part of modern Python and are widely used in professional app
 
 In this module, you'll learn:
 
-1. Mutability (Mutable vs Immutable Objects)
-2. Floating Point Precision Nuances (`0.1 + 0.2 != 0.3`)
-3. Advanced String Indexing and Slicing
-4. Python Nuances
+1. Everything is an Object & Variables as References
+2. Integer Value Caching (Integer Interning)
+3. Mutability (Mutable vs Immutable Objects)
+4. Floating Point Precision Nuances (`0.1 + 0.2 != 0.3`)
+5. Advanced String Indexing and Slicing
+6. Python Nuances
    - Short-circuit Evaluation (`and` and `or`)
    - Chained Comparisons
    - Multiple Assignment and Variable Swapping
-5. `for-else` and `while-else`
-6. Function Arguments
+7. `for-else` and `while-else`
+8. Function Arguments
    - Positional Arguments
    - Keyword Arguments
    - Mixing Positional and Keyword Arguments
    - Positional-only Parameters (`/`)
    - Keyword-only Parameters (`*`)
-7. Packing and Unpacking
+9. Packing and Unpacking
    - Packing Positional Arguments (`*args`)
    - Packing Keyword Arguments (`**kwargs`)
    - Unpacking Positional Arguments (`*`)
@@ -34,6 +36,179 @@ In this module, you'll learn:
    - Combining Different Parameter Types
 
 By the end of this module, you'll be comfortable writing more flexible, reusable, and Pythonic functions that are commonly used in real-world Python applications.
+
+## Everything is an Object & Variables as References
+
+In Python, **everything is treated as an object**—including integers, floats, strings, functions, and modules. 
+
+Furthermore, **variables in Python do not hold values directly**. Instead, variables hold **references** (pointers) to the location in memory where the object is stored.
+
+### Understanding Object Identity
+You can use the built-in `id()` function to find the memory address of an object. The `is` operator checks if two references point to the exact same object in memory, while `==` checks if their actual values are equal.
+
+```python
+x = [1, 2, 3]
+y = x
+
+print(f"ID of x: {id(x)}")
+print(f"ID of y: {id(y)}")
+print(x is y)
+```
+
+Output
+
+<Accordion title="Show Output">
+
+```text
+ID of x: 4356781296
+ID of y: 4356781296
+True
+```
+
+</Accordion>
+
+If you create an identical list independently, they will have different identities despite having equal values:
+
+```python
+x = [1, 2, 3]
+z = [1, 2, 3]
+
+print(x == z)
+print(x is z)
+```
+
+Output
+
+<Accordion title="Show Output">
+
+```text
+True
+False
+```
+
+</Accordion>
+
+### Exercise 1
+
+Assign the string `"FastAPI"` to a variable `a`, and then assign `a` to `b`. Verify if they point to the same object using `is` and by printing their `id`s.
+
+<Accordion title="Solution">
+
+```python
+a = "FastAPI"
+b = a
+
+print(a is b)
+print(id(a) == id(b))
+```
+
+</Accordion>
+
+### Exercise 2
+
+Create two float variables with the value `2.5` independently. Compare them using `==` and `is`, and explain the result.
+
+<Accordion title="Solution">
+
+```python
+f1 = 2.5
+f2 = 2.5
+
+print(f1 == f2)  # True (values are equal)
+print(f1 is f2)  # False (different float objects in memory)
+```
+
+</Accordion>
+
+---
+
+## Integer Value Caching (Integer Interning)
+
+In Python, memory optimization is built into the interpreter. One of the most famous optimizations is **Integer Value Caching** (also known as integer interning).
+
+At startup, Python (specifically the standard CPython implementation) pre-allocates and caches all integers in the range **`[-5, 256]`**. 
+
+When you reference any integer in this range, Python does not create a new object. Instead, it returns a reference to the existing cached integer object.
+
+```python
+a = 100
+b = 100
+
+print(a is b)
+print(id(a) == id(b))
+```
+
+Output
+
+<Accordion title="Show Output">
+
+```text
+True
+True
+```
+
+</Accordion>
+
+However, for integers outside this range, Python creates a new object in memory (unless optimized within the same code block by the compiler).
+
+```python
+x = 300
+y = 300
+
+print(x is y)
+```
+
+Output
+
+<Accordion title="Show Output">
+
+```text
+False
+```
+
+</Accordion>
+
+### Exercise 1
+
+Predict the output of the following comparisons:
+
+```python
+a = 256
+b = 256
+print(a is b)
+
+x = -6
+y = -6
+print(x is y)
+```
+
+<Accordion title="Solution">
+
+```text
+True
+False
+```
+`256` lies within the cache range `[-5, 256]`, so `a` and `b` refer to the same object. `-6` is outside the cache range, so `x` and `y` refer to different objects.
+
+</Accordion>
+
+### Exercise 2
+
+Write a code snippet to verify that floats are **not** cached in the same manner as small integers (e.g., compare `1.0` and `1.0` using `is`).
+
+<Accordion title="Solution">
+
+```python
+f1 = 1.0
+f2 = 1.0
+
+# This will print False because float caching is not pre-allocated like small integers
+print(f1 is f2)
+```
+
+</Accordion>
+
+---
 
 ## Mutability (Mutable vs Immutable Objects)
 
