@@ -16,24 +16,25 @@ In this module, you'll learn:
 3. Mutability (Mutable vs Immutable Objects)
 4. Floating Point Precision Nuances (`0.1 + 0.2 != 0.3`)
 5. Advanced String Indexing and Slicing
-6. Python Nuances
+6. Important String Operations (split, join, strip, replace)
+7. Python Nuances
    - Short-circuit Evaluation (`and` and `or`)
    - Chained Comparisons
    - Multiple Assignment and Variable Swapping
-7. `for-else` and `while-else`
-8. Function Arguments
+8. `for-else` and `while-else`
+9. Function Arguments
    - Positional Arguments
    - Keyword Arguments
    - Mixing Positional and Keyword Arguments
    - Positional-only Parameters (`/`)
    - Keyword-only Parameters (`*`)
-9. Packing and Unpacking
-   - Packing Positional Arguments (`*args`)
-   - Packing Keyword Arguments (`**kwargs`)
-   - Unpacking Positional Arguments (`*`)
-   - Unpacking Keyword Arguments (`**`)
-   - Extended Unpacking
-   - Combining Different Parameter Types
+10. Packing and Unpacking
+    - Packing Positional Arguments (`*args`)
+    - Packing Keyword Arguments (`**kwargs`)
+    - Unpacking Positional Arguments (`*`)
+    - Unpacking Keyword Arguments (`**`)
+    - Extended Unpacking
+    - Combining Different Parameter Types
 
 By the end of this module, you'll be comfortable writing more flexible, reusable, and Pythonic functions that are commonly used in real-world Python applications.
 
@@ -602,6 +603,103 @@ text = "Artificial Intelligence"
 text = "Artificial Intelligence"
 
 print(text[::-1])
+```
+
+</Accordion>
+
+
+## Important String Operations for Data Processing
+
+In real-world data processing, indexing and slicing are rarely enough. We frequently need to clean, transform, partition, and format string data.
+
+### 1. Cleaning Whitespace with `.strip()`
+Whitespace at the beginning or end of strings (like spaces, tabs, or newlines) is common in raw data imports.
+- `.strip()`: Removes leading and trailing whitespace.
+- `.lstrip()`: Removes leading whitespace only.
+- `.rstrip()`: Removes trailing whitespace only.
+
+```python
+raw_data = "   \n  user_name_123   \t "
+clean_data = raw_data.strip()
+print(f"Original: {repr(raw_data)}")
+print(f"Cleaned: {repr(clean_data)}")
+```
+
+### 2. Splitting and Joining
+Converting between single strings and lists of substrings is a core data-processing pattern.
+
+#### Splitting Strings (`.split()`)
+The `.split(sep)` method splits a string on a specified separator and returns a list of substrings. If no separator is specified, it splits on any consecutive whitespace.
+
+```python
+csv_row = "Alice,25,Engineer,Hyderabad"
+parsed_list = csv_row.split(",")
+print("Parsed List:", parsed_list)
+
+sentence = "Python  is   fun"
+words = sentence.split()  # Splits on multiple spaces
+print("Words:", words)
+```
+
+#### Joining Lists (`.join()`)
+The `.join(iterable)` method is called on the separator string and merges a list of strings into a single string.
+
+```python
+words = ["Python", "FastAPI", "Uvicorn"]
+joined_pipe = " | ".join(words)
+print("Joined:", joined_pipe)
+
+csv_line = ",".join(["Bob", "30", "Manager"])
+print("CSV:", csv_line)
+```
+
+### 3. Replacing Substrings (`.replace()`)
+You can swap out characters or substrings using `.replace(old, new)`.
+
+```python
+file_path = "data/2024/report.csv"
+url_path = file_path.replace("/", "-")
+print("New string:", url_path)
+```
+
+### 4. Validating Prefix/Suffix (`.startswith()` and `.endswith()`)
+Useful for filtering filenames, URLs, or protocols.
+
+```python
+filename = "data_export.xlsx"
+print(filename.startswith("data_"))
+print(filename.endswith(".xlsx"))
+```
+
+### Exercise 3
+Clean a list of raw email strings by removing leading/trailing whitespaces and converting them to lowercase.
+
+<Accordion title="Solution">
+
+```python
+raw_emails = ["  Alice@Test.Com ", "bob@Domain.org\n", "\tcharlie@test.com  "]
+cleaned_emails = [email.strip().lower() for email in raw_emails]
+print(cleaned_emails)
+```
+
+</Accordion>
+
+### Exercise 4
+Given a raw CSV row `"john doe, 28, Developer, New York"`, parse the columns, strip the whitespace, capitalize the name (`"John Doe"`), and join the columns back using a semicolon `;` as the separator.
+
+<Accordion title="Solution">
+
+```python
+raw_row = "john doe, 28, Developer, New York"
+# Split by comma
+columns = raw_row.split(",")
+# Clean columns
+cleaned = [col.strip() for col in columns]
+# Capitalize the name (first column)
+cleaned[0] = cleaned[0].title()
+# Join using semicolon
+final_row = ";".join(cleaned)
+print(final_row)
 ```
 
 </Accordion>
