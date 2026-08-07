@@ -256,7 +256,7 @@
         "tab": "Workshop",
         "groups": [
           {
-            "group": "Adv. Python Workshop",
+            "group": "Adv. Python & FastAPI Workshop",
             "pages": [
               "workshop/00-introduction",
               "workshop/01-advanced-fundamentals",

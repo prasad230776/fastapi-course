@@ -116,8 +116,66 @@ When Python executes a class definition, it performs these steps internally:
 
 When a class inherits from another class, the base classes are passed as the `bases` argument to `type()`.
 
+### Creating a Class Dynamically Using `type()`
 
-Output:
+Normally, we define classes statically using the `class` keyword. However, because classes are objects created by `type`, you can use the `type()` function as a constructor to create a class dynamically at runtime.
+
+The signature of `type()` for class creation is:
+```python
+type(class_name, bases, attributes_and_methods_dict)
+```
+
+#### Example: Static vs. Dynamic Class Creation
+
+Let's compare the standard static way with the dynamic `type()` method:
+
+**1. The Static Way (Standard):**
+```python
+class Student:
+    college = "ABC College"
+
+    def __init__(self, name):
+        self.name = name
+
+    def introduce(self):
+        return f"My name is {self.name} and I study at {self.college}"
+```
+
+**2. The Dynamic Way (Using `type`):**
+```python
+# Define a function to use as a method
+def introduce_method(self):
+    return f"My name is {self.name} and I study at {self.college}"
+
+# Define the initializer function
+def init_method(self, name):
+    self.name = name
+
+# Create the class dynamically
+DynamicStudent = type(
+    "Student",                # Class name
+    (object,),                # Base classes (tuple of parent classes)
+    {                         # Attributes and methods namespace dictionary
+        "college": "ABC College",
+        "__init__": init_method,
+        "introduce": introduce_method
+    }
+)
+
+# Instantiate and use the dynamically created class
+student = DynamicStudent("Alice")
+print(student.introduce())
+```
+
+<Accordion title="Show Output">
+
+```text
+My name is Alice and I study at ABC College
+```
+
+</Accordion>
+
+---
 
 ```text
 <class 'type'>
