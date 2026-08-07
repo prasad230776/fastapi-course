@@ -24,6 +24,37 @@ For backend developers, it is a powerful tool to:
 * Build user interfaces to demo APIs.
 * Visualize database records dynamically.
 
+## Streamlit Fundamentals
+
+To build effective user interfaces with Streamlit, you must understand a few core concepts:
+
+### 1. The Execution Model
+Unlike standard web frameworks that use callback events, Streamlit operates on a **top-to-bottom execution model**.
+* Every time a user interacts with a widget (clicks a button, selects a dropdown, types text), Streamlit **reruns the entire Python script from top to bottom**.
+* Streamlit maintains the states of input fields automatically across these reruns.
+
+### 2. Basic UI & Display Elements
+* **`st.write()`**: The "Swiss Army knife" of Streamlit. It can print text, formatted markdown, tables, or dictionaries.
+* **`st.title()` / `st.header()` / `st.subheader()`**: Used to create structured text headings.
+* **`st.divider()`**: Draws a clean horizontal separator line.
+
+### 3. Input Widgets (User Actions)
+Widgets allow users to pass parameters to your app:
+* **`st.text_input("Label")`**: Returns the text typed by the user as a Python string.
+* **`st.number_input("Label")`**: Captures numbers (with min/max constraints).
+* **`st.selectbox("Label", options_list)`**: Renders a dropdown menu and returns the selected item.
+* **`st.button("Click Me")`**: Returns `True` *only* during the rerun triggered by the user clicking it.
+
+### 4. Layouts & Containers
+* **`st.columns([weights])`**: Divides the screen horizontally into parallel sections.
+* **`st.tabs([names])`**: Groups elements into tabs to keep the UI clean.
+* **`st.form("form_name")`**: Groups input fields together so that the page doesn't rerun until the user clicks the "Submit" button inside the form.
+
+### 5. Feedback Callouts
+* **`st.success("Message")` / `st.error("Message")`**: Displays colored alert banners.
+* **`st.toast("Short message")`**: Shows a brief self-dismissing pop-up toast in the corner.
+* **`st.rerun()`**: Programmatically forces the app to immediately rerun from the top (useful after updating or deleting records).
+
 ---
 
 # 2. How the Frontend Interacts with the Backend
