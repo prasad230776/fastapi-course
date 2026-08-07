@@ -49,14 +49,16 @@ Here is a roadmap of the topics we will cover during this workshop:
 
 To write and execute code in this workshop, we need to set up a clean, modern development environment.
 
-### Step 1: Install Python 3.12+
+**Step 1: Install Python 3.12+**
+
 We will use features from recent Python versions (like modern type hinting and syntax). 
 
 1. Go to the [Official Python Download Page](https://www.python.org/downloads/).
 2. Download and run the installer for your OS (macOS, Windows, or Linux).
 3. **Important (Windows users):** Ensure you check the box that says **"Add python.exe to PATH"** before clicking install.
 
-#### Verify Installation
+**Verify Installation**
+
 Open your terminal (macOS/Linux) or Command Prompt/PowerShell (Windows) and run:
 
 ```bash
@@ -68,7 +70,8 @@ python3 --version
 
 ---
 
-### Step 2: Install and Configure VS Code
+**Step 2: Install and Configure VS Code**
+
 We recommend **Visual Studio Code (VS Code)** as your editor because of its speed, lightweight nature, and excellent Python ecosystem support.
 
 1. Download and install [VS Code](https://code.visualstudio.com/).
@@ -80,16 +83,18 @@ We recommend **Visual Studio Code (VS Code)** as your editor because of its spee
 
 ---
 
-### Step 3: Package Managers — `pip` vs `uv`
+**Step 3: Package Managers — `pip` vs `uv`**
 
 Historically, Python developers used `pip` (Python's default package installer) combined with `virtualenv` or `venv` to manage dependencies.
 
 While `pip` is standard, we will be using **`uv`** for this workshop. 
 
-#### What is `uv`?
+**What is `uv`?**
+
 Developed by Astral (the creators of Ruff), **`uv`** is an extremely fast Python package installer and resolver written in Rust. It serves as a drop-in replacement for `pip`, `pip-tools`, `virtualenv`, and `poetry`. It is typically **10x to 100x faster** than `pip` and manages virtual environments automatically.
 
-#### Installing `uv`
+**Installing `uv`**
+
 The easiest way to install `uv` globally is using `pip`:
 
 ```bash
@@ -100,14 +105,14 @@ Alternatively, you can install it using standalone installers:
 - **macOS/Linux:** `curl -LsSf https://astral.sh/uv/install.sh | sh`
 - **Windows:** `powershell -c "irm https://astral.sh/uv/install.ps1 | iex"`
 
-Verify installation:
+**Verify installation:**
 ```bash
 uv --version
 ```
 
 ---
 
-### Step 4: Initializing a New Project with `uv`
+**Step 4: Initializing a New Project with `uv`**
 
 Let's initialize a sandbox directory to practice code and manage our virtual environments cleanly.
 
@@ -128,7 +133,7 @@ Let's initialize a sandbox directory to practice code and manage our virtual env
    # Create a virtual environment
    uv venv
    
-   # Activate it:
+   # Verify and activate it:
    # On macOS/Linux:
    source .venv/bin/activate
    # On Windows:

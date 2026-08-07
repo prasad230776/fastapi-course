@@ -181,6 +181,63 @@ def mix_example(first, second, /, *, third):
 mix_example(1, 2, third=3)  # Correct
 ```
 
+## Recursion
+
+Recursion is a programming technique where a function calls itself directly or indirectly to solve a problem. It works by breaking down a complex problem into smaller, more manageable sub-problems of the same type.
+
+Every recursive function must have two main components:
+1. **Base Case**: The stopping condition that returns a value directly without making further recursive calls. Without a base case, the function will call itself infinitely, leading to a stack overflow.
+2. **Recursive Step**: The part of the function where it calls itself with a modified argument, moving the inputs closer to the base case.
+
+### Example 1: Factorial of a Number
+The factorial of $n$ (written as $n!$) is the product of all positive integers less than or equal to $n$.
+Mathematical definition:
+- $0! = 1$ (Base case)
+- $n! = n \times (n-1)!$ (Recursive step)
+
+```python
+def factorial(n: int) -> int:
+    # Base case
+    if n == 0 or n == 1:
+        return 1
+    # Recursive step
+    return n * factorial(n - 1)
+
+print(factorial(5))  # Output: 120
+```
+
+### Example 2: Fibonacci Numbers
+The Fibonacci sequence is a series of numbers where each number is the sum of the two preceding ones, usually starting with 0 and 1.
+Mathematical definition:
+- $F(0) = 0$, $F(1) = 1$ (Base cases)
+- $F(n) = F(n-1) + F(n-2)$ (Recursive step)
+
+```python
+def fibonacci(n: int) -> int:
+    # Base cases
+    if n == 0:
+        return 0
+    elif n == 1:
+        return 1
+    # Recursive step
+    return fibonacci(n - 1) + fibonacci(n - 2)
+
+print(fibonacci(6))  # Output: 8
+```
+
+### Python Recursion Limit
+To prevent stack overflow and out-of-memory crashes due to infinite loops, Python enforces a maximum recursion depth (typically set to 1000). You can check and modify this limit using the `sys` module:
+
+```python
+import sys
+
+# Get the current limit
+print(sys.getrecursionlimit())  # Output: 1000
+
+# Set a new limit
+sys.setrecursionlimit(2000)
+```
+
 ---
 
 ## 5. Variable Scope & LEGB Rule
@@ -697,8 +754,6 @@ print(total)
 Use **list comprehensions** and built-in functions like `sum()` for better readability. Use `map()`, `filter()`, and `reduce()` when working with functional pipelines or callback-based APIs.
 
 </Tip>
-
----
 
 ## Practice & Exercises
 
