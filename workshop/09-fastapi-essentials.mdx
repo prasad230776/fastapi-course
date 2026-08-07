@@ -725,6 +725,17 @@ REST APIs can be tested using several tools.
 
 ## FastAPI Fundamentals
 
+FastAPI is a modern, high-performance API framework. It is fundamentally different from traditional full-stack web frameworks like **Django**:
+* **FastAPI (API-First):** Focuses solely on building high-performance REST/GraphQL APIs that exchange clean, structured data (typically JSON).
+* **Django (Full-Stack):** A server-rendered framework that manages administrative dashboards, views, and directly renders HTML pages to send to the browser.
+
+### Why API-First is Essential for Modern & GenAI Apps
+This backend-frontend decoupling is the industry standard today:
+1. **Modern Frontends:** Single Page Applications (Next.js, React, Vue) and mobile apps only require a backend to serve raw JSON data, not server-rendered HTML.
+2. **Generative AI (GenAI):** AI agents, LLM tool-calling (OpenAI, Claude), and real-time streaming interfaces rely heavily on highly concurrent web services. FastAPI's async speed makes it the primary choice for modern AI and GenAI backend applications.
+
+---
+
 A FastAPI application begins by creating an instance of the `FastAPI` class.
 
 ```python
