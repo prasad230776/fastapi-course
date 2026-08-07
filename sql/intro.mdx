@@ -252,6 +252,46 @@ The above query retrieves all employee records from the `employees` table.
 
 </Accordion>
 
+## SQL Dialects & ORMs
+
+Although SQL is a standardized language (ANSI SQL), different database management systems implement their own variations, known as **SQL Dialects**. 
+
+While basic queries like `SELECT` and `WHERE` work similarly across most systems, other commands (such as auto-incrementing fields, string functions, or pagination) have slightly different syntax.
+
+### Examples of Dialect Differences
+
+Here is how three of the most widely used open-source databases define an auto-incrementing primary key:
+
+* **SQLite:**
+  ```sql
+  CREATE TABLE users (
+      user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+      username TEXT
+  );
+  ```
+* **PostgreSQL:**
+  ```sql
+  CREATE TABLE users (
+      user_id SERIAL PRIMARY KEY,
+      username VARCHAR(100)
+  );
+  ```
+* **MySQL:**
+  ```sql
+  CREATE TABLE users (
+      user_id INT PRIMARY KEY AUTO_INCREMENT,
+      username VARCHAR(100)
+  );
+  ```
+
+### Introducing ORMs
+
+Writing raw SQL queries in your application code makes the code tightly coupled to a specific database dialect. If you decide to migrate your app from SQLite (often used for local development) to PostgreSQL (commonly used in production), you would need to manually rewrite parts of your SQL queries.
+
+To avoid handling these database-specific syntax differences at the programming level, we use **ORMs (Object-Relational Mappers)**. 
+
+An ORM allows you to write database queries using Python code instead of raw SQL. The ORM automatically translates your Python commands into the correct SQL dialect for whatever database engine you are currently using, making it easy to swap databases without modifying your application logic.
+
 ## Relational Database Concepts
 
 A relational database organizes data into **tables**.
