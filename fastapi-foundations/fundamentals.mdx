@@ -14,6 +14,17 @@ FastAPI is a modern, high-performance Python framework for building REST APIs. I
 * **📖 Auto-Generated Documentation**: Generates interactive documentation pages (Swagger UI and ReDoc) automatically.
 * **🔒 Modern & Async**: Native support for asynchronous programming (`async/await`) out of the box.
 
+### FastAPI vs. Django (API-First vs. Full-Stack)
+
+When comparing backend frameworks, it is important to understand their core objectives:
+* **Django (Full-Stack):** Designed as a "batteries-included" framework that renders HTML templates directly on the server to send full pages to the browser.
+* **FastAPI (API-First):** Focuses solely on building high-performance **REST/GraphQL APIs** that return structured data (typically JSON).
+
+#### Why API-First is Crucial for Modern & GenAI Apps
+This backend-frontend decoupling is the industry standard today:
+1. **Modern Frontends:** Single Page Applications (Next.js, React, Vue) and mobile apps only require a backend to serve raw JSON data, not server-rendered HTML.
+2. **Generative AI (GenAI):** AI agents, LLM tool-calling (OpenAI, Claude), and real-time streaming interfaces rely heavily on highly concurrent web services. FastAPI's async speed makes it the primary choice for modern AI and GenAI backend applications.
+
 
 ## The Tech Stack Under the Hood
 

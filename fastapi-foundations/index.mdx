@@ -7,22 +7,6 @@ icon: "server"
 
 Python is widely used for backend development, and FastAPI has become one of the most popular frameworks for building modern web APIs. It combines Python's simplicity with high performance, automatic validation, and interactive documentation, making it an excellent choice for developing production-ready backend services.
 
-## FastAPI vs. Full-Stack Frameworks (e.g., Django)
-
-When learning backend development in Python, you will often compare FastAPI with traditional frameworks like **Django**. The difference lies in their architectural objectives:
-
-* **Django (Full-Stack Framework):** Django is a "batteries-included", server-rendered full-stack framework. It handles database ORMs, admin portals, session management, and *directly renders HTML templates on the server* to send complete web pages to the browser.
-* **FastAPI (API-First Framework):** FastAPI's primary objective is to **develop high-performance APIs (REST/GraphQL)** rather than rendering full-stack websites. It receives requests and returns clean, structured data (typically JSON).
-
-### Why the API-First Approach is Essential Today
-
-This decoupling of the frontend and backend is a crucial pattern in modern software engineering:
-
-1. **Modern Frontend Frameworks:** Single Page Applications (SPAs) built with React, Next.js, Vue, or mobile apps (iOS and Android) run independently in the client's browser or device. They only need a backend API to send and receive raw data (JSON), not server-rendered HTML.
-2. **Generative AI (GenAI) & AI Applications:** AI agents, LLM integrations (like OpenAI, Anthropic, or local models), and real-time data streaming are highly asynchronous. FastAPI's built-in support for **asynchronous concurrency (`async`/`await`)** and streaming responses makes it the gold standard for serving ML models and orchestrating GenAI backend agents.
-
----
-
 ## How the Web Works
 
 Before building APIs with FastAPI, it is essential to understand how data moves across the internet. Every time you load a webpage, log in to an app, or fetch data, your computer is participating in the **Client-Server Model** over the **HTTP protocol**.
