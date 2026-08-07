@@ -272,7 +272,8 @@
               "workshop/09-fastapi-essentials",
               "workshop/10-sql-orm",
               "workshop/11-auth-jwt",
-              "workshop/12-deployment"
+              "workshop/12-deployment",
+              "workshop/13-frontend-streamlit"
             ]
           }
 
