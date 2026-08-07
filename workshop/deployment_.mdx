@@ -1,0 +1,351 @@
+---
+title: 12-Production Deployment with Docker, Alembic, Nginx & HTTPS
+description: Learn how to containerize, test locally, and safely deploy your FastAPI student management system to a production cloud environment using Docker Compose, Alembic migrations, PostgreSQL, DigitalOcean, Nginx, and HTTPS.
+---
+
+## Objectives
+
+By the end of this module, you will be able to:
+
+- Organize your FastAPI application folder structure for production.
+- Containerize a FastAPI app and a PostgreSQL database using logical and clean Docker instructions.
+- Test your containerized application and database locally before moving to the cloud.
+- Manage database schema migrations automatically inside Docker using Alembic.
+- Deploy your application to a DigitalOcean Droplet (VPS) secured with Nginx and HTTPS.
+
+---
+
+# 1. Project Folder Structure
+
+To ensure Docker can build your app cleanly and efficiently, we organize the project using a **modular architecture** and the **repository pattern**. Below is the layout for our **Student Management System** utilizing `uv` for package management:
+
+```text
+student_management/
+├── alembic/                  # Alembic migrations folder
+├── app/                      # Main application package
+│   ├── __init__.py
+│   ├── config.py             # App configuration / env loader
+│   ├── database.py           # Database engine and SessionLocal setup
+│   ├── main.py               # FastAPI entrypoint (includes routers)
+│   └── modules/              # Domain-driven modules
+│       └── students/
+│           ├── __init__.py
+│           ├── models.py     # Student SQLAlchemy database model
+│           ├── schemas.py    # Student Pydantic data schemas
+│           ├── repository.py # Student DB operations (Repository Pattern)
+│           ├── service.py    # Student business logic (Service Layer)
+│           └── router.py     # Student endpoints (API router)
+├── .dockerignore             # Excludes files from Docker builds
+├── .env                      # Local environment variables
+├── alembic.ini               # Alembic configuration
+├── docker-compose.yml        # Multi-container orchestrator
+├── pyproject.toml            # uv project configuration
+└── uv.lock                   # uv lockfile for exact dependencies
+```
+
+### The `.dockerignore` file
+Create a `.dockerignore` file in the root directory to avoid copying local virtual environments, database files, or cache directories into your Docker image:
+
+```text
+.venv/
+venv/
+__pycache__/
+*.pyc
+.git/
+.env
+*.db
+```
+
+---
+
+# 2. Step 1: Containerizing with Docker (Clean & Logical)
+
+We containerize our FastAPI application and PostgreSQL database to ensure they run identically on both your local machine and your production server.
+
+### 1. The `Dockerfile`
+Create a `Dockerfile` in the root of your project directory. This contains the essential instructions required to run the FastAPI app, copying `pyproject.toml` / `uv.lock` and using `uv sync` to install dependencies cleanly:
+
+```dockerfile
+# Use a lightweight, official Python runtime
+FROM python:3.11-slim
+
+# Copy the uv binary from the official Astral image for fast package management
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+# Prevent Python from writing .pyc files and enable unbuffered logging
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+# Install system utilities needed for PostgreSQL and compiling dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy configuration and lock files first to leverage caching
+COPY pyproject.toml uv.lock /app/
+
+# Install the project dependencies (system-wide and without development dependencies)
+RUN uv sync --frozen --no-dev
+
+# Copy the application source code
+COPY . /app/
+
+# Expose FastAPI port
+EXPOSE 8000
+
+# Start Uvicorn pointing to the main application app in app/main.py
+CMD ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+### 2. The `.env` file
+Instead of hardcoding database credentials and connection URLs inside your code or configuration files, store them inside a `.env` file. Docker Compose automatically loads variables from a `.env` file located in the same directory:
+
+```env
+POSTGRES_USER=postgres_user
+POSTGRES_PASSWORD=postgres_password
+POSTGRES_DB=student_db
+DATABASE_URL=postgresql://postgres_user:postgres_password@db:5432/student_db
+```
+
+### 3. The `docker-compose.yml` file
+Create a `docker-compose.yml` file in the root of your project. It orchestrates the backend and the database, dynamically pulling env configuration from the `.env` file:
+
+```yaml
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: student_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    container_name: student_app
+    restart: always
+    # Automatically apply database migrations using uv run before starting the FastAPI server
+    command: sh -c "uv run alembic upgrade head && uv run uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pg_data:
+```
+
+---
+
+# 3. Step 2: Database Migrations with Alembic
+
+We configure Alembic to run database migrations automatically inside the container.
+
+### 1. Initialize Alembic
+Run this command locally in your terminal to generate the Alembic configuration files:
+```bash
+uv run alembic init alembic
+```
+
+### 2. Dynamically Configure Database URL
+Open `alembic/env.py` and modify it to read the `DATABASE_URL` environment variable set in Docker Compose:
+
+```python
+from app.database import Base
+from app.modules.students.models import Student
+from logging.config import fileConfig
+import os
+
+from alembic import context
+
+config = context.config
+
+if config.config_file_name is not None:
+    fileConfig(config.config_file_name)
+
+target_metadata = Base.metadata
+
+# Dynamic database URL configuration
+database_url = os.getenv("DATABASE_URL", "postgresql://postgres_user:postgres_password@localhost:5432/student_db")
+config.set_main_option("sqlalchemy.url", database_url)
+```
+
+### 3. Generate the Migration Script
+Create your first database migration script locally:
+```bash
+uv run alembic revision --autogenerate -m "Create initial tables"
+```
+
+### 4. Automatic Migration on Container Startup
+Inside `docker-compose.yml`, the command:
+```yaml
+command: sh -c "uv run alembic upgrade head && uv run uvicorn app.main:app --host 0.0.0.0 --port 8000"
+```
+ensures that the database migrations are automatically applied on startup using Alembic before the FastAPI server starts serving requests.
+
+---
+
+# 4. Step 3: Local Container Testing
+
+Always test your containers locally to verify the builds, configuration, and database connection work correctly before deploying to a cloud server.
+
+### 1. Build and Start the Containers
+Run Docker Compose in the root of your project:
+```bash
+docker compose up --build
+```
+*The `--build` flag ensures Docker compiles the newest version of your source code and requirements.*
+
+### 2. Verify Container Health
+Open a new terminal window and run:
+```bash
+docker compose ps
+```
+Both `student_app` and `student_db` should show a state of `Up (healthy)`.
+
+### 3. Verify Database Migrations & API Logs
+Check the application logs to ensure Alembic ran the migrations successfully and Uvicorn is running:
+```bash
+docker compose logs web
+```
+Look for:
+> `INFO  [alembic.runtime.migration] Running upgrade  -> xxxxxxxx, Create initial tables`  
+> `INFO:     Uvicorn running on http://0.0.0.0:8000`
+
+### 4. Test the API in Browser
+Open your browser and navigate to:
+* **Interactive API Docs:** `http://localhost:8000/docs`
+* Create a new student (send a `POST` request) and verify that it returns successfully.
+
+### 5. Verify Data Persistence
+Stop the containers:
+```bash
+docker compose down
+```
+Start the containers again:
+```bash
+docker compose up -d
+```
+Navigate back to `http://localhost:8000/docs` and retrieve the student list (send a `GET` request). The student you created previously should still exist because the database volume (`pg_data`) persists the data.
+
+---
+
+# 5. Step 4: Deploying on DigitalOcean
+
+Once the local container tests are successful, you are ready to migrate to the cloud.
+
+1. **Create a Droplet:**
+   * Go to DigitalOcean and create a new **Ubuntu** Droplet.
+   * Add your SSH key to the Droplet for secure access.
+
+2. **Connect to your Droplet via SSH:**
+   ```bash
+   ssh root@your_droplet_ip
+   ```
+
+3. **Install Docker and Docker Compose on the Server:**
+   Run the following commands on the Droplet:
+   ```bash
+   sudo apt update
+   sudo apt install -y docker.io docker-compose-v2 git
+   sudo systemctl start docker
+   sudo systemctl enable docker
+   ```
+
+4. **Clone and Run your Project:**
+   ```bash
+   git clone https://github.com/your-username/student_management.git
+   cd student_management
+   # Start the production environment
+   docker compose up --build -d
+   ```
+
+---
+
+# 6. Step 5: Setting Up Nginx as a Reverse Proxy
+
+Nginx acts as a gatekeeper, receiving traffic from the internet and forwarding it safely to the FastAPI container running inside the server.
+
+1. **Install Nginx on your Droplet:**
+   ```bash
+   sudo apt install -y nginx
+   ```
+
+2. **Configure Nginx to Forward Traffic:**
+   Create a new server block configuration at `/etc/nginx/sites-available/student_app`:
+   ```nginx
+   server {
+       listen 80;
+       server_name yourdomain.com www.yourdomain.com;
+
+       location / {
+           proxy_pass http://127.0.0.1:8000;
+           proxy_set_header Host $host;
+           proxy_set_header X-Real-IP $remote_addr;
+           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+           proxy_set_header X-Forwarded-Proto $scheme;
+       }
+   }
+   ```
+
+3. **Activate the Server Block:**
+   ```bash
+   sudo ln -s /etc/nginx/sites-available/student_app /etc/nginx/sites-enabled/
+   sudo rm /etc/nginx/sites-enabled/default
+   sudo nginx -t  # Verify there are no configuration syntax errors
+   sudo systemctl restart nginx
+   ```
+
+---
+
+# 7. Step 6: Securing with HTTPS (SSL/TLS)
+
+We encrypt public traffic using Let's Encrypt to enable HTTPS.
+
+1. **Install Certbot and Nginx Plugin:**
+   ```bash
+   sudo apt install -y certbot python3-certbot-nginx
+   ```
+
+2. **Acquire SSL Certificate:**
+   Run Certbot (it will automatically update the Nginx file to redirect all HTTP traffic to HTTPS):
+   ```bash
+   sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
+   ```
+
+3. **Verify Automatic Renewal:**
+   Let's Encrypt certificates renew automatically. Verify that the renewal cron job works:
+   ```bash
+   sudo certbot renew --dry-run
+   ```
+
+---
+
+## Summary
+
+You have successfully:
+
+- Organized the **Student Management System** project folder for containerization.
+- Configured a clean and secure **Dockerfile** and **docker-compose.yml**.
+- Tested database migrations and **data persistence locally** before deploying.
+- Deployed your stack on a **DigitalOcean** server.
+- Reverse-proxied traffic securely through **Nginx** and encrypted all connections with **HTTPS**.

@@ -1,0 +1,1259 @@
+---
+title: "12-Production Deployment"
+description: "Learn how to package, test, and deploy the Student Management System to a production server using Docker, Alembic, Docker Compose, Nginx, and HTTPS."
+---
+
+# Production Deployment
+
+Throughout this course, we have developed and tested the **Student Management System** on our local machine. Although the application works correctly, it is currently accessible only from our computer.
+
+To make the application available to users over the internet, we need to deploy it to a production server. This process is known as **application deployment**.
+
+In this chapter, we will prepare our application for Docker, configure database migrations using Alembic, run the application using Docker Compose, and finally deploy it to a **DigitalOcean Virtual Private Server (VPS)**. We will also configure **Nginx** as a reverse proxy and secure the application using **HTTPS**.
+
+By the end of this chapter, your application will be running on a production server and accessible securely using your own domain name.
+
+## Learning Outcomes
+
+By the end of this chapter, you will be able to:
+
+- Prepare a FastAPI application for Docker.
+- Configure database migrations using Alembic.
+- Configure multiple containers using Docker Compose.
+- Build and test the application locally.
+- Deploy the application to DigitalOcean.
+- Configure Nginx as a reverse proxy.
+- Secure the application using HTTPS.
+
+## Technologies Used
+
+| Technology | Purpose |
+|------------|---------|
+| Docker | Packages the application into a portable container. |
+| Docker Compose | Runs and manages multiple containers. |
+| PostgreSQL | Stores application data. |
+| Alembic | Manages database schema migrations. |
+| GitHub | Stores the project source code. |
+| DigitalOcean | Hosts the application in the cloud. |
+| Nginx | Acts as a reverse proxy. |
+| Let's Encrypt | Provides free SSL certificates. |
+
+## Deployment Workflow
+
+During this chapter, we will complete the following steps.
+
+1. Prepare the application for Docker.
+2. Prepare database migrations.
+3. Configure Docker Compose.
+4. Build and test the application.
+5. Publish the project to GitHub.
+6. Deploy the application to DigitalOcean.
+7. Configure Nginx.
+8. Enable HTTPS.
+9. Verify the deployment.
+
+```text
+Student Management System
+          │
+          ▼
+Prepare Docker Files
+          │
+          ▼
+Prepare Database Migrations
+          │
+          ▼
+Configure Docker Compose
+          │
+          ▼
+Build & Test Locally
+          │
+          ▼
+Push to GitHub
+          │
+          ▼
+Deploy to DigitalOcean
+          │
+          ▼
+Configure Nginx
+          │
+          ▼
+Enable HTTPS
+          │
+          ▼
+Production Application
+```
+
+## Step 1 - Preparing the Application for Docker
+
+Before deploying our application, we need to prepare it for Docker.
+
+In this step, we will create the Docker configuration files required to build our application image. We are **not** going to build or run the application yet.
+
+By the end of this step, you will:
+
+- Understand the purpose of Docker.
+- Create a `.dockerignore` file.
+- Create a `Dockerfile`.
+- Understand how Docker builds an application image.
+
+**Preparing the Project**
+
+To prepare the project for deployment, we only need to add the following files.
+
+```text
+student_management/
+│
+├── app/
+├── alembic/
+│
+├── .dockerignore
+├── Dockerfile
+├── .env
+└── docker-compose.yml
+```
+
+> **Note**
+>
+> The `.env` and `docker-compose.yml` files will be created in a later step. They are shown here to give you an overview of the final project structure.
+
+**Creating the `.dockerignore` File**
+
+Docker copies the project into a temporary build context before creating the image.
+
+Some files should not be copied because they increase the image size or are only useful during development.
+
+Create a file named **.dockerignore**.
+
+```text
+.venv/
+venv/
+
+__pycache__/
+*.pyc
+
+.git/
+
+.env
+
+*.db
+
+.vscode/
+.idea/
+
+.DS_Store
+```
+
+**Creating the Dockerfile**
+
+A **Dockerfile** is a text file that contains the instructions Docker follows to build an application image.
+
+Think of it as a recipe that tells Docker:
+
+- Which base operating system image to use.
+- Which software packages to install.
+- Which project files to copy.
+- Which command to execute when the container starts.
+
+Create a file named **Dockerfile** in the project root.
+
+```dockerfile
+# ---------------------------------------------------------
+# Base Image
+# ---------------------------------------------------------
+
+# Use the official lightweight Python image.
+FROM python:3.11-slim
+
+# ---------------------------------------------------------
+# Install uv
+# ---------------------------------------------------------
+
+# Copy the uv package manager from the official image.
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+# ---------------------------------------------------------
+# Configure Python
+# ---------------------------------------------------------
+
+# Prevent Python from generating .pyc files.
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# Display logs immediately.
+ENV PYTHONUNBUFFERED=1
+
+# ---------------------------------------------------------
+# Working Directory
+# ---------------------------------------------------------
+
+# Set the working directory inside the container.
+WORKDIR /app
+
+# ---------------------------------------------------------
+# Install System Dependencies
+# ---------------------------------------------------------
+
+# Install packages required by PostgreSQL drivers and
+# Python packages that require compilation.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# ---------------------------------------------------------
+# Copy Dependency Files
+# ---------------------------------------------------------
+
+# Copy dependency files first so Docker can reuse
+# cached layers in future builds.
+COPY pyproject.toml uv.lock ./
+
+# ---------------------------------------------------------
+# Install Project Dependencies
+# ---------------------------------------------------------
+
+RUN uv sync --frozen --no-dev
+
+# ---------------------------------------------------------
+# Copy Application Source Code
+# ---------------------------------------------------------
+
+COPY . .
+
+# ---------------------------------------------------------
+# Expose Application Port
+# ---------------------------------------------------------
+
+EXPOSE 8000
+
+# ---------------------------------------------------------
+# Default Startup Command
+# ---------------------------------------------------------
+
+# Start the FastAPI application.
+#
+# The CMD instruction specifies the default command
+# executed when the container starts.
+#
+# In Step 3, Docker Compose will override this command
+# to execute Alembic migrations before starting the
+# FastAPI application.
+CMD ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+**Understanding the Dockerfile**
+
+| Instruction | Description |
+|------------|-------------|
+| `FROM` | Specifies the base image. |
+| `COPY --from` | Copies the `uv` executable. |
+| `ENV` | Configures the Python runtime. |
+| `WORKDIR` | Sets the working directory. |
+| `RUN` | Installs required packages and dependencies. |
+| `COPY` | Copies project files. |
+| `EXPOSE` | Documents the application port. |
+| `CMD` | Specifies the default startup command. |
+
+**Summary**
+
+In this step, we prepared our application for Docker by creating the required configuration files.
+
+The application has **not** been built or executed yet.
+
+## Step 2 - Preparing Database Migrations
+
+Our application uses **Alembic** to manage database schema changes.
+
+Before running the application inside Docker, we need to prepare Alembic so it can automatically create or update the database whenever the application starts.
+
+In this step, we will configure Alembic and generate the initial migration script.
+
+We are **not** going to execute any migrations yet because the PostgreSQL database container has not been created.
+
+By the end of this step, you will:
+
+- Configure Alembic.
+- Connect Alembic to the application.
+- Generate the initial migration.
+- Prepare Alembic for automatic execution.
+
+**Initializing Alembic**
+
+If you have not already initialized Alembic, execute:
+
+```bash
+uv run alembic init alembic
+```
+
+**Updating `alembic.ini`**
+
+Open **alembic.ini**.
+
+Replace
+
+```ini
+sqlalchemy.url = driver://user:pass@localhost/dbname
+```
+
+with
+
+```ini
+sqlalchemy.url =
+```
+
+The database URL will be supplied dynamically by the application configuration.
+
+**Updating `env.py`**
+
+Open **alembic/env.py**.
+
+Configure Alembic to use the application's metadata and database URL.
+
+```python
+from app.config import settings
+from app.database import Base
+from app import models
+
+target_metadata = Base.metadata
+
+config.set_main_option(
+    "sqlalchemy.url",
+    settings.DATABASE_URL
+)
+```
+
+**Generating the Initial Migration**
+
+Generate the migration script.
+
+```bash
+uv run alembic revision --autogenerate -m "Initial migration"
+```
+
+A migration file will be created inside:
+
+```text
+alembic/
+└── versions/
+```
+
+> **Note**
+>
+> We are **not** executing the migration in this step.
+>
+> In the next step, we will configure Docker Compose and PostgreSQL.
+>
+> Once the PostgreSQL container is available, Docker Compose will automatically execute:
+>
+> ```bash
+> uv run alembic upgrade head
+> ```
+>
+> before starting the FastAPI application.
+
+**Summary**
+
+In this step, we prepared Alembic by configuring the migration environment and generating the initial migration script.
+
+In the next step, we will configure Docker Compose, create the PostgreSQL container, and configure the FastAPI container to automatically execute pending migrations whenever it starts.
+
+## Step 3 - Configuring Docker Compose
+
+In the previous steps, we prepared our application for Docker and configured Alembic for database migrations.
+
+Now we will configure **Docker Compose** to manage both the **FastAPI application** and the **PostgreSQL database**.
+
+Docker Compose allows us to define multiple services in a single configuration file and start them together using one command.
+
+In this step, we will:
+
+- Create the `.env` file.
+- Configure the PostgreSQL container.
+- Configure the FastAPI container.
+- Configure persistent database storage.
+- Automatically execute database migrations before starting the application.
+
+**Creating the `.env` File**
+
+Instead of hardcoding configuration values inside our application, we store them in a `.env` file.
+
+Create a file named **.env** in the project root.
+
+```env
+POSTGRES_USER=postgres_user
+POSTGRES_PASSWORD=postgres_password
+POSTGRES_DB=student_db
+
+DATABASE_URL=postgresql://postgres_user:postgres_password@db:5432/student_db
+```
+
+The variables have the following purpose.
+
+| Variable | Description |
+|----------|-------------|
+| `POSTGRES_USER` | PostgreSQL username. |
+| `POSTGRES_PASSWORD` | PostgreSQL password. |
+| `POSTGRES_DB` | Database created when PostgreSQL starts. |
+| `DATABASE_URL` | Database connection string used by FastAPI and Alembic. |
+
+> **Note**
+>
+> Notice that the hostname is **db** instead of **localhost**.
+>
+> Docker Compose automatically creates a private network where each service can communicate using its service name.
+
+**Creating the Docker Compose File**
+
+Create a file named **docker-compose.yml** in the project root.
+
+```yaml
+version: "3.9"
+
+services:
+
+  db:
+    image: postgres:15-alpine
+    container_name: student_db
+    restart: always
+
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    container_name: student_app
+    restart: always
+
+    ports:
+      - "8000:8000"
+
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+    command: >
+      sh -c "
+      uv run alembic upgrade head &&
+      uv run uvicorn app.main:app --host 0.0.0.0 --port 8000
+      "
+
+volumes:
+  postgres_data:
+```
+
+**Understanding the Docker Compose File**
+
+The `services` section defines all the containers required by our application.
+
+In this project, we have two services.
+
+| Service | Purpose |
+|---------|----------|
+| `db` | Runs the PostgreSQL database. |
+| `web` | Runs the FastAPI application. |
+
+Docker Compose automatically creates a private network so that the FastAPI container can communicate with the PostgreSQL container using the hostname **db**.
+
+**Understanding the PostgreSQL Service**
+
+The PostgreSQL service:
+
+- Creates the database container.
+- Creates the database specified in `.env`.
+- Stores database files inside a persistent Docker volume.
+- Verifies that PostgreSQL is ready using a health check.
+
+Because we use a Docker volume, database data is preserved even if the container is removed.
+
+**Understanding the FastAPI Service**
+
+The FastAPI service:
+
+- Builds the Docker image using the Dockerfile.
+- Starts the FastAPI container.
+- Reads the database connection string from `.env`.
+- Waits until PostgreSQL becomes healthy.
+
+**Overriding the Dockerfile Command**
+
+In **Step 1**, we defined the following default startup command inside the Dockerfile.
+
+```dockerfile
+CMD ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+Docker Compose allows us to override this command using the `command` option.
+
+```yaml
+command: >
+  sh -c "
+  uv run alembic upgrade head &&
+  uv run uvicorn app.main:app --host 0.0.0.0 --port 8000
+  "
+```
+
+When the FastAPI container starts, it performs the following tasks:
+
+1. Connects to the PostgreSQL database.
+2. Executes any pending Alembic migrations.
+3. Starts the FastAPI application using Uvicorn.
+
+This ensures that the database schema is always synchronized with the application before serving requests.
+
+**Summary**
+
+In this step, we configured Docker Compose to manage both the FastAPI and PostgreSQL containers.
+
+We also configured the FastAPI container to automatically execute database migrations before starting the application.
+
+In the next step, we will build the Docker image, start the containers, and verify that the complete application is running successfully.
+
+## Step 4 - Building and Testing the Application
+
+In the previous steps, we prepared our application for Docker, configured Alembic, and created the Docker Compose configuration.
+
+Now everything is ready.
+
+In this step, we will build the Docker image, create the required containers, apply the pending database migrations, and start the FastAPI application.
+
+By the end of this step, you will be able to:
+
+- Build the Docker image.
+- Start the application and database containers.
+- Verify that database migrations are applied automatically.
+- Test the FastAPI application.
+- Verify database persistence.
+
+**Building and Starting the Containers**
+
+Open a terminal in the project root and execute the following command.
+
+```bash
+docker compose up --build
+```
+
+This command performs the following tasks:
+
+1. Builds the FastAPI Docker image.
+2. Creates the PostgreSQL container.
+3. Creates the FastAPI container.
+4. Waits until PostgreSQL is ready.
+5. Executes pending Alembic migrations.
+6. Starts the FastAPI application.
+
+On the first run, Docker may take a few minutes to download the required images and install the project dependencies.
+
+**Understanding the Startup Process**
+
+The complete startup process is illustrated below.
+
+```text
+Docker Compose
+       │
+       ▼
+Build FastAPI Image
+       │
+       ▼
+Start PostgreSQL Container
+       │
+       ▼
+PostgreSQL Becomes Healthy
+       │
+       ▼
+Run Alembic Migrations
+       │
+       ▼
+Start FastAPI Application
+       │
+       ▼
+Application Ready
+```
+
+**Verifying the Running Containers**
+
+Open another terminal window and execute:
+
+```bash
+docker compose ps
+```
+
+You should see both containers running.
+
+```text
+NAME           STATUS
+student_app    Up
+student_db     Up (healthy)
+```
+
+**Viewing Application Logs**
+
+To verify that Alembic executed successfully and the FastAPI application started correctly, view the application logs.
+
+```bash
+docker compose logs web
+```
+
+You should see messages similar to:
+
+```text
+INFO  [alembic.runtime.migration] Running upgrade -> Initial migration
+INFO: Uvicorn running on http://0.0.0.0:8000
+```
+
+**Opening the Application**
+
+Open your browser and navigate to:
+
+```text
+http://localhost:8000/docs
+```
+
+If everything is configured correctly, the FastAPI Swagger UI will open.
+
+Create a new student using the **POST** endpoint.
+
+Retrieve the students using the **GET** endpoint to verify that the data has been stored successfully.
+
+**Verifying Database Persistence**
+
+Stop the containers.
+
+```bash
+docker compose down
+```
+
+Start them again.
+
+```bash
+docker compose up -d
+```
+
+Retrieve the students again using the **GET** endpoint.
+
+The previously created records should still exist because PostgreSQL stores its data inside the Docker volume.
+
+**Understanding Docker Volumes**
+
+Our Docker Compose configuration creates the following volume.
+
+```yaml
+volumes:
+  postgres_data:
+```
+
+This volume stores the PostgreSQL database files outside the container.
+
+As a result:
+
+- Removing a container does not delete the database.
+- Restarting the application does not lose data.
+- Docker automatically reuses the existing volume when the containers are started again.
+
+**Useful Docker Commands**
+
+| Command | Purpose |
+|---------|---------|
+| `docker compose up --build` | Build the image and start all services. |
+| `docker compose up -d` | Start the containers in the background. |
+| `docker compose ps` | View the running containers. |
+| `docker compose logs web` | View FastAPI logs. |
+| `docker compose logs db` | View PostgreSQL logs. |
+| `docker compose down` | Stop and remove the containers. |
+
+**Summary**
+
+Congratulations! 🎉
+
+You have successfully:
+
+- Built the Docker image.
+- Started the FastAPI and PostgreSQL containers.
+- Applied database migrations automatically.
+- Verified that the application is working.
+- Confirmed that database data persists across container restarts.
+
+In the next step, we will publish the project to **GitHub** before deploying it to a **DigitalOcean** server.
+
+## Step 5 - Publishing the Latest Changes to GitHub
+
+Throughout this course, we have been using Git to manage our project and committing our changes regularly.
+
+Before deploying the application, make sure your latest changes have been pushed to your GitHub repository.
+
+**Checking the Repository Status**
+
+Verify that there are no uncommitted changes.
+
+```bash
+git status
+```
+
+If there are any pending changes, commit them and push them to GitHub.
+
+```bash
+git add .
+
+git commit -m "Prepare application for deployment"
+
+git push
+```
+
+> **Note**
+>
+> If all changes have already been committed and pushed, no further action is required.
+
+**Summary**
+
+The latest version of the application is now available in the GitHub repository.
+
+In the next step, we will clone the repository onto a DigitalOcean server and deploy the application.
+## Step 6 - Deploying the Application to DigitalOcean
+
+Now that the latest version of our project is available on GitHub, we are ready to deploy it to a **DigitalOcean Virtual Private Server (VPS)**.
+
+In this step, we will:
+
+- Create a DigitalOcean Droplet.
+- Connect to the server using SSH.
+- Install the required software.
+- Clone the project from GitHub.
+- Configure the production environment.
+- Start the application using Docker Compose.
+
+By the end of this step, your application will be running on a DigitalOcean server.
+
+**Creating a DigitalOcean Droplet**
+
+Log in to your DigitalOcean account and create a new **Ubuntu LTS** Droplet.
+
+While creating the Droplet:
+
+- Select the latest Ubuntu LTS image.
+- Choose an appropriate plan.
+- Add your SSH public key.
+- Create the Droplet.
+
+Once the Droplet is created, note its **public IP address**.
+
+**Connecting to the Server**
+
+Open a terminal and connect to the server using SSH.
+
+```bash
+ssh root@your_server_ip
+```
+
+Replace `your_server_ip` with the public IP address of your Droplet.
+
+**Installing Docker and Git**
+
+Update the package list.
+
+```bash
+sudo apt update
+```
+
+Install Docker, Docker Compose, and Git.
+
+```bash
+sudo apt install -y docker.io docker-compose-v2 git
+```
+
+Start and enable the Docker service.
+
+```bash
+sudo systemctl enable docker
+sudo systemctl start docker
+```
+
+Verify the installation.
+
+```bash
+docker --version
+docker compose version
+git --version
+```
+
+**Cloning the Project**
+
+Clone the latest version of your project from GitHub.
+
+```bash
+git clone https://github.com/your-username/student_management.git
+```
+
+Move into the project directory.
+
+```bash
+cd student_management
+```
+
+**Creating the Production Environment File**
+
+Create a new `.env` file.
+
+```bash
+nano .env
+```
+
+Add the following configuration.
+
+```env
+POSTGRES_USER=postgres_user
+POSTGRES_PASSWORD=your_secure_password
+POSTGRES_DB=student_db
+
+DATABASE_URL=postgresql://postgres_user:your_secure_password@db:5432/student_db
+```
+
+Save the file.
+
+- Press **Ctrl + O** to write the file.
+- Press **Enter** to confirm.
+- Press **Ctrl + X** to exit the editor.
+
+> **Tip**
+>
+> Replace `your_secure_password` with a strong password before deploying your application to production.
+
+> **Tip**
+>
+> Use a strong password for the production database instead of the password used during local development.
+
+**Starting the Application**
+
+Build the Docker image and start all containers.
+
+```bash
+docker compose up --build -d
+```
+
+During startup, Docker Compose automatically:
+
+1. Builds the FastAPI image.
+2. Starts the PostgreSQL container.
+3. Waits until PostgreSQL is ready.
+4. Executes any pending Alembic migrations.
+5. Starts the FastAPI application.
+
+**Verifying the Deployment**
+
+Verify that the containers are running.
+
+```bash
+docker compose ps
+```
+
+View the application logs.
+
+```bash
+docker compose logs web
+```
+
+If everything is configured correctly, you should see messages indicating that:
+
+- PostgreSQL started successfully.
+- Alembic applied the database migrations.
+- Uvicorn is running.
+
+At this stage, the application is available using the server's public IP address.
+
+```text
+http://your_server_ip:8000/docs
+```
+
+**Summary**
+
+Congratulations! 🎉
+
+Your FastAPI application is now running on a DigitalOcean server.
+
+In the next step, we will configure **Nginx** so users can access the application using a custom domain instead of the server's IP address.
+## Step 7 - Configuring Nginx
+
+At this stage, our FastAPI application is running on the DigitalOcean server and can be accessed using the server's public IP address.
+
+```text
+http://your_server_ip:8000/docs
+```
+
+Although this works, users should not access the application directly through the application server.
+
+Instead, we use **Nginx** as a **reverse proxy**.
+
+Nginx receives incoming requests on ports **80 (HTTP)** and **443 (HTTPS)**, then forwards those requests to the FastAPI application running inside the Docker container.
+
+Using Nginx provides several advantages:
+
+- Users can access the application using a domain or subdomain.
+- The application port remains hidden.
+- HTTPS can be configured easily.
+- Nginx efficiently handles incoming requests.
+
+By the end of this step, your application will be accessible using your own domain or subdomain.
+
+**Deployment Architecture**
+
+```text
+                 Internet
+                     │
+                     ▼
+      your-domain-or-subdomain
+                     │
+                     ▼
+                Nginx Server
+                     │
+                     ▼
+         FastAPI Container (8000)
+                     │
+                     ▼
+       PostgreSQL Container (5432)
+```
+
+**Configuring DNS**
+
+Before configuring Nginx, your domain or subdomain must point to the public IP address of your DigitalOcean server.
+
+Log in to your domain registrar or DNS provider and create an **A Record**.
+
+For example, if you are using a subdomain such as **api.example.com**, create the following record.
+
+| Type | Host | Value |
+|------|------|--------|
+| A | api | your_server_ip |
+
+If you want to use the root domain, create the following record instead.
+
+| Type | Host | Value |
+|------|------|--------|
+| A | @ | your_server_ip |
+
+Replace **your_server_ip** with the public IP address of your DigitalOcean Droplet.
+
+> **What is an A Record?**
+>
+> An **A (Address) Record** maps a domain or subdomain directly to an IP address.
+>
+> For example:
+>
+> ```text
+> api.example.com
+>         │
+>         ▼
+>     203.0.113.10
+> ```
+>
+> Since our application is deployed on a DigitalOcean Virtual Machine with a public IP address, an **A Record** is the appropriate DNS record to use.
+
+After creating the DNS record, wait a few minutes for the changes to propagate.
+
+You can verify the DNS configuration using either of the following commands.
+
+```bash
+ping your-domain-or-subdomain
+```
+
+or
+
+```bash
+nslookup your-domain-or-subdomain
+```
+
+Both commands should return your server's public IP address.
+
+**Installing Nginx**
+
+Update the package list.
+
+```bash
+sudo apt update
+```
+
+Install Nginx.
+
+```bash
+sudo apt install -y nginx
+```
+
+Verify the installation.
+
+```bash
+nginx -v
+```
+
+**Creating the Nginx Configuration**
+
+Create a new server configuration.
+
+```bash
+sudo nano /etc/nginx/sites-available/student_app
+```
+
+Add the following configuration.
+
+```nginx
+server {
+
+    listen 80;
+
+    server_name your-domain-or-subdomain;
+
+    location / {
+
+        proxy_pass http://127.0.0.1:8000;
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+    }
+
+}
+```
+
+Replace **your-domain-or-subdomain** with your actual domain or subdomain.
+
+For example:
+
+```text
+api.example.com
+```
+
+or
+
+```text
+example.com
+```
+
+**Understanding the Configuration**
+
+| Directive | Purpose |
+|-----------|---------|
+| `listen 80` | Listens for incoming HTTP requests. |
+| `server_name` | Specifies the domain or subdomain handled by Nginx. |
+| `location /` | Matches all incoming requests. |
+| `proxy_pass` | Forwards requests to the FastAPI application running on port **8000**. |
+| `proxy_set_header` | Preserves the original request information before forwarding it to FastAPI. |
+
+**Enabling the Configuration**
+
+Enable the new site.
+
+```bash
+sudo ln -s /etc/nginx/sites-available/student_app /etc/nginx/sites-enabled/
+```
+
+Remove the default Nginx site.
+
+```bash
+sudo rm /etc/nginx/sites-enabled/default
+```
+
+Verify the configuration.
+
+```bash
+sudo nginx -t
+```
+
+If the configuration is valid, restart Nginx.
+
+```bash
+sudo systemctl restart nginx
+```
+
+Verify that Nginx is running.
+
+```bash
+sudo systemctl status nginx
+```
+
+**Testing the Configuration**
+
+Open your browser and navigate to:
+
+```text
+http://your-domain-or-subdomain
+```
+
+The request should now be forwarded to the FastAPI application running inside the Docker container.
+
+> **Note**
+>
+> At this stage, the application is accessible over **HTTP** only.
+>
+> In the next step, we will configure **HTTPS** using a free SSL certificate from **Let's Encrypt**.
+
+**Summary**
+
+In this step, we:
+
+- Configured a DNS **A Record** to point our domain or subdomain to the DigitalOcean server.
+- Installed Nginx.
+- Configured Nginx as a reverse proxy.
+- Verified that the application is accessible using the configured domain or subdomain.
+
+In the next step, we will enable **HTTPS** to secure all communication between users and the application.
+
+## Step 8 - Enabling HTTPS
+
+Our application is now accessible using a domain or subdomain.
+
+```text
+http://your-domain-or-subdomain
+```
+
+Although the application is publicly accessible, all communication between the client and the server is currently unencrypted.
+
+To secure our application, we will enable **HTTPS** using a free SSL/TLS certificate provided by **Let's Encrypt**.
+
+HTTPS provides several benefits:
+
+- Encrypts all communication between the client and server.
+- Protects sensitive information during transmission.
+- Increases user trust.
+- Is required by many modern browsers and APIs.
+
+By the end of this step, your application will be accessible securely over HTTPS.
+
+**Installing Certbot**
+
+Update the package list.
+
+```bash
+sudo apt update
+```
+
+Install Certbot and the Nginx plugin.
+
+```bash
+sudo apt install -y certbot python3-certbot-nginx
+```
+
+Verify the installation.
+
+```bash
+certbot --version
+```
+
+**Generating the SSL Certificate**
+
+Execute the following command.
+
+```bash
+sudo certbot --nginx
+```
+
+During the setup, Certbot will ask for:
+
+- An email address for renewal notifications.
+- Whether you agree to the Let's Encrypt Terms of Service.
+- Whether you want to share your email address with the Electronic Frontier Foundation (optional).
+- The domain or subdomain you want to secure.
+
+After validation, Certbot automatically:
+
+- Generates an SSL certificate.
+- Updates the Nginx configuration.
+- Enables HTTPS.
+- Reloads Nginx.
+
+**Testing HTTPS**
+
+Open your browser and navigate to:
+
+```text
+https://your-domain-or-subdomain
+```
+
+Your application should now open securely.
+
+You should also see a padlock icon in the browser's address bar, indicating that the SSL certificate is valid.
+
+**Verifying Automatic Certificate Renewal**
+
+Let's Encrypt certificates are valid for **90 days**.
+
+Certbot automatically installs a renewal service during installation.
+
+To verify that automatic renewal is configured correctly, execute:
+
+```bash
+sudo certbot renew --dry-run
+```
+
+If the test completes successfully, your certificates will be renewed automatically before they expire.
+
+**Summary**
+
+In this step, we:
+
+- Installed Certbot.
+- Generated a free SSL certificate using Let's Encrypt.
+- Configured Nginx to serve HTTPS.
+- Verified automatic certificate renewal.
+
+Our application is now securely accessible using:
+
+```text
+https://your-domain-or-subdomain
+```
+
+In the next step, we will verify the complete deployment and learn a few useful commands for monitoring and troubleshooting the application.
+
+**Updating the Application**
+
+Whenever you make changes to your application:
+
+Push the latest changes to GitHub.
+
+```bash
+git push
+```
+
+On the server, pull the latest changes.
+
+```bash
+git pull
+```
+
+Stop and remove the existing containers.
+
+```bash
+docker compose down
+```
+
+Rebuild the Docker image and start the updated containers.
+
+```bash
+docker compose up --build -d
+```
+
+During startup, Docker Compose automatically:
+
+- Rebuilds the FastAPI Docker image.
+- Starts the PostgreSQL container.
+- Executes any pending Alembic migrations.
+- Starts the FastAPI application.
+
+> **Note**
+>
+> Since the PostgreSQL data is stored in a Docker volume, running `docker compose down` removes only the containers. The database data is preserved and will be reused when the containers are started again.
+

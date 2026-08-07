@@ -271,7 +271,8 @@
               "workshop/08-project-essentials",
               "workshop/09-fastapi-essentials",
               "workshop/10-sql-orm",
-              "workshop/11-auth-jwt"
+              "workshop/11-auth-jwt",
+              "workshop/12-deployment"
             ]
           }
 
