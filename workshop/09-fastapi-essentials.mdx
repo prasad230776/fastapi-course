@@ -402,6 +402,20 @@ Write suitable endpoints for the following resources.
 
 </Accordion>
 
+## Why FastAPI for REST APIs?
+
+FastAPI is highly regarded in the industry for building backend REST APIs. Two main features make it stand out:
+
+### 1. Async-First Architecture
+FastAPI natively supports asynchronous programming (`async/await`). 
+* **High Concurrency:** When building REST APIs that depend on external I/O bound tasks, such as calling Large Language Models (LLMs) or database operations, async allows the server to handle other incoming requests without waiting for the LLM response to finish.
+* **GenAI Compatibility:** This is particularly useful for AI systems where LLM calls are latency-heavy. The async-first model makes it highly efficient to stream LLM responses back to the client in real-time.
+
+### 2. Built-in Pydantic Validation
+FastAPI integrates Pydantic for data parsing and validation.
+* **Input Validation:** Enforces strict types on incoming payloads (JSON requests) before they enter your backend logic.
+* **Cost & Time Efficiency:** By validating request parameters upfront, FastAPI instantly filters out malformed data (returning a `422 Unprocessable Entity` status code). This prevents your application from forwarding invalid payloads to external LLM providers, saving both token costs and execution time.
+
 ## Quick Start
 
 Let's build our first FastAPI application.
