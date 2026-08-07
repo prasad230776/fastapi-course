@@ -21,6 +21,43 @@ If you pass a string `"100"` to a dataclass attribute annotated as an integer, P
 
 ---
 
+## Python Type Hinting & Generics
+
+Before defining Pydantic models, it is essential to understand Python's type annotations. Python uses **Type Hints** to declare the expected data types of variables, parameters, and class attributes.
+
+### Basic Type Hinting Syntax
+To annotate an attribute, use the colon (`:`) syntax:
+```python
+name: str = "Alice"
+age: int = 20
+is_active: bool = True
+gpa: float = 3.8
+```
+
+### Type Hinting Generics (Collections)
+Modern Python (Python 3.9+) supports generic type hinting for collections directly using built-in classes:
+
+* **Lists (`list[type]`)**: Represents a list containing elements of a specific type.
+  ```python
+  scores: list[int] = [90, 85, 95]
+  ```
+* **Dictionaries (`dict[key_type, value_type]`)**: Represents a dictionary with specific key and value types.
+  ```python
+  metadata: dict[str, int] = {"student_id": 101, "age": 20}
+  ```
+* **Tuples (`tuple[type1, type2, ...]`)**: Represents a tuple with fixed positions and types.
+  ```python
+  coordinate: tuple[float, float] = (17.385, 78.486)
+  ```
+* **Sets (`set[type]`)**: Represents a unique collection of items of a specific type.
+  ```python
+  unique_tags: set[str] = {"python", "fastapi"}
+  ```
+
+Pydantic dynamically reads these standard annotations at runtime to parse and validate incoming data structure models.
+
+---
+
 ## 2. Defining a BaseModel
 
 To define a schema, create a class that inherits from `pydantic.BaseModel`.
