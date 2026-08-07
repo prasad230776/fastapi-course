@@ -237,10 +237,10 @@ Using SQL, we can:
 ### Example
 
 ```sql
-SELECT * FROM employee;
+SELECT * FROM employees;
 ```
 
-The above query retrieves all employee records.
+The above query retrieves all employee records from the `employees` table.
 
 ### Practice
 
@@ -343,14 +343,14 @@ It refers to the Primary Key of another table.
 |1|Engineering|
 |2|HR|
 
-### Employee Table
+### Employees Table
 
 | Employee | Department ID |
 |----------|---------------|
 |Rahul|1|
 |Anitha|2|
 
-Here, **Department ID** in the Employee table is a Foreign Key.
+Here, **Department ID** in the `employees` table is a Foreign Key referencing the `departments` table.
 
 ### Practice
 
@@ -415,7 +415,7 @@ One department can have many employees, while each employee belongs to one depar
 
 ## Sample Database Used Throughout This Guide
 
-### Department
+### Departments
 
 | Department ID | Department Name |
 |---------------|-----------------|
@@ -423,7 +423,7 @@ One department can have many employees, while each employee belongs to one depar
 |2|HR|
 |3|Sales|
 
-### Employee
+### Employees
 
 | Employee ID | Employee Name | Salary | City | Department ID |
 |-------------|---------------|--------|------|---------------|
@@ -433,4 +433,4 @@ One department can have many employees, while each employee belongs to one depar
 |104|Sneha|50000|Chennai|3|
 |105|Ajay|80000|Hyderabad|1|
 
-The Employee and Department tables will be used in all SQL examples throughout the following chapters.
+The `employees` and `departments` tables will be used in all SQL examples throughout the following chapters.

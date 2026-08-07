@@ -12,7 +12,7 @@ For example, instead of storing the department name for every employee, we store
 
 Throughout this chapter, we'll use the following tables.
 
-## Department
+## Departments
 
 | Department ID | Department Name |
 |---------------|-----------------|
@@ -21,7 +21,7 @@ Throughout this chapter, we'll use the following tables.
 |3|Sales|
 |4|Finance|
 
-## Employee
+## Employees
 
 | Employee ID | Employee Name | Salary | Department ID |
 |-------------|---------------|--------|---------------|
@@ -31,7 +31,7 @@ Throughout this chapter, we'll use the following tables.
 |104|Sneha|50000|3|
 |105|Ajay|80000|NULL|
 
-Notice that **Ajay** is not assigned to any department.
+Notice that **Ajay** is not assigned to any departments.
 
 ## Why Do We Need JOINs?
 
@@ -43,7 +43,7 @@ If we execute the following query:
 
 ```sql
 SELECT *
-FROM employee;
+FROM employees;
 ```
 
 We get:
@@ -86,7 +86,7 @@ The `ON` clause specifies how two tables should be matched.
 Example:
 
 ```sql
-ON employee.department_id = department.department_id
+ON employees.department_id = departments.department_id
 ```
 
 </Accordion>
@@ -105,8 +105,8 @@ Display employee names along with their department names.
 SELECT
     e.employee_name,
     d.department_name
-FROM employee e
-INNER JOIN department d
+FROM employees e
+INNER JOIN departments d
 ON e.department_id = d.department_id;
 ```
 
@@ -119,7 +119,7 @@ ON e.department_id = d.department_id;
 |Kiran|Engineering|
 |Sneha|Sales|
 
-Notice that **Ajay** is not included because there is no matching department.
+Notice that **Ajay** is not included because there is no matching departments.
 
 ### Example 2
 
@@ -130,8 +130,8 @@ SELECT
     e.employee_name,
     e.salary,
     d.department_name
-FROM employee e
-INNER JOIN department d
+FROM employees e
+INNER JOIN departments d
 ON e.department_id = d.department_id
 WHERE e.salary > 60000;
 ```
@@ -153,8 +153,8 @@ Display employee names with their department names.
 SELECT
     e.employee_name,
     d.department_name
-FROM employee e
-INNER JOIN department d
+FROM employees e
+INNER JOIN departments d
 ON e.department_id = d.department_id;
 ```
 
@@ -162,7 +162,7 @@ ON e.department_id = d.department_id;
 
 ### Practice
 
-Display employees working in the HR department.
+Display employees working in the HR departments.
 
 <Accordion title="Solution">
 
@@ -170,8 +170,8 @@ Display employees working in the HR department.
 SELECT
     e.employee_name,
     d.department_name
-FROM employee e
-INNER JOIN department d
+FROM employees e
+INNER JOIN departments d
 ON e.department_id = d.department_id
 WHERE d.department_name = 'HR';
 ```
@@ -189,8 +189,8 @@ SELECT
     e.employee_name,
     e.salary,
     d.department_name
-FROM employee e
-INNER JOIN department d
+FROM employees e
+INNER JOIN departments d
 ON e.department_id = d.department_id
 WHERE e.salary > 70000;
 ```
@@ -211,8 +211,8 @@ Display all employees along with their department names.
 SELECT
     e.employee_name,
     d.department_name
-FROM employee e
-LEFT JOIN department d
+FROM employees e
+LEFT JOIN departments d
 ON e.department_id = d.department_id;
 ```
 
@@ -226,7 +226,7 @@ ON e.department_id = d.department_id;
 |Sneha|Sales|
 |Ajay|NULL|
 
-Notice that **Ajay** is included because LEFT JOIN returns every row from the Employee table.
+Notice that **Ajay** is included because LEFT JOIN returns every row from the employees table.
 
 ### Example 2
 
@@ -237,8 +237,8 @@ SELECT
     e.employee_name,
     e.salary,
     d.department_name
-FROM employee e
-LEFT JOIN department d
+FROM employees e
+LEFT JOIN departments d
 ON e.department_id = d.department_id;
 ```
 
@@ -252,8 +252,8 @@ Display all employees with their department names.
 SELECT
     e.employee_name,
     d.department_name
-FROM employee e
-LEFT JOIN department d
+FROM employees e
+LEFT JOIN departments d
 ON e.department_id = d.department_id;
 ```
 
@@ -261,14 +261,14 @@ ON e.department_id = d.department_id;
 
 ### Practice
 
-Find employees who are not assigned to any department.
+Find employees who are not assigned to any departments.
 
 <Accordion title="Solution">
 
 ```sql
 SELECT
     employee_name
-FROM employee
+FROM employees
 WHERE department_id IS NULL;
 ```
 

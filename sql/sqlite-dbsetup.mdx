@@ -4,56 +4,112 @@ description: "Create a SQLite database and populate it with sample data for SQL 
 icon: "database"
 ---
 
-# Setting Up SQLite Database
+# Working with SQLite & Database Setup
 
-In this guide, you'll create a SQLite database, create the required tables, and populate them with sample data for practicing SQL queries.
+In this guide, you will learn the fundamentals of SQLite, its data types, and how to set up a local database in VS Code with practice data.
+
+## Why SQLite?
+
+SQLite is a software library that provides a lightweight, serverless relational database management system (RDBMS). Unlike traditional databases like PostgreSQL or MySQL, SQLite does not run as a separate server process. Instead, it reads and writes data directly to a single file on your computer's disk.
+
+### Features of SQLite
+
+* **Serverless:** It does not require a separate server background process. The database engine runs inside the application process.
+* **Self-Contained:** A single database is stored entirely in a single cross-platform file.
+* **Zero Configuration:** There is no setup or administration needed. You just create a file and start using it.
+* **Transactional (ACID):** Even though it is lightweight, it fully supports ACID properties (Atomicity, Consistency, Isolation, Durability) to ensure data safety.
+
+### Advantages
+
+* **Simple to use:** Perfect for learning SQL, prototyping applications, and local development.
+* **Highly Portable:** You can copy, share, or email the database file easily.
+* **Fast and Lightweight:** Highly optimized code that runs fast and takes up very little memory.
+* **Widely Adopted:** It is the most deployed database engine in the world, used in web browsers (Chrome, Firefox), mobile phones (Android, iOS), and many desktop applications.
+
+### Limitations
+
+* **Concurrency Issues:** SQLite locks the entire database file during writes, meaning it is not suitable for high-write concurrency applications.
+* **Not suited for Big Data:** While it can handle up to 281 TB database sizes in theory, it is not optimized for massive multi-terabyte enterprise datasets.
+* **No User Management:** It does not support native user roles, permissions, or access control. Anyone with read/write access to the file can modify the database.
+
+---
+
+## SQLite Data Types
+
+Unlike other relational databases, SQLite has a dynamic type system. It supports the following storage classes (data types):
+
+| Type | Description | Example |
+|------|-------------|---------|
+| **INTEGER** | Whole numbers (signed integers) | `10`, `101`, `-5` |
+| **REAL** | Floating-point (decimal) numbers | `99.5`, `65000.50` |
+| **TEXT** | Text strings (stored using UTF-8/UTF-16 encoding) | `"Rahul Sharma"`, `"Hyderabad"` |
+| **BLOB** | Binary Large Object (stored exactly as it was input, e.g. images, files) | Image files |
+| **NULL** | Represents a missing or unknown value | `NULL` |
+
+### Common Examples
+
+| Data Field | Recommended SQLite Type |
+|------|-------------|
+| Employee ID / Department ID | `INTEGER` |
+| Employee Name / City | `TEXT` |
+| Salary | `REAL` |
+| Joining Date (stored as ISO8601 text strings YYYY-MM-DD) | `TEXT` |
+| Profile Image | `BLOB` |
+| Middle Name (if not provided) | `NULL` |
+
+---
 
 ## Prerequisites
 
-Install the following Visual Studio Code extension:
+To work with SQLite directly inside your editor, install the following Visual Studio Code extension:
 
 - **SQLite** by Alex Covizzi
 
 The extension allows you to:
-
-- Create and open SQLite databases
+- Open and view SQLite databases
 - Execute SQL scripts
 - Browse tables
 - View and edit records
 - Run SQL queries
 
-## Step 1: Create a Database
+## Step 1: Create a Database File
 
-1. Open **Visual Studio Code**.
-2. Open the **Command Palette**.
-   - **Windows/Linux:** `Ctrl + Shift + P`
-   - **macOS:** `Cmd + Shift + P`
-3. Search for:
-
-```text
-SQLite: Open Database
-```
-
-4. Choose **Create New Database**.
-5. Save the database as:
+1. Create a new empty file in your workspace directory named:
 
 ```text
 employee.db
 ```
 
-The database is now ready.
+2. Open the **Command Palette**:
+   - **Windows/Linux:** `Ctrl + Shift + P`
+   - **macOS:** `Cmd + Shift + P`
+3. Search for and select:
+
+```text
+SQLite: Open Database
+```
+
+4. Select the `employee.db` file you just created from the dropdown menu/file picker.
+
+The database is now open and ready.
 
 ## Step 2: Create the Tables
 
-Execute the following SQL statements.
+1. Create a new file in your workspace directory named:
+
+```text
+setup.sql
+```
+
+2. Open `setup.sql` and paste the following SQL statements into it:
 
 ```sql
-CREATE TABLE department (
+CREATE TABLE departments (
     department_id INTEGER PRIMARY KEY,
     department_name TEXT NOT NULL
 );
 
-CREATE TABLE employee (
+CREATE TABLE employees (
     employee_id INTEGER PRIMARY KEY,
     employee_name TEXT NOT NULL,
     salary REAL NOT NULL,
@@ -61,16 +117,25 @@ CREATE TABLE employee (
     joining_date TEXT NOT NULL,
     department_id INTEGER,
     FOREIGN KEY (department_id)
-        REFERENCES department(department_id)
+        REFERENCES departments(department_id)
 );
 ```
 
+3. Right-click anywhere inside the editor of `setup.sql` and select **Run Query**. When prompted, select the database (`employee.db`) to execute the statements and create the tables.
+
+> [!IMPORTANT]
+> **Executing Queries in VS Code:**
+> - **Run Selected Query:** You can highlight/select a specific SQL query, right-click, and choose **Run Query** to run only that part.
+> - **Avoid Errors:** If you run the entire document after some tables or data have already been created/inserted, SQLite will return errors (e.g., "table already exists"). It is best to highlight and run only the new queries you want to execute, or delete/comment out previously executed queries from `setup.sql`.
+
 ## Step 3: Populate the Tables
+
+Append the following SQL statements to your `setup.sql` file, then select the new statements, right-click, and choose **Run Query** to populate the tables.
 
 ### Department Data
 
 ```sql
-INSERT INTO department (department_id, department_name)
+INSERT INTO departments (department_id, department_name)
 VALUES
 (1, 'Engineering'),
 (2, 'Human Resources'),
@@ -82,7 +147,7 @@ VALUES
 ### Employee Data
 
 ```sql
-INSERT INTO employee (
+INSERT INTO employees (
     employee_id,
     employee_name,
     salary,
@@ -130,21 +195,21 @@ Display all departments.
 
 ```sql
 SELECT *
-FROM department;
+FROM departments;
 ```
 
 Display all employees.
 
 ```sql
 SELECT *
-FROM employee;
+FROM employees;
 ```
 
 Count the total number of employees.
 
 ```sql
 SELECT COUNT(*) AS total_employees
-FROM employee;
+FROM employees;
 ```
 
 **Expected Output**
@@ -159,14 +224,14 @@ Display all employee names.
 
 ```sql
 SELECT employee_name
-FROM employee;
+FROM employees;
 ```
 
 Display employees from Hyderabad.
 
 ```sql
 SELECT *
-FROM employee
+FROM employees
 WHERE city = 'Hyderabad';
 ```
 
@@ -174,7 +239,7 @@ Display employees with salaries greater than ₹70,000.
 
 ```sql
 SELECT *
-FROM employee
+FROM employees
 WHERE salary > 70000;
 ```
 
@@ -182,7 +247,7 @@ Display employees sorted by salary.
 
 ```sql
 SELECT employee_name, salary
-FROM employee
+FROM employees
 ORDER BY salary DESC;
 ```
 
@@ -192,8 +257,8 @@ Display employee names with department names.
 SELECT
     e.employee_name,
     d.department_name
-FROM employee e
-INNER JOIN department d
+FROM employees e
+INNER JOIN departments d
 ON e.department_id = d.department_id;
 ```
 
@@ -203,24 +268,24 @@ Display all employees, including those without a department.
 SELECT
     e.employee_name,
     d.department_name
-FROM employee e
-LEFT JOIN department d
+FROM employees e
+LEFT JOIN departments d
 ON e.department_id = d.department_id;
 ```
 
 ## Database Schema
 
 ```text
-Department
-----------
+Departments
+-----------
 department_id (PK)
 department_name
        ▲
        │
        │ department_id
        │
-Employee
---------
+Employees
+---------
 employee_id (PK)
 employee_name
 salary
@@ -235,10 +300,12 @@ You have successfully:
 
 - Installed the SQLite extension in Visual Studio Code.
 - Created a SQLite database.
-- Created the `department` and `employee` tables.
+- Created the `departments` and `employees` tables.
 - Inserted 5 departments and 25 employee records.
 - Added one employee with a `NULL` department for practicing `LEFT JOIN` and `IS NULL`.
 - Verified the data.
 - Executed sample SQL queries.
 
 Your database is now ready to practice all SQL topics, including **SELECT**, **WHERE**, **GROUP BY**, **HAVING**, **JOINs**, **Aggregate Functions**, and **Window Functions**.
+
+The next chapter focuses entirely on **DQL (SELECT)**, where you'll learn how to retrieve and analyze data from the database.

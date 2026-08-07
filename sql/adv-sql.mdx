@@ -141,7 +141,7 @@ SELECT
     employee_name,
     salary,
     ROW_NUMBER() OVER(ORDER BY salary DESC) AS row_num
-FROM employee;
+FROM employees;
 ```
 
 ### RANK()
@@ -162,7 +162,7 @@ SELECT
     employee_name,
     salary,
     RANK() OVER(ORDER BY salary DESC) AS rank
-FROM employee;
+FROM employees;
 ```
 
 ### DENSE_RANK()
@@ -183,7 +183,7 @@ SELECT
     employee_name,
     salary,
     DENSE_RANK() OVER(ORDER BY salary DESC) AS dense_rank
-FROM employee;
+FROM employees;
 ```
 
 ### PARTITION BY
@@ -199,7 +199,7 @@ SELECT
         PARTITION BY department_id
         ORDER BY salary DESC
     ) AS rank
-FROM employee;
+FROM employees;
 ```
 
 ### GROUP BY vs Window Functions
