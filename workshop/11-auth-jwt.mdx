@@ -466,6 +466,32 @@ uv add pwdlib
 | `HTTPBearer` | Extract the Bearer token from the `Authorization` header. |
 | `HTTPAuthorizationCredentials` | Access the Bearer token received from the client. |
 
+### OAuth2PasswordBearer vs HTTPBearer
+
+FastAPI provides two main security schemes in `fastapi.security` for implementing token-based authentication: **`OAuth2PasswordBearer`** and **`HTTPBearer`**. Understanding their differences helps select the right scheme for your security requirements.
+
+#### 1. OAuth2PasswordBearer
+- **Flow**: Implements the OAuth2 password flow. It requires a `tokenUrl` parameter that specifies the path to the login endpoint (e.g. `/auth/login`).
+- **Swagger Integration**: Swagger UI displays an **Authorize** button. When clicked, it provides form fields for **Username** and **Password**. It sends a POST request with form-data to the `tokenUrl`, retrieves the token, and automatically applies it to subsequent test requests.
+- **Header Parsing**: Directly extracts the token value as a `str` from the `Authorization` header.
+- **Default Error**: Automatically raises a `401 Unauthorized` exception if the token is missing.
+
+#### 2. HTTPBearer
+- **Flow**: A generic HTTP security scheme for Bearer token authentication (RFC 6750) that is independent of any specific OAuth2 login flow. It does not require a `tokenUrl`.
+- **Swagger Integration**: Swagger UI displays an **Authorize** button. When clicked, it asks directly for the **Token** value.
+- **Header Parsing**: Returns an instance of `HTTPAuthorizationCredentials`, which wraps the parsing details (e.g., `credentials.scheme` which is `"Bearer"`, and `credentials.credentials` which is the actual token string).
+- **Default Error**: Automatically raises a `403 Forbidden` exception if the token is missing.
+
+#### Comparison Table
+
+| Feature | `OAuth2PasswordBearer` | `HTTPBearer` |
+|---------|------------------------|--------------|
+| **Primary Use Case** | OAuth2 compliance and form login workflows | Generic Token verification |
+| **Requires `tokenUrl`** | Yes | No |
+| **Swagger input** | Username + Password form | Token string |
+| **Output Type** | `str` | `HTTPAuthorizationCredentials` |
+| **Automatic Status Code (Missing Token)** | `401 Unauthorized` | `403 Forbidden` |
+
 ## JWT Authentication Flow
 
 ```text

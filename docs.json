@@ -288,9 +288,10 @@
             "pages": [
               "projects/01-basic-crud",
               "projects/02-api-crud-orm-modular",
-              "projects/03-restapi-with-jwt",
-              "projects/04-blog-posts-orm-standalone",
-              "projects/05-blog-posts-api-v2"
+              "projects/03-blog-posts-api",
+              "projects/04-restapi-with-jwt",
+              "projects/05-blog-posts-orm-standalone",
+              "projects/06-blog-posts-api-orm-jwt"
             ]
           }
 

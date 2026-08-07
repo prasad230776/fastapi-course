@@ -1,5 +1,5 @@
 ---
-title: 03-JWT Authentication with FastAPI
+title: 04-JWT Authentication with FastAPI
 description: Learn how to implement JWT-based authentication in FastAPI by building user registration, login, and protected REST APIs using password hashing and JSON Web Tokens.
 ---
 
@@ -89,11 +89,9 @@ Install the required libraries using **uv**.
 - pwdlib
 - python-jose (with cryptography support)
 
-<Question>
+**Task**
 
 Create the project structure and install the required dependencies for the JWT Authentication project.
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -213,11 +211,9 @@ Create a `database.py` file and implement the following:
 - Create the Base class.
 - Implement the `get_db()` dependency for managing database sessions.
 
-<Question>
+**Task**
 
 Configure the SQLite database and implement the database session dependency.
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -286,11 +282,9 @@ Apply the following constraints:
 - `name`, `email`, and `password` should be mandatory.
 - `role` should default to `"user"`.
 
-<Question>
+**Task**
 
 Create the User ORM model.
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -370,11 +364,9 @@ The `UserResponse` schema should contain:
 
 Configure the schema to read data directly from SQLAlchemy ORM objects.
 
-<Question>
+**Task**
 
 Create the User request and response schemas.
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -439,11 +431,9 @@ Open the `main.py` file and implement the following:
 - Create the database tables.
 - Implement a Home endpoint.
 
-<Question>
+**Task**
 
 Initialize the FastAPI application and create the database tables.
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -534,11 +524,9 @@ Create an `auth.py` file and implement the following:
 - Implement the `create_access_token()` function.
 - Implement the `verify_access_token()` function.
 
-<Question>
+**Task**
 
 Implement the authentication utility functions required for JWT authentication.
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -646,11 +634,9 @@ The API should perform the following:
 - Save the user to the database.
 - Return the created user.
 
-<Question>
+**Task**
 
 Implement the Register API.
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -783,11 +769,9 @@ The `TokenResponse` schema should contain:
 - access_token
 - token_type
 
-<Question>
+**Task**
 
 Create the authentication schemas.
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -847,11 +831,9 @@ Open the `main.py` file and implement the Login API.
 
 **Step 7:** Return the generated JWT to the client.
 
-<Question>
+**Task**
 
 Implement the Login API.
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -1039,11 +1021,9 @@ Open the `auth.py` file and implement the current user authentication dependency
 
 **Step 8:** Return the authenticated user.
 
-<Question>
+**Task**
 
 Implement the current user authentication dependency.
-
-</Question>
 
 <Accordion title="Solution">
 
@@ -1212,11 +1192,9 @@ Open the `main.py` file and implement the Public and Protected APIs.
 
 **Step 5:** Access the authenticated user's information inside the Protected API.
 
-<Question>
+**Task**
 
 Create the Public and Protected APIs.
-
-</Question>
 
 <Accordion title="Solution">
 

@@ -1,0 +1,1455 @@
+---
+title: "06-Secure Blog Posts API with Roles and Relationships"
+description: "Build a production-style Blog Posts API with User-Post relationships, Admin & Author roles, JWT Auth, modular Repository-Service pattern, and Global Exception Handling."
+---
+
+# Capstone Project - Secure Blog Posts API with Role-Based Access Control (RBAC)
+
+**Problem Statement**
+
+In this project, you will build a secure, production-ready **Blog Posts REST API** that manages users and blog posts with a one-to-many relationship using SQLAlchemy ORM.
+
+You will implement role-based authorization with two user roles:
+- **Author**: Can register, authenticate, view all posts, and create/update/delete their own posts.
+- **Admin**: Has full access to manage any user account and delete or update any blog post on the platform.
+
+The project will follow a clean, modular structure utilizing repository layers, service layers, global exception handling, modern Pydantic schema inheritance, and FastAPI's `Annotated` dependency injection.
+
+---
+
+# Learning Objectives
+
+After completing this project, you will be able to:
+
+- Model one-to-many relationships in SQLAlchemy and map foreign keys.
+- Structure request validation and response models using Pydantic inheritance.
+- Restrict endpoint operations using JWT-based OAuth2 authentication and scopes/roles.
+- Leverage modern `Annotated` syntax to perform field validation and dependency injection.
+- Design database access abstraction using the Repository Pattern.
+- Separate business logic cleanly into the Service Layer.
+- Handle API errors globally and return uniform error structures.
+
+---
+
+# Final Project Architecture
+
+```text
+                        Client
+                           │
+                     HTTP Request
+                           │
+                           ▼
+                      APIRouter (Auth, User, Post)
+                           │
+                           ▼
+                     Service Layer (User, Post Services)
+                           │
+                           ▼
+                   Repository Layer (User, Post Repositories)
+                           │
+                           ▼
+                    SQLAlchemy ORM (SQLite Database)
+```
+
+---
+
+# Step 1: Create the Project Directory
+
+**Objective**
+
+Create the project directory and initialize the project environment using `uv`.
+
+**Instructions**
+
+- Create a new project directory named `blog-rbac-api`.
+- Navigate to the project directory.
+- Initialize the project structure using `uv init`.
+
+**Task**
+
+Create the project directory and initialize it using **uv**.
+
+<Accordion title="Solution">
+
+**Code**
+
+```bash
+# Create project folder
+mkdir blog-rbac-api
+
+# Navigate to project
+cd blog-rbac-api
+
+# Initialize package
+uv init
+```
+
+</Accordion>
+
+**Run & Verify**
+
+Verify that:
+- The `blog-rbac-api` folder is created.
+- A `pyproject.toml` file is created.
+
+---
+
+# Step 2: Initialize Git and Create Gitignore
+
+**Objective**
+
+Set up version control tracking and declare file paths to ignore.
+
+**Instructions**
+
+- Initialize a new git repository in the workspace root.
+- Create a `.gitignore` file mapping path patterns that should not be tracked by Git.
+
+**Task**
+
+Initialize the git repository and define `.gitignore`.
+
+<Accordion title="Solution">
+
+**Code**
+
+Initialize Git:
+```bash
+git init
+```
+
+Create `.gitignore`:
+```gitignore
+.venv/
+__pycache__/
+*.py[cod]
+*.db
+.DS_Store
+```
+
+**Git Actions**
+
+Commit setup:
+```bash
+git add .gitignore
+git commit -m "chore: initialize git repository and gitignore"
+```
+
+</Accordion>
+
+**Run & Verify**
+
+Verify that `git status` reports `.gitignore` is successfully committed.
+
+---
+
+# Step 3: Install Required Dependencies
+
+**Objective**
+
+Install all required third-party libraries for database connection, token authentication, and the web server.
+
+**Instructions**
+
+- Run `uv add` to install project dependencies.
+
+**Task**
+
+Install the necessary dependencies.
+
+<Accordion title="Solution">
+
+**Code**
+
+```bash
+uv add fastapi uvicorn sqlalchemy pyjwt "passlib[bcrypt]" email-validator
+```
+
+**Git Actions**
+
+```bash
+# Commit the dependency files
+git add pyproject.toml uv.lock
+git commit -m "chore: install core project dependencies"
+```
+
+</Accordion>
+
+**Run & Verify**
+
+Verify that `pyproject.toml` shows the newly installed dependencies under the dependency section.
+
+---
+
+# Step 4: Create the Modular Package Folder Structure
+
+**Objective**
+
+Lay out folders and files to enforce separation of concerns across models, schemas, repositories, services, and routers.
+
+**Instructions**
+
+- Create the application package directory named `app`.
+- Create folders for `core`, `models`, `schemas`, `repositories`, `services`, and `routers` under `app`.
+- Place empty `__init__.py` files inside each folder.
+
+**Task**
+
+Create the project package directories.
+
+<Accordion title="Solution">
+
+**Code**
+
+**Folder Layout**
+
+```text
+blog-rbac-api/
+│
+├── app/
+│   ├── __init__.py
+│   ├── core/
+│   │   └── __init__.py
+│   ├── models/
+│   │   └── __init__.py
+│   ├── schemas/
+│   │   └── __init__.py
+│   ├── repositories/
+│   │   └── __init__.py
+│   ├── services/
+│   │   └── __init__.py
+│   ├── routers/
+│   │   └── __init__.py
+│   ├── database.py
+│   ├── dependencies.py
+│   └── main.py
+```
+
+**Git Actions**
+
+Commit the folder structure:
+```bash
+git add app/
+git commit -m "chore: add core modular folder structure"
+```
+
+</Accordion>
+
+**Run & Verify**
+
+Verify that all directory structures are properly set up inside your workspace.
+
+---
+
+# Step 5: Configure the Database Connection
+
+**Objective**
+
+Configure database connection parameters and baseline database session manager settings.
+
+**Instructions**
+
+- Create `app/database.py` at the root of the app package.
+- Initialize database engine settings, the session factory, and a base model class `Base`.
+
+**Task**
+
+Implement database connection settings in app/database.py.
+
+<Accordion title="Solution">
+
+**Code**
+
+**File:** `app/database.py`
+
+```python
+from typing import Generator
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, DeclarativeBase
+
+DATABASE_URL = "sqlite:///blog_rbac.db"
+
+engine = create_engine(
+    DATABASE_URL,
+    connect_args={"check_same_thread": False} # Required for SQLite
+)
+
+SessionLocal = sessionmaker(
+    bind=engine,
+    autocommit=False,
+    autoflush=False
+)
+
+class Base(DeclarativeBase):
+    pass
+```
+
+**Git Actions**
+
+Commit the changes:
+```bash
+git add app/database.py
+git commit -m "feat: configure database engine and Base model"
+```
+
+</Accordion>
+
+**Run & Verify**
+
+Verify that the database configuration script compiles without module-level syntax or import issues.
+
+---
+
+# Step 6: Create the Database Session Dependency
+
+**Objective**
+
+Expose database session dependencies at the global package level, at the same level as the database configuration.
+
+**Instructions**
+
+- Create `app/dependencies.py`.
+- Define the `get_db` generator function to handle database sessions.
+
+**Task**
+
+Implement the get_db database session generator dependency.
+
+<Accordion title="Solution">
+
+**Code**
+
+**File:** `app/dependencies.py`
+
+```python
+from typing import Generator
+from app.database import SessionLocal
+
+def get_db() -> Generator:
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+```
+
+**Git Actions**
+
+Commit the changes:
+```bash
+git add app/dependencies.py
+git commit -m "feat: implement database session generator dependency"
+```
+
+</Accordion>
+
+**Run & Verify**
+
+Verify that the dependency loader file compiles correctly.
+
+---
+
+# Step 7: Define Global Exceptions
+
+**Objective**
+
+Design exception models to categorize API errors cleanly.
+
+**Instructions**
+
+- Create custom exceptions inside `app/core/exceptions.py`.
+- Inherit exceptions from a base `AppException` class.
+
+**Task**
+
+Implement custom exceptions in app/core/exceptions.py.
+
+<Accordion title="Solution">
+
+**Code**
+
+**File:** `app/core/exceptions.py`
+
+```python
+class AppException(Exception):
+    def __init__(self, message: str, status_code: int = 400):
+        self.message = message
+        self.status_code = status_code
+        super().__init__(message)
+
+class UserNotFoundError(AppException):
+    def __init__(self, message: str = "User not found"):
+        super().__init__(message, status_code=404)
+
+class PostNotFoundError(AppException):
+    def __init__(self, message: str = "Post not found"):
+        super().__init__(message, status_code=404)
+
+class AuthenticationError(AppException):
+    def __init__(self, message: str = "Authentication failed"):
+        super().__init__(message, status_code=401)
+
+class ForbiddenError(AppException):
+    def __init__(self, message: str = "Not authorized to perform this action"):
+        super().__init__(message, status_code=403)
+```
+
+**Git Actions**
+
+Commit the changes:
+```bash
+git add app/core/exceptions.py
+git commit -m "feat: define custom exceptions for error handling"
+```
+
+</Accordion>
+
+**Run & Verify**
+
+Verify that the module has no syntax errors.
+
+---
+
+# Step 8: Define Exception Handlers
+
+**Objective**
+
+Convert custom application errors into structured HTTP responses.
+
+**Instructions**
+
+- Create `app/core/exception_handlers.py`.
+- Write the exception handler helper to return JSONResponses.
+
+**Task**
+
+Implement custom exceptions handler mapping.
+
+<Accordion title="Solution">
+
+**Code**
+
+**File:** `app/core/exception_handlers.py`
+
+```python
+from fastapi import Request
+from fastapi.responses import JSONResponse
+from app.core.exceptions import AppException
+
+async def app_exception_handler(request: Request, exc: AppException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.message}
+    )
+```
+
+**Git Actions**
+
+Commit the changes:
+```bash
+git add app/core/exception_handlers.py
+git commit -m "feat: implement global exception handler"
+```
+
+</Accordion>
+
+**Run & Verify**
+
+Verify that exception handlers import matching exception classes successfully.
+
+---
+
+# Step 9: Design the User Database Model
+
+**Objective**
+
+Create the User database model with a role attribute to handle Admin vs. Author permissions.
+
+**Instructions**
+
+- Create `app/models/user.py`.
+- Define fields mapping the `users` table.
+- Declare relationships to user posts.
+
+**Task**
+
+Define the User database model.
+
+**User Database Schema Details:**
+- **id**: Integer, Primary Key, Indexed
+- **email**: String(100), Unique, Indexed, Not Null
+- **hashed_password**: String(200), Not Null
+- **name**: String(100), Not Null
+- **role**: String(20), Not Null (Defaults to `"author"`)
+- **Relationship**: Has a one-to-many relationship with `Post` mapped via `posts` back-populating `author` (using `cascade="all, delete-orphan"`)
+
+<Accordion title="Solution">
+
+**Code**
+
+**File:** `app/models/user.py`
+
+```python
+from typing import List
+from sqlalchemy import String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from app.database import Base
+
+class User(Base):
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    email: Mapped[str] = mapped_column(String(100), unique=True, index=True, nullable=False)
+    hashed_password: Mapped[str] = mapped_column(String(200), nullable=False)
+    name: Mapped[str] = mapped_column(String(100), nullable=False)
+    role: Mapped[str] = mapped_column(String(20), default="author", nullable=False)
+
+    posts: Mapped[List["Post"]] = relationship(back_populates="author", cascade="all, delete-orphan")
+```
+
+**Git Actions**
+
+Commit the changes:
+```bash
+git add app/models/user.py
+git commit -m "feat: define User database model"
+```
+
+</Accordion>
+
+**Run & Verify**
+
+Verify that the models module compiles correctly.
+
+---
+
+# Step 10: Design the Post Database Model
+
+**Objective**
+
+Define the blog Post model referencing the User model via a foreign key relationship.
+
+**Instructions**
+
+- Create `app/models/post.py`.
+- Map column attributes for the `posts` table.
+- Configure ForeignKey relations pointing user identities to author identifiers.
+
+**Task**
+
+Define the Post database model.
+
+**Post Database Schema Details:**
+- **id**: Integer, Primary Key, Indexed
+- **title**: String(200), Not Null
+- **content**: Text, Not Null
+- **author_id**: Integer, ForeignKey to `users.id` (with cascade delete rules), Not Null
+- **Relationship**: Belongs to `User` back-populating `posts`
+
+<Accordion title="Solution">
+
+**Code**
+
+**File:** `app/models/post.py`
+
+```python
+from sqlalchemy import ForeignKey, String, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from app.database import Base
+
+class Post(Base):
+    __tablename__ = "posts"
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    title: Mapped[str] = mapped_column(String(200), nullable=False)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    author_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+
+    author: Mapped["User"] = relationship(back_populates="posts")
+```
+
+**Git Actions**
+
+Commit the changes:
+```bash
+git add app/models/post.py
+git commit -m "feat: define Post database model"
+```
+
+</Accordion>
+
+**Run & Verify**
+
+Verify that the foreign key constraints align with standard schema maps.
+
+---
+
+# Step 11: Create User Validation Schemas
+
+**Objective**
+
+Create User data validation schemas using Pydantic inheritance and modern Annotated validators.
+
+**Instructions**
+
+- Create `app/schemas/user.py`.
+- Use inheritance starting from `UserBase`.
+- Add field validation constraints.
+
+**Task**
+
+Define User validation schemas using Pydantic inheritance.
+
+**User Pydantic Schemas Details:**
+- **UserBase**:
+  - `email`: Validated EmailStr
+  - `name`: string (length between 2 and 50)
+- **UserCreate**: Inherits from `UserBase` and adds `password` (minimum length of 6) and `role` (defaults to `"author"`)
+- **UserUpdate**: Optional fields for `name`, `email`, and `role`
+- **UserResponse**: Inherits from `UserBase` and adds `id` and `role` (configured with `from_attributes = True`)
+
+<Accordion title="Solution">
+
+**Code**
+
+**File:** `app/schemas/user.py`
+
+```python
+from typing import Annotated
+from pydantic import BaseModel, EmailStr, Field
+
+NameField = Annotated[str, Field(min_length=2, max_length=50)]
+PasswordField = Annotated[str, Field(min_length=6)]
+RoleField = Annotated[str, Field(default="author", pattern="^(admin|author)$")]
+
+class UserBase(BaseModel):
+    email: EmailStr
+    name: NameField
+
+class UserCreate(UserBase):
+    password: PasswordField
+    role: RoleField = "author"
+
+class UserUpdate(BaseModel):
+    name: NameField | None = None
+    email: EmailStr | None = None
+    role: RoleField | None = None
+
+class UserResponse(UserBase):
+    id: int
+    role: str
+
+    class ConfigDict:
+        from_attributes = True
+```
+
+**Git Actions**
+
+Commit the changes:
+```bash
+git add app/schemas/user.py
+git commit -m "feat: implement User validation schemas"
+```
+
+</Accordion>
+
+**Run & Verify**
+
+Verify that schema classes run input type checks.
+
+---
+
+# Step 12: Create Post Validation Schemas
+
+**Objective**
+
+Implement data validation schemas for creating, updating, and returning blog posts.
+
+**Instructions**
+
+- Create `app/schemas/post.py`.
+- Implement `PostBase` and its subclasses.
+
+**Task**
+
+Define Post validation schemas using Pydantic inheritance.
+
+**Post Pydantic Schemas Details:**
+- **PostBase**:
+  - `title`: string (length between 3 and 200)
+  - `content`: string (minimum length of 1)
+- **PostCreate**: Inherits from `PostBase`
+- **PostUpdate**: Optional fields for `title` and `content`
+- **PostResponse**: Inherits from `PostBase` and adds `id`, `author_id`, and `author` (configured with `from_attributes = True`)
+
+<Accordion title="Solution">
+
+**Code**
+
+**File:** `app/schemas/post.py`
+
+```python
+from typing import Annotated
+from pydantic import BaseModel, Field
+from app.schemas.user import UserResponse
+
+TitleField = Annotated[str, Field(min_length=3, max_length=200)]
+ContentField = Annotated[str, Field(min_length=1)]
+
+class PostBase(BaseModel):
+    title: TitleField
+    content: ContentField
+
+class PostCreate(PostBase):
+    pass
+
+class PostUpdate(BaseModel):
+    title: TitleField | None = None
+    content: ContentField | None = None
+
+class PostResponse(PostBase):
+    id: int
+    author_id: int
+    author: UserResponse
+
+    class ConfigDict:
+        from_attributes = True
+```
+
+**Git Actions**
+
+Commit the changes:
+```bash
+git add app/schemas/post.py
+git commit -m "feat: implement Post validation schemas"
+```
+
+</Accordion>
+
+**Run & Verify**
+
+Verify that the schemas inherit properties correctly.
+
+---
+
+# Step 13: Create Token Validation Schemas
+
+**Objective**
+
+Create Pydantic models for authentication JWT tokens.
+
+**Instructions**
+
+- Create `app/schemas/token.py`.
+- Define models to validate login responses.
+
+**Task**
+
+Define Token validation schemas.
+
+<Accordion title="Solution">
+
+**Code**
+
+**File:** `app/schemas/token.py`
+
+```python
+from pydantic import BaseModel
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    email: str | None = None
+```
+
+**Git Actions**
+
+Commit the changes:
+```bash
+git add app/schemas/token.py
+git commit -m "feat: implement Token validation schemas"
+```
+
+</Accordion>
+
+**Run & Verify**
+
+Verify that the Token schemas map response keys.
+
+---
+
+# Step 14: Core Security and Password Utilities
+
+**Objective**
+
+Provide helper utilities for secure password storage.
+
+**Instructions**
+
+- Create `app/core/security.py`.
+- Define helper actions to hash credentials and verify passwords.
+
+**Task**
+
+Implement password hashing and password verification methods.
+
+<Accordion title="Solution">
+
+**Code**
+
+**File:** `app/core/security.py`
+
+```python
+from datetime import datetime, timedelta, timezone
+from typing import Any
+import jwt
+from passlib.context import CryptContext
+
+SECRET_KEY = "SUPER_SECRET_ROLE_BASED_KEY_DO_NOT_USE_IN_PRODUCTION"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)
+
+def get_password_hash(password: str) -> str:
+    return pwd_context.hash(password)
+
+def create_access_token(data: dict[str, Any], expires_delta: timedelta | None = None) -> str:
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.now(timezone.utc) + expires_delta
+    else:
+        expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+```
+
+**Git Actions**
+
+Commit the changes:
+```bash
+git add app/core/security.py
+git commit -m "feat: implement password hashing and access token generation utilities"
+```
+
+</Accordion>
+
+**Run & Verify**
+
+Verify that the password hashing is non-reversible.
+
+---
+
+# Step 15: Create the User Repository
+
+**Objective**
+
+Separate direct database operations on the User records using a Repository class.
+
+**Instructions**
+
+- Create `app/repositories/user_repository.py`.
+- Implement routines to retrieve, create, and update User rows.
+
+**Task**
+
+Implement UserRepository.
+
+<Accordion title="Solution">
+
+**Code**
+
+**File:** `app/repositories/user_repository.py`
+
+```python
+from sqlalchemy.orm import Session
+from app.models.user import User
+from app.schemas.user import UserCreate, UserUpdate
+
+class UserRepository:
+    def __init__(self, db: Session):
+        self.db = db
+
+    def get_by_id(self, user_id: int) -> User | None:
+        return self.db.query(User).filter(User.id == user_id).first()
+
+    def get_by_email(self, email: str) -> User | None:
+        return self.db.query(User).filter(User.email == email).first()
+
+    def get_all(self) -> list[User]:
+        return self.db.query(User).all()
+
+    def create(self, user_create: UserCreate, hashed_password: str) -> User:
+        db_user = User(
+            email=user_create.email,
+            hashed_password=hashed_password,
+            name=user_create.name,
+            role=user_create.role
+        )
+        self.db.add(db_user)
+        self.db.commit()
+        self.db.refresh(db_user)
+        return db_user
+
+    def update(self, user: User, user_update: UserUpdate) -> User:
+        update_data = user_update.model_dump(exclude_unset=True)
+        for key, value in update_data.items():
+            setattr(user, key, value)
+        self.db.commit()
+        self.db.refresh(user)
+        return user
+
+    def delete(self, user: User) -> None:
+        self.db.delete(user)
+        self.db.commit()
+```
+
+**Git Actions**
+
+Commit the changes:
+```bash
+git add app/repositories/user_repository.py
+git commit -m "feat: implement UserRepository database interfaces"
+```
+
+</Accordion>
+
+**Run & Verify**
+
+Verify that database queries match standard SQLAlchemy formats.
+
+---
+
+# Step 16: Create the Post Repository
+
+**Objective**
+
+Separate database operations on the Post records using a Repository class.
+
+**Instructions**
+
+- Create `app/repositories/post_repository.py`.
+- Implement database queries to create, read, update, and delete Post entries.
+
+**Task**
+
+Implement PostRepository.
+
+<Accordion title="Solution">
+
+**Code**
+
+**File:** `app/repositories/post_repository.py`
+
+```python
+from sqlalchemy.orm import Session
+from app.models.post import Post
+from app.schemas.post import PostCreate, PostUpdate
+
+class PostRepository:
+    def __init__(self, db: Session):
+        self.db = db
+
+    def get_all(self) -> list[Post]:
+        return self.db.query(Post).all()
+
+    def get_by_id(self, post_id: int) -> Post | None:
+        return self.db.query(Post).filter(Post.id == post_id).first()
+
+    def create(self, post_create: PostCreate, author_id: int) -> Post:
+        db_post = Post(
+            title=post_create.title,
+            content=post_create.content,
+            author_id=author_id
+        )
+        self.db.add(db_post)
+        self.db.commit()
+        self.db.refresh(db_post)
+        return db_post
+
+    def update(self, post: Post, post_update: PostUpdate) -> Post:
+        update_data = post_update.model_dump(exclude_unset=True)
+        for key, value in update_data.items():
+            setattr(post, key, value)
+        self.db.commit()
+        self.db.refresh(post)
+        return post
+
+    def delete(self, post: Post) -> None:
+        self.db.delete(post)
+        self.db.commit()
+```
+
+**Git Actions**
+
+Commit the changes:
+```bash
+git add app/repositories/post_repository.py
+git commit -m "feat: implement PostRepository database interfaces"
+```
+
+</Accordion>
+
+**Run & Verify**
+
+Verify that CRUD database queries compile without errors.
+
+---
+
+# Step 17: Create the User Service
+
+**Objective**
+
+Coordinate User validation and profile updates within the Service Layer.
+
+**Instructions**
+
+- Create `app/services/user_service.py`.
+- Write user profile updates and permission checks.
+
+**Task**
+
+Implement UserService.
+
+<Accordion title="Solution">
+
+**Code**
+
+**File:** `app/services/user_service.py`
+
+```python
+from sqlalchemy.orm import Session
+from app.repositories.user_repository import UserRepository
+from app.schemas.user import UserCreate, UserUpdate
+from app.core.security import get_password_hash
+from app.core.exceptions import AppException, UserNotFoundError, ForbiddenError
+from app.models.user import User
+
+class UserService:
+    def __init__(self, db: Session):
+        self.user_repo = UserRepository(db)
+
+    def register_user(self, user_create: UserCreate) -> User:
+        existing_user = self.user_repo.get_by_email(user_create.email)
+        if existing_user:
+            raise AppException("Email already registered", status_code=400)
+        
+        hashed = get_password_hash(user_create.password)
+        return self.user_repo.create(user_create, hashed)
+
+    def get_all_users(self, current_user: User) -> list[User]:
+        if current_user.role != "admin":
+            raise ForbiddenError("Only administrators can view the user list")
+        return self.user_repo.get_all()
+
+    def update_user(self, target_user_id: int, user_update: UserUpdate, current_user: User) -> User:
+        if current_user.id != target_user_id and current_user.role != "admin":
+            raise ForbiddenError("You cannot modify other users' profiles")
+            
+        target_user = self.user_repo.get_by_id(target_user_id)
+        if not target_user:
+            raise UserNotFoundError()
+            
+        if user_update.role and current_user.role != "admin":
+            raise ForbiddenError("Only administrators can modify roles")
+            
+        return self.user_repo.update(target_user, user_update)
+
+    def delete_user(self, target_user_id: int, current_user: User) -> None:
+        if current_user.role != "admin":
+            raise ForbiddenError("Only administrators can delete user accounts")
+        target_user = self.user_repo.get_by_id(target_user_id)
+        if not target_user:
+            raise UserNotFoundError()
+        self.user_repo.delete(target_user)
+```
+
+**Git Actions**
+
+Commit the changes:
+```bash
+git add app/services/user_service.py
+git commit -m "feat: implement UserService business logic"
+```
+
+</Accordion>
+
+**Run & Verify**
+
+Verify that users without the Admin role cannot update roles.
+
+---
+
+# Step 18: Create the Post Service
+
+**Objective**
+
+Coordinate Post mutations and authorization limit audits within the Service Layer.
+
+**Instructions**
+
+- Create `app/services/post_service.py`.
+- Write logic to restrict post updates and deletions to the post owner or users with the Admin role.
+
+**Task**
+
+Implement PostService.
+
+<Accordion title="Solution">
+
+**Code**
+
+**File:** `app/services/post_service.py`
+
+```python
+from sqlalchemy.orm import Session
+from app.repositories.post_repository import PostRepository
+from app.schemas.post import PostCreate, PostUpdate
+from app.core.exceptions import PostNotFoundError, ForbiddenError
+from app.models.post import Post
+from app.models.user import User
+
+class PostService:
+    def __init__(self, db: Session):
+        self.post_repo = PostRepository(db)
+
+    def get_all_posts(self) -> list[Post]:
+        return self.post_repo.get_all()
+
+    def get_post(self, post_id: int) -> Post:
+        post = self.post_repo.get_by_id(post_id)
+        if not post:
+            raise PostNotFoundError()
+        return post
+
+    def create_post(self, post_create: PostCreate, author_id: int) -> Post:
+        return self.post_repo.create(post_create, author_id)
+
+    def update_post(self, post_id: int, post_update: PostUpdate, current_user: User) -> Post:
+        post = self.get_post(post_id)
+        if post.author_id != current_user.id and current_user.role != "admin":
+            raise ForbiddenError("You are not authorized to edit this post")
+        return self.post_repo.update(post, post_update)
+
+    def delete_post(self, post_id: int, current_user: User) -> None:
+        post = self.get_post(post_id)
+        if post.author_id != current_user.id and current_user.role != "admin":
+            raise ForbiddenError("You are not authorized to delete this post")
+        self.post_repo.delete(post)
+```
+
+**Git Actions**
+
+Commit the changes:
+```bash
+git add app/services/post_service.py
+git commit -m "feat: implement PostService business logic"
+```
+
+</Accordion>
+
+**Run & Verify**
+
+Verify that non-owners and non-admins receive a `403 Forbidden` error when trying to delete a post.
+
+---
+
+# Step 19: Implement Authentication Dependencies in Dependencies.py
+
+**Objective**
+
+Expose current active user context validation helper in the global dependencies file.
+
+**Instructions**
+
+- Open `app/dependencies.py`.
+- Append the authentication dependencies (`get_current_user` and annotations) to the same level as `get_db`.
+
+**Task**
+
+Implement OAuth2 JWT authentication dependency in app/dependencies.py.
+
+<Accordion title="Solution">
+
+**Code**
+
+**File:** `app/dependencies.py`
+
+```python
+from typing import Annotated
+from fastapi import Depends
+from fastapi.security import OAuth2PasswordBearer
+import jwt
+from jwt.exceptions import InvalidTokenError
+from sqlalchemy.orm import Session
+
+from app.database import Base
+from app.core.security import SECRET_KEY, ALGORITHM
+from app.core.exceptions import AuthenticationError, UserNotFoundError
+from app.models.user import User
+from app.repositories.user_repository import UserRepository
+from app.schemas.token import TokenData
+
+# Keep existing get_db code and append:
+from app.database import SessionLocal
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
+
+DbSession = Annotated[Session, Depends(get_db)]
+TokenHeader = Annotated[str, Depends(oauth2_scheme)]
+
+def get_current_user(db: DbSession, token: TokenHeader) -> User:
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise AuthenticationError("Invalid authentication credentials")
+        token_data = TokenData(email=email)
+    except InvalidTokenError:
+        raise AuthenticationError("Could not validate credentials")
+    
+    user_repo = UserRepository(db)
+    user = user_repo.get_by_email(token_data.email)
+    if user is None:
+        raise UserNotFoundError("User associated with token not found")
+    return user
+
+CurrentUser = Annotated[User, Depends(get_current_user)]
+```
+
+**Git Actions**
+
+Commit dependency updates:
+```bash
+git add app/dependencies.py
+git commit -m "feat: integrate get_current_user authentication dependency in global dependencies"
+```
+
+</Accordion>
+
+**Run & Verify**
+
+Verify that `app/dependencies.py` compiles cleanly containing both database session and OAuth2 authentication handlers.
+
+---
+
+# Step 20: Create API Routers
+
+**Objective**
+
+Expose operations through API Routers using `Annotated` injection syntax.
+
+**Instructions**
+
+- Create `app/routers/auth.py`, `app/routers/user.py`, and `app/routers/post.py`.
+- Import dependencies from `app.dependencies` to enforce authorization.
+
+**Task**
+
+Implement API routers.
+
+<Accordion title="Solution">
+
+**Code**
+
+**Auth Router (`app/routers/auth.py`)**
+
+```python
+from typing import Annotated
+from fastapi import APIRouter, Depends
+from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy.orm import Session
+
+from app.dependencies import get_db
+from app.repositories.user_repository import UserRepository
+from app.core.security import verify_password, create_access_token
+from app.core.exceptions import AuthenticationError
+from app.schemas.token import Token
+
+router = APIRouter(prefix="/auth", tags=["auth"])
+
+DbSession = Annotated[Session, Depends(get_db)]
+LoginForm = Annotated[OAuth2PasswordRequestForm, Depends()]
+
+@router.post("/login", response_model=Token)
+def login(db: DbSession, form_data: LoginForm):
+    user_repo = UserRepository(db)
+    user = user_repo.get_by_email(form_data.username)
+    if not user or not verify_password(form_data.password, user.hashed_password):
+        raise AuthenticationError("Incorrect email or password")
+    
+    access_token = create_access_token(data={"sub": user.email})
+    return {"access_token": access_token, "token_type": "bearer"}
+```
+
+**User Router (`app/routers/user.py`)**
+
+```python
+from fastapi import APIRouter
+from app.dependencies import DbSession
+from app.dependencies import CurrentUser
+from app.schemas.user import UserCreate, UserUpdate, UserResponse
+from app.services.user_service import UserService
+
+router = APIRouter(prefix="/users", tags=["users"])
+
+@router.post("/register", response_model=UserResponse, status_code=201)
+def register_user(db: DbSession, user_in: UserCreate):
+    user_service = UserService(db)
+    return user_service.register_user(user_in)
+
+@router.get("", response_model=list[UserResponse])
+def read_users(db: DbSession, current_user: CurrentUser):
+    user_service = UserService(db)
+    return user_service.get_all_users(current_user)
+
+@router.put("/{user_id}", response_model=UserResponse)
+def update_user(db: DbSession, current_user: CurrentUser, user_id: int, user_in: UserUpdate):
+    user_service = UserService(db)
+    return user_service.update_user(target_user_id=user_id, user_update=user_in, current_user=current_user)
+
+@router.delete("/{user_id}", status_code=204)
+def delete_user(db: DbSession, current_user: CurrentUser, user_id: int):
+    user_service = UserService(db)
+    user_service.delete_user(target_user_id=user_id, current_user=current_user)
+    return None
+```
+
+**Post Router (`app/routers/post.py`)**
+
+```python
+from fastapi import APIRouter
+from app.dependencies import DbSession
+from app.dependencies import CurrentUser
+from app.schemas.post import PostCreate, PostUpdate, PostResponse
+from app.services.post_service import PostService
+
+router = APIRouter(prefix="/posts", tags=["posts"])
+
+@router.get("", response_model=list[PostResponse])
+def read_posts(db: DbSession):
+    post_service = PostService(db)
+    return post_service.get_all_posts()
+
+@router.get("/{post_id}", response_model=PostResponse)
+def read_post(db: DbSession, post_id: int):
+    post_service = PostService(db)
+    return post_service.get_post(post_id)
+
+@router.post("", response_model=PostResponse, status_code=201)
+def create_post(db: DbSession, current_user: CurrentUser, post_in: PostCreate):
+    post_service = PostService(db)
+    return post_service.create_post(post_in, current_user.id)
+
+@router.put("/{post_id}", response_model=PostResponse)
+def update_post(db: DbSession, current_user: CurrentUser, post_id: int, post_in: PostUpdate):
+    post_service = PostService(db)
+    return post_service.update_post(post_id, post_in, current_user)
+
+@router.delete("/{post_id}", status_code=204)
+def delete_post(db: DbSession, current_user: CurrentUser, post_id: int):
+    post_service = PostService(db)
+    post_service.delete_post(post_id, current_user)
+    return None
+```
+
+**Git Actions**
+
+Commit routers:
+```bash
+git add app/routers/auth.py app/routers/user.py app/routers/post.py
+git commit -m "feat: implement Auth, User, and Post api routers"
+```
+
+</Accordion>
+
+**Run & Verify**
+
+Verify that routers compile cleanly.
+
+---
+
+# Step 21: Setup Application Entrypoint (main.py)
+
+**Objective**
+
+Integrate your routes, create database tables, register global exception handlers, and start your server.
+
+**Instructions**
+
+- Create `app/main.py`.
+- Include the declarative base model definitions to create tables on startup.
+- Register `AppException` handler using your custom function handler.
+- Register the Auth, User, and Post routers.
+
+**Task**
+
+Assemble the final FastAPI configuration in main.py.
+
+<Accordion title="Solution">
+
+**Code**
+
+```python
+# app/main.py
+from fastapi import FastAPI
+from app.database import Base, engine
+from app.core.exceptions import AppException
+from app.core.exception_handlers import app_exception_handler
+from app.routers import auth, user, post
+
+# Create database tables dynamically
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI(
+    title="Secure Blog Posts API",
+    description="A modular API for blogging with Admin and Author role capabilities",
+    version="1.0.0"
+)
+
+# Register exception handlers
+app.add_exception_handler(AppException, app_exception_handler)
+
+# Include routers
+app.add_api_route("/health", lambda: {"status": "healthy"}, tags=["health"])
+app.include_router(auth.router)
+app.include_router(user.router)
+app.include_router(post.router)
+```
+
+**Git Actions**
+
+Commit the final main configuration:
+```bash
+git add app/main.py
+git commit -m "feat: implement main entrypoint and register all routers and exception handlers"
+```
+
+</Accordion>
+
+**Run & Verify**
+
+Verify your completed project works as expected:
+
+- Start your server:
+  ```bash
+  uv run uvicorn app.main:app --reload
+  ```
+- Navigate to `http://127.0.0.1:8000/docs` to test endpoints via Swagger UI.
+- Test endpoint access:
+  - Register an `admin` user and an `author` user.
+  - Test that authors can edit their own posts but get `403 Forbidden` trying to edit others.
+  - Test that admins can modify or delete any post and view/manage the user accounts list.

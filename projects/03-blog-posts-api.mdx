@@ -1,0 +1,793 @@
+---
+title: "03-Blog Posts API"
+description: "Build a simple Blog Posts API using FastAPI and SQLAlchemy ORM."
+---
+
+# Capstone Project - Blog Posts API
+
+**Problem Statement**
+
+In this capstone project, you will develop a REST API to manage blog posts.
+
+Each blog post contains:
+
+- ID
+- Title
+- Description
+- Author
+- Created At
+
+The application should support the following operations:
+
+- Create a Post
+- View All Posts
+- View a Post
+- Update a Post
+- Delete a Post
+
+By the end of this project, you will have a complete backend application that demonstrates core practices for building REST APIs using FastAPI and SQLAlchemy.
+
+---
+
+# Learning Objectives
+
+After completing this project, you will be able to:
+
+- Build RESTful APIs using FastAPI.
+- Organize applications using a modular project structure.
+- Configure SQLite with SQLAlchemy ORM.
+- Design database models using SQLAlchemy.
+- Validate requests and responses using Pydantic Schemas.
+- Implement database session dependencies.
+- Handle data persistence using CRUD routines.
+- Manage database schema changes using Alembic migrations.
+- Migrate database engines from SQLite to PostgreSQL.
+
+---
+
+# Step 1: Create the Project
+
+**Objective**
+
+Create a new project directory and prepare the development environment.
+
+**Instructions**
+
+- Create a new project directory named `blog-api`.
+- Navigate to the project directory.
+- Initialize the project using **uv**.
+
+**Task**
+
+Initialize the project using **uv**.
+
+<Accordion title="Solution">
+
+```bash
+# Initialize the project
+uv init blog-api
+
+# Navigate into the project
+cd blog-api
+```
+
+</Accordion>
+
+**Run & Verify**
+
+Verify that:
+
+- The project directory has been created.
+- A `pyproject.toml` file has been generated.
+
+---
+
+# Step 2: Create a Virtual Environment
+
+**Objective**
+
+Initialize and activate a virtual environment to isolate project dependencies.
+
+**Instructions**
+
+- Create the virtual environment using `uv venv`.
+- Activate the virtual environment based on your operating system.
+
+**Task**
+
+Initialize and activate the virtual environment.
+
+<Accordion title="Solution">
+
+**Create the virtual environment**
+
+```bash
+uv venv
+```
+
+**Activate the virtual environment**
+
+For Windows:
+```bash
+.venv\Scripts\activate
+```
+
+For macOS / Linux:
+```bash
+source .venv/bin/activate
+```
+
+</Accordion>
+
+**Run & Verify**
+
+Verify that:
+
+- The virtual environment folder `.venv` is created.
+- The command prompt is updated, indicating the virtual environment is active.
+
+---
+
+# Step 3: Install Required Packages
+
+**Objective**
+
+Install all the libraries required to build the Blog Posts API.
+
+**Instructions**
+
+- Install `fastapi`, `uvicorn[standard]`, and `sqlalchemy` using **uv**.
+
+**Task**
+
+Install all required dependencies.
+
+<Accordion title="Solution">
+
+```bash
+uv add fastapi "uvicorn[standard]" sqlalchemy
+```
+
+</Accordion>
+
+**Run & Verify**
+
+Verify that:
+
+- All packages are installed successfully.
+- The `pyproject.toml` file contains the installed dependencies.
+
+---
+
+# Step 4: Create the Project Structure
+
+**Objective**
+
+Organize the application into a modular structure to separate concerns.
+
+**Instructions**
+
+- Create the following folder structure to house files like API routes, models, schemas, and helpers.
+
+**Task**
+
+Design the project folder structure.
+
+<Accordion title="Solution">
+
+```text
+blog-api/
+│
+├── app/
+│   ├── api/
+│   │   └── posts.py
+│   ├── database.py
+│   ├── models.py
+│   ├── schemas.py
+│   ├── dependencies.py
+│   ├── crud.py
+│   └── main.py
+│
+├── pyproject.toml
+└── uv.lock
+```
+
+</Accordion>
+
+**Run & Verify**
+
+Verify that:
+
+- The `app/` folder is initialized.
+- Subdirectories and placeholders for modular code are created.
+
+---
+
+# Step 5: Configure the Database
+
+**Objective**
+
+Configure SQLAlchemy so the application can communicate with the database.
+
+**Instructions**
+
+- Define the `DATABASE_URL` to point to a SQLite file named `blog.db`.
+- Initialize the SQLAlchemy engine and configure the Session factory.
+- Define the Declarative Base class `Base`.
+
+**Task**
+
+Configure database connection and SQLAlchemy base.
+
+<Accordion title="Solution">
+
+**File:** `app/database.py`
+
+```python
+from sqlalchemy import create_engine
+from sqlalchemy.orm import DeclarativeBase, sessionmaker
+
+DATABASE_URL = "sqlite:///blog.db"
+
+engine = create_engine(
+    DATABASE_URL,
+    connect_args={"check_same_thread": False} # Required for SQLite
+)
+
+SessionLocal = sessionmaker(
+    bind=engine,
+    autoflush=False,
+    autocommit=False
+)
+
+class Base(DeclarativeBase):
+    pass
+```
+
+</Accordion>
+
+**Run & Verify**
+
+Verify that:
+
+- The database module compiles cleanly.
+- `SessionLocal` is set up to issue database connections.
+
+---
+
+# Step 6: Create the Blog ORM Model
+
+**Objective**
+
+Define the structure of the `posts` table using a SQLAlchemy model class.
+
+**Instructions**
+
+- Create a `Post` class in `app/models.py` that inherits from `Base`.
+- Declare Mapped types for columns: `id`, `title`, `description`, `author`, and `created_at`.
+
+**Task**
+
+Implement the Post SQLAlchemy model.
+
+<Accordion title="Solution">
+
+**File:** `app/models.py`
+
+```python
+from datetime import datetime
+from sqlalchemy import DateTime, String, Text
+from sqlalchemy.orm import Mapped, mapped_column
+from app.database import Base
+
+class Post(Base):
+    __tablename__ = "posts"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str] = mapped_column(String(200))
+    description: Mapped[str] = mapped_column(Text)
+    author: Mapped[str] = mapped_column(String(100))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+```
+
+</Accordion>
+
+**Run & Verify**
+
+Verify that:
+
+- Column types map appropriately to target values (e.g. `String(200)` and `Text`).
+- The imports reference the database base configuration module correctly.
+
+---
+
+# Step 7: Create the Database Tables
+
+**Objective**
+
+Generate the SQLite database and create the `posts` table during application startup.
+
+**Instructions**
+
+- Set up `app/main.py`.
+- Import the database metadata and initialize the tables using `Base.metadata.create_all`.
+
+**Task**
+
+Initialize database tables in main.py.
+
+<Accordion title="Solution">
+
+**File:** `app/main.py`
+
+```python
+from fastapi import FastAPI
+from app.database import Base, engine
+from app.models import Post
+
+Base.metadata.create_all(engine)
+
+app = FastAPI()
+```
+
+</Accordion>
+
+**Run & Verify**
+
+- Start the application using:
+  ```bash
+  uv run uvicorn app.main:app --reload
+  ```
+- Confirm that `blog.db` has been created in your root workspace folder and contains the `posts` table.
+
+---
+
+# Step 8: Create the Pydantic Schemas
+
+**Objective**
+
+Define data schemas using Pydantic models to validate API requests and serialize responses.
+
+**Instructions**
+
+- Define `PostBase` with common attributes.
+- Inherit from it to create `PostRequest` and `PostResponse` schemas.
+- Turn on `from_attributes` inside response models for direct ORM serialization.
+
+**Task**
+
+Create the validation schemas using Pydantic inheritance.
+
+<Accordion title="Solution">
+
+**File:** `app/schemas.py`
+
+```python
+from datetime import datetime
+from pydantic import BaseModel, ConfigDict
+
+class PostBase(BaseModel):
+    title: str
+    description: str
+    author: str
+
+class PostRequest(PostBase):
+    pass
+
+class PostResponse(PostBase):
+    id: int
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+```
+
+</Accordion>
+
+**Run & Verify**
+
+Verify that:
+
+- The schema schemas are correctly configured.
+- `from_attributes` matches compatibility rules for SQLAlchemy queries.
+
+---
+
+# Step 9: Implement the Database Dependency
+
+**Objective**
+
+Expose a reusable database session dependency that manages session lifecycles automatically.
+
+**Instructions**
+
+- Create `app/dependencies.py`.
+- Implement `get_db` yielding a database session and safely closing it when finished.
+
+**Task**
+
+Create the get_db dependency.
+
+<Accordion title="Solution">
+
+**File:** `app/dependencies.py`
+
+```python
+from app.database import SessionLocal
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+```
+
+</Accordion>
+
+**Run & Verify**
+
+Verify that:
+
+- The generator function closes connections even if an exception occurs during request execution.
+
+---
+
+# Step 10: Implement the CRUD Layer
+
+**Objective**
+
+Write standard data access functions using SQLAlchemy ORM queries for the posts.
+
+**Instructions**
+
+- Define functions for: creating, updating, retrieving (all/single), and deleting posts.
+- Use the modern SQLAlchemy 2.0 select statement for reading queries.
+
+**Task**
+
+Implement the CRUD utilities.
+
+<Accordion title="Solution">
+
+**File:** `app/crud.py`
+
+```python
+from sqlalchemy.orm import Session
+from sqlalchemy import select
+from app.models import Post
+from app.schemas import PostRequest
+
+def create_post(db: Session, post: PostRequest):
+    db_post = Post(**post.model_dump())
+    db.add(db_post)
+    db.commit()
+    db.refresh(db_post)
+    return db_post
+
+def get_posts(db: Session):
+    stmt = select(Post)
+    return db.execute(stmt).scalars().all()
+
+def get_post(db: Session, post_id: int):
+    stmt = select(Post).where(Post.id == post_id)
+    return db.execute(stmt).scalar_one_or_none()
+
+def update_post(db: Session, post_id: int, post: PostRequest):
+    db_post = get_post(db, post_id)
+    if db_post:
+        db_post.title = post.title
+        db_post.description = post.description
+        db_post.author = post.author
+        db.commit()
+        db.refresh(db_post)
+    return db_post
+
+def delete_post(db: Session, post_id: int):
+    db_post = get_post(db, post_id)
+    if db_post:
+        db.delete(db_post)
+        db.commit()
+    return db_post
+```
+
+</Accordion>
+
+**Run & Verify**
+
+Verify that:
+
+- All functions compile without syntax errors.
+- Query statements call correct filter rules.
+
+---
+
+# Step 11: Register the Router
+
+**Objective**
+
+Create the router layer endpoints and link it to the main FastAPI application.
+
+**Instructions**
+
+- Build API endpoint handlers in `app/api/posts.py` using `APIRouter`.
+- Use modern `Annotated` syntax to inject database sessions.
+- Mount the router on the FastAPI application instance in `app/main.py`.
+
+**Task**
+
+Implement and mount the API router.
+
+<Accordion title="Solution">
+
+**File:** `app/api/posts.py`
+
+```python
+from typing import Annotated
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+from app.crud import (
+    create_post,
+    delete_post,
+    get_post,
+    get_posts,
+    update_post,
+)
+from app.dependencies import get_db
+from app.schemas import PostRequest, PostResponse
+
+router = APIRouter(prefix="/posts", tags=["Posts"])
+
+DBSession = Annotated[Session, Depends(get_db)]
+
+@router.post("/", response_model=PostResponse)
+def create(post: PostRequest, db: DBSession):
+    return create_post(db, post)
+
+@router.get("/", response_model=list[PostResponse])
+def read_all(db: DBSession):
+    return get_posts(db)
+
+@router.get("/{post_id}", response_model=PostResponse)
+def read(post_id: int, db: DBSession):
+    db_post = get_post(db, post_id)
+    if not db_post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    return db_post
+
+@router.put("/{post_id}", response_model=PostResponse)
+def update(post_id: int, post: PostRequest, db: DBSession):
+    db_post = update_post(db, post_id, post)
+    if not db_post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    return db_post
+
+@router.delete("/{post_id}", response_model=PostResponse)
+def delete(post_id: int, db: DBSession):
+    db_post = delete_post(db, post_id)
+    if not db_post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    return db_post
+```
+
+**File:** `app/main.py`
+
+```python
+from fastapi import FastAPI
+from app.database import Base, engine
+from app.models import Post
+from app.api.posts import router as posts_router
+
+Base.metadata.create_all(engine)
+
+app = FastAPI()
+
+app.include_router(posts_router)
+```
+
+</Accordion>
+
+**Run & Verify**
+
+Verify that:
+
+- Endpoint handlers map correctly to HTTP verbs.
+- Routing endpoints return expected status codes.
+
+---
+
+# Step 12: Run & Verify the APIs
+
+**Objective**
+
+Validate the REST API endpoints using the interactive documentation page.
+
+**Instructions**
+
+- Start the application server.
+- Navigate to the Swagger UI page in your browser.
+- Perform tests for all HTTP operations.
+
+**Task**
+
+Run testing requests against endpoint routes.
+
+<Accordion title="Solution">
+
+Start the server:
+```bash
+uv run uvicorn app.main:app --reload
+```
+
+Open interactive docs page:
+```text
+http://127.0.0.1:8000/docs
+```
+
+**Verify following payloads**
+
+POST Request Body:
+```json
+{
+  "title": "Introduction to SQLAlchemy",
+  "description": "Learning SQLAlchemy ORM with FastAPI.",
+  "author": "Siva Prasad"
+}
+```
+
+PUT Request Body:
+```json
+{
+  "title": "SQLAlchemy ORM",
+  "description": "Updated blog post details.",
+  "author": "Siva Prasad"
+}
+```
+
+</Accordion>
+
+**Run & Verify**
+
+Confirm that:
+
+- POST requests yield HTTP 200 with auto-generated id.
+- Invalid requests (e.g. referencing a missing ID) yield HTTP 404.
+
+---
+
+# Step 13: Configure Alembic
+
+**Objective**
+
+Initialize Alembic migration environment to track future database changes.
+
+**Instructions**
+
+- Install `alembic` package.
+- Initialize migration files layout.
+- Bind the engine configuration URL and project Base model metadata inside Alembic scripts.
+
+**Task**
+
+Setup Alembic configuration layout.
+
+<Accordion title="Solution">
+
+Install Alembic package:
+```bash
+uv add alembic
+```
+
+Initialize Alembic folders:
+```bash
+uv run alembic init alembic
+```
+
+**File:** `alembic.ini`
+```ini
+sqlalchemy.url = sqlite:///blog.db
+```
+
+**File:** `alembic/env.py`
+```python
+from app.database import Base
+from app.models import Post
+
+target_metadata = Base.metadata
+```
+
+</Accordion>
+
+**Run & Verify**
+
+Verify that:
+
+- Alembic successfully reads target metadata configuration.
+- The `alembic` subdirectory and its files are initialized.
+
+---
+
+# Step 14: Create Database Migrations
+
+**Objective**
+
+Generate database migrations scripts and upgrade the SQLite structure.
+
+**Instructions**
+
+- Use revision `--autogenerate` to compare model metadata against SQLite file.
+- Perform upgrade to sync the database version.
+
+**Task**
+
+Perform database schema migrations.
+
+<Accordion title="Solution">
+
+Generate migration version script:
+```bash
+uv run alembic revision --autogenerate -m "Create posts table"
+```
+
+Apply migrations:
+```bash
+uv run alembic upgrade head
+```
+
+</Accordion>
+
+**Run & Verify**
+
+Verify that:
+
+- Version files are added to `alembic/versions/`.
+- `alembic_version` tracking table is created inside SQLite database.
+
+---
+
+# Step 15: Switch to PostgreSQL
+
+**Objective**
+
+Transition the database system settings from SQLite to PostgreSQL engine.
+
+**Instructions**
+
+- Add psycopg binary database driver.
+- Adjust `DATABASE_URL` configurations.
+- Update settings in both `app/database.py` and `alembic.ini`.
+
+**Task**
+
+Configure PostgreSQL driver and run target migrations.
+
+<Accordion title="Solution">
+
+Install driver:
+```bash
+uv add psycopg[binary]
+```
+
+**File:** `app/database.py`
+```python
+# Replace SQLite url with PostgreSQL connection URL
+DATABASE_URL = "postgresql+psycopg://username:password@localhost:5432/blog_db"
+```
+
+**File:** `alembic.ini`
+```ini
+sqlalchemy.url = postgresql+psycopg://username:password@localhost:5432/blog_db
+```
+
+Sync database scheme:
+```bash
+uv run alembic upgrade head
+```
+
+</Accordion>
+
+**Run & Verify**
+
+Confirm that:
+
+- PostgreSQL connects without errors.
+- Alembic tables are created on the target PostgreSQL server instance.
