@@ -11,18 +11,25 @@ Functional programming is a programming paradigm where functions are treated as 
 
 In this module, you'll learn:
 
-1. Functions as Objects
-2. Functions as First-Class Objects
-3. Passing Functions as Arguments
-4. Returning Functions
-5. Higher-Order Functions
-6. Anonymous (Lambda) Functions
-7. `map()`
-8. `filter()`
-9. `reduce()`
-10. Functional Programming Best Practices
+1. [Functions as Objects](#functions-as-objects)
+2. [Functions as First-Class Objects](#functions-as-first-class-objects)
+3. [Passing Functions as Arguments](#passing-functions-as-arguments)
+4. [Returning Functions](#returning-functions)
+5. [Higher-Order Functions](#higher-order-functions)
+6. [Anonymous (Lambda) Functions](#anonymous-lambda-functions)
+7. [`map()`](#the-map-function)
+8. [`filter()`](#the-filter-function)
+9. [`reduce()`](#the-reduce-function)
+10. [Functional Programming Best Practices](#functional-programming-best-practices)
+
+> **Try Yourself:** [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/DSA%20With%20Python/public/notebooks/workshop-notebooks/05-functional-programming/05-functional-programming-exercises.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/genai-course/blob/main/public/notebooks/workshop-notebooks/05-functional-programming/05-functional-programming-exercises-colab.ipynb) | <a href="/notebooks/workshop-notebooks/05-functional-programming/05-functional-programming-exercises.ipynb" download>📥 Download</a><br />
+> **Verify Solutions:** [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/DSA%20With%20Python/public/notebooks/workshop-notebooks/05-functional-programming/05-functional-programming.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/genai-course/blob/main/public/notebooks/workshop-notebooks/05-functional-programming/05-functional-programming-colab.ipynb) | <a href="/notebooks/workshop-notebooks/05-functional-programming/05-functional-programming.ipynb" download>📥 Download</a>
+
+
 
 By the end of this module, you'll be able to treat functions as data, write reusable higher-order functions, use lambda expressions effectively, and apply Python's built-in functional programming utilities.
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Functions as Objects
 
@@ -46,6 +53,8 @@ message = greet
 message()
 ```
 
+Output ?
+
 <Accordion title="Show Output">
 
 ```text
@@ -68,6 +77,8 @@ message = greet()
 
 the function executes immediately and the return value is assigned to `message`.
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Function References
 
 Both variables refer to the same function object.
@@ -80,6 +91,8 @@ message = greet
 
 print(greet is message)
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -152,6 +165,8 @@ show()
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Functions as First-Class Objects
 
 A programming language is said to support **first-class functions** if functions can be treated just like any other object.
@@ -177,6 +192,8 @@ operations = [add, subtract]
 operations[0]()
 operations[1]()
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -204,6 +221,8 @@ messages = {
 messages["hello"]()
 messages["bye"]()
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -284,6 +303,8 @@ actions["open"]()
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Passing Functions as Arguments
 
 Since functions are objects, they can be passed as arguments to other functions.
@@ -297,6 +318,8 @@ def execute(task):
 
 execute(greet)
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -388,6 +411,8 @@ execute(goodbye)
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Returning Functions
 
 Functions can also return other functions.
@@ -404,6 +429,8 @@ greet = outer()
 
 greet()
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -486,6 +513,8 @@ func()
 ```
 
 </Accordion>
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Higher-Order Functions
 
 A **higher-order function** is a function that does at least one of the following:
@@ -508,6 +537,8 @@ def execute(task):
 
 execute(greet)
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -537,6 +568,8 @@ message = greeting()
 
 message()
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -622,6 +655,8 @@ message()
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Anonymous (Lambda) Functions
 
 Sometimes a function is needed only once.
@@ -636,6 +671,8 @@ def square(number):
 
 print(square(5))
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -652,6 +689,8 @@ square = lambda number: number ** 2
 
 print(square(5))
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -681,6 +720,8 @@ multiply = lambda a, b: a * b
 print(multiply(10, 20))
 ```
 
+Output ?
+
 <Accordion title="Show Output">
 
 ```text
@@ -696,6 +737,8 @@ maximum = lambda a, b: a if a > b else b
 
 print(maximum(10, 25))
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -767,6 +810,8 @@ print(minimum(12, 5))
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Lambda Functions with Built-in Functions
 
 Lambda functions become particularly useful when combined with Python's built-in functional programming functions.
@@ -780,6 +825,8 @@ The three most commonly used functions are:
 These functions allow data to be transformed, filtered, and aggregated without writing explicit loops.
 
 In the following sections, you'll learn how each of these functions works and when to use them.
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Higher-Order Functions
 
@@ -801,6 +848,8 @@ def notify(customer, action):
 
 notify("Alice", send_email)
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -826,6 +875,8 @@ festival_offer = get_discount(20)
 
 print(festival_offer(1000))
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -902,6 +953,8 @@ print(discount(1000))
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Anonymous (Lambda) Functions
 
 A **lambda function** is a small anonymous function consisting of a single expression.
@@ -921,6 +974,8 @@ square = lambda number: number ** 2
 print(square(5))
 ```
 
+Output ?
+
 <Accordion title="Show Output">
 
 ```text
@@ -937,6 +992,8 @@ total = lambda price, quantity: price * quantity
 print(total(250, 4))
 ```
 
+Output ?
+
 <Accordion title="Show Output">
 
 ```text
@@ -952,6 +1009,8 @@ status = lambda marks: "Pass" if marks >= 40 else "Fail"
 
 print(status(72))
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -1023,6 +1082,8 @@ print(check(16))
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## The `map()` Function
 
 The `map()` function applies a function to every element of an iterable and returns an iterator.
@@ -1041,6 +1102,8 @@ for price in prices:
 
 print(discounted)
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -1061,6 +1124,8 @@ discounted = list(
 
 print(discounted)
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -1087,6 +1152,8 @@ result = list(
 
 print(result)
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -1156,6 +1223,8 @@ print(result)
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## The `filter()` Function
 
 The `filter()` function selects only those elements that satisfy a condition.
@@ -1176,6 +1245,8 @@ for mark in marks:
 print(passed)
 ```
 
+Output ?
+
 <Accordion title="Show Output">
 
 ```text
@@ -1195,6 +1266,8 @@ passed = list(
 
 print(passed)
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -1217,6 +1290,8 @@ premium = list(
 
 print(premium)
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -1286,6 +1361,8 @@ print(result)
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## The `reduce()` Function
 
 The `reduce()` function repeatedly applies a function to the elements of an iterable and reduces them to a **single value**.
@@ -1313,6 +1390,8 @@ for price in cart:
 print(total)
 ```
 
+Output ?
+
 <Accordion title="Show Output">
 
 ```text
@@ -1335,6 +1414,8 @@ total = reduce(
 
 print(total)
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -1360,6 +1441,8 @@ highest = reduce(
 
 print(highest)
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -1435,6 +1518,8 @@ print(minimum)
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Combining `map()`, `filter()`, and `reduce()`
 
 In real-world applications, these functions are often combined to process data in multiple stages.
@@ -1468,6 +1553,8 @@ payroll = reduce(
 print(payroll)
 ```
 
+Output ?
+
 <Accordion title="Show Output">
 
 ```text
@@ -1499,6 +1586,8 @@ Each function performs a specific task:
 - **`map()`** transforms every element.
 - **`filter()`** selects only the required elements.
 - **`reduce()`** combines all elements into a single result.
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Comprehensive Exercise 1
 
@@ -1547,6 +1636,8 @@ print(total_marks)
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Comprehensive Exercise 2
 
 Given the prices of products,
@@ -1593,6 +1684,8 @@ print(final_bill)
 ```
 
 </Accordion>
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Comprehensive Exercise 3
 
@@ -1653,6 +1746,8 @@ print(result)
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Choosing the Right Function
 
 | Function | Purpose | Returns |
@@ -1660,6 +1755,8 @@ print(result)
 | `map()` | Transform every element | Iterator |
 | `filter()` | Select elements matching a condition | Iterator |
 | `reduce()` | Combine elements into a single value | Single Value |
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Functional Programming Best Practices
 
@@ -1672,6 +1769,27 @@ print(result)
 - Choose the approach that makes your code easiest to read and maintain.
 
 > **Note:** In modern Python, list comprehensions are often preferred over `map()` and `filter()` for simple transformations because they are generally more readable. However, `map()`, `filter()`, and `reduce()` remain valuable tools when building functional pipelines or working with existing functions.
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
+## Practice
+
+To reinforce what you've learned in this section, practice with the interactive follow-along notebook:
+
+<CardGroup cols={1}>
+  <Card
+    title="Follow-Along Practice"
+    icon="laptop-code"
+  >
+    Practice first-class functions, higher-order functions, lambda expressions, map, filter, and reduce operations.
+
+    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/DSA%20With%20Python/public/notebooks/workshop-notebooks/05-functional-programming/05-functional-programming-exercises.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/genai-course/blob/main/public/notebooks/workshop-notebooks/05-functional-programming/05-functional-programming-exercises-colab.ipynb) | <a href="/notebooks/workshop-notebooks/05-functional-programming/05-functional-programming-exercises.ipynb" download>📥 Download</a>
+  </Card>
+</CardGroup>
+
+---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Summary
 

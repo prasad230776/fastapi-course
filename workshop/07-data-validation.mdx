@@ -13,21 +13,28 @@ Pydantic is a modern Python library that simplifies data modeling and validation
 
 In this module, you'll learn:
 
-1. Why Pydantic?
-2. Creating Data Models
-3. Type Validation
-4. Default Values
-5. Optional Fields
-6. Field Validation
-7. Using `Annotated`
-8. Nested Models
-9. Serialization
-10. Deserialization
-11. Type-safe Programming
-12. Integrating Pydantic with Applications
-13. Best Practices
+1. [Why Pydantic?](#why-pydantic)
+2. [Creating Data Models](#creating-your-first-model)
+3. [Type Validation](#type-validation)
+4. [Default Values](#default-values)
+5. [Optional Fields](#optional-fields)
+6. [Field Validation](#field-validation)
+7. [Using `Annotated`](#using-annotated-recommended)
+8. [Nested Models](#nested-models)
+9. [Serialization](#serialization)
+10. [Deserialization](#deserialization)
+11. [Type-safe Programming](#type-safe-programming)
+12. [Integrating Pydantic with Applications](#integrating-pydantic-with-applications)
+13. [Best Practices](#best-practices)
+
+> **Try Yourself:** [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/DSA%20With%20Python/public/notebooks/workshop-notebooks/07-data-validation/07-data-validation-exercises.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/genai-course/blob/main/public/notebooks/workshop-notebooks/07-data-validation/07-data-validation-exercises-colab.ipynb) | <a href="/notebooks/workshop-notebooks/07-data-validation/07-data-validation-exercises.ipynb" download>📥 Download</a><br />
+> **Verify Solutions:** [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/DSA%20With%20Python/public/notebooks/workshop-notebooks/07-data-validation/07-data-validation.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/genai-course/blob/main/public/notebooks/workshop-notebooks/07-data-validation/07-data-validation-colab.ipynb) | <a href="/notebooks/workshop-notebooks/07-data-validation/07-data-validation.ipynb" download>📥 Download</a>
+
+
 
 By the end of this module, you'll be able to create robust, type-safe data models, validate incoming data, serialize and deserialize models, and integrate Pydantic into modern Python applications.
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Why Pydantic?
 
@@ -57,6 +64,8 @@ Pydantic solves this problem by automatically:
 
 Instead of working with dictionaries, we work with **models**.
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Installing Pydantic
 
 Using **uv**
@@ -78,6 +87,8 @@ from pydantic import BaseModel
 ```
 
 Every Pydantic model inherits from `BaseModel`.
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Python Type Hinting & Generics
 
@@ -114,6 +125,8 @@ Modern Python (Python 3.9+) supports generic type hinting for collections direct
 
 Pydantic reads these exact standard type annotations at runtime to parse and validate incoming data dynamically.
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Creating Your First Model
 
 A Pydantic model looks similar to a regular Python class.
@@ -137,6 +150,8 @@ student = Student(
 
 print(student)
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -163,6 +178,8 @@ student = Student(
 print(student.name)
 print(student.age)
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -273,6 +290,8 @@ print(employee.department)
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Type Validation
 
 One of Pydantic's biggest advantages is automatic type validation.
@@ -293,6 +312,8 @@ student = Student(
 print(student)
 ```
 
+Output ?
+
 <Accordion title="Show Output">
 
 ```text
@@ -311,6 +332,8 @@ student = Student(
     age="twenty"
 )
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -373,6 +396,8 @@ Student(age="abc")
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Default Values
 
 Fields can have default values.
@@ -393,6 +418,8 @@ student = Student(
 
 print(student)
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -454,6 +481,8 @@ print(product)
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Optional Fields
 
 Some fields are optional.
@@ -477,6 +506,8 @@ student = Student(
 print(student)
 ```
 
+Output ?
+
 <Accordion title="Show Output">
 
 ```text
@@ -495,6 +526,8 @@ student = Student(
 
 print(student)
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -549,6 +582,8 @@ print(employee)
 ```
 
 </Accordion>
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Field Validation
 
 Pydantic allows you to define validation rules for individual fields using the `Field()` function.
@@ -583,6 +618,8 @@ student = Student(
 print(student)
 ```
 
+Output ?
+
 <Accordion title="Show Output">
 
 ```text
@@ -599,6 +636,8 @@ Student(
     age=16
 )
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -680,6 +719,8 @@ print(employee)
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Using `Annotated` (Recommended)
 
 Pydantic v2 recommends using `Annotated` to separate type information from validation metadata.
@@ -729,6 +770,8 @@ product = Product(
 
 print(product)
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -830,6 +873,8 @@ print(student)
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Nested Models
 
 Real-world data often contains other objects.
@@ -861,6 +906,8 @@ student = Student(
 
 print(student)
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -950,6 +997,8 @@ print(student)
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Collections of Models
 
 A field can also contain multiple nested models.
@@ -976,6 +1025,8 @@ library = Library(
 
 print(library)
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -1044,6 +1095,8 @@ print(order)
 ```
 
 </Accordion>
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Serialization
 
 Serialization is the process of converting a Python object into a format that can be stored or transmitted.
@@ -1068,6 +1121,8 @@ student = Student(
 print(student.model_dump())
 ```
 
+Output ?
+
 <Accordion title="Show Output">
 
 ```text
@@ -1088,6 +1143,8 @@ student = Student(
 
 print(student.model_dump_json(indent=4))
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -1148,6 +1205,8 @@ print(book.model_dump_json(indent=4))
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Deserialization
 
 Deserialization is the process of creating a model from external data.
@@ -1173,6 +1232,8 @@ student = Student.model_validate(data)
 
 print(student)
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -1205,6 +1266,8 @@ student = Student.model_validate_json(data)
 
 print(student)
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -1268,6 +1331,8 @@ print(book)
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Type-safe Programming
 
 Pydantic encourages type-safe programming by ensuring that data always conforms to the expected model.
@@ -1317,6 +1382,8 @@ product = Product(
 
 print(product.price)
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -1375,6 +1442,8 @@ print(order.product)
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Integrating Pydantic with Applications
 
 Pydantic models are widely used in modern Python applications.
@@ -1408,6 +1477,8 @@ user = User.model_validate(data)
 
 print(user)
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -1473,6 +1544,8 @@ print(request)
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Best Practices
 
 - Prefer `Annotated` with `Field()` for validation.
@@ -1484,6 +1557,27 @@ print(request)
 - Use `model_dump()` and `model_dump_json()` for serialization.
 - Use `model_validate()` and `model_validate_json()` for deserialization.
 - Design models that accurately represent your application's data.
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
+## Practice
+
+To reinforce what you've learned in this section, practice with the interactive follow-along notebook:
+
+<CardGroup cols={1}>
+  <Card
+    title="Follow-Along Practice"
+    icon="laptop-code"
+  >
+    Practice creating BaseModel schemas, field validations with Field(), separating types with Annotated, nested models, and model serialization.
+
+    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/DSA%20With%20Python/public/notebooks/workshop-notebooks/07-data-validation/07-data-validation-exercises.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/genai-course/blob/main/public/notebooks/workshop-notebooks/07-data-validation/07-data-validation-exercises-colab.ipynb) | <a href="/notebooks/workshop-notebooks/07-data-validation/07-data-validation-exercises.ipynb" download>📥 Download</a>
+  </Card>
+</CardGroup>
+
+---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Summary
 

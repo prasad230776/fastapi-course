@@ -13,14 +13,18 @@ In real-world applications, systems must be robust against failures. **Exception
 
 In this module, you'll learn:
 
-1. **Exception Handling**: The `try-except-else-finally` block.
-2. **Custom Exceptions**: Inheriting from the base `Exception` class for domain-specific errors.
-3. **Data Handling (File I/O)**:
-   - Text files
-   - CSV files (using the `csv` module)
-   - JSON files (using the `json` module)
+1. [**Exception Handling**: The `try-except-else-finally` block.](#1-exception-handling)
+2. [**Custom Exceptions**: Inheriting from the base `Exception` class for domain-specific errors.](#2-custom-exceptions)
+3. [**Data Handling (File I/O)**](#3-data-handling-file-io)
+
+> **Try Yourself:** [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/DSA%20With%20Python/public/notebooks/workshop-notebooks/06b-exceptions-data-handling/06b-exceptions-data-handling-exercises.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/genai-course/blob/main/public/notebooks/workshop-notebooks/06b-exceptions-data-handling/06b-exceptions-data-handling-exercises-colab.ipynb) | <a href="/notebooks/workshop-notebooks/06b-exceptions-data-handling/06b-exceptions-data-handling-exercises.ipynb" download>📥 Download</a><br />
+> **Verify Solutions:** [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/DSA%20With%20Python/public/notebooks/workshop-notebooks/06b-exceptions-data-handling/06b-exceptions-data-handling.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/genai-course/blob/main/public/notebooks/workshop-notebooks/06b-exceptions-data-handling/06b-exceptions-data-handling-colab.ipynb) | <a href="/notebooks/workshop-notebooks/06b-exceptions-data-handling/06b-exceptions-data-handling.ipynb" download>📥 Download</a>
+
+
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## 1. Exception Handling
 
@@ -81,6 +85,8 @@ print(safe_divide(10, "two"))
 
 ---
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## 2. Custom Exceptions
 
 When building complex applications (like APIs), Python's built-in exceptions (like `ValueError` or `KeyError`) might not be expressive enough. You can create your own **custom exceptions** by inheriting from the base `Exception` class.
@@ -129,6 +135,9 @@ except InvalidAgeError as e:
 
 ---
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
+<a id="3-data-handling-file-io"></a>
 ## 3. Data Handling (File I/O)
 
 Backend services constantly read configurations, import CSV logs, or exchange JSON payloads.
@@ -267,3 +276,28 @@ with open("config.json", "r") as file:
 ```
 
 </Accordion>
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
+## Practice
+
+To reinforce what you've learned in this section, practice with the interactive follow-along notebook:
+
+<CardGroup cols={1}>
+  <Card
+    title="Follow-Along Practice"
+    icon="laptop-code"
+  >
+    Practice exception handling (try-except-else-finally), raising custom exceptions, and reading/writing text, CSV, and JSON files.
+
+    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/DSA%20With%20Python/public/notebooks/workshop-notebooks/06b-exceptions-data-handling/06b-exceptions-data-handling-exercises.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/genai-course/blob/main/public/notebooks/workshop-notebooks/06b-exceptions-data-handling/06b-exceptions-data-handling-exercises-colab.ipynb) | <a href="/notebooks/workshop-notebooks/06b-exceptions-data-handling/06b-exceptions-data-handling-exercises.ipynb" download>📥 Download</a>
+  </Card>
+</CardGroup>
+
+---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
+## Summary
+
+In this module, you learned how to handle runtime errors using try-except blocks, build custom exceptions to represent business logic failures, and parse/generate files in Text, CSV, and JSON formats.

@@ -11,17 +11,24 @@ Object-oriented programming (OOP) is a programming paradigm that organizes code 
 
 In this module, you'll learn:
 
-1. OOP Refresher
-2. Class Members vs Instance Members
-3. Class Methods
-4. Static Methods
-5. Magic (Dunder) Methods
-6. Abstract Base Classes (ABC)
-7. Multiple Inheritance
-8. Method Resolution Order (MRO)
-9. Best Practices
+1. [OOP Refresher](#oop-refresher)
+2. [Class Members vs Instance Members](#class-members-vs-instance-members)
+3. [Class Methods](#class-methods)
+4. [Static Methods](#static-methods)
+5. [Magic (Dunder) Methods](#magic-dunder-methods)
+6. [Abstract Base Classes (ABC)](#abstract-base-classes-abc)
+7. [Multiple Inheritance](#multiple-inheritance)
+8. [Method Resolution Order (MRO)](#method-resolution-order-mro)
+9. [Best Practices](#best-practices)
+
+> **Try Yourself:** [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/DSA%20With%20Python/public/notebooks/workshop-notebooks/06-advanced-oop/06-advanced-oop-exercises.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/genai-course/blob/main/public/notebooks/workshop-notebooks/06-advanced-oop/06-advanced-oop-exercises-colab.ipynb) | <a href="/notebooks/workshop-notebooks/06-advanced-oop/06-advanced-oop-exercises.ipynb" download>📥 Download</a><br />
+> **Verify Solutions:** [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/DSA%20With%20Python/public/notebooks/workshop-notebooks/06-advanced-oop/06-advanced-oop.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/genai-course/blob/main/public/notebooks/workshop-notebooks/06-advanced-oop/06-advanced-oop-colab.ipynb) | <a href="/notebooks/workshop-notebooks/06-advanced-oop/06-advanced-oop.ipynb" download>📥 Download</a>
+
+
 
 By the end of this module, you'll understand how Python objects work internally, customize object behavior, design reusable class hierarchies, and apply advanced OOP concepts effectively.
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## OOP Refresher
 
@@ -56,6 +63,8 @@ student = Student("Alice")
 student.introduce()
 ```
 
+Output ?
+
 <Accordion title="Show Output">
 
 ```text
@@ -77,6 +86,8 @@ Python supports four fundamental principles of OOP.
 
 In this module, we'll build upon these fundamentals and explore advanced OOP concepts.
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Everything in Python is an Object
 
 Python follows an object-oriented design where **everything is an object**—numbers, strings, lists, dictionaries, functions, modules, and even classes.
@@ -87,6 +98,8 @@ Every object has:
 - **Type** (`type()`)
 - **State** (data)
 - **Behavior** (methods)
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Classes are Objects Too
 
@@ -167,6 +180,8 @@ student = DynamicStudent("Alice")
 print(student.introduce())
 ```
 
+Output ?
+
 <Accordion title="Show Output">
 
 ```text
@@ -197,6 +212,8 @@ Output:
 <class '__main__.Student'>
 ```
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Class Members vs Instance Members
 
 A class can contain both **instance members** and **class members**.
@@ -220,6 +237,8 @@ print(student1.name)
 print(student2.name)
 ```
 
+Output ?
+
 <Accordion title="Show Output">
 
 ```text
@@ -237,6 +256,8 @@ student1.name = "Charlie"
 print(student1.name)
 print(student2.name)
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -266,6 +287,8 @@ print(student1.college)
 print(student2.college)
 ```
 
+Output ?
+
 <Accordion title="Show Output">
 
 ```text
@@ -283,6 +306,8 @@ Student.college = "XYZ College"
 print(student1.college)
 print(student2.college)
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -378,6 +403,8 @@ print(student2.name)
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Properties
 
 Properties provide controlled access to attributes while allowing them to be accessed like normal variables.
@@ -421,6 +448,8 @@ class User:
 
 This is commonly used for passwords and other sensitive information.
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Class Methods
 
 A **class method** operates on the class itself rather than individual objects.
@@ -440,6 +469,8 @@ class Student:
 
 Student.display_college()
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -471,6 +502,8 @@ student = Student.from_uppercase("alice")
 
 print(student.name)
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -547,6 +580,8 @@ print(student.name)
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Static Methods
 
 A **static method** belongs to the class but does not access either the class (`cls`) or the object (`self`).
@@ -564,6 +599,8 @@ class Student:
 
 print(Student.is_eligible(20))
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -584,6 +621,8 @@ class Calculator:
 
 print(Calculator.square(6))
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -661,6 +700,8 @@ print(Converter.to_fahrenheit(25))
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Magic (Dunder) Methods
 
 Magic methods, also known as **dunder methods** (double underscore methods), are special methods that allow you to customize the behavior of Python objects.
@@ -678,6 +719,8 @@ Some commonly used magic methods are:
 | `__eq__()` | Compare two objects |
 | `__add__()` | Customize the `+` operator |
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## The `__str__()` Method
 
 By default, printing an object displays its memory location.
@@ -693,6 +736,8 @@ student = Student("Alice", 20)
 
 print(student)
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -718,6 +763,8 @@ student = Student("Alice", 20)
 
 print(student)
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -800,6 +847,8 @@ print(employee)
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## The `__repr__()` Method
 
 The `__repr__()` method returns an official string representation of an object.
@@ -819,6 +868,8 @@ student = Student("Alice")
 
 print(repr(student))
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -900,6 +951,8 @@ print(repr(course))
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Operator Overloading
 
 Magic methods can also customize the behavior of Python operators.
@@ -925,6 +978,8 @@ cart = ShoppingCart()
 
 print(len(cart))
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -953,6 +1008,8 @@ employee2 = Employee(101)
 print(employee1 == employee2)
 ```
 
+Output ?
+
 <Accordion title="Show Output">
 
 ```text
@@ -979,6 +1036,8 @@ account2 = BankAccount(7000)
 
 print(account1 + account2)
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -1064,6 +1123,8 @@ print(wallet1 + wallet2)
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Abstract Base Classes (ABC)
 
 An **Abstract Base Class (ABC)** defines a common interface that derived classes must implement.
@@ -1102,6 +1163,8 @@ payment = CreditCard()
 
 payment.pay(2500)
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -1185,6 +1248,8 @@ When Python creates a derived class, it performs these steps:
 6. Stores the inheritance hierarchy.
 7. Uses the MRO whenever attributes or methods are searched.
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Multiple Inheritance
 
 Python allows a class to inherit from more than one base class.
@@ -1212,6 +1277,8 @@ phone.capture()
 phone.call()
 ```
 
+Output ?
+
 <Accordion title="Show Output">
 
 ```text
@@ -1220,6 +1287,8 @@ Calling
 ```
 
 </Accordion>
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Method Resolution Order (MRO)
 
@@ -1253,6 +1322,8 @@ obj = D()
 obj.show()
 ```
 
+Output ?
+
 <Accordion title="Show Output">
 
 ```text
@@ -1266,6 +1337,8 @@ View the MRO using:
 ```python
 print(D.__mro__)
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -1334,6 +1407,8 @@ print(D.__mro__)
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Best Practices
 
 - Prefer **instance members** for object-specific data.
@@ -1344,6 +1419,27 @@ print(D.__mro__)
 - Use abstract base classes to define common interfaces.
 - Keep inheritance hierarchies simple and easy to understand.
 - Avoid deep multiple inheritance unless necessary.
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
+## Practice
+
+To reinforce what you've learned in this section, practice with the interactive follow-along notebook:
+
+<CardGroup cols={1}>
+  <Card
+    title="Follow-Along Practice"
+    icon="laptop-code"
+  >
+    Practice class/instance variables, class/static methods, custom properties, dunder methods, abstract classes, and multiple inheritance.
+
+    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/DSA%20With%20Python/public/notebooks/workshop-notebooks/06-advanced-oop/06-advanced-oop-exercises.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/genai-course/blob/main/public/notebooks/workshop-notebooks/06-advanced-oop/06-advanced-oop-exercises-colab.ipynb) | <a href="/notebooks/workshop-notebooks/06-advanced-oop/06-advanced-oop-exercises.ipynb" download>📥 Download</a>
+  </Card>
+</CardGroup>
+
+---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Summary
 

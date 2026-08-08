@@ -11,19 +11,26 @@ This module covers Python's core data structures (Lists, Tuples, Dictionaries, S
 
 In this module, you'll learn:
 
-1. **Lists**: CRUD Operations and Sorting
-2. **Tuples**: Operations, Indexing, and Slicing
-3. **Dictionaries**: CRUD Operations and Sorting
-4. **Sets**: CRUD Operations and Sorting
-5. **Queues**: Using `collections.deque`
-6. **Why Comprehensions?**
-7. **List Comprehensions**
-8. **Dictionary Comprehensions**
-9. **Set Comprehensions**
-10. **Generator Expressions**
-11. **Comprehensions vs Loops & Best Practices**
+1. [**Lists**: CRUD Operations and Sorting](#1-lists-crud-operations-and-sorting)
+2. [**Tuples**: Operations, Indexing, and Slicing](#2-tuples-operations-indexing-and-slicing)
+3. [**Dictionaries**: CRUD Operations and Sorting](#3-dictionaries-crud-operations-and-sorting)
+4. [**Sets**: CRUD Operations and Sorting](#4-sets-crud-operations-and-sorting)
+5. [**Queues**: Using `collections.deque`](#5-queues-using-collectionsdeque)
+6. [**Why Comprehensions?**](#6-why-comprehensions)
+7. [**List Comprehensions**](#7-list-comprehensions)
+8. [**Dictionary Comprehensions**](#8-dictionary-comprehensions)
+9. [**Set Comprehensions**](#9-set-comprehensions)
+10. [**Generator Expressions**](#10-generator-expressions)
+11. [**Comprehensions vs Loops & Best Practices**](#11-comprehensions-vs-loops--best-practices)
+
+> **Try Yourself:** [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/DSA%20With%20Python/public/notebooks/workshop-notebooks/02-ds-comprehensions/02-ds-comprehensions-exercises.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/genai-course/blob/main/public/notebooks/workshop-notebooks/02-ds-comprehensions/02-ds-comprehensions-exercises-colab.ipynb) | <a href="/notebooks/workshop-notebooks/02-ds-comprehensions/02-ds-comprehensions-exercises.ipynb" download>📥 Download</a><br />
+> **Verify Solutions:** [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/DSA%20With%20Python/public/notebooks/workshop-notebooks/02-ds-comprehensions/02-ds-comprehensions.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/genai-course/blob/main/public/notebooks/workshop-notebooks/02-ds-comprehensions/02-ds-comprehensions-colab.ipynb) | <a href="/notebooks/workshop-notebooks/02-ds-comprehensions/02-ds-comprehensions.ipynb" download>📥 Download</a>
+
+
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 # 1. Lists: CRUD Operations and Sorting
 
@@ -42,6 +49,17 @@ print(languages)
 print(numbers)
 ```
 
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+['Python', 'JavaScript']
+[1, 2, 3]
+```
+
+</Accordion>
+
 ### Read (R) - Indexing & Slicing
 Elements in a list are accessed using zero-based indexing, negative indexing (from the end), or slicing (`list[start:stop:step]`).
 
@@ -59,6 +77,22 @@ print(fruits[2:])   # Elements from index 2 to end: ["Cherry", "Date", "Elderber
 print(fruits[::2])  # Alternate elements: ["Apple", "Cherry", "Elderberry"]
 print(fruits[::-1]) # Reversed list: ["Elderberry", "Date", "Cherry", "Banana", "Apple"]
 ```
+
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+Apple
+Elderberry
+['Banana', 'Cherry', 'Date']
+['Apple', 'Banana', 'Cherry']
+['Cherry', 'Date', 'Elderberry']
+['Apple', 'Cherry', 'Elderberry']
+['Elderberry', 'Date', 'Cherry', 'Banana', 'Apple']
+```
+
+</Accordion>
 
 ### Update (U)
 Since lists are mutable, you can modify elements in-place, append new elements, insert at specific positions, or extend with another list.
@@ -81,6 +115,16 @@ colors.extend(["purple", "pink"])
 print(colors)
 ```
 
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+['red', 'orange', 'blue', 'yellow', 'purple', 'pink']
+```
+
+</Accordion>
+
 ### Delete (D)
 You can remove elements from a list using `.remove()`, `.pop()`, `.clear()`, or the `del` statement.
 
@@ -99,6 +143,17 @@ del tasks[0]
 
 print(tasks)
 ```
+
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+Removed item: deploy
+['debug']
+```
+
+</Accordion>
 
 ### Sorting
 Python lists can be sorted in-place using `.sort()` or out-of-place using the global `sorted()` function.
@@ -119,6 +174,19 @@ print("Sorted in-place:", nums)
 nums.sort(reverse=True)
 print("Reverse sorted in-place:", nums)
 ```
+
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+Original: [42, 7, 19, 88, 3]
+Sorted copy: [3, 7, 19, 42, 88]
+Sorted in-place: [3, 7, 19, 42, 88]
+Reverse sorted in-place: [88, 42, 19, 7, 3]
+```
+
+</Accordion>
 
 ### Exercise 1
 Write a program to create a list of numbers, append `10`, insert `5` at index `0`, and then sort it in-place in descending order.
@@ -150,6 +218,8 @@ print(sorted(arr))
 
 ---
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 # 2. Tuples: Operations, Indexing, and Slicing
 
 A **Tuple** is an ordered, **immutable** sequence of elements. Once created, a tuple's elements cannot be modified, added, or removed.
@@ -168,6 +238,17 @@ print(tup1)
 print(single_tup)
 ```
 
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+(10, 20, 30)
+(5,)
+```
+
+</Accordion>
+
 ### Read (R) - Indexing & Slicing
 Tuples support the exact same indexing and slicing syntax as lists (zero-based indexing, negative indexing, and slicing with `[start:stop:step]`).
 
@@ -180,6 +261,19 @@ print(values[-1])    # Last element: "E"
 print(values[1:4])   # Slice: ("B", "C", "D")
 print(values[::-1])  # Reversed tuple: ("E", "D", "C", "B", "A")
 ```
+
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+A
+E
+('B', 'C', 'D')
+('E', 'D', 'C', 'B', 'A')
+```
+
+</Accordion>
 
 ### Operations
 Although immutable, tuples support common operations such as concatenation, repetition, membership testing, and element counting.
@@ -205,6 +299,20 @@ print("First index of 'b':", chars.index("b"))
 print("a" in chars)
 ```
 
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+Concatenation: (1, 2, 3, 4)
+Repetition: (1, 2, 1, 2, 1, 2)
+Count of 'a': 2
+First index of 'b': 1
+True
+```
+
+</Accordion>
+
 ### Sorting
 Because tuples are immutable, you cannot sort them in-place. You must use the `sorted()` function, which returns a new sorted **list**. You can convert this list back to a tuple if needed.
 
@@ -216,6 +324,17 @@ sorted_tup = tuple(sorted_list)
 print("Original Tuple:", tup)
 print("Sorted Tuple:", sorted_tup)
 ```
+
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+Original Tuple: (42, 7, 19, 3)
+Sorted Tuple: (3, 7, 19, 42)
+```
+
+</Accordion>
 
 ### Exercise 1
 Create a tuple containing elements `10`, `20`, `30`, `40`, `50`. Extract the middle three elements using slicing.
@@ -244,6 +363,8 @@ print(sorted_data)
 
 ---
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 # 3. Dictionaries: CRUD Operations and Sorting
 
 A **Dictionary** in Python is a mutable, key-value collection. Keys must be unique and immutable.
@@ -260,6 +381,17 @@ colors = dict(red="#FF0000", green="#00FF00")
 print(student)
 print(colors)
 ```
+
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+{'name': 'Alice', 'age': 25}
+{'red': '#FF0000', 'green': '#00FF00'}
+```
+
+</Accordion>
 
 ### Read (R)
 Values are retrieved using key indexing or the safer `.get()` method.
@@ -280,6 +412,21 @@ print(list(profile.values()))
 print(list(profile.items()))
 ```
 
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+coder1
+None
+18
+['username', 'email']
+['coder1', 'coder1@test.com']
+[('username', 'coder1'), ('email', 'coder1@test.com')]
+```
+
+</Accordion>
+
 ### Update (U)
 You can add new key-value pairs or modify existing ones simply by assigning to a key, or by using `.update()`.
 
@@ -295,6 +442,16 @@ car.update({"color": "red", "battery": "Long Range"})
 
 print(car)
 ```
+
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+{'brand': 'Tesla', 'model': 'Model Y', 'year': 2021, 'color': 'red', 'battery': 'Long Range'}
+```
+
+</Accordion>
 
 ### Delete (D)
 Items can be removed using `del`, `.pop()` (returns value), `.popitem()` (removes last inserted pair), or `.clear()`.
@@ -316,6 +473,18 @@ del inventory["apples"]
 print(inventory)
 ```
 
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+Removed bananas value: 5
+Removed last item: ('peaches', 2)
+{}
+```
+
+</Accordion>
+
 ### Sorting
 Dictionaries can be sorted by keys or values using the `sorted()` function on their items.
 
@@ -330,6 +499,17 @@ print("Sorted by keys:", sorted_by_keys)
 sorted_by_values = dict(sorted(scores.items(), key=lambda item: item[1]))
 print("Sorted by values:", sorted_by_values)
 ```
+
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+Sorted by keys: {'Alice': 95, 'Bob': 85, 'Charlie': 90}
+Sorted by values: {'Bob': 85, 'Charlie': 90, 'Alice': 95}
+```
+
+</Accordion>
 
 ### Exercise 1
 Create a dictionary representing a book with key-value pairs for `title`, `author`, and `price`. Update the price to `499`, add a new key `year` as `2024`, and print all keys in the dictionary.
@@ -360,6 +540,8 @@ print(sorted_d)
 
 ---
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 # 4. Sets: CRUD Operations and Sorting
 
 A **Set** in Python is an unordered collection of unique, immutable elements. Sets do not allow duplicate values.
@@ -377,6 +559,17 @@ names = set(["Alice", "Bob"])
 print(names)
 ```
 
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+{1, 2, 3}
+{'Alice', 'Bob'}
+```
+
+</Accordion>
+
 ### Read (R)
 Since sets are unordered, they do not support indexing or slicing. You read elements by checking membership (`in`) or by iterating over the set.
 
@@ -392,6 +585,20 @@ for char in chars:
     print(char)
 ```
 
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+True
+False
+b
+c
+a
+```
+
+</Accordion>
+
 ### Update (U)
 You can add elements using `.add()` (for a single element) or `.update()` (for multiple elements).
 
@@ -406,6 +613,16 @@ countries.update(["Canada", "Germany"])
 
 print(countries)
 ```
+
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+{'Germany', 'India', 'UK', 'Canada', 'USA'}
+```
+
+</Accordion>
 
 ### Delete (D)
 Remove elements using `.remove()` (raises KeyError if not found), `.discard()` (safe, does not raise error), `.pop()` (removes and returns an arbitrary element), or `.clear()`.
@@ -426,6 +643,17 @@ print(f"Popped brand: {popped}")
 print(brands)
 ```
 
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+Popped brand: Nike
+{'Puma'}
+```
+
+</Accordion>
+
 ### Sorting
 Since sets are inherently unordered, they cannot be sorted in-place. However, you can use the `sorted()` function, which returns a sorted list of the set's elements.
 
@@ -436,6 +664,16 @@ values = {42, 3, 17, 8}
 sorted_values = sorted(values)
 print("Sorted values list:", sorted_values)
 ```
+
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+Sorted values list: [3, 8, 17, 42]
+```
+
+</Accordion>
 
 ### Exercise 1
 Create an empty set, add elements `10`, `20`, and `30` to it, remove `20`, and verify if `20` is still in the set.
@@ -467,6 +705,8 @@ print(sorted(my_set))
 
 ---
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 # 5. Queues: Using `collections.deque`
 
 A queue is a linear data structure that follows the **FIFO (First-In, First-Out)** principle. 
@@ -492,6 +732,16 @@ queue.append("Charlie")
 print("Queue status:", queue)
 ```
 
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+Queue status: deque(['Alice', 'Bob', 'Charlie'])
+```
+
+</Accordion>
+
 ### Dequeuing Elements
 Use `.popleft()` to remove and return elements from the left side (front of the queue), preserving the FIFO order.
 
@@ -506,6 +756,18 @@ print(f"Served: {second}")
 print("Remaining Queue:", queue)
 ```
 
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+Served: Alice
+Served: Bob
+Remaining Queue: deque(['Charlie'])
+```
+
+</Accordion>
+
 ### Add to Front / Remove from Back
 Because `deque` is double-ended, you can also perform LIFO operations or add to the front:
 - `appendleft(item)`: Add an element to the front.
@@ -516,6 +778,16 @@ q = deque(["Job1", "Job2"])
 q.appendleft("UrgentJob")  # Added to front
 print(q)
 ```
+
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+deque(['UrgentJob', 'Job1', 'Job2'])
+```
+
+</Accordion>
 
 ### Exercise 1
 Create a queue using `deque` containing `["user1", "user2"]`. Enqueue `"user3"`, dequeue the first user in line, and print the remaining queue.
@@ -552,6 +824,8 @@ print(stack.pop())  # returns "plate2"
 
 ---
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 # 6. Why Comprehensions?
 
 Suppose we want to create a list containing the squares of numbers from `1` to `5`. A common approach is to use a `for` loop.
@@ -578,16 +852,38 @@ squares = [number ** 2 for number in range(1, 6)]
 print(squares)
 ```
 
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+[1, 4, 9, 16, 25]
+```
+
+</Accordion>
+
 ### General Syntax
 ```python
 [expression for item in iterable]
 ```
+
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+Error executing code: name 'iterable' is not defined
+```
+
+</Accordion>
 
 - **expression** → Value to be added to the collection.
 - **item** → Current element from the iterable.
 - **iterable** → Any iterable object such as a string, list, tuple, range, or set.
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 # 7. List Comprehensions
 
@@ -600,6 +896,16 @@ squares = [num ** 2 for num in numbers]
 print(squares)
 ```
 
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+[1, 4, 9, 16, 25]
+```
+
+</Accordion>
+
 ### Filtering with `if`
 You can filter elements by adding an `if` clause at the end.
 
@@ -608,6 +914,16 @@ numbers = range(1, 11)
 evens = [num for num in numbers if num % 2 == 0]
 print(evens)
 ```
+
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+[2, 4, 6, 8, 10]
+```
+
+</Accordion>
 
 ### Using `if-else` (Transformation)
 To transform values differently based on a condition, place the `if-else` clause **before** the `for` loop.
@@ -618,6 +934,16 @@ labels = ["Even" if num % 2 == 0 else "Odd" for num in numbers]
 print(labels)
 ```
 
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+['Odd', 'Even', 'Odd', 'Even', 'Odd']
+```
+
+</Accordion>
+
 ### Nested List Comprehensions (Flattening)
 You can nest comprehensions to work with multi-dimensional lists (e.g., flattening a matrix).
 
@@ -626,6 +952,16 @@ matrix = [[1, 2], [3, 4], [5, 6]]
 flat = [num for row in matrix for num in row]
 print(flat)
 ```
+
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+[1, 2, 3, 4, 5, 6]
+```
+
+</Accordion>
 
 ### Exercise 1
 Create a list containing the lengths of each word in the list `["Python", "FastAPI", "API"]` using a list comprehension.
@@ -642,6 +978,8 @@ print(lengths)
 
 ---
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 # 8. Dictionary Comprehensions
 
 A **dictionary comprehension** provides a concise way to create dictionaries from iterables.
@@ -653,12 +991,32 @@ squares = {num: num ** 2 for num in numbers}
 print(squares)
 ```
 
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+{1: 1, 2: 4, 3: 9, 4: 16, 5: 25}
+```
+
+</Accordion>
+
 ### Filtering in Dictionary Comprehensions
 ```python
 scores = {"Alice": 85, "Bob": 72, "Charlie": 90}
 passed = {name: score for name, score in scores.items() if score >= 80}
 print(passed)
 ```
+
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+{'Alice': 85, 'Charlie': 90}
+```
+
+</Accordion>
 
 ### Exercise 1
 Given the list `["a", "b", "c"]`, create a dictionary where each character is a key, and its ASCII code (`ord(char)`) is the value.
@@ -675,6 +1033,8 @@ print(ascii_dict)
 
 ---
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 # 9. Set Comprehensions
 
 A **set comprehension** creates a set. Since sets store unique values, duplicates are automatically removed.
@@ -685,6 +1045,16 @@ numbers = [1, 2, 2, 3, 4, 4, 5]
 unique_squares = {num ** 2 for num in numbers}
 print(unique_squares)
 ```
+
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+{1, 4, 9, 16, 25}
+```
+
+</Accordion>
 
 ### Exercise 1
 Extract all unique vowels from the string `"Artificial Intelligence"` in lowercase using a set comprehension.
@@ -700,6 +1070,8 @@ print(vowels)
 </Accordion>
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 # 10. Generator Expressions
 
@@ -732,6 +1104,8 @@ Output
 
 ---
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 # 11. Comprehensions vs Loops & Best Practices
 
 | Feature | Traditional Loop | Comprehension | Generator Expression |
@@ -748,6 +1122,8 @@ Output
 
 ---
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Practice
 
 To reinforce what you've learned in this section, practice with the interactive follow-along notebook:
@@ -759,11 +1135,13 @@ To reinforce what you've learned in this section, practice with the interactive 
   >
     Practice lists, tuples, dictionaries, sets operations, deque queues, list/dict/set comprehensions, and generator expressions.
 
-    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/python%20material/fastapi-course/public/notebooks/basics_exercises/Comprehensions_Practice.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/fastapi-course/blob/master/public/notebooks/basics_exercises/Comprehensions_Practice.ipynb) | <a href="/public/notebooks/basics_exercises/Comprehensions_Practice.ipynb" download>📥 Download</a>
+    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/DSA%20With%20Python/public/notebooks/workshop-notebooks/02-ds-comprehensions/02-ds-comprehensions-exercises.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/genai-course/blob/main/public/notebooks/workshop-notebooks/02-ds-comprehensions/02-ds-comprehensions-exercises-colab.ipynb) | <a href="/notebooks/workshop-notebooks/02-ds-comprehensions/02-ds-comprehensions-exercises.ipynb" download>📥 Download</a>
   </Card>
 </CardGroup>
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Summary
 

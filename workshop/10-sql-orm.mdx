@@ -13,6 +13,24 @@ By the end of this chapter, you will be able to:
 - Identify the major SQLAlchemy components.
 - Explain how Python objects are stored and retrieved from a database.
 
+## Topics Covered
+
+In this module, you'll learn:
+
+1. [Introduction to ORM](#working-with-an-orm)
+2. [Building Your First SQLAlchemy Application](#building-your-first-sqlalchemy-orm-application)
+3. [CRUD Operations](#crud-operations-with-sqlalchemy-orm)
+4. [Retrieving Results](#retrieving-results-in-sqlalchemy)
+5. [ORM Relationships](#orm-relationships)
+
+> **Try Yourself:** [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/DSA%20With%20Python/public/notebooks/workshop-notebooks/10-sql-orm/10-sql-orm-exercises.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/genai-course/blob/main/public/notebooks/workshop-notebooks/10-sql-orm/10-sql-orm-exercises-colab.ipynb) | <a href="/notebooks/workshop-notebooks/10-sql-orm/10-sql-orm-exercises.ipynb" download>📥 Download</a><br />
+> **Verify Solutions:** [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/DSA%20With%20Python/public/notebooks/workshop-notebooks/10-sql-orm/10-sql-orm.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/genai-course/blob/main/public/notebooks/workshop-notebooks/10-sql-orm/10-sql-orm-colab.ipynb) | <a href="/notebooks/workshop-notebooks/10-sql-orm/10-sql-orm.ipynb" download>📥 Download</a>
+
+---
+
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Working Without an ORM
 
 A relational database understands only **SQL**.
@@ -33,6 +51,8 @@ VALUES ('Rahul', 22);
 ```
 
 As applications grow, writing and maintaining SQL for every database operation becomes repetitive and difficult.
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Working With an ORM
 
@@ -59,6 +79,8 @@ SQLAlchemy automatically generates the required SQL, sends it to the database, r
 
 This allows us to focus on writing Python instead of manually writing SQL.
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## What is an ORM?
 
 **ORM (Object Relational Mapping)** is a technique that maps Python objects to database tables.
@@ -84,6 +106,8 @@ Database
 ```
 
 Throughout this workshop, we'll use **SQLAlchemy ORM**, one of the most popular ORM libraries in Python.
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## The Big Picture
 
@@ -136,9 +160,13 @@ Notice the important role of SQLAlchemy.
 
 We'll learn each step of this workflow throughout this module.
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 # Understanding the Components
 
 Now let's understand the responsibility of each component.
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Engine
 
@@ -159,6 +187,8 @@ Database
 ```
 
 Think of the Engine as the **gateway** to the database.
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Session
 
@@ -184,6 +214,8 @@ Database
 
 Think of the Session as your **conversation with the database**.
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## ORM Model
 
 An ORM model is a Python class that represents a database table.
@@ -202,6 +234,8 @@ Python Object
       ↓
 Database Row
 ```
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## SQLAlchemy
 
@@ -231,11 +265,15 @@ SQLAlchemy converts them into Python objects.
 Student(id=1, name="Rahul", age=22)
 ```
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Database
 
 The database stores the data and executes SQL statements.
 
 It understands SQL, not Python objects.
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Putting Everything Together
 
@@ -273,6 +311,8 @@ It understands SQL, not Python objects.
                 Python Application
 ```
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Summary
 
 In this chapter, you learned:
@@ -287,7 +327,11 @@ In the next chapter, we'll start building this workflow by creating our first **
 
 --------------------------------------
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 # Building Your First SQLAlchemy ORM Application 
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Learning Objectives
 
@@ -299,6 +343,8 @@ By the end of this chapter, you will be able to:
 - Create database tables.
 - Create a Session.
 - Insert data into the database.
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 # Project Setup
 
@@ -335,6 +381,8 @@ sqlalchemy-demo/
 Throughout this chapter, we'll gradually build the same `main.py`.
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 # Step 1 — Create the Engine
 
@@ -389,6 +437,8 @@ engine = create_engine(DATABASE_URL)
 
 ---
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 # Step 2 — Create the Declarative Base
 
 Every ORM model inherits from a common Base class.
@@ -434,6 +484,8 @@ class Base(DeclarativeBase):
 ```
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 # Step 3 — Create an ORM Model
 
@@ -501,6 +553,8 @@ class Student(Base):
 
 ---
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 # Step 4 — Create Database Tables
 
 Create all tables.
@@ -548,6 +602,8 @@ Base.metadata.create_all(engine)
 
 ---
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 # Step 5 — Create a Session
 
 A Session is used to interact with the database.
@@ -583,6 +639,8 @@ Database
 Think of the Session as your **conversation with the database**.
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 # Step 6 — Insert a Record
 
@@ -652,6 +710,8 @@ VALUES ('Rahul', 22);
 
 ---
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 # Complete Application
 
 ```python
@@ -704,11 +764,15 @@ Run the application.
 uv run main.py
 ```
 
-Output
+Output ?
+
+<Accordion title="Show Output">
 
 ```text
 1
 ```
+
+</Accordion>
 
 Open `students.db` using the SQLite extension.
 
@@ -717,6 +781,8 @@ You should see:
 | id | name | age |
 |----|------|-----|
 | 1 | Rahul | 22 |
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 # Summary
 
@@ -733,6 +799,8 @@ You learned how to:
 - Create a Session.
 - Insert data into the database.
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 # CRUD Operations with SQLAlchemy ORM
 
 CRUD stands for:
@@ -743,6 +811,8 @@ CRUD stands for:
 - **D** – Delete (DELETE)
 
 These are the four fundamental database operations performed using SQLAlchemy ORM.
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Create (INSERT)
 
@@ -783,6 +853,8 @@ session.commit()
       ↓
 Database Row Created
 ```
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Read (SELECT)
 
@@ -842,6 +914,8 @@ Execute Query
 Retrieve Objects
 ```
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Update (UPDATE)
 
 ### Step 1 – Retrieve the Object
@@ -892,6 +966,8 @@ session.commit()
 Database Updated
 ```
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Delete (DELETE)
 
 ### Step 1 – Retrieve the Object
@@ -941,6 +1017,8 @@ session.commit()
 Row Deleted
 ```
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## CRUD Summary
 
 | Operation | SQL | SQLAlchemy ORM |
@@ -950,6 +1028,8 @@ Row Deleted
 | Read by ID | `SELECT ... WHERE id = ?` | `session.get(Student, id)` |
 | Update | `UPDATE` | Modify object + `session.commit()` |
 | Delete | `DELETE` | `session.delete()` + `session.commit()` |
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Complete CRUD Example
 
@@ -971,6 +1051,8 @@ student = session.get(Student, 1)
 session.delete(student)
 session.commit()
 ```
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## SQL SELECT vs SQLAlchemy ORM
 
@@ -1006,11 +1088,15 @@ session.commit()
 | `SELECT * FROM students ORDER BY age DESC LIMIT 5;` | `select(Student).order_by(Student.age.desc()).limit(5)` |
 
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 # Retrieving Results in SQLAlchemy
 
 After building a query using `select()`, you need to decide **how you want to retrieve the results**.
 
 SQLAlchemy provides different methods depending on whether you expect **one object**, **multiple objects**, or **a single value**.
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Result Retrieval Methods
 
@@ -1023,6 +1109,8 @@ SQLAlchemy provides different methods depending on whether you expect **one obje
 | `get()` | Object or `None` | Retrieve a record by its primary key. |
 | `scalar()` | Single scalar value | Retrieve a single value such as `COUNT`, `SUM`, `AVG`, etc. |
 | `scalars()` | ScalarResult | Retrieve ORM objects (or the first selected column) from a query. Usually followed by `all()`, `first()`, or `one()`. |
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## `all()`
 
@@ -1043,6 +1131,8 @@ Result
 ```
 
 Use when you want **every matching record**.
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## `first()`
 
@@ -1066,6 +1156,8 @@ None
 
 Use when only the **first matching record** is required.
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## `one()`
 
 Returns exactly one record.
@@ -1082,6 +1174,8 @@ Raises an exception if:
 - More than one record is found.
 
 Use when you are **certain** exactly one record exists.
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## `one_or_none()`
 
@@ -1101,6 +1195,8 @@ Returns
 Raises an exception if multiple records are found.
 
 Use when the record may or may not exist.
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## `get()`
 
@@ -1123,6 +1219,8 @@ None
 ```
 
 Use `get()` **only** when searching by the primary key.
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## `scalar()`
 
@@ -1150,6 +1248,8 @@ Commonly used with:
 - `MIN()`
 - `MAX()`
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## `scalars()`
 
 Returns ORM objects (or the first selected column) from a query.
@@ -1169,6 +1269,8 @@ students = result.scalars().all()
 
 Use `scalars()` when retrieving ORM objects.
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Quick Reference
 
 | Requirement | Method |
@@ -1180,6 +1282,8 @@ Use `scalars()` when retrieving ORM objects.
 | Find by primary key | `session.get()` |
 | Single value (COUNT, SUM, AVG...) | `session.scalar()` |
 | ORM objects | `session.scalars()` |
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Choosing the Right Method
 
@@ -1234,6 +1338,8 @@ Need ORM objects from a SELECT query?
     scalars()
 ```
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 # ORM Relationships
 
 In real-world applications, a single table is rarely enough to represent all the required data. Instead, multiple tables work together by establishing **relationships** between them.
@@ -1248,6 +1354,8 @@ For example, in a Blog application:
 Instead of duplicating data across tables, relational databases connect tables using **Primary Keys** and **Foreign Keys**.
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Why Relationships?
 
@@ -1296,6 +1404,8 @@ Now the author details exist only once, making the database normalized and easie
 
 ---
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 # Primary Key vs Foreign Key
 
 Every table has a **Primary Key**, which uniquely identifies each row.
@@ -1333,7 +1443,11 @@ Here,
 
 ---
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 # Types of Relationships
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## One-to-One (1:1)
 
@@ -1350,6 +1464,8 @@ User -------- Profile
 ```
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## One-to-Many (1:N)
 
@@ -1374,6 +1490,8 @@ Only the child table stores the foreign key.
 
 ---
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Many-to-One (N:1)
 
 This is simply the reverse direction of One-to-Many.
@@ -1390,6 +1508,8 @@ Blog Post
 Although conceptually different, SQLAlchemy implements One-to-Many and Many-to-One together.
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Many-to-Many (M:N)
 
@@ -1417,6 +1537,8 @@ Examples
 Many-to-Many relationships always require an **association table**.
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 # Relationship in Our Blog Application
 
@@ -1458,6 +1580,8 @@ The relationship is therefore
 > **One User → Many Blog Posts**
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 # User Roles
 
@@ -1503,9 +1627,13 @@ Authorization is handled by the application logic, not by the database relations
 
 ---
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 # Relationship in SQLAlchemy
 
 SQLAlchemy models relationships in two different ways.
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Database Relationship
 
@@ -1520,6 +1648,8 @@ author_id = mapped_column(
 This creates the actual database constraint.
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## ORM Relationship
 
@@ -1547,6 +1677,8 @@ Now SQLAlchemy understands that these two models are connected.
 
 ---
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 # Complete User Model
 
 ```python
@@ -1565,6 +1697,8 @@ class User(Base):
 ```
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 # Complete BlogPost Model
 
@@ -1587,6 +1721,8 @@ class BlogPost(Base):
 ```
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 # How SQLAlchemy Uses Relationships
 
@@ -1626,6 +1762,8 @@ User(...)
 
 ---
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 # Creating Relationships
 
 Instead of assigning the foreign key manually,
@@ -1658,6 +1796,8 @@ This synchronization is handled by the ORM.
 
 ---
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 # Understanding `back_populates`
 
 `back_populates` connects both relationship properties.
@@ -1682,6 +1822,8 @@ With `back_populates`:
 
 ---
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 # Database Relationship vs ORM Relationship
 
 | Database | SQLAlchemy ORM |
@@ -1696,6 +1838,27 @@ Both work together.
 The database guarantees referential integrity, while SQLAlchemy provides convenient object navigation.
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
+## Practice
+
+To reinforce what you've learned in this section, practice with the interactive follow-along notebook:
+
+<CardGroup cols={1}>
+  <Card
+    title="Follow-Along Practice"
+    icon="laptop-code"
+  >
+    Practice creating SQLAlchemy engines, declaring ORM Base models, running CRUD operations, and building relationships between tables.
+
+    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/DSA%20With%20Python/public/notebooks/workshop-notebooks/10-sql-orm/10-sql-orm-exercises.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/genai-course/blob/main/public/notebooks/workshop-notebooks/10-sql-orm/10-sql-orm-exercises-colab.ipynb) | <a href="/notebooks/workshop-notebooks/10-sql-orm/10-sql-orm-exercises.ipynb" download>📥 Download</a>
+  </Card>
+</CardGroup>
+
+---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 # Summary
 

@@ -11,13 +11,20 @@ Understanding how Python passes arguments, manages variables/scopes, and execute
 
 In this module, you'll learn:
 
-1. **Function Arguments**: Positional vs Keyword argument passing
-2. **Print formatting**: `sep` and `end` parameters
-3. **Packing and Unpacking**: `*` and `**` operators, `*args`, and `**kwargs`
-4. **Mutable Default Arguments Pitfall**
-5. **Variable Scope and resolution** (LEGB rule, `global` and `nonlocal` keywords)
+1. [**Function Arguments**: Positional vs Keyword argument passing](#function-arguments-positional-and-keyword-passing)
+2. [**Print formatting**: `sep` and `end` parameters](#print-formatting-parameters-sep-and-end)
+3. [**Packing and Unpacking**: `*` and `**` operators, `*args`, and `**kwargs`](#packing-and-unpacking)
+4. [**Mutable Default Arguments Pitfall**](#mutable-default-argument-pitfall)
+5. [**Variable Scope and resolution** (LEGB rule, `global` and `nonlocal` keywords)](#variable-scope)
+
+> **Try Yourself:** [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/DSA%20With%20Python/public/notebooks/workshop-notebooks/03-python-functions/03-python-functions-exercises.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/genai-course/blob/main/public/notebooks/workshop-notebooks/03-python-functions/03-python-functions-exercises-colab.ipynb) | <a href="/notebooks/workshop-notebooks/03-python-functions/03-python-functions-exercises.ipynb" download>📥 Download</a><br />
+> **Verify Solutions:** [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/DSA%20With%20Python/public/notebooks/workshop-notebooks/03-python-functions/03-python-functions.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/genai-course/blob/main/public/notebooks/workshop-notebooks/03-python-functions/03-python-functions-colab.ipynb) | <a href="/notebooks/workshop-notebooks/03-python-functions/03-python-functions.ipynb" download>📥 Download</a>
+
+
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Function Arguments: Positional and Keyword passing
 
@@ -36,6 +43,17 @@ display_profile("Alice", 25)
 display_profile(age=25, name="Alice")
 ```
 
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+Name: Alice, Age: 25
+Name: Alice, Age: 25
+```
+
+</Accordion>
+
 All positional arguments must appear before keyword arguments.
 ```python
 # Valid
@@ -44,6 +62,16 @@ display_profile("Alice", age=25)
 # Invalid - raises SyntaxError
 # display_profile(name="Alice", 25)
 ```
+
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+Name: Alice, Age: 25
+```
+
+</Accordion>
 
 ### Exercise 1
 
@@ -61,6 +89,8 @@ print(divide(b=5, a=10))
 </Accordion>
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Print Formatting Parameters: `sep` and `end`
 
@@ -112,6 +142,8 @@ for i in range(1, 6):
 
 ---
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Packing and Unpacking
 
 Python provides the `*` and `**` operators to pack or unpack values during function calls and parameter definitions.
@@ -155,6 +187,17 @@ details = {"x": 10, "y": 20, "z": 30}
 print(add(**details))
 ```
 
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+6
+60
+```
+
+</Accordion>
+
 ### Exercise 1
 
 Write a function `sum_all(*args)` that sums all positional arguments passed to it.
@@ -182,6 +225,8 @@ Explain the difference between `func(*list_val)` and `func(list_val)`.
 </Accordion>
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Mutable Default Argument Pitfall
 
@@ -247,6 +292,17 @@ print(add_to_dict("a", 1))
 print(add_to_dict("b", 2))
 ```
 
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+{'a': 1}
+{'a': 1, 'b': 2}
+```
+
+</Accordion>
+
 <Accordion title="Solution">
 
 ```text
@@ -258,6 +314,8 @@ Because the default dictionary `my_dict={}` is mutable, modifications persist ac
 </Accordion>
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Variable Scope
 
@@ -282,6 +340,16 @@ def calculate():
 calculate()
 # print(result)  # NameError: name 'result' is not defined
 ```
+
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+Inside: 100
+```
+
+</Accordion>
 
 ---
 
@@ -382,6 +450,8 @@ func()
 print(x)
 ```
 
+Output ?
+
 <Accordion title="Solution">
 
 ```text
@@ -414,6 +484,8 @@ my_step()
 
 ---
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Practice
 
 To reinforce what you've learned in this section, practice with the interactive follow-along notebook:
@@ -425,11 +497,13 @@ To reinforce what you've learned in this section, practice with the interactive 
   >
     Practice local and global scope resolution, LEGB rules, sep and end parameters, arguments packing/unpacking, and mutable default arguments.
 
-    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/python%20material/fastapi-course/public/notebooks/basics_exercises/Python_Internals_Practice.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/fastapi-course/blob/master/public/notebooks/basics_exercises/Python_Internals_Practice.ipynb) | <a href="/public/notebooks/basics_exercises/Python_Internals_Practice.ipynb" download>📥 Download</a>
+    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/DSA%20With%20Python/public/notebooks/workshop-notebooks/03-python-functions/03-python-functions-exercises.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/genai-course/blob/main/public/notebooks/workshop-notebooks/03-python-functions/03-python-functions-exercises-colab.ipynb) | <a href="/notebooks/workshop-notebooks/03-python-functions/03-python-functions-exercises.ipynb" download>📥 Download</a>
   </Card>
 </CardGroup>
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Summary
 

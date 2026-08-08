@@ -13,16 +13,23 @@ In this module, you'll learn the essential tools and practices used in professio
 
 In this module, you'll learn:
 
-1. Project Structure
-2. Virtual Environments
-3. Dependency Management with `uv`
-4. Environment Variables and Configuration
-5. Working with JSON Data
-6. Consuming REST APIs
-7. Dependency Injection Concepts
-8. Best Practices
+1. [Project Structure](#project-structure)
+2. [Virtual Environments](#virtual-environments)
+3. [Dependency Management with `uv`](#dependency-management-with-uv)
+4. [Environment Variables and Configuration](#environment-variables)
+5. [Working with JSON Data](#working-with-json-data)
+6. [Consuming REST APIs](#consuming-rest-apis)
+7. [Dependency Injection Concepts](#dependency-injection-concepts)
+8. [Best Practices](#best-practices)
+
+> **Try Yourself:** [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/DSA%20With%20Python/public/notebooks/workshop-notebooks/08-project-essentials/08-project-essentials-exercises.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/genai-course/blob/main/public/notebooks/workshop-notebooks/08-project-essentials/08-project-essentials-exercises-colab.ipynb) | <a href="/notebooks/workshop-notebooks/08-project-essentials/08-project-essentials-exercises.ipynb" download>📥 Download</a><br />
+> **Verify Solutions:** [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/DSA%20With%20Python/public/notebooks/workshop-notebooks/08-project-essentials/08-project-essentials.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/genai-course/blob/main/public/notebooks/workshop-notebooks/08-project-essentials/08-project-essentials-colab.ipynb) | <a href="/notebooks/workshop-notebooks/08-project-essentials/08-project-essentials.ipynb" download>📥 Download</a>
+
+
 
 By the end of this module, you'll be able to organize Python projects, manage dependencies efficiently, configure applications securely, exchange JSON data, consume REST APIs, and understand the fundamentals of dependency injection.
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Project Structure
 
@@ -102,6 +109,8 @@ Identify the purpose of each file.
 | `README.md` | Project documentation |
 
 </Accordion>
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Virtual Environments
 
@@ -184,13 +193,7 @@ Deactivate the virtual environment.
 deactivate
 ```
 
-<Accordion title="Solution">
-
-```bash
-deactivate
-```
-
-</Accordion>
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Dependency Management with `uv`
 
@@ -264,14 +267,6 @@ Create a new project named **student-management** using `uv`.
 uv init student-management
 ```
 
-<Accordion title="Solution">
-
-```bash
-uv init student-management
-```
-
-</Accordion>
-
 ### Exercise 2
 
 Add the `requests` package and synchronize the project.
@@ -284,15 +279,7 @@ uv add requests
 uv sync
 ```
 
-<Accordion title="Solution">
-
-```bash
-uv add requests
-
-uv sync
-```
-
-</Accordion>
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Environment Variables
 
@@ -321,6 +308,8 @@ DEBUG=True
 
 This keeps sensitive information separate from your application.
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Reading Environment Variables
 
 Install the package.
@@ -348,6 +337,8 @@ api_key = os.getenv("API_KEY")
 print(api_key)
 ```
 
+Output ?
+
 <Accordion title="Show Output">
 
 ```text
@@ -355,6 +346,8 @@ my-secret-key
 ```
 
 </Accordion>
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Providing Default Values
 
@@ -368,6 +361,8 @@ host = os.getenv("HOST", "localhost")
 print(host)
 ```
 
+Output ?
+
 <Accordion title="Show Output">
 
 ```text
@@ -375,6 +370,8 @@ localhost
 ```
 
 </Accordion>
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Why Use Environment Variables?
 
@@ -441,6 +438,8 @@ print(host)
 ```
 
 </Accordion>
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Configuration Management
 
@@ -524,6 +523,8 @@ print(config.APP_NAME)
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Working with JSON Data
 
 JSON (JavaScript Object Notation) is the most widely used format for exchanging data between applications.
@@ -546,6 +547,8 @@ Python provides the built-in `json` module for working with JSON.
 import json
 ```
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Converting Python Objects to JSON
 
 Use `json.dumps()`.
@@ -564,6 +567,8 @@ json_data = json.dumps(student, indent=4)
 print(json_data)
 ```
 
+Output ?
+
 <Accordion title="Show Output">
 
 ```json
@@ -575,6 +580,8 @@ print(json_data)
 ```
 
 </Accordion>
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Converting JSON to Python Objects
 
@@ -596,6 +603,8 @@ print(student["name"])
 print(student["age"])
 ```
 
+Output ?
+
 <Accordion title="Show Output">
 
 ```text
@@ -604,6 +613,8 @@ Alice
 ```
 
 </Accordion>
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Reading JSON from a File
 
@@ -627,6 +638,8 @@ with open("student.json") as file:
 print(student)
 ```
 
+Output ?
+
 <Accordion title="Show Output">
 
 ```text
@@ -634,6 +647,8 @@ print(student)
 ```
 
 </Accordion>
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Writing JSON to a File
 
@@ -712,6 +727,8 @@ print(employee["name"])
 ```
 
 </Accordion>
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Consuming REST APIs
 
 Modern applications frequently communicate with external services using **REST APIs**.
@@ -732,6 +749,8 @@ Install it using `uv`.
 uv add requests
 ```
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Making a GET Request
 
 Let's fetch sample user information from the JSONPlaceholder API.
@@ -746,6 +765,8 @@ response = requests.get(url)
 print(response.status_code)
 ```
 
+Output ?
+
 <Accordion title="Show Output">
 
 ```text
@@ -755,6 +776,8 @@ print(response.status_code)
 </Accordion>
 
 A status code of **200** indicates that the request was successful.
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Reading JSON Response
 
@@ -773,6 +796,8 @@ print(user["name"])
 print(user["email"])
 ```
 
+Output ?
+
 <Accordion title="Show Output">
 
 ```text
@@ -781,6 +806,8 @@ Sincere@april.biz
 ```
 
 </Accordion>
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Sending Query Parameters
 
@@ -803,6 +830,8 @@ response = requests.get(
 print(response.status_code)
 ```
 
+Output ?
+
 <Accordion title="Show Output">
 
 ```text
@@ -816,6 +845,8 @@ The generated URL becomes
 ```text
 https://jsonplaceholder.typicode.com/comments?postId=1
 ```
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Sending Headers
 
@@ -833,6 +864,8 @@ response = requests.get(
 ```
 
 Many real-world APIs require authentication through headers.
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Making a POST Request
 
@@ -855,6 +888,8 @@ response = requests.post(
 print(response.status_code)
 ```
 
+Output ?
+
 <Accordion title="Show Output">
 
 ```text
@@ -864,6 +899,8 @@ print(response.status_code)
 </Accordion>
 
 Status code **201** indicates that a new resource was created.
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Common HTTP Methods
 
@@ -930,6 +967,8 @@ print(response.status_code)
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Dependency Injection Concepts
 
 As applications grow, classes often depend on other classes.
@@ -966,6 +1005,8 @@ notification = NotificationService()
 notification.notify()
 ```
 
+Output ?
+
 <Accordion title="Show Output">
 
 ```text
@@ -977,6 +1018,8 @@ Email Sent
 Here, `NotificationService` directly creates an `EmailService`.
 
 Replacing the email service later becomes difficult.
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## With Dependency Injection
 
@@ -1005,6 +1048,8 @@ notification = NotificationService(email)
 notification.notify()
 ```
 
+Output ?
+
 <Accordion title="Show Output">
 
 ```text
@@ -1022,6 +1067,8 @@ This makes the code:
 - More reusable
 - Less tightly coupled
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Another Example
 
 ```python
@@ -1037,6 +1084,8 @@ notification = NotificationService(sms)
 
 notification.notify()
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -1135,6 +1184,8 @@ NotificationService(
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Best Practices
 
 - Organize projects into logical modules and packages.
@@ -1145,6 +1196,27 @@ NotificationService(
 - Use JSON for data exchange.
 - Handle API responses and errors gracefully.
 - Prefer dependency injection over creating dependencies inside classes.
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
+## Practice
+
+To reinforce what you've learned in this section, practice with the interactive follow-along notebook:
+
+<CardGroup cols={1}>
+  <Card
+    title="Follow-Along Practice"
+    icon="laptop-code"
+  >
+    Practice dependency management using uv, reading environment variables from .env, parsing/generating JSON payloads, calling REST APIs using requests, and implementing dependency injection.
+
+    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/DSA%20With%20Python/public/notebooks/workshop-notebooks/08-project-essentials/08-project-essentials-exercises.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/genai-course/blob/main/public/notebooks/workshop-notebooks/08-project-essentials/08-project-essentials-exercises-colab.ipynb) | <a href="/notebooks/workshop-notebooks/08-project-essentials/08-project-essentials-exercises.ipynb" download>📥 Download</a>
+  </Card>
+</CardGroup>
+
+---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Summary
 

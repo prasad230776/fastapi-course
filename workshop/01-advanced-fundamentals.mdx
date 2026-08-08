@@ -2,42 +2,46 @@
 title: 01-Advanced Fundamentals
 description: Learn advanced Python features that help you write cleaner, more expressive, and Pythonic code.
 ---
-
 # Advanced Python Fundamentals
-
 These features are part of modern Python and are widely used in professional applications and popular frameworks such as **FastAPI**, **Flask**, **Django**, **NumPy**, **Pandas**, and many other third-party libraries.
 
 ## Topics Covered
-
 In this module, you'll learn:
 
-1. Everything is an Object & Variables as References
-2. Integer Value Caching (Integer Interning)
-3. Mutability (Mutable vs Immutable Objects)
-4. Floating Point Precision Nuances (`0.1 + 0.2 != 0.3`)
-5. Advanced String Indexing and Slicing
-6. Important String Operations (split, join, strip, replace)
-7. Python Nuances
-   - Short-circuit Evaluation (`and` and `or`)
-   - Conditional Expressions (One-line `if-else`)
-   - Chained Comparisons
-   - Multiple Assignment and Variable Swapping
-8. `for-else` and `while-else`
-9. Function Arguments
-   - Positional Arguments
-   - Keyword Arguments
-   - Mixing Positional and Keyword Arguments
-   - Positional-only Parameters (`/`)
-   - Keyword-only Parameters (`*`)
-10. Packing and Unpacking
-    - Packing Positional Arguments (`*args`)
-    - Packing Keyword Arguments (`**kwargs`)
-    - Unpacking Positional Arguments (`*`)
-    - Unpacking Keyword Arguments (`**`)
-    - Extended Unpacking
-    - Combining Different Parameter Types
+1. [Everything is an Object & Variables as References](#everything-is-an-object-variables-as-references)
+2. [Integer Value Caching (Integer Interning)](#integer-value-caching-integer-interning)
+3. [Mutability (Mutable vs Immutable Objects)](#mutability-mutable-vs-immutable-objects)
+4. [Floating Point Precision Nuances (`0.1 + 0.2 != 0.3`)](#floating-point-precision-nuances)
+5. [Advanced String Indexing and Slicing](#string-indexing-and-slicing)
+6. [Important String Operations (split, join, strip, replace)](#important-string-operations-for-data-processing)
+7. [Python Nuances](#python-nuances)
+   - [Short-circuit Evaluation (`and` and `or`)](#short-circuit-evaluation)
+   - [Conditional Expressions (One-line `if-else`)](#conditional-expressions-one-line-if-else-ternary-operator)
+   - [Chained Comparisons](#chained-comparisons)
+   - [Multiple Assignment and Variable Swapping](#multiple-assignment-and-variable-swapping)
+8. [`for-else` and `while-else`](#for-else-and-while-else)
+9. [Function Arguments](#function-arguments)
+   - [Positional Arguments](#positional-arguments)
+   - [Keyword Arguments](#keyword-arguments)
+   - [Mixing Positional and Keyword Arguments](#mixing-positional-and-keyword-arguments)
+   - [Positional-only Parameters (`/`)](#positional-only-parameters)
+   - [Keyword-only Parameters (`*`)](#keyword-only-parameters)
+10. [Packing and Unpacking](#packing-and-unpacking)
+    - [Packing Positional Arguments (`*args`)](#packing-positional-arguments-args)
+    - [Packing Keyword Arguments (`**kwargs`)](#packing-keyword-arguments-kwargs)
+    - [Unpacking Positional Arguments (`*`)](#unpacking-positional-arguments)
+    - [Unpacking Keyword Arguments (`**`)](#unpacking-keyword-arguments)
+    - [Extended Unpacking](#extended-unpacking)
+    - [Combining Different Parameter Types](#combining-everything)
+
+
 
 By the end of this module, you'll be comfortable writing more flexible, reusable, and Pythonic functions that are commonly used in real-world Python applications.
+
+> **Practice Along:** [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/DSA%20With%20Python/public/notebooks/workshop-notebooks/01-advanced-fundamentals/01-advanced-fundamentals-exercises.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/genai-course/blob/main/public/notebooks/workshop-notebooks/01-advanced-fundamentals/01-advanced-fundamentals-exercises-colab.ipynb) | <a href="/notebooks/workshop-notebooks/01-advanced-fundamentals/01-advanced-fundamentals-exercises.ipynb" download>📥 Download</a><br />
+> **Verify Solutions:** [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/DSA%20With%20Python/public/notebooks/workshop-notebooks/01-advanced-fundamentals/01-advanced-fundamentals.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/genai-course/blob/main/public/notebooks/workshop-notebooks/01-advanced-fundamentals/01-advanced-fundamentals-colab.ipynb) | <a href="/notebooks/workshop-notebooks/01-advanced-fundamentals/01-advanced-fundamentals.ipynb" download>📥 Download</a>
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Everything is an Object & Variables as References
 
@@ -212,6 +216,8 @@ print(f1 is f2)  # False (different float objects in memory)
 
 ---
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Integer Value Caching (Integer Interning)
 
 In Python, memory optimization is built into the interpreter. One of the most famous optimizations is **Integer Value Caching** (also known as integer interning).
@@ -299,6 +305,8 @@ print(f1 is f2)
 </Accordion>
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Mutability (Mutable vs Immutable Objects)
 
@@ -420,6 +428,8 @@ Since lists are mutable and assignment (`list_b = list_a`) copies the reference,
 
 ---
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Floating Point Precision Nuances
 
 Floating-point numbers in computers are represented as binary fractions. This leads to some surprising behavior when performing decimal calculations.
@@ -519,6 +529,8 @@ True
 </Accordion>
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## String Indexing and Slicing
 
@@ -697,6 +709,8 @@ print(text[::-1])
 </Accordion>
 
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Important String Operations for Data Processing
 
 In real-world data processing, indexing and slicing are rarely enough. We frequently need to clean, transform, partition, and format string data.
@@ -798,6 +812,8 @@ print(final_row)
 # Python Nuances
 
 Python provides several elegant language features that simplify common programming tasks.
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Short-Circuit Evaluation
 
@@ -935,6 +951,8 @@ print(result)
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Conditional Expressions (One-line `if-else` / Ternary Operator)
 
 A **conditional expression** (also known as a ternary operator) allows you to assign a value to a variable based on a condition in a single line.
@@ -971,6 +989,8 @@ Adult
 
 </Accordion>
 
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Chained Comparisons
 
@@ -1041,6 +1061,8 @@ print("A" <= ch <= "Z")
 </Accordion>
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Multiple Assignment and Variable Swapping
 
@@ -1138,6 +1160,8 @@ print(framework)
 ```
 
 </Accordion>
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## `for-else` and `while-else`
 
@@ -1277,11 +1301,15 @@ for number in range(start, end + 1):
 ```
 
 </Accordion>
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Function Arguments
 
 Functions become more flexible when they can accept arguments in different ways. Python supports positional arguments, keyword arguments, positional-only parameters, and keyword-only parameters.
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Positional Arguments
 
@@ -1361,6 +1389,8 @@ student("Alice", "Python")
 
 ---
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Keyword Arguments
 
 Keyword arguments pass values using **parameter names** instead of their positions.
@@ -1425,6 +1455,8 @@ product(price=2500, name="Keyboard")
 </Accordion>
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Mixing Positional and Keyword Arguments
 
@@ -1505,6 +1537,8 @@ employee("John", designation="Manager", salary=65000)
 
 ---
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Positional-only Parameters (`/`)
 
 Python allows certain parameters to be passed **only by position**.
@@ -1578,6 +1612,8 @@ print(discount(5000, 20))
 </Accordion>
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Keyword-only Parameters (`*`)
 
@@ -1678,6 +1714,8 @@ print(area(length=10, width=5))
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Packing and Unpacking
 
 The operators `*` and `**` have two complementary roles in Python.
@@ -1688,6 +1726,8 @@ The operators `*` and `**` have two complementary roles in Python.
 Although the same symbols are used, their behavior depends on the context.
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Packing Positional Arguments (`*args`)
 
@@ -1774,6 +1814,8 @@ print(largest(12, 45, 9, 32))
 </Accordion>
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Packing Keyword Arguments (`**kwargs`)
 
@@ -1863,6 +1905,8 @@ display(
 
 ---
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Unpacking Positional Arguments (`*`)
 
 Packing collects values.
@@ -1930,6 +1974,8 @@ add(*numbers)
 
 ---
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Unpacking Keyword Arguments (`**`)
 
 A dictionary can also be unpacked into keyword arguments.
@@ -1992,6 +2038,8 @@ employee(**details)
 </Accordion>
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Extended Unpacking
 
@@ -2067,6 +2115,8 @@ print(remaining)
 </Accordion>
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Combining Everything
 
@@ -2150,6 +2200,8 @@ profile(
 
 ---
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Practice
 
 To reinforce what you've learned in this section, practice with the interactive follow-along notebook:
@@ -2166,6 +2218,8 @@ To reinforce what you've learned in this section, practice with the interactive 
 </CardGroup>
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Summary
 

@@ -13,20 +13,27 @@ Before learning FastAPI, it's important to understand how modern web application
 
 In this module, you'll learn:
 
-1. Client and Server
-2. Backend Development
-3. APIs and REST APIs
-4. Quick Start
-5. HTTP Fundamentals
-6. FastAPI Fundamentals
-7. Routing and Request Handling
-8. Request Validation
-9. Response Models
-10. Exception Handling
-11. Building REST APIs
-12. Best Practices
+1. [Client and Server](#client-and-server)
+2. [Backend Development](#backend-development)
+3. [APIs and REST APIs](#what-is-an-api)
+4. [Quick Start](#quick-start)
+5. [HTTP Fundamentals](#http-fundamentals)
+6. [FastAPI Fundamentals](#fastapi-fundamentals)
+7. [Routing and Request Handling](#routing)
+8. [Request Validation](#request-validation)
+9. [Response Models](#response-models)
+10. [Exception Handling](#basic-exception-handling)
+11. [Building REST APIs](#mini-project---student-management-rest-api)
+12. [Best Practices](#best-practices)
+
+> **Try Yourself:** [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/DSA%20With%20Python/public/notebooks/workshop-notebooks/09-fastapi-essentials/09-fastapi-essentials-exercises.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/genai-course/blob/main/public/notebooks/workshop-notebooks/09-fastapi-essentials/09-fastapi-essentials-exercises-colab.ipynb) | <a href="/notebooks/workshop-notebooks/09-fastapi-essentials/09-fastapi-essentials-exercises.ipynb" download>📥 Download</a><br />
+> **Verify Solutions:** [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/DSA%20With%20Python/public/notebooks/workshop-notebooks/09-fastapi-essentials/09-fastapi-essentials.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/genai-course/blob/main/public/notebooks/workshop-notebooks/09-fastapi-essentials/09-fastapi-essentials-colab.ipynb) | <a href="/notebooks/workshop-notebooks/09-fastapi-essentials/09-fastapi-essentials.ipynb" download>📥 Download</a>
+
+
 
 By the end of this module, you'll understand how web applications communicate and build your own REST APIs using FastAPI.
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Client and Server
 
@@ -102,6 +109,8 @@ Possible answers:
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Backend Development
 
 The backend is responsible for processing requests and managing application data.
@@ -168,6 +177,8 @@ Which component is responsible for storing and retrieving data?
 Backend (through a Database)
 
 </Accordion>
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Backend Returning HTML vs REST API
 
@@ -278,6 +289,8 @@ Backend Returning HTML
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## What is an API?
 
 An **Application Programming Interface (API)** is a set of rules that allows two software applications to communicate.
@@ -328,6 +341,8 @@ Who initiates an API request?
 The Client.
 
 </Accordion>
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## What is a REST API?
 
@@ -402,6 +417,8 @@ Write suitable endpoints for the following resources.
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Why FastAPI for REST APIs?
 
 FastAPI is highly regarded in the industry for building backend REST APIs. Three main features make it stand out:
@@ -420,6 +437,8 @@ FastAPI integrates Pydantic for data parsing and validation.
 FastAPI automatically generates interactive API documentation based on the OpenAPI specification:
 * **Instant Testing:** Enables developers to immediately visualize and test API endpoints directly from the browser (via Swagger UI at `/docs` or ReDoc at `/redoc`) without needing external client tools.
 * **Always in Sync:** Because the documentation is generated dynamically from your Python type hints and Pydantic schemas, the documentation is guaranteed to remain in sync with your actual backend code.
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Quick Start
 
@@ -472,6 +491,8 @@ def home():
 uv run uvicorn main:app --reload
 ```
 
+Output ?
+
 <Accordion title="Show Output">
 
 ```text
@@ -486,6 +507,8 @@ INFO:     Application startup complete.
 ```text
 http://127.0.0.1:8000
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -562,11 +585,15 @@ Then open the URLs in your browser.
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## HTTP Fundamentals
 
 REST APIs communicate using the **HTTP (HyperText Transfer Protocol)**.
 
 HTTP defines how clients and servers exchange information through requests and responses.
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## URL (Uniform Resource Locator)
 
@@ -587,6 +614,8 @@ A URL consists of several parts.
 | Port | `8000` | Port number |
 | Path | `/students/101` | Resource path |
 | Query Parameter | `active=true` | Additional information |
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Endpoint
 
@@ -616,12 +645,16 @@ creates the endpoint
 GET /students
 ```
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## URL vs Endpoint
 
 | URL | Endpoint |
 |------|----------|
 | Complete address of a resource | HTTP Method + Path |
 | `http://localhost:8000/students` | `GET /students` |
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## HTTP Request
 
@@ -657,6 +690,8 @@ User-Agent: PostmanRuntime/7.39.0
 | User-Agent | Client application |
 | Body | Data sent to the server |
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## HTTP Response
 
 After processing the request, the server returns an HTTP Response.
@@ -682,6 +717,8 @@ Content-Type: application/json
 | 201 | Status Code |
 | Headers | Metadata |
 | Body | Response Data |
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## HTTP Methods
 
@@ -711,6 +748,8 @@ PATCH    /students/101
 DELETE   /students/101
 ```
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## HTTP Status Codes
 
 Every response contains a status code describing the result.
@@ -727,6 +766,8 @@ Every response contains a status code describing the result.
 | 422 | Validation Error |
 | 500 | Internal Server Error |
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Testing REST APIs
 
 REST APIs can be tested using several tools.
@@ -741,6 +782,8 @@ REST APIs can be tested using several tools.
 | Insomnia | Lightweight API Client |
 | curl | Command-line testing |
 | VS Code REST Client | Test APIs from VS Code |
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## FastAPI Fundamentals
 
@@ -767,6 +810,8 @@ The `app` object represents the entire web application.
 
 Every API endpoint is registered with this object.
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Creating Your First Route
 
 ```python
@@ -788,6 +833,8 @@ Open
 http://127.0.0.1:8000
 ```
 
+Output ?
+
 <Accordion title="Show Output">
 
 ```json
@@ -797,6 +844,8 @@ http://127.0.0.1:8000
 ```
 
 </Accordion>
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Routing
 
@@ -815,6 +864,8 @@ Every route consists of:
 - HTTP Method
 - URL Path
 - Python Function
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## HTTP Method Decorators
 
@@ -840,6 +891,8 @@ FastAPI provides decorators for common HTTP methods.
 @app.delete("/students/{id}")
 ```
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Path Parameters
 
 Path parameters allow values to be passed as part of the URL.
@@ -857,6 +910,8 @@ Open
 ```text
 http://127.0.0.1:8000/students/101
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -898,6 +953,8 @@ def get_employee(employee_id: int):
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Query Parameters
 
 Query parameters are optional values appended to a URL.
@@ -915,6 +972,8 @@ Open
 ```text
 /students?active=true
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -956,6 +1015,8 @@ def get_students(course: str):
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Request Body
 
 Data sent using POST, PUT and PATCH requests is called the **Request Body**.
@@ -985,6 +1046,8 @@ Request Body
 }
 ```
 
+Output ?
+
 <Accordion title="Show Output">
 
 ```json
@@ -995,6 +1058,8 @@ Request Body
 ```
 
 </Accordion>
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Request Validation
 
@@ -1010,6 +1075,8 @@ If invalid data is provided,
 ```
 
 FastAPI returns
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -1068,6 +1135,8 @@ FastAPI automatically returns a **422 Validation Error**.
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Response Models
 
 So far, our APIs have returned Python objects directly.
@@ -1109,6 +1178,8 @@ def get_student():
     }
 ```
 
+Output ?
+
 <Accordion title="Show Output">
 
 ```json
@@ -1143,6 +1214,8 @@ def get_students():
         }
     ]
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -1223,6 +1296,8 @@ def get_books():
 
 </Accordion>
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Basic Exception Handling
 
 Sometimes a request cannot be processed successfully.
@@ -1263,6 +1338,8 @@ Request
 ```text
 /students/10
 ```
+
+Output ?
 
 <Accordion title="Show Output">
 
@@ -1355,6 +1432,8 @@ def create_student(age: int):
 ```
 
 </Accordion>
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Request Validation
 
 FastAPI automatically validates incoming request data using type annotations and Pydantic.
@@ -1615,6 +1694,8 @@ If validation fails, FastAPI automatically returns:
 - A value becomes **optional** when a default value (including `None`) is assigned.
 - FastAPI automatically performs type conversion and request validation.
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Mini Project - Student Management REST API
 
 Let's combine everything we've learned so far.
@@ -1648,6 +1729,8 @@ students = [
 
 In the next module, we'll replace this list with a database using SQLAlchemy ORM.
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Best Practices
 
 - Use meaningful endpoint names.
@@ -1657,6 +1740,27 @@ In the next module, we'll replace this list with a database using SQLAlchemy ORM
 - Raise `HTTPException` for invalid requests.
 - Keep route functions simple and focused.
 - Test APIs using Swagger UI or Postman.
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
+## Practice
+
+To reinforce what you've learned in this section, practice with the interactive follow-along notebook:
+
+<CardGroup cols={1}>
+  <Card
+    title="Follow-Along Practice"
+    icon="laptop-code"
+  >
+    Practice creating FastAPI instances, defining path/query parameters, handling request payloads with Pydantic BaseModel schemas, customizing responses, and raising HTTPExceptions.
+
+    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/DSA%20With%20Python/public/notebooks/workshop-notebooks/09-fastapi-essentials/09-fastapi-essentials-exercises.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/genai-course/blob/main/public/notebooks/workshop-notebooks/09-fastapi-essentials/09-fastapi-essentials-exercises-colab.ipynb) | <a href="/notebooks/workshop-notebooks/09-fastapi-essentials/09-fastapi-essentials-exercises.ipynb" download>📥 Download</a>
+  </Card>
+</CardGroup>
+
+---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Summary
 

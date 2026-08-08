@@ -7,6 +7,26 @@ This chapter introduces advanced Python concepts that make programs more modular
 
 Since functions are objects, they can be assigned to variables, passed as arguments, returned from other functions, and stored in collections. These capabilities form the foundation for **higher-order functions**, **decorators**, **closures**, **iterators** and **generators**.
 
+## Topics Covered
+
+In this module, you'll learn:
+
+1. [Functions are Objects](#functions-are-objects)
+2. [Higher-Order Functions](#higher-order-functions)
+3. [Closures](#closures)
+4. [Decorators](#decorators)
+5. [Iterators](#what-is-an-iterator)
+6. [Generators](#what-is-a-generator)
+7. [Context Managers](#context-managers)
+
+> **Try Yourself:** [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/DSA%20With%20Python/public/notebooks/workshop-notebooks/04-advanced-concepts/04-advanced-concepts-exercises.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/genai-course/blob/main/public/notebooks/workshop-notebooks/04-advanced-concepts/04-advanced-concepts-exercises-colab.ipynb) | <a href="/notebooks/workshop-notebooks/04-advanced-concepts/04-advanced-concepts-exercises.ipynb" download>📥 Download</a><br />
+> **Verify Solutions:** [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/DSA%20With%20Python/public/notebooks/workshop-notebooks/04-advanced-concepts/04-advanced-concepts.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/genai-course/blob/main/public/notebooks/workshop-notebooks/04-advanced-concepts/04-advanced-concepts-colab.ipynb) | <a href="/notebooks/workshop-notebooks/04-advanced-concepts/04-advanced-concepts.ipynb" download>📥 Download</a>
+
+---
+
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Functions are Objects
 
 Like integers, strings, lists, and dictionaries, **functions are also objects**. Therefore, a function can:
@@ -29,11 +49,15 @@ message = greet
 print(message())
 ```
 
-**Output**
+Output ?
+
+<Accordion title="Show Output">
 
 ```text
 Hello
 ```
+
+</Accordion>
 
 Notice the difference:
 
@@ -59,37 +83,18 @@ print(operations[0](10, 5))
 print(operations[1](10, 5))
 ```
 
-**Output**
+Output ?
+
+<Accordion title="Show Output">
 
 ```text
 15
 5
 ```
 
-## Practice
-
-### Exercise 1
-
-Predict the output.
-
-```python
-def welcome():
-    return "Welcome"
-
-msg = welcome
-
-print(msg())
-```
-
-<Accordion title="Solution">
-
-```text
-Welcome
-```
-
-`msg` refers to the same function object as `welcome`.
-
 </Accordion>
+
+
 
 ### Exercise 2
 
@@ -111,6 +116,8 @@ f = greet()
 </Accordion>
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Higher-Order Functions
 
@@ -135,11 +142,15 @@ def execute(func):
 execute(greet)
 ```
 
-**Output**
+Output ?
+
+<Accordion title="Show Output">
 
 ```text
 Hello
 ```
+
+</Accordion>
 
 ### Returning Functions
 
@@ -157,11 +168,15 @@ message = outer()
 message()
 ```
 
-**Output**
+Output ?
+
+<Accordion title="Show Output">
 
 ```text
 Hello
 ```
+
+</Accordion>
 
 ### Example
 
@@ -182,38 +197,18 @@ print(calculate(add, 10, 5))
 print(calculate(multiply, 10, 5))
 ```
 
-**Output**
+Output ?
+
+<Accordion title="Show Output">
 
 ```text
 15
 50
 ```
 
-## Practice
-
-### Exercise 1
-
-Predict the output.
-
-```python
-def display():
-    print("Python")
-
-
-def execute(func):
-    func()
-
-
-execute(display)
-```
-
-<Accordion title="Solution">
-
-```text
-Python
-```
-
 </Accordion>
+
+
 
 ### Exercise 2
 
@@ -232,6 +227,16 @@ func = outer()
 
 print(func())
 ```
+
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+Hello
+```
+
+</Accordion>
 
 <Accordion title="Solution">
 
@@ -256,6 +261,8 @@ A function is called a **higher-order function** if it:
 
 > Higher-order functions form the foundation for closures and decorators.
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Closures
 
 Sometimes we want a function to **remember information** from previous function calls.
@@ -279,13 +286,17 @@ print(counter())
 print(counter())
 ```
 
-**Output**
+Output ?
+
+<Accordion title="Show Output">
 
 ```text
 1
 1
 1
 ```
+
+</Accordion>
 
 Each time `counter()` is called, the local variable `count` is created again and initialized to `0`. Therefore, the function cannot remember its previous state.
 
@@ -324,7 +335,9 @@ print(c())
 print(c())
 ```
 
-**Output**
+Output ?
+
+<Accordion title="Show Output">
 
 ```text
 1
@@ -332,41 +345,13 @@ print(c())
 3
 ```
 
+</Accordion>
+
 Here, the variable `count` is preserved even after `counter()` has finished executing. Each call to `increment()` updates the same variable instead of creating a new one.
 
 The `nonlocal` keyword allows the inner function to modify a variable defined in the enclosing function.
 
-## Practice
 
-### Exercise 1
-
-Predict the output.
-
-```python
-def outer():
-
-    message = "Python"
-
-    def inner():
-        print(message)
-
-    return inner
-
-
-func = outer()
-
-func()
-```
-
-<Accordion title="Solution">
-
-```text
-Python
-```
-
-The inner function remembers the value of `message` even after `outer()` has finished executing.
-
-</Accordion>
 
 ### Exercise 2
 
@@ -391,6 +376,17 @@ print(c())
 print(c())
 ```
 
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+15
+20
+```
+
+</Accordion>
+
 <Accordion title="Solution">
 
 ```text
@@ -413,6 +409,8 @@ Closures allow a function to remember and preserve variables from its enclosing 
 </Accordion>
 
 > Closures are widely used for state preservation and form the foundation of **decorators**, where the wrapper function remembers the original function passed to the decorator.
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Decorators
 
@@ -447,13 +445,17 @@ greet = logger(greet)
 greet()
 ```
 
-**Output**
+Output ?
+
+<Accordion title="Show Output">
 
 ```text
 Before function
 Hello
 After function
 ```
+
+</Accordion>
 
 Instead of modifying `greet()`, the decorator returns a new function with additional behavior.
 
@@ -482,6 +484,18 @@ def greet():
 greet()
 ```
 
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+Before function
+Hello
+After function
+```
+
+</Accordion>
+
 The above code is equivalent to:
 
 ```python
@@ -492,40 +506,7 @@ def greet():
 greet = logger(greet)
 ```
 
-### Practice
-
-### Exercise 1
-
-Predict the output.
-
-```python
-def decorator(func):
-
-    def wrapper():
-        print("Start")
-        func()
-        print("End")
-
-    return wrapper
-
-
-@decorator
-def display():
-    print("Python")
-
-
-display()
-```
-
-<Accordion title="Solution">
-
-```text
-Start
-Python
-End
-```
-
-</Accordion>
+#
 
 ### Exercise 2
 
@@ -592,11 +573,31 @@ When we call:
 add(10, 20)
 ```
 
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+Error executing: logger.<locals>.wrapper() takes 0 positional arguments but 2 were given
+```
+
+</Accordion>
+
 Python actually executes:
 
 ```python
 wrapper(10, 20)
 ```
+
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+Error executing: name 'wrapper' is not defined
+```
+
+</Accordion>
 
 Since `wrapper()` does not accept any arguments, Python raises an error.
 
@@ -663,7 +664,9 @@ print(multiply(10, 5))
 greet("Alice")
 ```
 
-**Output**
+Output ?
+
+<Accordion title="Show Output">
 
 ```text
 Function Started
@@ -674,35 +677,18 @@ Hello Alice
 Function Completed
 ```
 
+</Accordion>
+
 > The `wrapper()` function is defined inside another function and remembers the original `func` even after the outer function has finished executing. This behavior was possible because of **closure**.
 
 ---
 
-## Practice & Exercises
 
-To reinforce what you've learned in this section (Functions as objects, Higher-order functions, Closures, and Decorators), practice with these interactive notebooks:
-
-<CardGroup cols={2}>
-  <Card
-    title="Follow-Along Practice"
-    icon="laptop-code"
-  >
-    Practice passing and returning functions, preserving state with closures using nonlocal, and creating custom decorators with arguments.
-
-    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/python%20material/python4ai/public/notebooks/basics_exercises/Closures_Decorators_Practice.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/python4ai/blob/master/public/notebooks/basics_exercises/Closures_Decorators_Practice.ipynb) | <a href="/public/notebooks/basics_exercises/Closures_Decorators_Practice.ipynb" download>📥 Download</a>
-  </Card>
-  <Card
-    title="Practice Exercises"
-    icon="pen-to-square"
-  >
-    Test your skills with exercises on higher-order function mapping, prefix greeting closures, timer decorators, argument uppercase decorators, and call counter decorators.
-
-    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/python%20material/python4ai/public/notebooks/basics_exercises/Closures_Decorators_Exercises.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/python4ai/blob/master/public/notebooks/basics_exercises/Closures_Decorators_Exercises.ipynb) | <a href="/public/notebooks/basics_exercises/Closures_Decorators_Exercises.ipynb" download>📥 Download</a>
-  </Card>
-</CardGroup>
 
 
 An **iterator** is an object that returns one value at a time from a collection, while a **generator** is a special type of iterator created using the `yield` keyword. They provide a memory-efficient way to process data without loading everything into memory at once.
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Learning Objectives
 
@@ -716,6 +702,8 @@ After completing this lesson, you will be able to:
 - Create generator expressions.
 - Compare iterators and generators.
 - Identify real-world use cases of generators.
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## What is an Iterator?
 
@@ -744,11 +732,15 @@ iterator = iter(numbers)
 print(iterator)
 ```
 
-**Output**
+Output ?
+
+<Accordion title="Show Output">
 
 ```text
 <list_iterator object at 0x...>
 ```
+
+</Accordion>
 
 ### Retrieving Values
 
@@ -764,13 +756,17 @@ print(next(iterator))
 print(next(iterator))
 ```
 
-**Output**
+Output ?
+
+<Accordion title="Show Output">
 
 ```text
 10
 20
 30
 ```
+
+</Accordion>
 
 ### StopIteration
 
@@ -785,31 +781,18 @@ print(next(iterator))
 print(next(iterator))
 ```
 
-### Practice
+Output ?
 
-### Exercise 1
-
-Predict the output.
-
-```python
-numbers = [100, 200, 300]
-
-it = iter(numbers)
-
-print(next(it))
-print(next(it))
-```
-
-<Accordion title="Solution">
+<Accordion title="Show Output">
 
 ```text
-100
-200
+10
+Error executing: 
 ```
 
-The iterator returns one element at a time and remembers its current position.
-
 </Accordion>
+
+#
 
 ### Exercise 2
 
@@ -824,6 +807,18 @@ print(next(it))
 print(next(it))
 print(next(it))
 ```
+
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+P
+y
+t
+```
+
+</Accordion>
 
 <Accordion title="Solution">
 
@@ -850,11 +845,24 @@ print(next(it))
 print(next(it))
 ```
 
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+1
+Error executing: 
+```
+
+</Accordion>
+
 <Accordion title="Solution">
 
 A `StopIteration` exception is raised because the iterator has no more elements to return.
 
 </Accordion>
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Creating a Custom Iterator
 
@@ -891,7 +899,9 @@ for number in counter:
     print(number)
 ```
 
-**Output**
+Output ?
+
+<Accordion title="Show Output">
 
 ```text
 1
@@ -901,6 +911,8 @@ for number in counter:
 5
 ```
 
+</Accordion>
+
 ### How It Works
 
 1. The `Counter` object is created.
@@ -909,30 +921,7 @@ for number in counter:
 4. Each call returns the next value.
 5. When the limit is reached, `StopIteration` is raised, ending the loop.
 
-### Practice
-
-### Exercise 1
-
-Predict the output.
-
-```python
-counter = Counter(3)
-
-for value in counter:
-    print(value)
-```
-
-<Accordion title="Solution">
-
-```text
-1
-2
-3
-```
-
-The iterator returns values from `1` to `3` and then raises `StopIteration`.
-
-</Accordion>
+#
 
 ### Exercise 2
 
@@ -956,6 +945,8 @@ Every custom iterator must implement:
 - `__next__()`
 
 </Accordion>
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## What is a Generator?
 
 A **generator** is a special type of iterator created using a function that contains the `yield` keyword. Unlike a normal function that returns all values at once, a generator produces one value at a time and automatically remembers its execution state.
@@ -978,11 +969,15 @@ gen = numbers()
 print(gen)
 ```
 
-**Output**
+Output ?
+
+<Accordion title="Show Output">
 
 ```text
 <generator object numbers at 0x...>
 ```
+
+</Accordion>
 
 Notice that calling the function does **not** execute it immediately. Instead, it returns a **generator object**.
 
@@ -1008,7 +1003,9 @@ print(next(gen))
 print(next(gen))
 ```
 
-**Output**
+Output ?
+
+<Accordion title="Show Output">
 
 ```text
 Starting
@@ -1016,6 +1013,8 @@ Starting
 2
 3
 ```
+
+</Accordion>
 
 The `"Ending"` message is not printed because the generator pauses after the third `yield`. It executes the remaining statements only when resumed again.
 
@@ -1034,7 +1033,9 @@ for number in numbers():
     print(number)
 ```
 
-**Output**
+Output ?
+
+<Accordion title="Show Output">
 
 ```text
 1
@@ -1042,35 +1043,11 @@ for number in numbers():
 3
 ```
 
+</Accordion>
+
 The `for` loop automatically calls `next()` until the generator raises `StopIteration`.
 
-### Practice
-
-### Exercise 1
-
-Predict the output.
-
-```python
-def demo():
-    yield 10
-    yield 20
-
-g = demo()
-
-print(next(g))
-print(next(g))
-```
-
-<Accordion title="Solution">
-
-```text
-10
-20
-```
-
-Each call to `next()` returns the next value produced by the generator.
-
-</Accordion>
+#
 
 ### Exercise 2
 
@@ -1085,6 +1062,16 @@ g = greet()
 
 print("Generator Created")
 ```
+
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+Generator Created
+```
+
+</Accordion>
 
 <Accordion title="Solution">
 
@@ -1109,6 +1096,17 @@ for value in values():
     print(value)
 ```
 
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+A
+B
+```
+
+</Accordion>
+
 <Accordion title="Solution">
 
 ```text
@@ -1119,6 +1117,8 @@ B
 The `for` loop automatically retrieves values from the generator until it is exhausted.
 
 </Accordion>
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Understanding `yield`
 
 The `yield` keyword is used to produce a value from a generator. Unlike `return`, which terminates a function, `yield` **pauses** the function and preserves its current state. The next time the generator is resumed, execution continues from the statement immediately after the previous `yield`.
@@ -1153,7 +1153,9 @@ print(next(g))
 next(g)
 ```
 
-**Output**
+Output ?
+
+<Accordion title="Show Output">
 
 ```text
 Step 1
@@ -1165,6 +1167,8 @@ Traceback (most recent call last):
 ...
 StopIteration
 ```
+
+</Accordion>
 
 Notice that the function resumes exactly where it paused after each `yield`.
 
@@ -1189,13 +1193,17 @@ print(next(g))
 print(next(g))
 ```
 
-**Output**
+Output ?
+
+<Accordion title="Show Output">
 
 ```text
 1
 2
 3
 ```
+
+</Accordion>
 
 The variable `count` is **not reinitialized** each time. Its value is preserved between successive calls to `next()`.
 
@@ -1215,7 +1223,9 @@ for color in colors():
     print(color)
 ```
 
-**Output**
+Output ?
+
+<Accordion title="Show Output">
 
 ```text
 Red
@@ -1223,46 +1233,11 @@ Green
 Blue
 ```
 
+</Accordion>
+
 Each `yield` produces one value before the generator pauses.
 
-### Practice
-
-### Exercise 1
-
-Predict the output.
-
-```python
-def demo():
-
-    print("A")
-    yield 10
-
-    print("B")
-    yield 20
-
-    print("C")
-
-
-g = demo()
-
-print(next(g))
-print(next(g))
-```
-
-<Accordion title="Solution">
-
-**Output**
-
-```text
-A
-10
-B
-20
-```
-
-The generator pauses after each `yield`. Since the generator is not resumed again, `"C"` is not printed.
-
-</Accordion>
+#
 
 ### Exercise 2
 
@@ -1286,12 +1261,16 @@ print(next(g))
 
 <Accordion title="Solution">
 
-**Output**
+Output ?
+
+<Accordion title="Show Output">
 
 ```text
 5
 10
 ```
+
+</Accordion>
 
 The value of `x` is preserved between the two `yield` statements.
 
@@ -1307,6 +1286,8 @@ What is the main difference between `return` and `yield`?
 - `yield` pauses the function, returns a value, preserves its state, and resumes execution when requested again.
 
 </Accordion>
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Generator Expressions
 
 A **generator expression** provides a concise way to create generators. It is similar to a list comprehension but uses **parentheses `()`** instead of square brackets `[]`.
@@ -1319,6 +1300,16 @@ Generator expressions generate values **only when required**, making them memory
 (expression for item in iterable)
 ```
 
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+Error executing: name 'iterable' is not defined
+```
+
+</Accordion>
+
 ### Example
 
 ```python
@@ -1328,7 +1319,9 @@ for square in squares:
     print(square)
 ```
 
-**Output**
+Output ?
+
+<Accordion title="Show Output">
 
 ```text
 0
@@ -1337,6 +1330,8 @@ for square in squares:
 9
 16
 ```
+
+</Accordion>
 
 ### Generator Expression vs List Comprehension
 
@@ -1351,29 +1346,7 @@ numbers = (x * x for x in range(5))
 - A **list comprehension** stores all values in memory.
 - A **generator expression** generates values one at a time.
 
-### Practice
-
-### Exercise 1
-
-Predict the output.
-
-```python
-gen = (x + 1 for x in range(3))
-
-print(next(gen))
-print(next(gen))
-```
-
-<Accordion title="Solution">
-
-```text
-1
-2
-```
-
-Each call to `next()` computes the next value in the sequence.
-
-</Accordion>
+#
 
 ### Exercise 2
 
@@ -1386,6 +1359,8 @@ Generator expressions use **parentheses `()`**, whereas list comprehensions use 
 </Accordion>
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Infinite Generators
 
@@ -1409,7 +1384,9 @@ for _ in range(5):
     print(next(gen))
 ```
 
-**Output**
+Output ?
+
+<Accordion title="Show Output">
 
 ```text
 0
@@ -1419,42 +1396,13 @@ for _ in range(5):
 8
 ```
 
-### Practice
-
-### Exercise 1
-
-Predict the output.
-
-```python
-def numbers():
-
-    n = 1
-
-    while True:
-        yield n
-        n += 1
-
-
-gen = numbers()
-
-print(next(gen))
-print(next(gen))
-print(next(gen))
-```
-
-<Accordion title="Solution">
-
-```text
-1
-2
-3
-```
-
-The generator can continue producing values indefinitely.
-
 </Accordion>
 
+#
+
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Fibonacci Generator
 
@@ -1476,7 +1424,9 @@ for number in fibonacci(20):
     print(number)
 ```
 
-**Output**
+Output ?
+
+<Accordion title="Show Output">
 
 ```text
 0
@@ -1490,19 +1440,13 @@ for number in fibonacci(20):
 21
 ```
 
-### Practice
-
-### Exercise 1
-
-What is the first value produced by the generator?
-
-<Accordion title="Solution">
-
-The first value is **0**, because the generator yields `a` before updating its value.
-
 </Accordion>
 
+#
+
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Memory Efficiency
 
@@ -1534,29 +1478,11 @@ Use generators when:
 - Producing values on demand.
 - Creating infinite sequences.
 
-### Practice
-
-### Exercise 1
-
-Which consumes less memory?
-
-```python
-[x for x in range(1000000)]
-```
-
-or
-
-```python
-(x for x in range(1000000))
-```
-
-<Accordion title="Solution">
-
-The generator expression consumes significantly less memory because values are generated only when needed.
-
-</Accordion>
+#
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Iterator vs Generator
 
@@ -1573,6 +1499,8 @@ The generator expression consumes significantly less memory because values are g
 > **Remember:** Every **generator** is an **iterator**, but not every **iterator** is a **generator**.
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Iterable vs Iterator vs Generator
 
@@ -1596,6 +1524,8 @@ The generator expression consumes significantly less memory because values are g
 - **Generator** → A special iterator created using the `yield` keyword.
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Real-World Applications
 
@@ -1623,9 +1553,21 @@ for line in read_file("data.txt"):
     print(line)
 ```
 
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+Error executing: [Errno 2] No such file or directory: 'data.txt'
+```
+
+</Accordion>
+
 Instead of loading the entire file into memory, one line is processed at a time.
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Key Takeaways
 
@@ -1638,6 +1580,8 @@ Instead of loading the entire file into memory, one line is processed at a time.
 - Every generator is an iterator, but not every iterator is a generator.
 
 ---
+
+<div align="right">[Back to Top ↑](#topics-covered)</div>
 
 ## Check Your Understanding
 
@@ -1740,6 +1684,8 @@ Examples include:
 
 ---
 
+<div align="right">[Back to Top ↑](#topics-covered)</div>
+
 ## Context Managers
 
 Whenever we open external resources such as files or database connections, they should be closed properly. Python provides the **with** statement to handle this automatically.
@@ -1753,6 +1699,16 @@ print(content)
 file.close()
 ```
 
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+Error executing: [Errno 2] No such file or directory: 'sample.txt'
+```
+
+</Accordion>
+
 If an exception occurs before `close()`, the file may remain open.
 
 ### Using a Context Manager
@@ -1762,6 +1718,16 @@ with open("sample.txt", "r") as file:
     content = file.read()
     print(content)
 ```
+
+Output ?
+
+<Accordion title="Show Output">
+
+```text
+Error executing: [Errno 2] No such file or directory: 'sample.txt'
+```
+
+</Accordion>
 
 The file is automatically closed after leaving the `with` block.
 
@@ -1853,25 +1819,3 @@ with Demo():
 
 ---
 
-## Practice & Exercises
-
-To reinforce what you've learned in this section (Iterators, Custom Iterators, Generators, and Generator Expressions), practice with these interactive notebooks:
-
-<CardGroup cols={2}>
-  <Card
-    title="Follow-Along Practice"
-    icon="laptop-code"
-  >
-    Practice creating iterators, implementing custom iterator classes, writing generators with yield, and creating generator expressions.
-
-    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/python%20material/python4ai/public/notebooks/basics_exercises/Iterators_Generators_Practice.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/python4ai/blob/master/public/notebooks/basics_exercises/Iterators_Generators_Practice.ipynb) | <a href="/public/notebooks/basics_exercises/Iterators_Generators_Practice.ipynb" download>📥 Download</a>
-  </Card>
-  <Card
-    title="Practice Exercises"
-    icon="pen-to-square"
-  >
-    Test your skills with exercises on custom range iterators, cubes generators, odd numbers generator expressions, and infinite powers of three generators.
-
-    [💻 VS Code](vscode://file/Users/sivaprasad/Downloads/python%20material/python4ai/public/notebooks/basics_exercises/Iterators_Generators_Exercises.ipynb) | [🚀 Colab](https://colab.research.google.com/github/prasad230776/python4ai/blob/master/public/notebooks/basics_exercises/Iterators_Generators_Exercises.ipynb) | <a href="/public/notebooks/basics_exercises/Iterators_Generators_Exercises.ipynb" download>📥 Download</a>
-  </Card>
-</CardGroup>
